@@ -14,9 +14,10 @@ feature "Login", %q{
   I can login
 } do
 
-  def page_login(email, password)
+  def page_login(email, password, remember = false)
     fill_in("Email", :with => email)
     fill_in("Password", :with => password)
+    check('remember_me') if remember
     click_on "Log in"
   end
 
@@ -39,6 +40,54 @@ feature "Login", %q{
 
     page_login user.email ,"somepass"
     current_path.should eq(root_path)
+    click_on "Logout"
   end
 
+  scenario "remember user" do
+    user = User.first
+    visit home_index_path
+    page_login(user.email, "somepass")
+    RackTestBrowser.new.restart
+    visit home_index_path
+    current_path.should eq(login_path)
+
+    page_login(user.email, "somepass", true)
+    RackTestBrowser.new.restart
+    visit home_index_path
+    current_path.should eq(home_index_path)
+    click_on "Logout"
+
+    page_login("root@localhost", Settings.root.password, true)
+    RackTestBrowser.new.restart
+    visit home_index_path
+    current_path.should eq(login_path)
+  end
+end
+
+class RackTestBrowser
+  def initialize
+    @driver = Capybara.current_session.driver
+  end
+
+  def restart
+    self.cookies.reject! do |cookie|
+      cookie.expired? != false
+    end
+  end
+
+  def cookies
+    @cookies ||= self.cookie_jar.instance_variable_get(:@cookies)
+  end
+
+  def cookie_jar
+    @cookie_jar ||= self.browser.cookie_jar
+  end
+
+  def browser
+    @browser ||= self.session.instance_variable_get(:@rack_mock_session)
+  end
+
+  def session
+    @session ||= @driver.browser.current_session
+  end
 end

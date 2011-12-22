@@ -16,6 +16,11 @@ class ApplicationController < ActionController::Base
     ((session[:root] = true && @current_user = user) if user.root?) || sorcery_auto_login(user)
   end
 
+  alias_method :sorcery_remember_me!, :remember_me!
+  def remember_me!
+    sorcery_remember_me! unless current_user.root?
+  end
+
   alias_method :sorcery_forget_me!, :forget_me!
   def forget_me!
     sorcery_forget_me! unless current_user.root?

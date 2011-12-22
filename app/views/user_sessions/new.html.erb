@@ -1,0 +1,23 @@
+<div class="div-login">
+
+  <span>Log in</span>
+
+  <% unless flash[:alert].nil? %>
+    <div class="container-alert">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <%= form_tag user_sessions_path do %>
+    <div class="field">
+      <%= label_tag :email %><br/>
+      <%= text_field_tag :email, params[:email] %>
+    </div>
+    <div class="field">
+      <%= label_tag :password %><br/>
+      <%= password_field_tag :password %>
+    </div>
+    <div class="login_actions"><%= submit_tag "Log in" %></div>
+  <% end %>
+
+</div>

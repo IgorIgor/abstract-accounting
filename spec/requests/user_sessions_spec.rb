@@ -14,13 +14,6 @@ feature "Login", %q{
   I can login
 } do
 
-  def page_login(email, password, remember = false)
-    fill_in("Email", :with => email)
-    fill_in("Password", :with => password)
-    check('remember_me') if remember
-    click_on "Log in"
-  end
-
   scenario "login" do
     visit home_index_path
     current_path.should eq(login_path)
@@ -28,7 +21,7 @@ feature "Login", %q{
     page.should have_content("Password")
 
     User.delete_all
-    page_login("root@localhost", Settings.root.password)
+    page_login
     current_path.should eq(root_path)
     click_on "Logout"
     current_path.should eq(login_path)

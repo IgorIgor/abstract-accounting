@@ -1,6 +1,50 @@
-<% if logged_in? %>
-  <%= link_to "Logout", :logout %>
-<% end %>
+<div id="header">
+  <div class="div-logout"><%= link_to "Logout", :logout %></div>
+  <div>
+    <span>
+      <%= current_user.entity.tag if current_user.kind_of?(User) and !current_user.entity.nil? %>
+    </span>
+  </div>
+</div>
 
-<h1>Abstract Home</h1>
-<p>Find me in app/views/home/index.html.erb</p>
+<div id="nav">
+  <div class="filter">
+    <input type="text" value=""/>
+    <input type="button" value="Search"/>
+  </div>
+</div>
+
+<div id="main">
+  <div class="operations">
+    <div class="paginate">
+      <span>0-0</span> of <span>0</span>
+      <input type="button" value="<" disabled="disabled"/>
+      <input type="button" class="paginate-right" value=">" disabled="disabled"/>
+    </div>
+    <div class="actions">
+    </div>
+  </div>
+
+  <div class="container">
+  </div>
+
+  <div class="operations">
+    <div class="paginate">
+      <span>0-0</span> of <span>0</span>
+      <input type="button" value="<" disabled="disabled"/>
+      <input type="button" class="paginate-right" value=">" disabled="disabled"/>
+    </div>
+  </div>
+</div>
+
+<div id="sidebar">
+  <input type="button" value="Create"/>
+  <ul>
+    <li><a href="#">Inbox</a></li>
+    <li><a href="#">Starred</a></li>
+    <li><a href="#" class="sidebar-selected">Drafts</a></li>
+    <li><a href="#">Sent</a></li>
+    <li><a href="#">Trash</a></li>
+    <li><a href="#">Archive</a></li>
+  </ul>
+</div>

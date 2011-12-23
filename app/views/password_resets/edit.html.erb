@@ -1,0 +1,33 @@
+<div class="div-update-psw">
+
+  <span>Update password</span>
+
+  <%= form_for @user, :url => password_reset_path(@user), :html => {:method => :put} do |f| %>
+
+    <% if @user.errors.any? %>
+      <div class="container-alert">
+        Data is entered with error.
+      </div>
+    <% end %>
+
+    <div class="field">
+      <%= label_tag :email %><br/>
+      <%= text_field_tag :email, @user.email, :disabled => true %>
+    </div>
+    <div class="field">
+      <%= label_tag :password %><br/>
+      <%= f.password_field :password %>
+    </div>
+    <div class="field">
+      <%= label_tag :password_confirmation %><br/>
+      <%= f.password_field :password_confirmation %>
+    </div>
+    <%= hidden_field_tag :token, @token %>
+    <div class="login_actions">
+      <%= submit_tag "Update Password" %>
+      <br/>
+      <%= link_to "Back", login_path %>
+    </div>
+  <% end %>
+
+</div>

@@ -1,0 +1,17 @@
+<div class="div-send-psw">
+
+  <span>Reset password</span>
+
+  <%= form_tag password_resets_path, :method => :post do %>
+    <div class="field">
+      <%= label_tag :email %><br/>
+      <%= text_field_tag :email %>
+    </div>
+    <div class="login_actions">
+      <%= submit_tag "Reset Password" %>
+      <br/>
+      <%= link_to "Back", login_path %>
+    </div>
+  <% end %>
+
+</div>

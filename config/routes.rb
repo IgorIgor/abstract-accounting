@@ -14,6 +14,8 @@ Abstract::Application.routes.draw do
   get "login" => "user_sessions#new", :as => "login"
   get "logout" => "user_sessions#destroy", :as => "logout"
 
+  resources :password_resets
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

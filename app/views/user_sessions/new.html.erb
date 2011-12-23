@@ -2,6 +2,11 @@
 
   <span>Log in</span>
 
+  <% unless flash[:notice].nil? %>
+    <div class="container-notice">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
   <% unless flash[:alert].nil? %>
     <div class="container-alert">
       <%= flash[:alert] %>
@@ -21,7 +26,11 @@
       <%= check_box_tag :remember_me, 1, params[:remember_me] %>
       <%= label_tag :remember_me %>
     </div>
-    <div class="login_actions"><%= submit_tag "Log in" %></div>
+    <div class="login_actions">
+      <%= submit_tag "Log in" %>
+      <br/>
+      <%= link_to "Can't access your account?", new_password_reset_path %>
+    </div>
   <% end %>
 
 </div>

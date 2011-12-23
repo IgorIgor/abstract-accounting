@@ -1,59 +1,25 @@
 .div-login {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 180px;
-  height: 200px;
-  margin-top: -140px;
-  margin-left: -90px;
-  background: #f5f5f5;
-  border: 1px solid #e5e5e5;
-  padding: 20px;
+  height: 222px;
+  margin-top: -151px;
 
-  span {
-    font-size: 20px;
+  .container-alert, .container-notice {
+    font-size: 13px;
+    margin: -2px 0 -11px 0;
   }
 
   .container-alert {
     color: red;
-    font-size: 13px;
-    margin: -2px 0 -10px 0;
   }
 
-  form {
-    margin-top: 6px;
+  .container-notice {
+    color: green;
+  }
 
-    .field {
-      padding: 7px 0;
+  .options {
+    margin: 2px 0 0 -5px;
 
-      label {
-        font-weight: bold;
-        font-size: 14px;
-      }
-
-      input[type=text], input[type=password] {
-        border: 1px solid #c0c0c0;
-        height: 20px;
-        margin: 0;
-      }
-    }
-
-    .login_actions {
-      padding-top: 7px;
-
-      input[type=submit] {
-        height: 25px;
-        min-width: 60px;
-        margin: 0;
-      }
-    }
-
-    .options {
-      margin: 2px 0 0 -5px;
-
-      label {
-        font-size: 14px;
-      }
+    label {
+      font-size: 14px;
     }
   }
 }

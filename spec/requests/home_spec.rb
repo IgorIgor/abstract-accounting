@@ -15,10 +15,14 @@ feature "single page application", %q{
 } do
 
   scenario "visit home page" do
-    user = Factory(:user, :password => "somepass")
-    page_login(user.email, "somepass")
+    page_login
     visit home_index_path
     current_path.should eq(home_index_path)
+    page.should have_content("root@localhost")
+    click_on "Logout"
+
+    user = Factory(:user, :password => "somepass")
+    page_login(user.email, "somepass")
     page.should have_content(user.entity.tag)
     page.should have_content("Logout")
     page.should have_content("Inbox")

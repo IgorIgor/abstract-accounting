@@ -2,7 +2,7 @@
   <div class="div-logout"><%= link_to "Logout", :logout %></div>
   <div>
     <span>
-      <%= current_user.entity.tag if current_user.kind_of?(User) and !current_user.entity.nil? %>
+      <%= current_user.kind_of?(RootUser) ? current_user.email : current_user.entity.tag %>
     </span>
   </div>
 </div>

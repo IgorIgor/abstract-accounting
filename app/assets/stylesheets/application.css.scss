@@ -141,13 +141,13 @@ input[type=button] {
         color: black;
         text-decoration: none;
       }
+    }
 
-      .sidebar-selected {
-        font-weight: bold;
-        background: #e5e5e5;
-        padding: 2px 105px 1px 27px;
-        margin: -2px -105px -1px -27px;
-      }
+    .sidebar-selected {
+      font-weight: bold;
+      background: #e5e5e5;
+      padding: 2px 15px 0 27px;
+      margin: -2px -15px 5px -27px;
     }
   }
 }

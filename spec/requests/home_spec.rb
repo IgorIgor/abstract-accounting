@@ -14,7 +14,7 @@ feature "single page application", %q{
   I want to work with single page
 } do
 
-  scenario "visit home page" do
+  scenario "visit home page", :js => true do
     page_login
     visit home_index_path
     current_path.should eq(home_index_path)
@@ -31,6 +31,10 @@ feature "single page application", %q{
     page.should have_content("Sent")
     page.should have_content("Trash")
     page.should have_content("Archive")
+
+    current_hash.should eq("inbox")
+    page.should have_selector("div[@class='container'] table")
+    page.find_by_id("inbox")[:class].should eq("sidebar-selected")
   end
 
 end

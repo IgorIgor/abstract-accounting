@@ -17,6 +17,10 @@ module ControllerMacros
     check('remember_me') if remember
     click_on "Log in"
   end
+
+  def current_hash
+    current_url.split("#")[1]
+  end
 end
 
 RSpec.configure do |config|

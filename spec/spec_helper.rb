@@ -56,6 +56,17 @@ Spork.prefork do
       PaperTrail.enabled = true
     end
 
+    config.before(:each, js: true) do
+      DatabaseCleaner.clean
+      DatabaseCleaner.strategy = :truncation
+      DatabaseCleaner.start
+    end
+    config.after(:each, js: true) do
+      DatabaseCleaner.clean
+      DatabaseCleaner.strategy = :transaction
+      DatabaseCleaner.start
+    end
+
     User.sorcery_config.stretches = 0
     User.sorcery_config.encryption_algorithm = :none
   end

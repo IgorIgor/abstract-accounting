@@ -33,7 +33,7 @@ feature "single page application", %q{
     page.should have_content("Archive")
 
     current_hash.should eq("inbox")
-    page.should have_selector("div[@class='container'] table")
+    page.should have_selector("div[@id='container_documents'] table")
     page.find_by_id("inbox")[:class].should eq("sidebar-selected")
   end
 

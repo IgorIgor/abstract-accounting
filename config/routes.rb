@@ -17,6 +17,12 @@ Abstract::Application.routes.draw do
 
   resources :password_resets
 
+  resources :estimates do
+    collection do
+      get 'preview'
+    end
+  end
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

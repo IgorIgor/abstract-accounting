@@ -14,17 +14,41 @@
 #= require_tree .
 
 $ ->
+  documentViewModel = (type, data) ->
+    self.object = ko.observable(data)
+    self
+
   homeViewModel = ->
+    self.documentVM = null
+    self.documents_new = ->
+      location.hash = "documents/estimates/new"
     $.sammy( ->
       this.get("#inbox", ->
         $.get("/inbox", {}, (form) ->
           $(".actions").html("")
-          $(".container").html(form)
+          $("#container_documents").html(form)
           $(".sidebar-selected").removeClass("sidebar-selected")
           $("#inbox").addClass("sidebar-selected")
+        )
+      )
+      this.get("#documents/:type/new", ->
+        document_type = this.params.type
+        $.get("/" + document_type + "/preview", {}, (form) ->
+          $.getJSON("/" + document_type + "/new.json", {}, (data) ->
+            $(".actions").html(button("Save"))
+            $(".actions").append(button("Cancel"))
+            $(".actions").append(button("Draft"))
+            $("#container_documents").html(form)
+            $("#inbox").removeClass("sidebar-selected")
+            self.documentVM = new documentViewModel(document_type, data)
+            ko.applyBindings(self.documentVM, $("#container_documents").get(0))
+          )
         )
       )
     ).run()
     location.hash = "inbox" if $("#main").length
 
   ko.applyBindings(new homeViewModel())
+
+  window.button = (value) ->
+    $("<input type='button'/>").attr("value", value)

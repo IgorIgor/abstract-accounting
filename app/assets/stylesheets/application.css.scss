@@ -78,7 +78,7 @@ input[type=button] {
       input {
         height: 25px;
         min-width: 60px;
-        margin: 0;
+        margin: 0 1px 0 3px;
       }
     }
 
@@ -100,7 +100,7 @@ input[type=button] {
     }
   }
 
-  .container {
+  #container_documents {
     margin-left: 160px;
     border-left: 1px solid #e5e5e5;
     min-height: 189px;

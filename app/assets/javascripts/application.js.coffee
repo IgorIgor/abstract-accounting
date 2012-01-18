@@ -8,6 +8,7 @@
 # Please see ./COPYING for details
 #= require jquery
 #= require jquery_ujs
+#= require jquery.autocomplete
 #= require sammy
 #= require knockout
 #= require_self
@@ -16,6 +17,31 @@
 $ ->
   documentViewModel = (type, data) ->
     self.object = ko.observable(data)
+    self.autocomplete_init = (data, event) ->
+      unless $(event.target).attr("autocomplete")
+        $(event.target).autocomplete($(event.target).attr("data-url"), {
+          dataType: "json",
+          selectFirst: false,
+          delay: 600,
+          cacheLength: 0,
+          parse: (data) ->
+            parsed = []
+            for object, id in data
+              parsed[id] =
+                data: object
+                value: object[$(event.target).attr("data-field")]
+                result: object[$(event.target).attr("data-field")]
+            parsed
+          ,
+          formatItem: (item) ->
+            return item[$(event.target).attr("data-field")]
+        })
+        $(event.target).change( ->
+          self.object()[$(event.target).attr("bind-param")] = null
+        )
+        $(event.target).result((event, data, formatted) ->
+          self.object()[$(event.target).attr("bind-param")] = data["id"]
+        )
     self
 
   homeViewModel = ->

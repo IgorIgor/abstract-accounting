@@ -16,12 +16,12 @@ Abstract::Application.routes.draw do
   get "logout" => "user_sessions#destroy", :as => "logout"
 
   resources :password_resets
-
   resources :estimates do
     collection do
       get 'preview'
     end
   end
+  resources :legal_entities
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

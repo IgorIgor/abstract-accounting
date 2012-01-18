@@ -130,7 +130,7 @@ FactoryGirl.define do
   end
 
   factory :legal_entity do |le|
-    le.name "Some legal entity"
+    le.sequence(:name) { |n| "Some legal entity#{n}" }
     le.country { |l| l.association(:country) }
     le.identifier_name "VATIN"
     le.identifier_value "500100732259"

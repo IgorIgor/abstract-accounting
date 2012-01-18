@@ -9,6 +9,7 @@
  Please see ./COPYING for details*/
 /*
 *= require_self
+*= require jquery.autocomplete
 *= require_tree .
 */
 
@@ -116,6 +117,44 @@ input[type=button] {
         border-right: 1px solid #e5e5e5;
         height: 22px;
         padding: 4px 5px 0 5px;
+      }
+    }
+
+    form {
+      padding: 10px;
+
+      fieldset {
+        border: 1px solid #e5e5e5;
+        width: 420px;
+
+        div {
+          display: table;
+          width: 420px;
+
+          div {
+            display: table-row;
+
+            span {
+              display: table-cell;
+              padding-bottom: 2px;
+              padding-right: 10px;
+
+              input {
+                width: 100%;
+                min-width: 300px;
+              }
+
+              label {
+                white-space: nowrap;
+              }
+            }
+
+            span.form-cell-label {
+              width: 1px;
+              padding-right: 6px;
+            }
+          }
+        }
       }
     }
   }

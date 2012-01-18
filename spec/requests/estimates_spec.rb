@@ -22,7 +22,22 @@ feature "estimates", %q{
     page.should have_selector("input[@value='Save']")
     page.should have_selector("input[@value='Cancel']")
     page.should have_selector("input[@value='Draft']")
-    page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
-  end
+    page.find("#inbox")[:class].should_not eq("sidebar-selected")
 
+    within("#container_documents form") do
+      items = 6.times.collect { Factory(:legal_entity).name } .sort
+      fill_in("estimate_entity", :with => items[0][0..1])
+      page.should have_xpath(
+                      "//div[@class='ac_results' and contains(@style, 'display: block')]")
+      within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
+        all(:xpath, ".//ul//li").length.should eq(5)
+        (0..4).each do |idx|
+          page.should have_content(items[idx])
+        end
+        page.should_not have_content(items[5])
+        all(:xpath, ".//ul//li")[1].click
+      end
+      find("#estimate_entity")["value"].should eq(items[1])
+    end
+  end
 end

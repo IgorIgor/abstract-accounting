@@ -1,2 +1,16 @@
 <form data-bind="with: object">
+  <fieldset>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="estimate_entity">Entity:</label>
+        </span>
+        <span>
+          <input id="estimate_entity" type="text" data-url="legal_entities.json"
+                 data-field="name" bind-param="legal_entity_id"
+                 data-bind="event: {focus: autocomplete_init}"/>
+        </span>
+      </div>
+    </div>
+  </fieldset>
 </form>

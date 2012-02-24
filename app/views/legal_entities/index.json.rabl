@@ -8,4 +8,4 @@
 # Please see ./COPYING for details
 
 collection @entities
-attributes :id, :name
+attributes :id, :name, :identifier_name, :identifier_value

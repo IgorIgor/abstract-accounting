@@ -38,9 +38,13 @@ $ ->
         })
         $(event.target).change( ->
           self.object()[$(event.target).attr("bind-param")] = null
+          $("#estimate_ident_name").val("")
+          $("#estimate_ident_value").val("")
         )
         $(event.target).result((event, data, formatted) ->
           self.object()[$(event.target).attr("bind-param")] = data["id"]
+          $("#estimate_ident_name").val(data[$("#estimate_ident_name").attr("data-field")])
+          $("#estimate_ident_value").val(data[$("#estimate_ident_value").attr("data-field")])
         )
     self
 

@@ -25,19 +25,29 @@ feature "estimates", %q{
     page.find("#inbox")[:class].should_not eq("sidebar-selected")
 
     within("#container_documents form") do
-      items = 6.times.collect { Factory(:legal_entity).name } .sort
-      fill_in("estimate_entity", :with => items[0][0..1])
+      items = 6.times.collect { Factory(:legal_entity) } .sort
+      fill_in("estimate_entity", :with => items[0].name[0..1])
       page.should have_xpath(
                       "//div[@class='ac_results' and contains(@style, 'display: block')]")
       within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
         all(:xpath, ".//ul//li").length.should eq(5)
         (0..4).each do |idx|
-          page.should have_content(items[idx])
+          page.should have_content(items[idx].name)
         end
-        page.should_not have_content(items[5])
+        page.should_not have_content(items[5].name)
         all(:xpath, ".//ul//li")[1].click
       end
-      find("#estimate_entity")["value"].should eq(items[1])
+      find("#estimate_entity")["value"].should eq(items[1].name)
+      find("#estimate_ident_name")["value"].should eq(items[1].identifier_name)
+      find("#estimate_ident_value")["value"].should eq(items[1].identifier_value)
+      fill_in("estimate_entity", :with => "")
+      find("#estimate_entity")["value"].should eq("")
+      find("#estimate_ident_name")["value"].should eq("")
+      find("#estimate_ident_value")["value"].should eq("")
+      fill_in("estimate_entity", :with => items[0].name[0..1])
+      within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
+        all(:xpath, ".//ul//li")[1].click
+      end
     end
   end
 end

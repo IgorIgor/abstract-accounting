@@ -22,6 +22,7 @@ Abstract::Application.routes.draw do
     end
   end
   resources :legal_entities
+  resources :catalogs
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

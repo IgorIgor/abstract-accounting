@@ -49,5 +49,62 @@ feature "estimates", %q{
         all(:xpath, ".//ul//li")[1].click
       end
     end
+
+    catalog = Catalog.create!(:tag => "Parent catalog")
+    catalog.subcatalogs.create!(:tag => "Catalog1")
+    catalog.subcatalogs.create!(:tag => "Catalog2")
+    within("#container_documents form") do
+      page.should have_content("Catalog")
+      page.should have_content("Name")
+      page.should have_xpath(".//fieldset//input[@value='Choose']")
+      find("#estimate_catalog")[:disabled].should eq("true")
+    end
+    find(:xpath, "//fieldset//input[@value='Choose']").click
+    page.should have_xpath("//div[@class='form_choose']")
+    page.should_not have_selector("input[@value='Save']")
+    page.should_not have_selector("input[@value='Draft']")
+    page.should have_selector("input[@value='Cancel']")
+    page.should have_selector("input[@value='Previous']")
+    page.find(:xpath, "//input[@value='Previous']")[:disabled].should eq("true")
+    within(:xpath, "//div[@class='form_choose']") do
+      page.should have_content(catalog.tag)
+      catalog.subcatalogs.each do |item|
+        page.should_not have_content(item.tag)
+      end
+      page.find(:xpath, ".//tr//td[@class='title_choose_item']").click
+    end
+    page.find(:xpath, "//input[@value='Previous']")[:disabled].should eq("false")
+    within(:xpath, "//div[@class='form_choose']") do
+      page.should_not have_content(catalog.tag)
+      catalog.subcatalogs.each do |item|
+        page.should have_content(item.tag)
+      end
+      page.find(:xpath, ".//tr//td[@class='title_choose_item']").click
+      page.should_not have_content(catalog.tag)
+      catalog.subcatalogs.each do |item|
+        page.should have_content(item.tag)
+      end
+    end
+    page.find(:xpath, "//input[@value='Previous']").click
+    page.find(:xpath, "//input[@value='Previous']")[:disabled].should eq("true")
+    within(:xpath, "//div[@class='form_choose']") do
+      page.should have_content(catalog.tag)
+      catalog.subcatalogs.each do |item|
+        page.should_not have_content(item.tag)
+      end
+    end
+    page.find(:xpath, "//input[@value='Cancel']").click
+    page.should have_selector("input[@value='Save']")
+    page.should have_selector("input[@value='Cancel']")
+    page.should have_selector("input[@value='Draft']")
+    find(:xpath, "//fieldset//input[@value='Choose']").click
+    within(:xpath, "//div[@class='form_choose']") do
+      find(:xpath, ".//tr[@id='#{catalog.id}']//td[@class='apply_choose_item']").click
+    end
+    page.should have_selector("input[@value='Save']")
+    page.should have_selector("input[@value='Cancel']")
+    page.should have_selector("input[@value='Draft']")
+    find("#estimate_catalog")[:disabled].should eq("true")
+    find("#estimate_catalog")[:value].should eq(catalog.tag)
   end
 end

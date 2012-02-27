@@ -46,6 +46,36 @@ $ ->
           $("#estimate_ident_name").val(data[$("#estimate_ident_name").attr("data-field")])
           $("#estimate_ident_value").val(data[$("#estimate_ident_value").attr("data-field")])
         )
+    self.catalogs = ko.observableArray([])
+    self.parent_id = null
+    self.get_catalogs = (params = {}) ->
+      $.getJSON("/catalogs.json", params, (data) ->
+        if data.parent_id == null
+          $(".actions input[value=Previous]").attr("disabled", "true")
+        else
+          $(".actions input[value=Previous]").removeAttr("disabled")
+        self.parent_id = data.parent_id
+        self.catalogs(data.subcatalogs)
+      )
+    self.show_catalog_selector = () ->
+      $("#container_documents form").hide()
+      $("div.form_choose").show()
+      $(".actions").html(button("Cancel", hide_catalog_selector))
+      $(".actions").append(button("Previous", show_previous_catalogs))
+      get_catalogs()
+    self.show_subcatalogs = (data, event) ->
+      if $(event.target).parent().attr("count") > 0
+        get_catalogs({ parent_id: $(event.target).parent().attr("id") })
+    self.show_previous_catalogs = (data, event) ->
+      get_catalogs({ id: self.parent_id })
+    self.hide_catalog_selector = () ->
+      $("div.form_choose").hide()
+      $("#container_documents form").show()
+      actions()
+    self.select_catalog = (data, event) ->
+      self.object()["catalog_id"] = $(event.target).parent().attr("id")
+      $("#estimate_catalog").val($(event.target).parent().attr("name"))
+      hide_catalog_selector()
     self
 
   homeViewModel = ->
@@ -65,9 +95,7 @@ $ ->
         document_type = this.params.type
         $.get("/" + document_type + "/preview", {}, (form) ->
           $.getJSON("/" + document_type + "/new.json", {}, (data) ->
-            $(".actions").html(button("Save"))
-            $(".actions").append(button("Cancel"))
-            $(".actions").append(button("Draft"))
+            actions()
             $("#container_documents").html(form)
             $("#inbox").removeClass("sidebar-selected")
             self.documentVM = new documentViewModel(document_type, data)
@@ -80,5 +108,9 @@ $ ->
 
   ko.applyBindings(new homeViewModel())
 
-  window.button = (value) ->
-    $("<input type='button'/>").attr("value", value)
+  window.actions = ->
+    $(".actions").html(button("Save"))
+    $(".actions").append(button("Cancel"))
+    $(".actions").append(button("Draft"))
+  window.button = (value, func = null) ->
+    $("<input type='button'/>").attr("value", value).click(func)

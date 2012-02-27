@@ -1,3 +1,21 @@
+<!-- ko if: catalogs != null -->
+<div class="form_choose">
+  <div class="form_choose_content">
+    <div></div>
+    <table data-bind="foreach: catalogs">
+      <tr data-bind="attr: { id: id, name: tag, count: count }">
+        <td class="apply_choose_item"
+            data-bind="event: { click: select_catalog }">
+          [A]
+        </td>
+        <td class="title_choose_item"
+            data-bind="text: tag, event: { click: show_subcatalogs }"></td>
+      </tr>
+    </table>
+  </div>
+</div>
+<!-- /ko -->
+
 <form data-bind="with: object">
   <fieldset>
     <div>
@@ -27,6 +45,23 @@
         <span>
           <input id="estimate_ident_value" type="text"
                  data-field="identifier_value"/>
+        </span>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Catalog</legend>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="estimate_catalog">Name:</label>
+        </span>
+        <span>
+          <input id="estimate_catalog" type="text" disabled="disabled"/>
+        </span>
+        <span>
+          <input type="button" value="Choose" id="estimate_catalog_choice"
+                 data-bind="click: show_catalog_selector"/>
         </span>
       </div>
     </div>

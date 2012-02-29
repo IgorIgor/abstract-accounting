@@ -17,13 +17,19 @@
 $ ->
   documentViewModel = (type, data) ->
     self.object = ko.observable(data)
+    self.object().catalog_id = ko.observable(data.catalog_id)
     self.autocomplete_init = (data, event) ->
       unless $(event.target).attr("autocomplete")
+        params = {}
+        if(event.target.id == "estimate_catalog_date")
+          params["catalog_id"] = self.object()["catalog_id"]
+
         $(event.target).autocomplete($(event.target).attr("data-url"), {
           dataType: "json",
           selectFirst: false,
           delay: 600,
           cacheLength: 0,
+          extraParams: params,
           parse: (data) ->
             parsed = []
             for object, id in data
@@ -38,13 +44,21 @@ $ ->
         })
         $(event.target).change( ->
           self.object()[$(event.target).attr("bind-param")] = null
-          $("#estimate_ident_name").val("")
-          $("#estimate_ident_value").val("")
+          switch $(event.target).attr("id")
+            when "estimate_entity"
+              $("#estimate_ident_name").val("")
+              $("#estimate_ident_value").val("")
+            when "estimate_catalog_date"
+              $(event.target).val("")
         )
         $(event.target).result((event, data, formatted) ->
-          self.object()[$(event.target).attr("bind-param")] = data["id"]
-          $("#estimate_ident_name").val(data[$("#estimate_ident_name").attr("data-field")])
-          $("#estimate_ident_value").val(data[$("#estimate_ident_value").attr("data-field")])
+          switch $(event.target).attr("id")
+            when "estimate_entity"
+              self.object()[$(event.target).attr("bind-param")] = data["id"]
+              $("#estimate_ident_name").val(data[$("#estimate_ident_name").attr("data-field")])
+              $("#estimate_ident_value").val(data[$("#estimate_ident_value").attr("data-field")])
+            when "estimate_catalog_date"
+              self.object()[$(event.target).attr("bind-param")] = data["date"]
         )
     self.catalogs = ko.observableArray([])
     self.parent_id = null
@@ -73,8 +87,9 @@ $ ->
       $("#container_documents form").show()
       actions()
     self.select_catalog = (data, event) ->
-      self.object()["catalog_id"] = $(event.target).parent().attr("id")
+      self.object().catalog_id($(event.target).parent().attr("id"))
       $("#estimate_catalog").val($(event.target).parent().attr("name"))
+      $("#estimate_catalog_date").val("")
       hide_catalog_selector()
     self
 

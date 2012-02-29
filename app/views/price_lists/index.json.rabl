@@ -7,5 +7,8 @@
 #
 # Please see ./COPYING for details
 
-object @estimate
-attributes :legal_entity_id, :catalog_id, :date
+collection @price_lists
+attributes :date
+node :date do |item|
+  item.date.strftime("%Y-%m-%d")
+end

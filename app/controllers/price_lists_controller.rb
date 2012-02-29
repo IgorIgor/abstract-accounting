@@ -7,5 +7,10 @@
 #
 # Please see ./COPYING for details
 
-object @estimate
-attributes :legal_entity_id, :catalog_id, :date
+class PriceListsController < ApplicationController
+  def index
+    @price_lists = PriceList.joins(:catalogs).
+        where("catalogs_price_lists.catalog_id = ?", params[:catalog_id]).
+        select(:date).uniq.where("date LIKE ?", "#{params[:q]}%").order("date").limit(5)
+  end
+end

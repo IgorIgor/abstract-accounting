@@ -58,6 +58,7 @@ feature "estimates", %q{
       page.should have_content("Name")
       page.should have_xpath(".//fieldset//input[@value='Choose']")
       find("#estimate_catalog")[:disabled].should eq("true")
+      find("#estimate_catalog_date")[:disabled].should eq("true")
     end
     find(:xpath, "//fieldset//input[@value='Choose']").click
     page.should have_xpath("//div[@class='form_choose']")
@@ -106,5 +107,39 @@ feature "estimates", %q{
     page.should have_selector("input[@value='Draft']")
     find("#estimate_catalog")[:disabled].should eq("true")
     find("#estimate_catalog")[:value].should eq(catalog.tag)
+    find("#estimate_catalog_date")[:disabled].should eq("false")
+
+    within("#container_documents form") do
+      items = 2.times.collect { Factory(:price_list) }
+      items += 5.times.collect { |i| Factory(:price_list, :date => DateTime.now + i) }
+      items = items.uniq_by{|i| i.date.strftime("%Y-%m-%d")}.sort_by{|i| i.date}
+      catalog.price_lists << items
+      fill_in("estimate_catalog_date",
+        :with => items[0].date.strftime("%Y-%m-%d")[0..1])
+      page.should have_xpath("//div[@class='ac_results' and contains(@style, 'display: block')]")
+      within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
+        all(:xpath, ".//ul//li").length.should eq(5)
+        (0..4).each do |idx|
+          page.should have_content(items[idx].date.strftime("%Y-%m-%d"))
+        end
+        page.should_not have_content(items[5].date.strftime("%Y-%m-%d"))
+        all(:xpath, ".//ul//li")[1].click
+      end
+      find("#estimate_catalog_date")["value"].should eq(items[1].date.strftime("%Y-%m-%d"))
+      find(:xpath, "//fieldset//input[@value='Choose']").click
+      within(:xpath, "//div[@class='form_choose']") do
+        find(:xpath, ".//tr[@id='#{catalog.id}']//td[@class='apply_choose_item']").click
+      end
+      find("#estimate_catalog_date")["value"].should be_empty
+      fill_in("estimate_catalog_date",
+        :with => items[0].date.strftime("%Y-%m-%d")[0..1])
+      page.should have_xpath("//div[@class='ac_results' and contains(@style, 'display: block')]")
+      within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
+        all(:xpath, ".//ul//li")[1].click
+      end
+      find(:xpath, "//fieldset//input[@value='Choose']").click
+      find(:xpath, "//input[@value='Cancel']").click
+      find("#estimate_catalog_date")["value"].should eq(items[1].date.strftime("%Y-%m-%d"))
+    end
   end
 end

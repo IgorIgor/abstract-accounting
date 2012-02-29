@@ -64,6 +64,17 @@
                  data-bind="click: show_catalog_selector"/>
         </span>
       </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="estimate_catalog_date">Date:</label>
+        </span>
+        <span>
+          <input id="estimate_catalog_date" type="text" bind-param="date"
+                 data-url="price_lists.json" data-field="date"
+                 data-bind="disable: !object().catalog_id(),
+                            event: {focus: autocomplete_init}"/>
+        </span>
+      </div>
     </div>
   </fieldset>
 </form>

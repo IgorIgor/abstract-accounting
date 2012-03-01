@@ -24,6 +24,11 @@ Abstract::Application.routes.draw do
   resources :legal_entities
   resources :catalogs
   resources :price_lists
+  resources :bo_ms do
+    member do
+      get 'sum'
+    end
+  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

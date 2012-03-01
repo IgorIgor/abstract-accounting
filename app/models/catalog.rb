@@ -18,7 +18,9 @@ class Catalog < ActiveRecord::Base
   has_and_belongs_to_many :price_lists
 
   def price_list(date, tab)
-    self.price_lists.where(:date => date).
+    # FIXME: it's temporary solution for date comparison
+    #  Rplace all datetime to date
+    self.price_lists.where("price_lists.date LIKE ?", "#{date.strftime("%Y-%m-%d")}%").
                      where(:tab => tab).first
   end
 end

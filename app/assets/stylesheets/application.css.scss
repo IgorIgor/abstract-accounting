@@ -17,6 +17,8 @@
 @import "sessions.css.scss";
 @import "password_resets.css.scss";
 
+$table_border: 1px solid #e5e5e5;
+
 body, html {
   margin: 0;
   padding: 0;
@@ -33,7 +35,7 @@ input[type=button] {
 #header {
   padding: 5px 10px;
   background: #f5f5f5;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: $table_border;
 
   .div-logout {
     float: right;
@@ -70,7 +72,7 @@ input[type=button] {
 
   .operations {
     background: #f5f5f5;
-    border: 1px solid #e5e5e5;
+    border: $table_border;
     margin-left: 160px;
     padding: 7px;
     height: 25px;
@@ -103,7 +105,7 @@ input[type=button] {
 
   #container_documents {
     margin-left: 160px;
-    border-left: 1px solid #e5e5e5;
+    border-left: $table_border;
     min-height: 189px;
 
     table {
@@ -113,8 +115,8 @@ input[type=button] {
       width: 100%;
 
       td {
-        border-bottom: 1px solid #e5e5e5;
-        border-right: 1px solid #e5e5e5;
+        border-bottom: $table_border;
+        border-right: $table_border;
         height: 22px;
         padding: 4px 5px 0 5px;
       }
@@ -124,12 +126,12 @@ input[type=button] {
       padding: 10px;
 
       fieldset {
-        border: 1px solid #e5e5e5;
-        width: 420px;
+        border: $table_border;
+        width: 500px;
 
         div {
           display: table;
-          width: 420px;
+          width: 500px;
 
           div {
             display: table-row;
@@ -165,7 +167,7 @@ input[type=button] {
       background: white;
 
       div.form_choose_content {
-        border: 1px solid #e5e5e5;
+        border: $table_border;
         width: 520px;
         min-height: 300px;
 
@@ -173,14 +175,14 @@ input[type=button] {
           background: #f5f5f5;
           width: 100%;
           height: 25px;
-          border-bottom: 1px solid #e5e5e5;
+          border-bottom: $table_border;
         }
 
         table {
           width: 100%;
 
           td {
-            border-bottom: 1px solid #e5e5e5;
+            border-bottom: $table_border;
             height: 20px;
             cursor: pointer;
             padding: 3px 0 0 3px;
@@ -203,8 +205,8 @@ input[type=button] {
   position: absolute;
   top: 115px;
   width: 140px;
-  border-top: 1px solid #e5e5e5;
-  border-bottom: 1px solid #e5e5e5;
+  border-top: $table_border;
+  border-bottom: $table_border;
   padding: 10px 15px;
 
   ul {

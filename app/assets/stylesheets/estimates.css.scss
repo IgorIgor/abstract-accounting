@@ -1,0 +1,70 @@
+$table_border: 1px solid #e5e5e5;
+
+#container_documents form fieldset {
+  input[type=button] {
+    margin: 0;
+    float: right;
+  }
+
+  #estimate_boms {
+    border-spacing: 0;
+    width: 100%;
+    margin: 30px 0 5px 0;
+    border-top: $table_border;
+    border-left: $table_border;
+
+    th {
+      border-right: $table_border;
+      border-bottom: $table_border;
+      background: #f5f5f5;
+      padding-top: 4px;
+      color: #b8b8b8;
+    }
+
+    td {
+      border-right: $table_border;
+      padding: 1px 4px 0 2px;
+      height: 18px;
+    }
+
+    .estimate-boms-name {
+      width: 55%;
+    }
+
+    .estimate-boms-count, .estimate-boms-sum {
+      vertical-align: top;
+    }
+
+    .estimate-boms-tab {
+      width: 15%;
+    }
+
+    .estimate-boms-sum {
+      width: 15%;
+    }
+
+    .estimate-boms-actions {
+      width: 17px;
+      padding: 4px 2px 0 3px;
+      vertical-align: top;
+
+      label {
+        padding-left: 16px;
+      }
+    }
+
+    td.estimate-boms-actions label {
+      background: url("close.png") no-repeat;
+      cursor: pointer;
+    }
+
+    input {
+      width: 100%;
+      border: 0;
+    }
+
+    input[disabled] {
+      background: #fff;
+    }
+  }
+}

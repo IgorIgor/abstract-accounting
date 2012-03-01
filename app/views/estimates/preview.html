@@ -77,4 +77,53 @@
       </div>
     </div>
   </fieldset>
+  <fieldset class="with-legend">
+    <legend>BoMs</legend>
+    <input type="button" value="Add"
+           data-bind="click: bom_add, disable: !object().catalog_id()"/>
+    <table id="estimate_boms">
+      <thead>
+        <tr>
+          <th class="estimate-boms-name">BoM</th>
+          <th>Tab</th>
+          <th>Count</th>
+          <th>Sum</th>
+          <th class="estimate-boms-actions"></th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach: boms">
+        <tr data-bind="attr: { idx: boms.indexOf($data) }">
+          <td class="estimate-boms-work">
+            <input type="text" data-url="bo_ms.json" data-field="tag" class="bom_tag"
+                   data-bind="value: tag, disable: !object().catalog_id(),
+                              attr: { id: 'bom_' + boms.indexOf($data) },
+                              event: { focus: autocomplete_init }"/>
+          </td>
+          <td class="estimate-boms-tab">
+            <input type="text" disabled="true"
+                   data-bind="value: tab,
+                              attr: { id: 'tab_' + boms.indexOf($data) }" />
+          </td>
+          <td class="estimate-boms-count">
+            <input type="text"
+                   data-bind="value: count,
+                              disable: !tag().length || !object().catalog_id(),
+                              attr: { id: 'count_' + boms.indexOf($data),
+                                      idx: boms.indexOf($data) },
+                              event: { blur: load_bom_sum }"/>
+          </td>
+          <td class="estimate-boms-sum">
+            <input type="text" disabled="true"
+                   data-bind="value: sum,
+                              attr: { id: 'sum_' + boms.indexOf($data) }" />
+          </td>
+          <td class="estimate-boms-actions">
+            <label data-bind="click: bom_remove, visible: object().catalog_id()"></label>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <input type="button" value="Add"
+           data-bind="click: bom_add, disable: !object().catalog_id()"/>
+  </fieldset>
 </form>

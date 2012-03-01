@@ -141,5 +141,33 @@ feature "estimates", %q{
       find(:xpath, "//input[@value='Cancel']").click
       find("#estimate_catalog_date")["value"].should eq(items[1].date.strftime("%Y-%m-%d"))
     end
+
+    within("#estimate_boms") do
+      find("#bom_0")[:disabled].should eq("false")
+      find("#count_0")[:disabled].should be_true
+      find(:xpath, "//td[@class='estimate-boms-actions']//label").click
+      page.has_no_selector?("#bom_0").should be_true
+      page.has_no_selector?("#count_0").should be_true
+    end
+    click_button("Add")
+    within("#estimate_boms") do
+      items = 6.times.collect { Factory(:bo_m) } .sort_by{|i| i.resource.tag}
+      catalog.boms << items
+      fill_in("bom_0", :with => items[0].resource.tag[0..1])
+      page.should have_xpath(
+                      "//div[@class='ac_results' and contains(@style, 'display: block')]")
+      within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
+        all(:xpath, ".//ul//li").length.should eq(5)
+        (0..4).each do |idx|
+          page.should have_content(items[idx].resource.tag)
+        end
+        page.should_not have_content(items[5].resource.tag)
+        all(:xpath, ".//ul//li")[1].click
+      end
+      find("#bom_0")["value"].should eq(items[1].resource.tag)
+      find("#tab_0")["value"].should eq(items[1].tab)
+      fill_in("count_0", :with => 2)
+      # TODO: check update sum
+    end
   end
 end

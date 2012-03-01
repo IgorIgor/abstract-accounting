@@ -16,19 +16,27 @@
 
 $ ->
   documentViewModel = (type, data) ->
+    estimateBoM = (data = { id: null, tag: "", tab: "", count: null, sum: null }) ->
+      id: ko.observable(data.id)
+      tag: ko.observable(data.tag)
+      tab: ko.observable(data.tab)
+      count: ko.observable(data.count)
+      sum: ko.observable(data.sum)
     self.object = ko.observable(data)
     self.object().catalog_id = ko.observable(data.catalog_id)
+    self.boms = ko.observableArray([estimateBoM()])
     self.autocomplete_init = (data, event) ->
       unless $(event.target).attr("autocomplete")
         params = {}
-        if(event.target.id == "estimate_catalog_date")
+        if((event.target.id == "estimate_catalog_date") ||
+           ($(event.target).attr("class") == "bom_tag"))
           params["catalog_id"] = self.object()["catalog_id"]
-
         $(event.target).autocomplete($(event.target).attr("data-url"), {
           dataType: "json",
           selectFirst: false,
           delay: 600,
           cacheLength: 0,
+          matchCase: true,
           extraParams: params,
           parse: (data) ->
             parsed = []
@@ -43,22 +51,34 @@ $ ->
             return item[$(event.target).attr("data-field")]
         })
         $(event.target).change( ->
-          self.object()[$(event.target).attr("bind-param")] = null
-          switch $(event.target).attr("id")
-            when "estimate_entity"
-              $("#estimate_ident_name").val("")
-              $("#estimate_ident_value").val("")
-            when "estimate_catalog_date"
-              $(event.target).val("")
+          if($(event.target).attr("class").search("bom_tag") == 0)
+            self.boms()[$(event.target).closest("tr").attr("idx")].id(null)
+            self.boms()[$(event.target).closest("tr").attr("idx")].tag("")
+            self.boms()[$(event.target).closest("tr").attr("idx")].tab("")
+            self.boms()[$(event.target).closest("tr").attr("idx")].count(null)
+            self.boms()[$(event.target).closest("tr").attr("idx")].sum(null)
+          else
+            self.object()[$(event.target).attr("bind-param")] = null
+            switch $(event.target).attr("id")
+              when "estimate_entity"
+                $("#estimate_ident_name").val("")
+                $("#estimate_ident_value").val("")
+              when "estimate_catalog_date"
+                $(event.target).val("")
         )
         $(event.target).result((event, data, formatted) ->
-          switch $(event.target).attr("id")
-            when "estimate_entity"
-              self.object()[$(event.target).attr("bind-param")] = data["id"]
-              $("#estimate_ident_name").val(data[$("#estimate_ident_name").attr("data-field")])
-              $("#estimate_ident_value").val(data[$("#estimate_ident_value").attr("data-field")])
-            when "estimate_catalog_date"
-              self.object()[$(event.target).attr("bind-param")] = data["date"]
+          if($(event.target).attr("class").search("bom_tag") == 0)
+            self.boms()[$(event.target).closest("tr").attr("idx")].id(data["id"])
+            self.boms()[$(event.target).closest("tr").attr("idx")].tag($(event.target).val())
+            self.boms()[$(event.target).closest("tr").attr("idx")].tab(data["tab"])
+          else
+            switch $(event.target).attr("id")
+              when "estimate_entity"
+                self.object()[$(event.target).attr("bind-param")] = data["id"]
+                $("#estimate_ident_name").val(data[$("#estimate_ident_name").attr("data-field")])
+                $("#estimate_ident_value").val(data[$("#estimate_ident_value").attr("data-field")])
+              when "estimate_catalog_date"
+                self.object()[$(event.target).attr("bind-param")] = data["date"]
         )
     self.catalogs = ko.observableArray([])
     self.parent_id = null
@@ -91,6 +111,23 @@ $ ->
       $("#estimate_catalog").val($(event.target).parent().attr("name"))
       $("#estimate_catalog_date").val("")
       hide_catalog_selector()
+    self.bom_add = ->
+      self.boms.push(estimateBoM())
+    self.bom_remove = (bom) ->
+      self.boms.remove(bom)
+    self.load_bom_sum = (data, event) ->
+      if($(event.target).val().length && $(event.target).val() != "0" &&
+         $(event.target).val().match('^([0-9]*)$'))
+        params =
+          catalog_id: self.object().catalog_id()
+          date: self.object().date
+          amount: self.boms()[$(event.target).attr("idx")].count()
+        $.getJSON("/bo_ms/" + self.boms()[$(event.target).attr("idx")].id() + "/sum.json", params, (data) ->
+          self.boms()[$(event.target).attr("idx")].sum(data.sum)
+        )
+      else
+        self.boms()[$(event.target).attr("idx")].count("0")
+        self.boms()[$(event.target).attr("idx")].sum("0.0")
     self
 
   homeViewModel = ->

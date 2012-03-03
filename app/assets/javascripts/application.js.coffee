@@ -26,6 +26,10 @@ $ ->
       elements: ko.observableArray([])
     self.object = ko.observable(data)
     self.object().catalog_id = ko.observable(data.catalog_id)
+    self.legal_entity =
+      name: ko.observable("")
+      identifier_name: ko.observable("")
+      identifier_value: ko.observable("")
     self.boms = ko.observableArray([estimateBoM()])
     self.autocomplete_init = (data, event) ->
       unless $(event.target).attr("autocomplete")
@@ -63,8 +67,8 @@ $ ->
             self.object()[$(event.target).attr("bind-param")] = null
             switch $(event.target).attr("id")
               when "estimate_entity"
-                $("#estimate_ident_name").val("")
-                $("#estimate_ident_value").val("")
+                self.legal_entity.identifier_name("")
+                self.legal_entity.identifier_value("")
               when "estimate_catalog_date"
                 $(event.target).val("")
         )
@@ -79,8 +83,8 @@ $ ->
             switch $(event.target).attr("id")
               when "estimate_entity"
                 self.object()[$(event.target).attr("bind-param")] = data["id"]
-                $("#estimate_ident_name").val(data[$("#estimate_ident_name").attr("data-field")])
-                $("#estimate_ident_value").val(data[$("#estimate_ident_value").attr("data-field")])
+                self.legal_entity.identifier_name(data[$("#estimate_ident_name").attr("data-field")])
+                self.legal_entity.identifier_value(data[$("#estimate_ident_value").attr("data-field")])
               when "estimate_catalog_date"
                 self.object()[$(event.target).attr("bind-param")] = data["date"]
         )
@@ -146,6 +150,17 @@ $ ->
       $.getJSON("/bo_ms/" + bom.id() + "/sum.json", params, (data) ->
         bom.sum(data.sum)
       )
+    self.save = ->
+      boms = []
+      for id, bom of self.boms()
+        boms.push({bom_id: bom.id(), amount: bom.count()})
+      params =
+        object: self.object()
+        boms: boms
+      params["legal_entity"] = self.legal_entity unless self.object().legal_entity_id
+      $.post("/estimates", params, (data) ->
+        location.hash = "inbox" if data == "success"
+      )
     self
 
   homeViewModel = ->
@@ -179,7 +194,7 @@ $ ->
   ko.applyBindings(new homeViewModel())
 
   window.actions = ->
-    $(".actions").html(button("Save"))
+    $(".actions").html(button("Save", -> $("#container_documents form").submit()))
     $(".actions").append(button("Cancel"))
     $(".actions").append(button("Draft"))
   window.button = (value, func = null) ->

@@ -16,7 +16,7 @@
 </div>
 <!-- /ko -->
 
-<form data-bind="with: object">
+<form data-bind="with: object, submit: save">
   <fieldset>
     <div>
       <div>
@@ -26,7 +26,7 @@
         <span>
           <input id="estimate_entity" type="text" data-url="legal_entities.json"
                  data-field="name" bind-param="legal_entity_id"
-                 data-bind="event: {focus: autocomplete_init}"/>
+                 data-bind="value: legal_entity.name, event: {focus: autocomplete_init}"/>
         </span>
       </div>
       <div>
@@ -35,7 +35,8 @@
         </span>
         <span>
           <input id="estimate_ident_name" type="text"
-                 data-field="identifier_name"/>
+                 data-field="identifier_name"
+                 data-bind="value: legal_entity.identifier_name"/>
         </span>
       </div>
       <div>
@@ -44,7 +45,8 @@
         </span>
         <span>
           <input id="estimate_ident_value" type="text"
-                 data-field="identifier_value"/>
+                 data-field="identifier_value"
+                 data-bind="value: legal_entity.identifier_value" />
         </span>
       </div>
     </div>

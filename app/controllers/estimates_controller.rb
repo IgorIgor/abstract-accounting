@@ -48,4 +48,39 @@ class EstimatesController < ApplicationController
   def show
     @estimate = Estimate.find(params[:id])
   end
+
+  def update
+    estimate = Estimate.find(params[:object][:id])
+    begin
+      Estimate.transaction do
+        estimate.catalog_id = params[:object][:catalog_id]
+        estimate.legal_entity_id = params[:object][:legal_entity_id]
+        unless estimate.legal_entity
+          legal_entity = LegalEntity.new(params[:legal_entity])
+          legal_entity.country = Country.find_or_create_by_tag(:tag => "Russian Federation")
+          legal_entity.save!
+          estimate.legal_entity = legal_entity
+        end
+        estimate.save!
+        items = []
+        params[:boms].each { |idx, bom|
+          idx = idx.to_i
+          items << estimate.items.select { |item|
+            item[:bom_id].to_s == bom[:bom_id].to_s
+          }.first
+          if items[idx].nil?
+            items[idx] = EstimateElement.create!(:estimate => estimate,
+                                                 :bom_id => bom[:bom_id],
+                                                 :amount => bom[:amount])
+          else
+            items[idx].update_attributes(:amount => bom[:amount])
+          end
+        }
+        estimate.items = items
+        render :text => "success"
+      end
+    rescue
+      render :json => estimate.errors.messages
+    end
+  end
 end

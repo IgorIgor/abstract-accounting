@@ -166,9 +166,19 @@ $ ->
         object: self.object()
         boms: boms
       params["legal_entity"] = self.legal_entity unless self.object().legal_entity_id
-      $.post("/estimates", params, (data) ->
-        location.hash = "inbox" if data == "success"
+      $.ajax({
+        type: if self.object().id then "PUT" else "POST",
+        url: "/estimates" + if self.object().id then "/#{self.object().id}" else "",
+        data: params,
+        complete: (data) ->
+          location.hash = "inbox" if data.responseText == "success"
+      })
+    $.sammy( ->
+      this.get("#documents/:type/:id/edit", ->
+        $(".actions").html(button("Save", -> $("#container_documents form").submit()))
+        self.readonly(false)
       )
+    )
     self
 
   folderViewModel = (data) ->
@@ -182,6 +192,8 @@ $ ->
         $.get("/" + document_type + "/preview", {}, (form) ->
           $.getJSON("/" + document_type + "/" + document_id + ".json", {}, (data) ->
             $(".actions").html(button("Back", -> location.hash = "inbox"))
+            $(".actions").append(button("Edit", -> location.hash =
+              "#documents/#{document_type}/#{document_id}/edit"))
             $("#container_documents").html(form)
             viewModel = new documentViewModel(document_type, data, true)
             ko.applyBindings(viewModel, $("#container_documents").get(0))

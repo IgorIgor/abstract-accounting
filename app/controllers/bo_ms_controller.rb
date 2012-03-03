@@ -22,4 +22,16 @@ class BoMsController < ApplicationController
                                                         params[:date].mday, 22, 0, 0),
                                          params[:amount].to_f).accounting_norm
   end
+
+  def elements
+    params[:date] = Date.parse(params[:date])
+    @bom_elements = BoM.find(params[:id]).items
+    catalog = Catalog.find(params[:catalog_id])
+    @price = catalog.price_list(DateTime.civil(params[:date].year,
+                                               params[:date].month,
+                                               params[:date].mday,
+                                               22, 0, 0),
+                                BoM.find(params[:id]).tab)
+    @amount = params[:amount].to_f
+  end
 end

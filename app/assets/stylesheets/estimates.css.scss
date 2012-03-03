@@ -28,10 +28,24 @@ $table_border: 1px solid #e5e5e5;
     }
 
     .estimate-boms-name {
-      width: 55%;
+      width: 70%;
+
+      table.estimate-bom-elements {
+        border-spacing: 0;
+        width: 100%;
+        border-top: 1px solid #e5e5e5;
+        border-left: 1px solid #e5e5e5;
+        border-bottom: 1px solid #e5e5e5;
+
+        td {
+          color: #b8b8b8;
+        }
+      }
     }
 
-    .estimate-boms-count, .estimate-boms-sum {
+    .estimate-boms-count,
+    .estimate-boms-sum,
+    .estimate-boms-tab {
       vertical-align: top;
     }
 
@@ -40,10 +54,11 @@ $table_border: 1px solid #e5e5e5;
     }
 
     .estimate-boms-sum {
-      width: 15%;
+      width: 10%;
     }
 
-    .estimate-boms-actions {
+    .estimate-boms-actions,
+    .estimate-boms-tree-actions {
       width: 17px;
       padding: 4px 2px 0 3px;
       vertical-align: top;
@@ -55,6 +70,16 @@ $table_border: 1px solid #e5e5e5;
 
     td.estimate-boms-actions label {
       background: url("close.png") no-repeat;
+      cursor: pointer;
+    }
+
+    label.tree-plus {
+      background: url("plus.png") no-repeat;
+      cursor: pointer;
+    }
+
+    label.tree-minus {
+      background: url("minus.png") no-repeat;
       cursor: pointer;
     }
 

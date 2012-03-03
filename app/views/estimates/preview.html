@@ -84,6 +84,7 @@
     <table id="estimate_boms">
       <thead>
         <tr>
+          <th class="estimate-boms-tree-actions"></th>
           <th class="estimate-boms-name">BoM</th>
           <th>Tab</th>
           <th>Count</th>
@@ -93,11 +94,40 @@
       </thead>
       <tbody data-bind="foreach: boms">
         <tr data-bind="attr: { idx: boms.indexOf($data) }">
+          <td class="estimate-boms-tree-actions">
+            <label class="tree-minus"
+                   data-bind="visible: tag().length && opened() &&
+                                       object().catalog_id(),
+                              click: close_tree_elements"></label>
+            <label class="tree-plus"
+                   data-bind="visible: tag().length && !opened() &&
+                                       object().catalog_id(),
+                              click: open_tree_elements"></label>
+          </td>
           <td class="estimate-boms-work">
             <input type="text" data-url="bo_ms.json" data-field="tag" class="bom_tag"
                    data-bind="value: tag, disable: !object().catalog_id(),
                               attr: { id: 'bom_' + boms.indexOf($data) },
                               event: { focus: autocomplete_init }"/>
+            <table class="estimate-bom-elements"
+                   data-bind="visible: tag().length && opened()">
+              <thead>
+                <tr>
+                  <th>Resource</th>
+                  <th>Rate</th>
+                  <th>Cost</th>
+                  <th>Sum</th>
+                </tr>
+              <thead>
+              <tbody data-bind="foreach: elements">
+                <tr>
+                  <td data-bind="text: tag"></td>
+                  <td data-bind="text: rate"></td>
+                  <td data-bind="text: cost"></td>
+                  <td data-bind="text: sum"></td>
+                </tr>
+              </tbody>
+            </table>
           </td>
           <td class="estimate-boms-tab">
             <input type="text" disabled="true"

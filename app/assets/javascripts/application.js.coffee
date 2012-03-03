@@ -22,6 +22,8 @@ $ ->
       tab: ko.observable(data.tab)
       count: ko.observable(data.count)
       sum: ko.observable(data.sum)
+      opened: ko.observable(false)
+      elements: ko.observableArray([])
     self.object = ko.observable(data)
     self.object().catalog_id = ko.observable(data.catalog_id)
     self.boms = ko.observableArray([estimateBoM()])
@@ -71,6 +73,8 @@ $ ->
             self.boms()[$(event.target).closest("tr").attr("idx")].id(data["id"])
             self.boms()[$(event.target).closest("tr").attr("idx")].tag($(event.target).val())
             self.boms()[$(event.target).closest("tr").attr("idx")].tab(data["tab"])
+            self.boms()[$(event.target).closest("tr").attr("idx")].count("1")
+            self.bom_sum(self.boms()[$(event.target).closest("tr").attr("idx")])
           else
             switch $(event.target).attr("id")
               when "estimate_entity"
@@ -118,16 +122,30 @@ $ ->
     self.load_bom_sum = (data, event) ->
       if($(event.target).val().length && $(event.target).val() != "0" &&
          $(event.target).val().match('^([0-9]*)$'))
-        params =
-          catalog_id: self.object().catalog_id()
-          date: self.object().date
-          amount: self.boms()[$(event.target).attr("idx")].count()
-        $.getJSON("/bo_ms/" + self.boms()[$(event.target).attr("idx")].id() + "/sum.json", params, (data) ->
-          self.boms()[$(event.target).attr("idx")].sum(data.sum)
-        )
+        self.bom_sum(self.boms()[$(event.target).attr("idx")])
       else
         self.boms()[$(event.target).attr("idx")].count("0")
         self.boms()[$(event.target).attr("idx")].sum("0.0")
+    self.open_tree_elements = (bom) ->
+      unless bom.elements().length
+        params =
+          catalog_id: self.object().catalog_id()
+          date: self.object().date
+          amount: bom.count()
+        $.getJSON("/bo_ms/" + bom.id() + "/elements.json", params, (data) ->
+          bom.elements(data)
+        )
+      bom.opened(true)
+    self.close_tree_elements = (bom) ->
+      bom.opened(false)
+    self.bom_sum = (bom) ->
+      params =
+        catalog_id: self.object().catalog_id()
+        date: self.object().date
+        amount: bom.count()
+      $.getJSON("/bo_ms/" + bom.id() + "/sum.json", params, (data) ->
+        bom.sum(data.sum)
+      )
     self
 
   homeViewModel = ->

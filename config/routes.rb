@@ -27,6 +27,7 @@ Abstract::Application.routes.draw do
   resources :bo_ms do
     member do
       get 'sum'
+      get 'elements'
     end
   end
 

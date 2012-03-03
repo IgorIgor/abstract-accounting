@@ -195,7 +195,7 @@ $ ->
 
   window.actions = ->
     $(".actions").html(button("Save", -> $("#container_documents form").submit()))
-    $(".actions").append(button("Cancel"))
+    $(".actions").append(button("Cancel", -> location.hash = "inbox"))
     $(".actions").append(button("Draft"))
   window.button = (value, func = null) ->
     $("<input type='button'/>").attr("value", value).click(func)

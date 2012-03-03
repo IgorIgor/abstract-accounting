@@ -40,4 +40,8 @@ class EstimatesController < ApplicationController
       render json: estimate.errors
     end
   end
+
+  def index
+    @estimates = Estimate.all
+  end
 end

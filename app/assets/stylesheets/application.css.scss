@@ -114,11 +114,73 @@ input[type=button] {
       border-spacing: 0;
       width: 100%;
 
-      td {
-        border-bottom: $table_border;
-        border-right: $table_border;
-        height: 22px;
-        padding: 4px 5px 0 5px;
+      tr {
+        cursor: pointer;
+
+        td {
+          border-bottom: $table_border;
+          border-right: $table_border;
+          height: 20px;
+          padding: 4px 5px 0 5px;
+        }
+
+        td.cell-checkbox {
+          width: 15px;
+
+          input {
+            margin: 0;
+          }
+        }
+
+        td.cell-star {
+          width: 15px;
+
+          p {
+            margin: 0;
+            float: left;
+            position: relative;
+            width: 16px;
+            height: 16px;
+          }
+
+          .checkbox-old {
+            float: left;
+            display: none;
+          }
+
+          .star {
+            position: absolute;
+            cursor: pointer;
+            padding-top: 16px;
+            padding-left: 16px;
+            background: url(star-off.png) no-repeat;
+            margin-top: -3px;
+          }
+
+          .checkbox-old:checked + .star {
+            background: url(star.png) no-repeat;
+          }
+        }
+
+        td.cell-entity {
+          width: 12%;
+        }
+
+        td.cell-date-document {
+          width: 7%;
+        }
+
+        td.cell-amount {
+          width: 7%;
+        }
+
+        td.cell-title {
+          width: 32%;
+        }
+
+        td.cell-comment {
+          width: 31%;
+        }
       }
     }
 

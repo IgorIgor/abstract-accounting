@@ -163,17 +163,26 @@ $ ->
       )
     self
 
+  folderViewModel = (data) ->
+    self.documents = ko.observableArray(data)
+    self
+
   homeViewModel = ->
     self.documentVM = null
+    self.folderVM = null
     self.documents_new = ->
       location.hash = "documents/estimates/new"
     $.sammy( ->
       this.get("#inbox", ->
         $.get("/inbox", {}, (form) ->
-          $(".actions").html("")
-          $("#container_documents").html(form)
-          $(".sidebar-selected").removeClass("sidebar-selected")
-          $("#inbox").addClass("sidebar-selected")
+          $.getJSON("/estimates.json", {}, (data) ->
+            $(".actions").html("")
+            $("#container_documents").html(form)
+            $(".sidebar-selected").removeClass("sidebar-selected")
+            $("#inbox").addClass("sidebar-selected")
+            self.folderVM = new folderViewModel(data)
+            ko.applyBindings(self.folderVM, $("#container_documents").get(0))
+          )
         )
       )
       this.get("#documents/:type/new", ->

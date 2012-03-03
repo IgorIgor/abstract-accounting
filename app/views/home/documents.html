@@ -10,18 +10,18 @@
           <label class="star" data-bind="attr: {for: 'star_' + id}"></label>
         </p>
       </td>
-      <td class="cell-entity">
+      <td class="cell-entity" data-bind="click: showDocument">
         root@localhost
       </td>
-      <td class="cell-date-document" data-bind="text: created_at">
+      <td class="cell-date-document" data-bind="text: created_at, click: showDocument">
       </td>
-      <td class="cell-amount" data-bind="text: sum">
+      <td class="cell-amount" data-bind="text: sum, click: showDocument">
       </td>
-      <td class="cell-title" data-bind="text: type + ' - ' + content">
+      <td class="cell-title" data-bind="text: type + ' - ' + content, click: showDocument">
       </td>
-      <td class="cell-comment">
+      <td class="cell-comment" data-bind="click: showDocument">
       </td>
-      <td class="cell-date-update" data-bind="text: update_at">
+      <td class="cell-date-update" data-bind="text: update_at, click: showDocument">
       </td>
     </tr>
   </tbody>

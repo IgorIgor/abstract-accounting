@@ -26,7 +26,9 @@
         <span>
           <input id="estimate_entity" type="text" data-url="legal_entities.json"
                  data-field="name" bind-param="legal_entity_id"
-                 data-bind="value: legal_entity.name, event: {focus: autocomplete_init}"/>
+                 data-bind="value: legal_entity.name,
+                            event: {focus: autocomplete_init},
+                            disable: readonly()"/>
         </span>
       </div>
       <div>
@@ -36,7 +38,8 @@
         <span>
           <input id="estimate_ident_name" type="text"
                  data-field="identifier_name"
-                 data-bind="value: legal_entity.identifier_name"/>
+                 data-bind="value: legal_entity.identifier_name,
+                            disable: readonly()"/>
         </span>
       </div>
       <div>
@@ -46,7 +49,8 @@
         <span>
           <input id="estimate_ident_value" type="text"
                  data-field="identifier_value"
-                 data-bind="value: legal_entity.identifier_value" />
+                 data-bind="value: legal_entity.identifier_value,
+                            disable: readonly()" />
         </span>
       </div>
     </div>
@@ -59,11 +63,13 @@
           <label for="estimate_catalog">Name:</label>
         </span>
         <span>
-          <input id="estimate_catalog" type="text" disabled="disabled"/>
+          <input id="estimate_catalog" type="text" disabled="disabled"
+                 data-bind="value: object().catalog_tag" />
         </span>
         <span>
           <input type="button" value="Choose" id="estimate_catalog_choice"
-                 data-bind="click: show_catalog_selector"/>
+                 data-bind="click: show_catalog_selector,
+                            disable: readonly()"/>
         </span>
       </div>
       <div>
@@ -73,8 +79,9 @@
         <span>
           <input id="estimate_catalog_date" type="text" bind-param="date"
                  data-url="price_lists.json" data-field="date"
-                 data-bind="disable: !object().catalog_id(),
-                            event: {focus: autocomplete_init}"/>
+                 data-bind="disable: !catalog_id() || readonly(),
+                            event: {focus: autocomplete_init},
+                            value: object().date"/>
         </span>
       </div>
     </div>
@@ -82,7 +89,7 @@
   <fieldset class="with-legend">
     <legend>BoMs</legend>
     <input type="button" value="Add"
-           data-bind="click: bom_add, disable: !object().catalog_id()"/>
+           data-bind="click: bom_add, disable: !object().catalog_id() || readonly()"/>
     <table id="estimate_boms">
       <thead>
         <tr>
@@ -108,7 +115,7 @@
           </td>
           <td class="estimate-boms-work">
             <input type="text" data-url="bo_ms.json" data-field="tag" class="bom_tag"
-                   data-bind="value: tag, disable: !object().catalog_id(),
+                   data-bind="value: tag, disable: !object().catalog_id() || readonly(),
                               attr: { id: 'bom_' + boms.indexOf($data) },
                               event: { focus: autocomplete_init }"/>
             <table class="estimate-bom-elements"
@@ -139,7 +146,7 @@
           <td class="estimate-boms-count">
             <input type="text"
                    data-bind="value: count,
-                              disable: !tag().length || !object().catalog_id(),
+                              disable: !tag().length || !object().catalog_id() || readonly(),
                               attr: { id: 'count_' + boms.indexOf($data),
                                       idx: boms.indexOf($data) },
                               event: { blur: load_bom_sum }"/>
@@ -150,12 +157,13 @@
                               attr: { id: 'sum_' + boms.indexOf($data) }" />
           </td>
           <td class="estimate-boms-actions">
-            <label data-bind="click: bom_remove, visible: object().catalog_id()"></label>
+            <label data-bind="click: bom_remove,
+                              visible: object().catalog_id() && !readonly()"></label>
           </td>
         </tr>
       </tbody>
     </table>
     <input type="button" value="Add"
-           data-bind="click: bom_add, disable: !object().catalog_id()"/>
+           data-bind="click: bom_add, disable: !object().catalog_id() || readonly()"/>
   </fieldset>
 </form>

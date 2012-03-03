@@ -11,11 +11,12 @@
 #= require jquery.autocomplete
 #= require sammy
 #= require knockout
+#= require pluralize
 #= require_self
 #= require_tree .
 
 $ ->
-  documentViewModel = (type, data) ->
+  documentViewModel = (type, data, readonly = false) ->
     estimateBoM = (data = { id: null, tag: "", tab: "", count: null, sum: null }) ->
       id: ko.observable(data.id)
       tag: ko.observable(data.tag)
@@ -24,13 +25,20 @@ $ ->
       sum: ko.observable(data.sum)
       opened: ko.observable(false)
       elements: ko.observableArray([])
-    self.object = ko.observable(data)
-    self.object().catalog_id = ko.observable(data.catalog_id)
+    self.readonly = ko.observable(readonly)
+    self.object = ko.observable(if readonly then data.object else data)
+    self.object().catalog_id = ko.observable(object().catalog_id)
     self.legal_entity =
-      name: ko.observable("")
-      identifier_name: ko.observable("")
-      identifier_value: ko.observable("")
-    self.boms = ko.observableArray([estimateBoM()])
+      name: ko.observable(if readonly then data.legal_entity.name else "")
+      identifier_name: ko.observable(if readonly then data.legal_entity.identifier_name else "")
+      identifier_value: ko.observable(if readonly then data.legal_entity.identifier_value else "")
+    self.boms = ko.observableArray([])
+    if readonly
+      for item in data.boms
+        self.boms.push(estimateBoM(item))
+    else
+      self.boms.push(estimateBoM())
+
     self.autocomplete_init = (data, event) ->
       unless $(event.target).attr("autocomplete")
         params = {}
@@ -165,7 +173,23 @@ $ ->
 
   folderViewModel = (data) ->
     self.documents = ko.observableArray(data)
-    self
+    self.showDocument = (document) ->
+      location.hash = "documents/" + owl.pluralize(document.type.toLowerCase()) + "/" + document.id
+    $.sammy( ->
+      this.get("#documents/:type/:id", ->
+        document_id = this.params.id
+        document_type = this.params.type
+        $.get("/" + document_type + "/preview", {}, (form) ->
+          $.getJSON("/" + document_type + "/" + document_id + ".json", {}, (data) ->
+            $(".actions").html(button("Back", -> location.hash = "inbox"))
+            $("#container_documents").html(form)
+            viewModel = new documentViewModel(document_type, data, true)
+            ko.applyBindings(viewModel, $("#container_documents").get(0))
+          )
+        )
+      )
+    )
+  self
 
   homeViewModel = ->
     self.documentVM = null

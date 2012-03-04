@@ -43,7 +43,7 @@ $ ->
       unless $(event.target).attr("autocomplete")
         params = {}
         if((event.target.id == "estimate_catalog_date") ||
-           ($(event.target).attr("class") == "bom_tag"))
+           ($(event.target).attr("class") == "bom_tab"))
           params["catalog_id"] = self.object()["catalog_id"]
         $(event.target).autocomplete($(event.target).attr("data-url"), {
           dataType: "json",
@@ -65,7 +65,7 @@ $ ->
             return item[$(event.target).attr("data-field")]
         })
         $(event.target).change( ->
-          if($(event.target).attr("class").search("bom_tag") == 0)
+          if($(event.target).attr("class").search("bom_tab") == 0)
             self.boms()[$(event.target).closest("tr").attr("idx")].id(null)
             self.boms()[$(event.target).closest("tr").attr("idx")].tag("")
             self.boms()[$(event.target).closest("tr").attr("idx")].tab("")
@@ -81,10 +81,10 @@ $ ->
                 $(event.target).val("")
         )
         $(event.target).result((event, data, formatted) ->
-          if($(event.target).attr("class").search("bom_tag") == 0)
+          if($(event.target).attr("class").search("bom_tab") == 0)
             self.boms()[$(event.target).closest("tr").attr("idx")].id(data["id"])
-            self.boms()[$(event.target).closest("tr").attr("idx")].tag($(event.target).val())
-            self.boms()[$(event.target).closest("tr").attr("idx")].tab(data["tab"])
+            self.boms()[$(event.target).closest("tr").attr("idx")].tab($(event.target).val())
+            self.boms()[$(event.target).closest("tr").attr("idx")].tag(data["tag"])
             self.boms()[$(event.target).closest("tr").attr("idx")].count("1")
             self.bom_sum(self.boms()[$(event.target).closest("tr").attr("idx")])
           else

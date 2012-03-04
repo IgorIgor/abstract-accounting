@@ -94,8 +94,8 @@
       <thead>
         <tr>
           <th class="estimate-boms-tree-actions"></th>
-          <th class="estimate-boms-name">BoM</th>
           <th>Tab</th>
+          <th class="estimate-boms-name">BoM</th>
           <th>Count</th>
           <th>Sum</th>
           <th class="estimate-boms-actions"></th>
@@ -113,11 +113,15 @@
                                        object().catalog_id(),
                               click: open_tree_elements"></label>
           </td>
+          <td class="estimate-boms-tab">
+            <input type="text" data-url="bo_ms.json" data-field="tab"  class="bom_tab"
+                   data-bind="value: tab, disable: !object().catalog_id() || readonly(),
+                              attr: { id: 'tab_' + boms.indexOf($data) },
+                              event: { focus: autocomplete_init }" />
+          </td>
           <td class="estimate-boms-work">
-            <input type="text" data-url="bo_ms.json" data-field="tag" class="bom_tag"
-                   data-bind="value: tag, disable: !object().catalog_id() || readonly(),
-                              attr: { id: 'bom_' + boms.indexOf($data) },
-                              event: { focus: autocomplete_init }"/>
+            <label data-bind="text: tag,
+                              attr: { id: 'bom_' + boms.indexOf($data) }"></label>
             <table class="estimate-bom-elements"
                    data-bind="visible: tag().length && opened()">
               <thead>
@@ -137,11 +141,6 @@
                 </tr>
               </tbody>
             </table>
-          </td>
-          <td class="estimate-boms-tab">
-            <input type="text" disabled="true"
-                   data-bind="value: tab,
-                              attr: { id: 'tab_' + boms.indexOf($data) }" />
           </td>
           <td class="estimate-boms-count">
             <input type="text"

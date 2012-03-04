@@ -10,8 +10,8 @@
 class BoMsController < ApplicationController
   def index
     @boms = BoM.joins(:catalogs).
-            where("bo_ms_catalogs.catalog_id = ?", params[:catalog_id]).joins(:resource)
-                   .where("assets.tag LIKE ?", "#{params[:q]}%").order("assets.tag").limit(5)
+                where("bo_ms_catalogs.catalog_id = ? AND bo_ms.tab LIKE ?",
+                      params[:catalog_id], "#{params[:q]}%").order("bo_ms.tab").limit(5)
   end
 
   def sum

@@ -135,4 +135,8 @@ FactoryGirl.define do
     le.identifier_name "VATIN"
     le.identifier_value "500100732259"
   end
+
+  factory :place do |p|
+    p.sequence(:tag) { |n| "place#{n}" }
+  end
 end

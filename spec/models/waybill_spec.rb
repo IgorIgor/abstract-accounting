@@ -22,4 +22,19 @@ describe Waybill do
     should belong_to :place
     should belong_to :entity
   end
+
+  describe "#items" do
+    it "should create" do
+      waybill = Factory.build(:waybill)
+      waybill.add_item("nails", "pcs", 1200, 1.0)
+      waybill.add_item("nails", "kg", 10, 150.0)
+      lambda { waybill.save } .should change(Asset, :count).by(2)
+      waybill.items.count.should eq(2)
+
+      asset = Factory(:asset)
+      waybill.add_item(asset.tag, asset.mu, 100, 12.0)
+      lambda { waybill.save } .should_not change(Asset, :count)
+      waybill.items.count.should eq(3)
+    end
+  end
 end

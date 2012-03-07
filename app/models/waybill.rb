@@ -16,4 +16,34 @@ class Waybill < ActiveRecord::Base
   belongs_to :legal_entity
   belongs_to :place
   belongs_to :entity
+
+  attr_reader :items
+
+  after_initialize :do_after_initialize
+  before_save :do_before_save
+
+  def add_item(tag, mu, amount, price)
+    resource = Asset.find_by_tag_and_mu(tag, mu)
+    resource = Asset.new(:tag => tag, :mu => mu) if resource.nil?
+    @items << WaybillItem.new(resource, amount, price)
+  end
+
+  private
+  def do_after_initialize
+    @items = Array.new
+  end
+
+  def do_before_save
+    @items.each { |item| return false unless item.resource.save }
+  end
+end
+
+class WaybillItem
+  attr_reader :resource, :amount, :price
+
+  def initialize(resource, amount, price)
+    @resource = resource
+    @amount = amount
+    @price = price
+  end
 end

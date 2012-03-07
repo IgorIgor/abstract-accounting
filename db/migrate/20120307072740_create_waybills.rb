@@ -7,13 +7,14 @@
 #
 # Please see ./COPYING for details
 
-require 'spec_helper'
-
-describe Place do
-  it "should have next behaviour" do
-    Factory(:place)
-    should validate_presence_of :tag
-    should validate_uniqueness_of :tag
-    should have_many(:waybills)
+class CreateWaybills < ActiveRecord::Migration
+  def change
+    create_table :waybills do |t|
+      t.string :document_id
+      t.references :legal_entity
+      t.references :place
+      t.references :entity
+      t.datetime :created
+    end
   end
 end

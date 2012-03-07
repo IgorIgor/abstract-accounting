@@ -9,11 +9,17 @@
 
 require 'spec_helper'
 
-describe Place do
+describe Waybill do
   it "should have next behaviour" do
-    Factory(:place)
-    should validate_presence_of :tag
-    should validate_uniqueness_of :tag
-    should have_many(:waybills)
+    Factory(:waybill)
+    should validate_presence_of :document_id
+    should validate_presence_of :legal_entity_id
+    should validate_presence_of :place_id
+    should validate_presence_of :entity_id
+    should validate_presence_of :created
+    should validate_uniqueness_of :document_id
+    should belong_to :legal_entity
+    should belong_to :place
+    should belong_to :entity
   end
 end

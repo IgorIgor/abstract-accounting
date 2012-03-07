@@ -139,4 +139,12 @@ FactoryGirl.define do
   factory :place do |p|
     p.sequence(:tag) { |n| "place#{n}" }
   end
+
+  factory :waybill do |w|
+    w.sequence(:document_id) { |n| "document#{n}" }
+    w.legal_entity { |waybill| waybill.association(:legal_entity) }
+    w.place { |waybill| waybill.association(:place) }
+    w.entity { |waybill| waybill.association(:entity) }
+    w.created Date.today
+  end
 end

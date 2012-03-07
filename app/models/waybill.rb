@@ -7,13 +7,13 @@
 #
 # Please see ./COPYING for details
 
-require 'spec_helper'
+class Waybill < ActiveRecord::Base
+  has_paper_trail
 
-describe Place do
-  it "should have next behaviour" do
-    Factory(:place)
-    should validate_presence_of :tag
-    should validate_uniqueness_of :tag
-    should have_many(:waybills)
-  end
+  validates :document_id, :legal_entity_id, :place_id, :entity_id,
+            :created, :presence => true
+  validates_uniqueness_of :document_id
+  belongs_to :legal_entity
+  belongs_to :place
+  belongs_to :entity
 end

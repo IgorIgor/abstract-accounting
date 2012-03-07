@@ -22,5 +22,6 @@ describe LegalEntity do
     should belong_to :country
     should belong_to :detail
     should have_many LegalEntity.versions_association_name
+    should have_many(:waybills)
   end
 end

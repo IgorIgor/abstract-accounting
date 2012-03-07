@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120305114813) do
+ActiveRecord::Schema.define(:version => 20120307072740) do
 
   create_table "assets", :force => true do |t|
     t.string  "tag"
@@ -331,5 +331,13 @@ ActiveRecord::Schema.define(:version => 20120305114813) do
   end
 
   add_index "versions", ["item_type", "item_id"], :name => "index_versions_on_item_type_and_item_id"
+
+  create_table "waybills", :force => true do |t|
+    t.string   "document_id"
+    t.integer  "legal_entity_id"
+    t.integer  "place_id"
+    t.integer  "entity_id"
+    t.datetime "created"
+  end
 
 end

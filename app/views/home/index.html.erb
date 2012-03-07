@@ -38,7 +38,16 @@
 </div>
 
 <div id="sidebar">
-  <input type="button" value="Create" data-bind="click: documents_new"/>
+  <div class="button_drop_down_list">
+    <a href="#" id="btn_create">Create
+      <div class="arrow_down"></div>
+    </a>
+    <ul id="documents_list">
+      <li><%=link_to("Estimate", "#documents#{new_estimate_path}") %></li>
+    </ul>
+  </div>
+  <br />
+
   <ul>
     <li id="inbox"><a href="#inbox">Inbox</a></li>
     <li><a href="#">Starred</a></li>

@@ -16,7 +16,11 @@ feature "estimates", %q{
 
   scenario "manage estimates", :js => true do
     page_login
-    click_button("Create")
+
+    page.find("#btn_create").click
+    page.find("a[@href='#documents/estimates/new']").click
+    page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
+
     current_hash.should eq("documents/estimates/new")
     page.should have_selector("div[@id='container_documents'] form")
     page.should have_selector("input[@value='Save']")

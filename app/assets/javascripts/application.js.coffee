@@ -206,8 +206,6 @@ $ ->
   homeViewModel = ->
     self.documentVM = null
     self.folderVM = null
-    self.documents_new = ->
-      location.hash = "documents/estimates/new"
     $.sammy( ->
       this.get("#inbox", ->
         $.get("/inbox", {}, (form) ->
@@ -222,6 +220,7 @@ $ ->
         )
       )
       this.get("#documents/:type/new", ->
+        menuClose()
         document_type = this.params.type
         $.get("/" + document_type + "/preview", {}, (form) ->
           $.getJSON("/" + document_type + "/new.json", {}, (data) ->
@@ -244,3 +243,14 @@ $ ->
     $(".actions").append(button("Draft"))
   window.button = (value, func = null) ->
     $("<input type='button'/>").attr("value", value).click(func)
+
+  window.menuClose = ->
+    $('#documents_list').slideUp('fast') unless $("#documents_list").css("display") == "none"
+
+  $('#btn_create').click( ->
+    $('#documents_list').slideToggle('fast')
+    false
+  )
+
+  document.onclick = ->
+    menuClose()

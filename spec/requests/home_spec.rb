@@ -35,6 +35,17 @@ feature "single page application", %q{
     current_hash.should eq("inbox")
     page.should have_selector("div[@id='container_documents'] table")
     page.find_by_id("inbox")[:class].should eq("sidebar-selected")
+
+    page.should have_selector("div[@class='button_drop_down_list']")
+    page.should have_selector("a[@id='btn_create']")
+    page.should_not have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
+    page.find("#btn_create").click
+    page.should_not have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
+    page.find("#btn_create").click
+    page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
+    page.find("#btn_create").click
+    page.find("#container_documents").click
+    page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
   end
 
 end

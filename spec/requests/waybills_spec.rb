@@ -27,5 +27,11 @@ feature "waybill", %q{
     page.should have_selector("input[@value='Cancel']")
     page.should have_selector("input[@value='Draft']")
     page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
+
+    page.should have_xpath("//div[@id='ui-datepicker-div']")
+    page.find("#created").click
+    page.should have_xpath("//div[@id='ui-datepicker-div' and contains(@style, 'display: block')]")
+    page.find("#container_documents").click
+    page.should have_xpath("//div[@id='ui-datepicker-div' and contains(@style, 'display: none')]")
   end
 end

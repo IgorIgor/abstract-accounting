@@ -7,6 +7,7 @@
 #
 # Please see ./COPYING for details
 #= require jquery
+#= require jquery-ui
 #= require jquery_ujs
 #= require jquery.autocomplete
 #= require sammy
@@ -26,8 +27,10 @@ $ ->
       opened: ko.observable(false)
       elements: ko.observableArray([])
     self.readonly = ko.observable(readonly)
+    #TODO: refactor
     self.object = ko.observable(if readonly then data.object else data)
     self.object().catalog_id = ko.observable(object().catalog_id)
+    self.object().created = ko.observable(object().created)
     self.legal_entity =
       name: ko.observable(if readonly then data.legal_entity.name else "")
       identifier_name: ko.observable(if readonly then data.legal_entity.identifier_name else "")

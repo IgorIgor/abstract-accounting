@@ -15,7 +15,9 @@ class CreateWaybills < ActiveRecord::Migration
       t.references :storekeeper_place
       t.references :distributor, :polymorphic => true
       t.references :storekeeper, :polymorphic => true
+      t.references :deal
       t.datetime :created
     end
+    add_index :waybills, :deal_id, :unique => true
   end
 end

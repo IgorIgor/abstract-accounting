@@ -17,6 +17,7 @@ class Deal < ActiveRecord::Base
   has_many :balances
   has_many :rules
   has_many :terms
+  has_many :waybills
   has_one :give, :class_name => "Term", :conditions => {:side => false}
   has_one :take, :class_name => "Term", :conditions => {:side => true}
 

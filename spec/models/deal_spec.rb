@@ -23,6 +23,7 @@ describe Deal do
     should have_many(:balances)
     should have_many(:rules)
     should have_many(:terms)
+    should have_many :waybills
     should have_one(:give).class_name(Term).conditions(:side => false)
     should have_one(:take).class_name(Term).conditions(:side => true)
     should have_many Deal.versions_association_name

@@ -13,6 +13,7 @@ class Waybill < ActiveRecord::Base
   validates :document_id, :distributor, :distributor_place, :storekeeper,
             :storekeeper_place, :created, :presence => true
   validates_uniqueness_of :document_id
+  belongs_to :deal
   belongs_to :distributor, :polymorphic => true
   belongs_to :storekeeper, :polymorphic => true
   belongs_to :distributor_place, :class_name => 'Place'
@@ -35,7 +36,37 @@ class Waybill < ActiveRecord::Base
   end
 
   def do_before_save
-    @items.each { |item| return false unless item.resource.save }
+    if self.new_record?
+      self.deal = Deal.new(entity: self.storekeeper, rate: 1.0, isOffBalance: true,
+        tag: "Waybill shipment ##{Waybill.last.nil? ? 0 : Waybill.last.id}")
+      shipment = Asset.find_or_create_by_tag('Warehouse Shipment')
+      return false if self.deal.build_give(place: self.distributor_place,
+                                           resource: shipment).nil?
+      return false if self.deal.build_take(place: self.storekeeper_place,
+                                           resource: shipment).nil?
+      return false unless self.deal.save
+
+      @items.each { |item, idx|
+        return false unless item.resource.save if item.resource.new_record?
+
+        distributor_item = item.warehouse_deal(Chart.first.currency,
+                                               self.distributor_place, self.distributor)
+        return false if distributor_item.nil?
+        storekeeper_item = item.warehouse_deal(nil, self.storekeeper_place,
+                                               self.storekeeper)
+        return false if storekeeper_item.nil?
+
+        return false if deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
+          from: distributor_item, to: storekeeper_item, fact_side: false,
+          change_side: true, rate: item.amount).nil?
+      }
+
+      return false if Fact.create(amount: 1.0, resource: self.deal.give.resource,
+        day: DateTime.current.change(hour: 12), to: self.deal).nil?
+    else
+      return false
+    end
+    true
   end
 end
 
@@ -46,5 +77,31 @@ class WaybillItem
     @resource = resource
     @amount = amount
     @price = price
+  end
+
+  def warehouse_deal(give_r, place, entity)
+    rate = give_r.nil? ? 1.0 : self.price
+    give_r ||= self.resource
+
+    deal = Deal.all(
+      :joins => ["INNER JOIN terms AS gives ON gives.deal_id = deals.id
+                    AND gives.side = 'f'",
+                  "INNER JOIN terms AS takes ON takes.deal_id = deals.id
+                    AND takes.side = 't'"],
+      :conditions => ["gives.resource_id = ? AND gives.place_id = ? AND
+                       takes.resource_id = ? AND takes.place_id = ? AND
+                       deals.entity_id = ? AND deals.entity_type = ?",
+                      give_r, place, self.resource, place, entity, entity.class.name]
+    ).first
+
+    if deal.nil?
+      deal = Deal.new(:entity => entity,
+        :rate => rate, :isOffBalance => true,
+        :tag => "storehouse resource: #{self.resource.tag}[#{self.resource.mu}];")
+      return nil if deal.build_give(place: place, resource: give_r).nil?
+      return nil if deal.build_take(place: place, resource: self.resource).nil?
+      return nil unless deal.save
+    end
+    deal
   end
 end

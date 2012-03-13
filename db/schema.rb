@@ -344,7 +344,10 @@ ActiveRecord::Schema.define(:version => 20120313093737) do
     t.string   "distributor_type"
     t.integer  "storekeeper_id"
     t.string   "storekeeper_type"
+    t.integer  "deal_id"
     t.datetime "created"
   end
+
+  add_index "waybills", ["deal_id"], :name => "index_waybills_on_deal_id", :unique => true
 
 end

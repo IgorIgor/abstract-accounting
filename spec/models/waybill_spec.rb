@@ -10,7 +10,11 @@
 require 'spec_helper'
 
 describe Waybill do
-  it "should have next behaviour" do
+  before(:all) do
+    Factory(:chart)
+  end
+
+  it 'should have next behaviour' do
     Factory(:waybill)
     should validate_presence_of :document_id
     should validate_presence_of :distributor
@@ -25,18 +29,186 @@ describe Waybill do
     should belong_to(:storekeeper_place).class_name(Place)
   end
 
-  describe "#items" do
-    it "should create" do
-      waybill = Factory.build(:waybill)
-      waybill.add_item("nails", "pcs", 1200, 1.0)
-      waybill.add_item("nails", "kg", 10, 150.0)
-      lambda { waybill.save } .should change(Asset, :count).by(2)
-      waybill.items.count.should eq(2)
+  it 'should create items' do
+    wb = Factory.build(:waybill)
+    wb.add_item('nails', 'pcs', 1200, 1.0)
+    wb.add_item('nails', 'kg', 10, 150.0)
+    lambda { wb.save } .should change(Asset, :count).by(2)
+    wb.items.count.should eq(2)
+    wb.items[0].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'pcs').first)
+    wb.items[0].amount.should eq(1200)
+    wb.items[0].price.should eq(1.0)
+    wb.items[1].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'kg').first)
+    wb.items[1].amount.should eq(10)
+    wb.items[1].price.should eq(150.0)
 
-      asset = Factory(:asset)
-      waybill.add_item(asset.tag, asset.mu, 100, 12.0)
-      lambda { waybill.save } .should_not change(Asset, :count)
-      waybill.items.count.should eq(3)
-    end
+    asset = Factory(:asset)
+    wb.add_item(asset.tag, asset.mu, 100, 12.0)
+    lambda { wb.save } .should_not change(Asset, :count)
+    wb.items.count.should eq(3)
+    wb.items[2].resource.should eq(asset)
+    wb.items[2].amount.should eq(100)
+    wb.items[2].price.should eq(12.0)
+  end
+
+  it 'should create deals' do
+    wb = Factory.build(:waybill)
+    wb.add_item('roof', 'm2', 500, 10.0)
+    lambda { wb.save } .should change(Deal, :count).by(3)
+
+    deal = Deal.find(wb.deal)
+    deal.entity.should eq(wb.storekeeper)
+    deal.isOffBalance.should be_true
+
+    deal = wb.items.first.warehouse_deal(Chart.first.currency,
+      wb.distributor_place, wb.distributor)
+    deal.should_not be_nil
+    deal.rate.should eq(wb.items.first.price)
+    deal.isOffBalance.should be_true
+
+    deal = wb.items.first.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+    deal.should_not be_nil
+    deal.rate.should eq(1.0)
+    deal.isOffBalance.should be_true
+
+    wb = Factory.build(:waybill, distributor: wb.distributor,
+                                 distributor_place: wb.distributor_place,
+                                 storekeeper: wb.storekeeper,
+                                 storekeeper_place: wb.storekeeper_place)
+    wb.add_item('roof', 'm2', 100, 10.0)
+    wb.add_item('hammer', 'th', 500, 100.0)
+    lambda { wb.save } .should change(Deal, :count).by(3)
+
+    deal = Deal.find(wb.deal)
+    deal.entity.should eq(wb.storekeeper)
+    deal.isOffBalance.should be_true
+
+    wb.items.each {|i|
+      deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
+      deal.should_not be_nil
+      deal.rate.should eq(i.price)
+      deal.isOffBalance.should be_true
+
+      deal = i.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+      deal.should_not be_nil
+      deal.rate.should eq(1.0)
+      deal.isOffBalance.should be_true
+    }
+
+    wb = Factory.build(:waybill, distributor: wb.distributor,
+                                 distributor_place: wb.distributor_place,
+                                 storekeeper: wb.storekeeper,
+                                 storekeeper_place: wb.storekeeper_place)
+    wb.add_item('hammer', 'th', 50, 100.0)
+    lambda { wb.save } .should change(Deal, :count).by(1)
+
+    deal = Deal.find(wb.deal)
+    deal.entity.should eq(wb.storekeeper)
+    deal.isOffBalance.should be_true
+
+    wb = Factory.build(:waybill, storekeeper: wb.storekeeper,
+                                 storekeeper_place: wb.storekeeper_place)
+    wb.add_item('hammer', 'th', 200, 100.0)
+    lambda { wb.save } .should change(Deal, :count).by(2)
+
+    deal = Deal.find(wb.deal)
+    deal.entity.should eq(wb.storekeeper)
+    deal.isOffBalance.should be_true
+
+    deal = wb.items.first.warehouse_deal(Chart.first.currency,
+      wb.distributor_place, wb.distributor)
+    deal.should_not be_nil
+    deal.rate.should eq(wb.items.first.price)
+    deal.isOffBalance.should be_true
+
+    deal = wb.items.first.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+    deal.should_not be_nil
+    deal.rate.should eq(1.0)
+    deal.isOffBalance.should be_true
+  end
+
+  it 'should create rules' do
+    wb = Factory.build(:waybill)
+    wb.add_item('roof', 'm2', 500, 10.0)
+    lambda { wb.save } .should change(Rule, :count).by(1)
+
+    rule = wb.deal.rules.first
+    rule.rate.should eq(500)
+    wb.items.first.warehouse_deal(Chart.first.currency,
+      wb.distributor_place, wb.distributor).should eq(rule.from)
+    wb.items.first.warehouse_deal(nil, wb.storekeeper_place,
+      wb.storekeeper).should eq(rule.to)
+
+    wb = Factory.build(:waybill, distributor: wb.distributor,
+                                 distributor_place: wb.distributor_place,
+                                 storekeeper: wb.storekeeper,
+                                 storekeeper_place: wb.storekeeper_place)
+    wb.add_item('roof', 'm2', 100, 10.0)
+    wb.add_item('hammer', 'th', 500, 100.0)
+    lambda { wb.save } .should change(Rule, :count).by(2)
+
+    rule = wb.deal.rules[0]
+    rule.rate.should eq(100)
+    wb.items[0].warehouse_deal(Chart.first.currency,
+      wb.distributor_place, wb.distributor).should eq(rule.from)
+    wb.items[0].warehouse_deal(nil, wb.storekeeper_place,
+      wb.storekeeper).should eq(rule.to)
+
+    rule = wb.deal.rules[1]
+    rule.rate.should eq(500)
+    wb.items[1].warehouse_deal(Chart.first.currency,
+      wb.distributor_place, wb.distributor).should eq(rule.from)
+    wb.items[1].warehouse_deal(nil, wb.storekeeper_place,
+      wb.storekeeper).should eq(rule.to)
+  end
+
+  it 'should create fact' do
+    wb = Factory.build(:waybill)
+    wb.add_item('roof', 'm2', 500, 10.0)
+    wb.save.should be_true
+
+    state = wb.items.first.warehouse_deal(Chart.first.currency,
+      wb.distributor_place, wb.distributor).state
+    state.side.should eq("passive")
+    state.amount.should eq(50.0)
+    state.start.should eq(DateTime.current.change(hour: 12))
+
+    state = wb.items.first.warehouse_deal(nil, wb.storekeeper_place,
+      wb.storekeeper).state
+    state.side.should eq("active")
+    state.amount.should eq(500.0)
+    state.start.should eq(DateTime.current.change(hour: 12))
+
+    wb = Factory.build(:waybill, distributor: wb.distributor,
+                                 distributor_place: wb.distributor_place,
+                                 storekeeper: wb.storekeeper,
+                                 storekeeper_place: wb.storekeeper_place)
+    wb.add_item('roof', 'm2', 100, 10.0)
+    wb.add_item('hammer', 'th', 500, 100.0)
+    wb.save.should be_true
+
+    state = wb.items[0].warehouse_deal(Chart.first.currency,
+      wb.distributor_place, wb.distributor).state
+    state.side.should eq("passive")
+    state.amount.should eq(60.0)
+    state.start.should eq(DateTime.current.change(hour: 12))
+
+    state = wb.items[0].warehouse_deal(nil, wb.storekeeper_place,
+      wb.storekeeper).state
+    state.side.should eq("active")
+    state.amount.should eq(600.0)
+    state.start.should eq(DateTime.current.change(hour: 12))
+
+    state = wb.items[1].warehouse_deal(Chart.first.currency,
+      wb.distributor_place, wb.distributor).state
+    state.side.should eq("passive")
+    state.amount.should eq(5.0)
+    state.start.should eq(DateTime.current.change(hour: 12))
+
+    state = wb.items[1].warehouse_deal(nil, wb.storekeeper_place,
+      wb.storekeeper).state
+    state.side.should eq("active")
+    state.amount.should eq(500.0)
+    state.start.should eq(DateTime.current.change(hour: 12))
   end
 end

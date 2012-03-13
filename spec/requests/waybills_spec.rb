@@ -33,5 +33,7 @@ feature "waybill", %q{
     page.should have_xpath("//div[@id='ui-datepicker-div' and contains(@style, 'display: block')]")
     page.find("#container_documents").click
     page.should have_xpath("//div[@id='ui-datepicker-div' and contains(@style, 'display: none')]")
+
+    page.should have_selector("input[@id='waybill_document_id']")
   end
 end

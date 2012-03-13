@@ -1,7 +1,54 @@
 <form data-bind="with: object">
-  <label for="created">Created at:</label>
-  <input type="text" id="created" data-bind="datepicker: created">
-  <br>
-  <label for="waybill_document_id">Document id:</label>
-  <input type="text" id="waybill_document_id" data-bind="value: document_id">
+  <span class="form-cell-label">
+    <label for="created">Created at:</label>
+  </span>
+  <span>
+    <input type="text" id="created" data-bind="datepicker: created">
+  </span>
+  <span class="form-cell-label">
+    <label for="waybill_document_id">Document id:</label>
+  </span>
+  <span>
+    <input type="text" id="waybill_document_id" data-bind="value: document_id">
+  </span>
+
+  <fieldset>
+    <legend>distributor</legend>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="waybill_entity">Entity:</label>
+        </span>
+        <span>
+          <input id="waybill_entity" type="text" data-url="legal_entities.json"
+                 data-field="name" bind-param="legal_entity_id"
+                 data-bind="value: legal_entity.name,
+                            event: {focus: autocomplete_init},
+                            disable: readonly()"/>
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="waybill_ident_name">Ident. name:</label>
+        </span>
+        <span>
+          <input id="waybill_ident_name" type="text"
+                 data-field="identifier_name"
+                 data-bind="value: legal_entity.identifier_name,
+                            disable: readonly()"/>
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="waybill_ident_value">Ident. value:</label>
+        </span>
+        <span>
+          <input id="waybill_ident_value" type="text"
+                 data-field="identifier_value"
+                 data-bind="value: legal_entity.identifier_value,
+                            disable: readonly()" />
+        </span>
+      </div>
+    </div>
+  </fieldset>
 </form>

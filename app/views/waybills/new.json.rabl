@@ -8,4 +8,4 @@
 # Please see ./COPYING for details
 
 object @waybill
-attributes :created, :document_id
+attributes :created, :document_id, :legal_entity_id

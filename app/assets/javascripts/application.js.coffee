@@ -81,6 +81,9 @@ $ ->
               when "estimate_entity"
                 self.legal_entity.identifier_name("")
                 self.legal_entity.identifier_value("")
+              when "waybill_entity"
+                self.legal_entity.identifier_name("")
+                self.legal_entity.identifier_value("")
               when "estimate_catalog_date"
                 $(event.target).val("")
         )
@@ -97,6 +100,10 @@ $ ->
                 self.object()[$(event.target).attr("bind-param")] = data["id"]
                 self.legal_entity.identifier_name(data[$("#estimate_ident_name").attr("data-field")])
                 self.legal_entity.identifier_value(data[$("#estimate_ident_value").attr("data-field")])
+              when "waybill_entity"
+                self.object()[$(event.target).attr("bind-param")] = data["id"]
+                self.legal_entity.identifier_name(data[$("#waybill_ident_name").attr("data-field")])
+                self.legal_entity.identifier_value(data[$("#waybill_ident_value").attr("data-field")])
               when "estimate_catalog_date"
                 self.object()[$(event.target).attr("bind-param")] = data["date"]
         )

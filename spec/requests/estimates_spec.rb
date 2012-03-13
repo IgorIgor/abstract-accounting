@@ -15,6 +15,7 @@ feature "estimates", %q{
 } do
 
   scenario "manage estimates", :js => true do
+    pending "disabled according to not complete estimate"
     page_login
 
     page.find("#btn_create").click

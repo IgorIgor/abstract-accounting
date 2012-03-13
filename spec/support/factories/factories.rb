@@ -146,9 +146,10 @@ FactoryGirl.define do
 
   factory :waybill do |w|
     w.sequence(:document_id) { |n| "document#{n}" }
-    w.legal_entity { |waybill| waybill.association(:legal_entity) }
-    w.place { |waybill| waybill.association(:place) }
-    w.entity { |waybill| waybill.association(:entity) }
+    w.distributor { |waybill| waybill.association(:legal_entity) }
+    w.distributor_place { |waybill| waybill.association(:place) }
+    w.storekeeper { |waybill| waybill.association(:entity) }
+    w.storekeeper_place { |waybill| waybill.association(:place) }
     w.created Date.today
   end
 

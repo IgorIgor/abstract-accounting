@@ -13,7 +13,8 @@ class Entity < ActiveRecord::Base
   validates_presence_of :tag
   validates_uniqueness_of :tag
   has_many :deals
-  has_many :waybills
+  has_many :distributor, :class_name => 'Waybill'
+  has_many :storekeeper, :class_name => 'Waybill'
   belongs_to :detail, :class_name => "Person"
 end
 

@@ -12,6 +12,7 @@ class Place < ActiveRecord::Base
 
   validates_presence_of :tag
   validates_uniqueness_of :tag
-  has_many :waybills
   has_many :terms
+  has_many :distributor_place, :class_name => 'Waybill'
+  has_many :storekeeper_place, :class_name => 'Waybill'
 end

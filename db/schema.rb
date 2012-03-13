@@ -338,9 +338,12 @@ ActiveRecord::Schema.define(:version => 20120313093737) do
 
   create_table "waybills", :force => true do |t|
     t.string   "document_id"
-    t.integer  "legal_entity_id"
-    t.integer  "place_id"
-    t.integer  "entity_id"
+    t.integer  "distributor_place_id"
+    t.integer  "storekeeper_place_id"
+    t.integer  "distributor_id"
+    t.string   "distributor_type"
+    t.integer  "storekeeper_id"
+    t.string   "storekeeper_type"
     t.datetime "created"
   end
 

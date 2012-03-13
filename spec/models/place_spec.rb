@@ -14,8 +14,9 @@ describe Place do
     Factory(:place)
     should validate_presence_of :tag
     should validate_uniqueness_of :tag
-    should have_many(:waybills)
     should have_many :terms
     should have_many Place.versions_association_name
+    should have_many(:distributor_place).class_name(Waybill)
+    should have_many(:storekeeper_place).class_name(Waybill)
   end
 end

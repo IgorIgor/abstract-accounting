@@ -14,4 +14,9 @@ class Service < ActiveRecord::Base
   validates_uniqueness_of :tag, :scope => :mu
   belongs_to :detailed, :class_name => "DetailedService"
   has_many :terms, :as => :resource
+  # TODO: fix direct access to side
+  has_many :terms_as_give, :class_name => Term, :as => :resource, :conditions => { :side => false }
+  has_many :terms_as_take, :class_name => Term, :as => :resource, :conditions => { :side => true }
+  has_many :deal_gives, :class_name => "Deal", :through => :terms_as_give, :source => :deal
+  has_many :deal_takes, :class_name => "Deal", :through => :terms_as_take, :source => :deal
 end

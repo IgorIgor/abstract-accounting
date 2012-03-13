@@ -18,30 +18,34 @@ class BoMElement < ActiveRecord::Base
     self.rate * price.rate * physical_amount
   end
 
-  def to_rule(deal, price, physical_amount)
+  def to_rule(deal, place, price, physical_amount)
     deal.rules.create!(:tag => "deal rule ##{deal.rules.count() + 1}",
-                       :from => convertation_deal(deal.entity),
-                       :to => money_storage(deal.entity),
+                       :from => convertation_deal(deal.entity, place),
+                       :to => money_storage(deal.entity, place),
                        :rate => sum(price, physical_amount),
                        :fact_side => false, :change_side => true)
   end
 
   private
-  def money_storage(entity)
-    find_or_create_deal("storage from #{Chart.first.currency} to #{Chart.first.currency}",
-                        entity, Chart.first.currency, Chart.first.currency, 1.0)
+  def money_storage(entity, place)
+    find_or_create_deal("storage from #{Chart.first.currency.alpha_code} to #{Chart.first.currency.alpha_code}",
+                        entity, place, Chart.first.currency, Chart.first.currency, 1.0)
   end
 
-  def convertation_deal(entity)
-    find_or_create_deal("resource converter from #{resource.tag} to #{Chart.first.currency}",
-                        entity, self.resource, Chart.first.currency, self.rate)
+  def convertation_deal(entity, place)
+    find_or_create_deal("resource converter from #{resource.tag} to #{Chart.first.currency.alpha_code}",
+                        entity, place, self.resource, Chart.first.currency, self.rate)
   end
 
-  def find_or_create_deal(tag, entity, give, take, rate)
-    deal = Deal.find_all_by_entity_id_and_give_id_and_take_id_and_give_type_and_take_type(
-        entity, give, take, give.class, take.class).first
-    deal = Deal.create!(:tag => tag, :rate => rate, :give => give, :take => take,
-                        :entity => entity) if deal.nil?
+  def find_or_create_deal(tag, entity, place, give, take, rate)
+    deal = Deal.where(:entity_id => entity.id, :entity_type => entity.class).
+                where(:tag => tag).first
+    if deal.nil?
+      deal = Deal.new(:tag => tag, :rate => rate, :entity => entity)
+      deal.build_give(:resource => give, :place => place)
+      deal.build_take(:resource => take, :place => place)
+      deal.save!
+    end
     deal
   end
 end

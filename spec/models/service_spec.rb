@@ -17,6 +17,10 @@ describe Service do
     should validate_uniqueness_of(:tag).scoped_to(:mu)
     should belong_to(:detailed).class_name(DetailedService)
     should have_many :terms
+    should have_many(:terms_as_give).class_name(Term).conditions(:side => false)
+    should have_many(:terms_as_take).class_name(Term).conditions(:side => true)
+    should have_many(:deal_gives).class_name(Deal).through(:terms_as_give)
+    should have_many(:deal_takes).class_name(Deal).through(:terms_as_take)
     should have_many Service.versions_association_name
   end
 end

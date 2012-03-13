@@ -10,15 +10,15 @@
 class Deal < ActiveRecord::Base
   has_paper_trail
 
-  validates :tag, :rate, :entity_id, :entity_type, :give_id, :take_id, :presence => true
+  validates :tag, :rate, :entity_id, :entity_type, :give, :take, :presence => true
   validates_uniqueness_of :tag, :scope => [:entity_id, :entity_type]
   belongs_to :entity, :polymorphic => true
-  belongs_to :give, :polymorphic => true
-  belongs_to :take, :polymorphic => true
   has_many :states
   has_many :balances
   has_many :rules
   has_many :terms
+  has_one :give, :class_name => "Term", :conditions => {:side => false}
+  has_one :take, :class_name => "Term", :conditions => {:side => true}
 
   def self.income
     income = Deal.where(:id => INCOME_ID).first

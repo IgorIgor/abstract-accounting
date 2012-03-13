@@ -26,15 +26,18 @@ class BoM < ActiveRecord::Base
     self.sum(catalog.price_list(date, self.tab), physical_amount)
   end
 
-  def to_deal(entity, prices, physical_amount)
-    deal = Deal.create!(:tag => "estimate deal for bom: #{self.id}; ##{
+  def to_deal(entity, place, prices, physical_amount)
+    deal = Deal.new(:tag => "estimate deal for bom: #{self.id}; ##{
       Deal.where("tag LIKE 'estimate deal for bom: #{self.id}; #%'").count() + 1
     }",
-                        :entity => entity, :give => self.resource, :take => self.resource,
+                        :entity => entity,
                         :rate => 1.0, :isOffBalance => true)
+    deal.build_give(:resource => self.resource, :place => place)
+    deal.build_take(:resource => self.resource, :place => place)
+    deal.save!
     self.items.each do |element|
       price = prices.items.where("resource_id = ?", element.resource_id).first
-      element.to_rule(deal, price, physical_amount)
+      element.to_rule(deal, place, price, physical_amount)
     end
     deal
   end

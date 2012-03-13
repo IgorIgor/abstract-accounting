@@ -40,16 +40,17 @@ describe BoM do
     it "should create deal with rules" do
       deal = nil
       lambda {
-        deal = @bom.to_deal(@entity, @prices, 1)
+        deal = @bom.to_deal(@entity, Factory(:place), @prices, 1)
       }.should change(Deal, :count).by(4)
       deal.should_not be_nil
       deal.entity.should eq(@entity)
-      deal.give.should eq(@compaction)
-      deal.take.should eq(@compaction)
+      deal.give.resource.should eq(@compaction)
+      deal.take.resource.should eq(@compaction)
       deal.rate.should eq(1.00)
       deal.isOffBalance.should be_true
       deal.rules.count.should eq(2)
-      [deal.rules.first.from.give, deal.rules.last.from.give].should =~ [@compressor, @truck]
+      [deal.rules.first.from.give.resource,
+       deal.rules.last.from.give.resource].should =~ [@compressor, @truck]
       deal.rules.each do |rule|
         if rule.from.give == @truck
           rule.rate.should eq(0.33 * (74.03 * 4.70))
@@ -62,13 +63,14 @@ describe BoM do
     end
 
     it "should create different deal for same entity and bom" do
-      @bom.to_deal(@entity, @prices, 1).should_not be_nil
+      @bom.to_deal(@entity, Factory(:place), @prices, 1).should_not be_nil
     end
 
     it "should resend physical volume to rule creation" do
-      deal = @bom.to_deal(@entity, @prices, 2)
+      deal = @bom.to_deal(@entity, Factory(:place), @prices, 2)
       deal.rules.count.should eq(2)
-      [deal.rules.first.from.give, deal.rules.last.from.give].should =~ [@compressor, @truck]
+      [deal.rules.first.from.give.resource,
+       deal.rules.last.from.give.resource].should =~ [@compressor, @truck]
       deal.rules.each do |rule|
         if rule.from.give == @truck
           rule.rate.should eq(0.33 * (74.03 * 4.70) * 2)

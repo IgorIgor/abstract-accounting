@@ -12,8 +12,11 @@ class Asset < ActiveRecord::Base
 
   validates_presence_of :tag
   validates_uniqueness_of :tag, :scope => :mu
-  has_many :deal_gives, :class_name => "Deal", :as => :give
-  has_many :deal_takes, :class_name => "Deal", :as => :take
+  # TODO: fix direct access to side
+  has_many :terms_as_give, :class_name => Term, :as => :resource, :conditions => { :side => false }
+  has_many :terms_as_take, :class_name => Term, :as => :resource, :conditions => { :side => true }
+  has_many :deal_gives, :class_name => "Deal", :through => :terms_as_give, :source => :deal
+  has_many :deal_takes, :class_name => "Deal", :through => :terms_as_take, :source => :deal
   has_many :terms, :as => :resource
   belongs_to :detail, :class_name => "DetailedAsset"
 end

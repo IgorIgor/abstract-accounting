@@ -19,6 +19,6 @@ class Rule < ActiveRecord::Base
 
   def to_fact
     Fact.new :from => self.from, :to => self.to,
-             :amount => self.rate, :resource => self.to.give
+             :amount => self.rate, :resource => self.to.give.resource
   end
 end

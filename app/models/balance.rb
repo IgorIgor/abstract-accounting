@@ -102,28 +102,28 @@ class Balance < ActiveRecord::Base
   end
 
   def has_debit?
-    return true if !Chart.first.nil? and self.deal.take == Chart.first.currency
-    self.deal.take.is_a? Money and !self.deal.take.quotes.first.nil?
+    return true if !Chart.first.nil? and self.deal.take.resource == Chart.first.currency
+    self.deal.take.resource.is_a? Money and !self.deal.take.resource.quotes.first.nil?
   end
 
   def has_credit?
-    return true if !Chart.first.nil? and self.deal.give == Chart.first.currency
-    self.deal.give.is_a? Money and !self.deal.give.quotes.first.nil?
+    return true if !Chart.first.nil? and self.deal.give.resource == Chart.first.currency
+    self.deal.give.resource.is_a? Money and !self.deal.give.resource.quotes.first.nil?
   end
 
   def credit
-    if self.deal.give.is_a? Money and !self.deal.give.quote.nil?
-      return self.deal.give.quote.rate
-    elsif !Chart.first.nil? and self.deal.give == Chart.first.currency
+    if self.deal.give.resource.is_a? Money and !self.deal.give.resource.quote.nil?
+      return self.deal.give.resource.quote.rate
+    elsif !Chart.first.nil? and self.deal.give.resource == Chart.first.currency
       return 1.0
     end
     0.0
   end
 
   def debit
-    if self.deal.take.is_a? Money and !self.deal.take.quote.nil?
-      return self.deal.take.quote.rate
-    elsif !Chart.first.nil? and self.deal.take == Chart.first.currency
+    if self.deal.take.resource.is_a? Money and !self.deal.take.resource.quote.nil?
+      return self.deal.take.resource.quote.rate
+    elsif !Chart.first.nil? and self.deal.take.resource == Chart.first.currency
       return 1.0
     end
     0.0

@@ -18,6 +18,11 @@ class Estimate < ActiveRecord::Base
            :after_remove => :remove_item,
            :before_add => :add_item
 
+  #TODO:  replace by included attribute in table
+  def place
+    Place.find_or_create_by_tag("Estimate place")
+  end
+
   def price_list(bom)
     self.catalog.price_list(self.date, bom.tab)
   end
@@ -25,7 +30,7 @@ class Estimate < ActiveRecord::Base
   private
   def remove_item(element)
     self.deal.rules.each do |rule|
-      self.deal.rules.delete(rule.destroy) if rule.to.give == element.bom.resource
+      self.deal.rules.delete(rule.destroy) if rule.to.give.resource == element.bom.resource
     end
     (self.deal.destroy && self.update_attributes(:deal_id => nil)) if self.deal.rules.empty?
   end
@@ -33,17 +38,19 @@ class Estimate < ActiveRecord::Base
   def add_item(element)
     unless self.deal
       estimate_shipment = Asset.find_or_create_by_tag("Estimate shipment")
-      self.create_deal!(
+      self.build_deal(
         :tag => "estimate deal ##{
           Deal.find_all_by_entity_id_and_entity_type(self.legal_entity.id,
                                                      LegalEntity).count + 1
         } for entity #{self.legal_entity.name}", :isOffBalance => true,
-        :give => estimate_shipment, :take => estimate_shipment,
         :rate => 1.0,
         :entity => self.legal_entity
       )
+      self.deal.build_give(:resource => estimate_shipment, :place => self.place)
+      self.deal.build_take(:resource => estimate_shipment, :place => self.place)
+      self.deal.save!
       self.save!
     end
-    element.to_rule(self.deal, self.price_list(element.bom))
+    element.to_rule(self.deal, self.place, self.price_list(element.bom))
   end
 end

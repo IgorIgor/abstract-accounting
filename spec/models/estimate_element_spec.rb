@@ -44,19 +44,20 @@ describe EstimateElement do
       deal = Factory(:deal)
       rule = nil
       lambda {
-        rule = @estimate.items.create!(:bom => @bom, :amount => 10).to_rule(deal)
+        rule = @estimate.items.create!(:bom => @bom, :amount => 10).to_rule(deal,
+                                                                            Factory(:place))
       }.should change(deal.rules, :count).by(1)
       rule.from.should be_nil
       rule.to.should_not be_nil
       rule.rate.should eq(1.0)
       rule.deal_id.should eq(deal.id)
-      rule.to.give.should eq(@bom.resource)
+      rule.to.give.resource.should eq(@bom.resource)
       rule.to.rules.count.should eq(1)
     end
 
     it "should multiple rules amount by self amount" do
       deal = Factory(:deal)
-      rule = @estimate.items.first.to_rule(deal)
+      rule = @estimate.items.first.to_rule(deal, Factory(:place))
       rule.to.rules.count.should eq(1)
       rule.to.rules.first.
           rate.accounting_norm.should eq((0.33 * 10 * (74.03 * 4.70)).accounting_norm)

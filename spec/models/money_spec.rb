@@ -16,8 +16,10 @@ describe Money do
     should validate_presence_of :alpha_code
     should validate_uniqueness_of :num_code
     should validate_uniqueness_of :alpha_code
-    should have_many :deal_gives
-    should have_many :deal_takes
+    should have_many(:terms_as_give).class_name(Term).conditions(:side => false)
+    should have_many(:terms_as_take).class_name(Term).conditions(:side => true)
+    should have_many(:deal_gives).class_name(Deal).through(:terms_as_give)
+    should have_many(:deal_takes).class_name(Deal).through(:terms_as_take)
     should have_many :quotes
     should have_many :terms
     should have_many Money.versions_association_name

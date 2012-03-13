@@ -16,11 +16,23 @@ describe Quote do
     @c2 = Factory(:money)
     @y = Factory(:asset)
     x = Factory(:asset)
-    @a2 = Factory(:deal, :give => @c2, :take => @c2)
-    @dy = Factory(:deal, :give => @y, :take => @y)
-    @bx1 = Factory(:deal, :give => @c1, :take => x, :rate => (1.0 / 100.0))
-    @dx = Factory(:deal, :give => x, :take => x)
-    @sy2 = Factory(:deal, :give => @y, :take => @c2, :rate => 150.0)
+    @a2 = Factory(:deal,
+                  :give => Factory.build(:deal_give, :resource => @c2),
+                  :take => Factory.build(:deal_take, :resource => @c2))
+    @dy = Factory(:deal,
+                  :give => Factory.build(:deal_give, :resource => @y),
+                  :take => Factory.build(:deal_take, :resource => @y))
+    @bx1 = Factory(:deal,
+                   :give => Factory.build(:deal_give, :resource => @c1),
+                   :take => Factory.build(:deal_take, :resource => x),
+                   :rate => (1.0 / 100.0))
+    @dx = Factory(:deal,
+                  :give => Factory.build(:deal_give, :resource => x),
+                  :take => Factory.build(:deal_take, :resource => x))
+    @sy2 = Factory(:deal,
+                   :give => Factory.build(:deal_give, :resource => @y),
+                   :take => Factory.build(:deal_take, :resource => @c2),
+                   :rate => 150.0)
   end
 
   it "should create quote" do
@@ -43,7 +55,7 @@ describe Quote do
   it "should process purchase" do
     fact = Factory(:fact, :amount => 300.0,
                           :day => DateTime.civil(2008, 3, 24, 12, 0, 0),
-                          :from => @bx1, :to => @dx, :resource => @dx.give)
+                          :from => @bx1, :to => @dx, :resource => @dx.give.resource)
     t = Txn.create!(:fact => fact)
     t.value.should eq(45000.0)
     t.status.should eq(0)
@@ -76,7 +88,7 @@ describe Quote do
 
     fact = Factory(:fact, :amount => 60000.0,
                           :day => DateTime.civil(2008, 3, 25, 12, 0, 0),
-                          :from => @sy2, :to => @a2, :resource => @a2.give)
+                          :from => @sy2, :to => @a2, :resource => @a2.give.resource)
     t = Txn.create!(:fact => fact)
     t.value.should eq(120000.0)
     t.status.should eq(0)
@@ -91,10 +103,14 @@ describe Quote do
 
   it "should process forex sale" do
     Factory(:quote, :money => @cf, :rate => 1.0, :day => DateTime.civil(2008, 3, 24, 12, 0, 0))
-    f1 = Factory(:deal, :give => @c2, :take => @cf, :rate => 2.1)
+    f1 = Factory(:deal,
+                 :give => Factory.build(:deal_give, :resource => @c2),
+                 :take => Factory.build(:deal_take, :resource => @cf),
+                 :rate => 2.1)
     t = Txn.create!(:fact => Factory(:fact, :amount => 10000.0,
                                         :day => DateTime.civil(2008, 3, 25, 12, 0, 0),
-                                        :from => @a2, :to => f1, :resource => f1.give))
+                                        :from => @a2, :to => f1,
+                                        :resource => f1.give.resource))
     t.value.should eq(20000.0)
     t.status.should eq(1)
     t.earnings.should eq(1000.0)
@@ -105,10 +121,13 @@ describe Quote do
     t.to_balance.value.should eq(21000.0)
     t.to_balance.side.should eq(Balance::ACTIVE)
 
-    f2 = Factory(:deal, :give => @c2, :take => @cf, :rate => 2.0)
+    f2 = Factory(:deal,
+                 :give => Factory.build(:deal_give, :resource => @c2),
+                 :take => Factory.build(:deal_take, :resource => @cf),
+                 :rate => 2.0)
     fact = Factory(:fact, :amount => 10000.0,
                           :day => DateTime.civil(2008, 3, 25, 12, 0, 0),
-                          :from => @a2, :to => f2, :resource => f2.give)
+                          :from => @a2, :to => f2, :resource => f2.give.resource)
     t = Txn.create!(:fact => fact)
     t.value.should eq(20000.0)
     t.status.should eq(0)
@@ -120,10 +139,13 @@ describe Quote do
     t.to_balance.value.should eq(20000.0)
     t.to_balance.side.should eq(Balance::ACTIVE)
 
-    f3 = Factory(:deal, :give => @c2, :take => @cf, :rate => 1.95)
+    f3 = Factory(:deal,
+                 :give => Factory.build(:deal_give, :resource => @c2),
+                 :take => Factory.build(:deal_take, :resource => @cf),
+                 :rate => 1.95)
     fact = Factory(:fact, :amount => 10000.0,
                           :day => DateTime.civil(2008, 3, 25, 12, 0, 0),
-                          :from => @a2, :to => f3, :resource => f3.give)
+                          :from => @a2, :to => f3, :resource => f3.give.resource)
     t = Txn.create!(:fact => fact)
     t.value.should eq(20000.0)
     t.status.should eq(1)
@@ -155,10 +177,14 @@ describe Quote do
   end
 
   it "should process forex sale after rate change" do
-    f4 = Factory(:deal, :give => @c2, :take => @c1, :rate => (2.1 / 1.6))
+    f4 = Factory(:deal,
+                 :give => Factory.build(:deal_give, :resource => @c2),
+                 :take => Factory.build(:deal_take, :resource => @c1),
+                 :rate => (2.1 / 1.6))
     t = Txn.create!(:fact => Factory(:fact, :amount => 10000.0,
                                         :day => DateTime.civil(2008, 3, 31, 12, 0, 0),
-                                        :from => @a2, :to => f4, :resource => f4.give))
+                                        :from => @a2, :to => f4,
+                                        :resource => f4.give.resource))
     t.from_balance.amount.should eq(20000.0)
     t.from_balance.value.should eq(42000.0)
     t.from_balance.side.should eq(Balance::ACTIVE)
@@ -169,10 +195,13 @@ describe Quote do
 
   it "should process transfer rollback" do
     c3 = Factory(:money)
-    by3 = Factory(:deal, :give => c3, :take => @y, :rate => (1.0 / 200.0))
+    by3 = Factory(:deal,
+                  :give => Factory.build(:deal_give, :resource => c3),
+                  :take => Factory.build(:deal_take, :resource => @y),
+                  :rate => (1.0 / 200.0))
     Factory(:quote, :money => c3, :rate => 0.8, :day => DateTime.civil(2008, 4, 14, 12, 0, 0))
     f = Factory(:fact, :amount => 100.0, :day => DateTime.civil(2008, 4, 11, 12, 0, 0),
-                       :from => by3, :to => @dy, :resource => @dy.give)
+                       :from => by3, :to => @dy, :resource => @dy.give.resource)
 
     Fact.all.count.should eq(7)
     State.open.count.should eq(10)

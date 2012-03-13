@@ -12,8 +12,8 @@ class FactValidator < ActiveModel::Validator
     return if record.from.nil? and record.to.nil?
     record.errors[:base] << "bad resource" unless
         (record.from.nil? and !record.to.nil?) or
-        ((record.resource == record.from.take || record.from.income?) \
-        and (record.resource == record.to.give || record.to.income?))
+        ((record.from.income? || record.resource == record.from.take.resource) \
+        and (record.to.income? || record.resource == record.to.give.resource))
   end
 end
 

@@ -32,21 +32,39 @@ describe Rule do
     keeper = Factory(:entity)
     shipment = Factory(:asset)
     supplier = Factory(:entity)
-    purchase_x = Factory(:deal, :entity => supplier, :give => rub,
-      :take => x, :rate => (1.0 / 100.0))
-    purchase_y = Factory(:deal, :entity => supplier, :give => rub,
-      :take => y, :rate => (1.0 / 150.0))
-    storage_x = Factory(:deal, :entity => keeper, :give => x, :take => x)
-    storage_y = Factory(:deal, :entity => keeper, :give => y, :take => y)
-    sale_x = Factory(:deal, :entity => supplier, :give => x, :take => rub,
-      :rate => 120.0)
-    sale_y = Factory(:deal, :entity => supplier, :give => y, :take => rub,
-      :rate => 160.0)
+    purchase_x = Factory(:deal,
+                         :entity => supplier,
+                         :give => Factory.build(:deal_give, :resource => rub),
+                         :take => Factory.build(:deal_take, :resource => x),
+                         :rate => (1.0 / 100.0))
+    purchase_y = Factory(:deal,
+                         :entity => supplier,
+                         :give => Factory.build(:deal_give, :resource => rub),
+                         :take => Factory.build(:deal_take, :resource => y),
+                         :rate => (1.0 / 150.0))
+    storage_x = Factory(:deal,
+                        :entity => keeper,
+                        :give => Factory.build(:deal_give, :resource => x),
+                        :take => Factory.build(:deal_take, :resource => x))
+    storage_y = Factory(:deal,
+                        :entity => keeper,
+                        :give => Factory.build(:deal_give, :resource => y),
+                        :take => Factory.build(:deal_take, :resource => y))
+    sale_x = Factory(:deal,
+                     :entity => supplier,
+                     :give => Factory.build(:deal_give, :resource => x),
+                     :take => Factory.build(:deal_take, :resource => rub),
+                     :rate => 120.0)
+    sale_y = Factory(:deal,
+                     :entity => supplier,
+                     :give => Factory.build(:deal_give, :resource => y),
+                     :take => Factory.build(:deal_take, :resource => rub),
+                     :rate => 160.0)
     f = Factory(:fact, :amount => 50.0, :day => DateTime.civil(2008, 9, 16, 12, 0, 0),
-      :from => purchase_x, :to => storage_x, :resource => purchase_x.take)
+      :from => purchase_x, :to => storage_x, :resource => purchase_x.take.resource)
     Txn.create!(:fact => f)
     f = Factory(:fact, :amount => 50.0, :day => DateTime.civil(2008, 9, 16, 12, 0, 0),
-      :from => purchase_y, :to => storage_y, :resource => purchase_y.take)
+      :from => purchase_y, :to => storage_y, :resource => purchase_y.take.resource)
     Txn.create!(:fact => f)
     Balance.not_paid.count.should eq(4), "Wrong open balances count"
     b = purchase_x.balance
@@ -70,8 +88,11 @@ describe Rule do
     b.value.should eq(7500.0), "Wrong balance value"
     b.side.should eq(Balance::ACTIVE), "Wrong balance side"
 
-    shipment_deal = Factory(:deal, :entity => supplier, :give => shipment,
-      :take => shipment, :isOffBalance => true)
+    shipment_deal = Factory(:deal,
+                            :entity => supplier,
+                            :give => Factory.build(:deal_give, :resource => shipment),
+                            :take => Factory.build(:deal_take, :resource => shipment),
+                            :isOffBalance => true)
     Deal.find(shipment_deal.id).isOffBalance.should be_true,
       "Wrong saved value for is off balance"
 
@@ -83,7 +104,7 @@ describe Rule do
     Rule.count.should eq(2), "Rule count is wrong"
 
     f = Factory(:fact, :day => DateTime.civil(2008, 9, 22, 12, 0, 0),
-      :from => nil, :to => shipment_deal, :resource => shipment_deal.give)
+      :from => nil, :to => shipment_deal, :resource => shipment_deal.give.resource)
 
     State.open.count.should eq(7), "Wrong open states count"
     s = purchase_x.state
@@ -152,24 +173,34 @@ describe Rule do
   it "should apply filter" do
     storekeeper = Factory(:entity)
     sonyvaio = Factory(:asset)
-    svwarehouse = Factory(:deal, :entity => storekeeper, :give => sonyvaio,
-      :take => sonyvaio)
+    svwarehouse = Factory(:deal,
+                          :entity => storekeeper,
+                          :give => Factory.build(:deal_give, :resource => sonyvaio),
+                          :take => Factory.build(:deal_take, :resource => sonyvaio))
     buyer = Factory(:entity)
-    svsale = Factory(:deal, :rate => 80000, :entity => buyer,
-      :give => sonyvaio, :take => rub)
+    svsale = Factory(:deal,
+                     :rate => 80000,
+                     :entity => buyer,
+                     :give => Factory.build(:deal_give, :resource => sonyvaio),
+                     :take => Factory.build(:deal_take, :resource => rub))
 
     sbrfbank = Factory(:entity)
-    bankaccount = Factory(:deal, :entity => sbrfbank, :give => rub,
-      :take => rub)
+    bankaccount = Factory(:deal,
+                          :entity => sbrfbank,
+                          :give => Factory.build(:deal_give, :resource => rub),
+                          :take => Factory.build(:deal_take, :resource => rub))
     equipmentsupl = Factory(:entity)
-    purchase = Factory(:deal, :entity => equipmentsupl, :rate => 0.0000142857143,
-      :give => rub, :take => sonyvaio)
+    purchase = Factory(:deal,
+                       :entity => equipmentsupl,
+                       :rate => 0.0000142857143,
+                       :give => Factory.build(:deal_give, :resource => rub),
+                       :take => Factory.build(:deal_take, :resource => sonyvaio))
     Factory(:rule, :deal => svwarehouse, :from => bankaccount,
       :to => purchase, :rate => (1 / purchase.rate).accounting_norm)
 
     State.count.should eq(9), "Wrong state count"
     fact = Factory(:fact, :day => DateTime.civil(2011, 9, 1, 12, 0, 0), :amount => 300,
-      :from => purchase, :to => svwarehouse, :resource => svwarehouse.give)
+      :from => purchase, :to => svwarehouse, :resource => svwarehouse.give.resource)
     State.count.should eq(11), "Wrong state count"
     State.open.count.should eq(9), "Wrong open state count"
     state = purchase.state
@@ -184,14 +215,16 @@ describe Rule do
     state.side.should eq(State::ACTIVE), "Wrong state side"
     state.amount.should eq(fact.amount), "Wrong state amount"
 
-    buyerbank = Factory(:deal, :entity => sbrfbank, :give => rub,
-      :take => rub)
+    buyerbank = Factory(:deal,
+                        :entity => sbrfbank,
+                        :give => Factory.build(:deal_give, :resource => rub),
+                        :take => Factory.build(:deal_take, :resource => rub))
 
     Factory(:rule, :deal => svsale, :from => buyerbank, :to => bankaccount)
 
     State.open.count.should eq(9), "Wrong open state count"
     Factory(:fact, :day => DateTime.civil(2011, 9, 2, 12, 0, 0),
-      :amount => 300, :from => purchase, :to => svsale, :resource => svsale.give)
+      :amount => 300, :from => purchase, :to => svsale, :resource => svsale.give.resource)
     State.count.should eq(15), "Wrong state count"
     State.open.count.should eq(12), "Wrong open state count"
     state = purchase.state
@@ -217,15 +250,18 @@ describe Rule do
     state.side.should eq(State::ACTIVE), "Wrong state side"
     state.amount.should eq(fact.amount * svsale.rate), "Wrong state amount"
 
-    svsale2 = Factory(:deal, :rate => 70000, :entity => buyer, :give => sonyvaio,
-      :take => rub)
+    svsale2 = Factory(:deal,
+                      :rate => 70000,
+                      :entity => buyer,
+                      :give => Factory.build(:deal_give, :resource => sonyvaio),
+                      :take => Factory.build(:deal_take, :resource => rub))
 
     Factory(:rule, :deal => purchase, :from => svsale2, :to => bankaccount,
       :fact_side => true)
 
     State.open.count.should eq(12), "Wrong open state count"
     Factory(:fact, :day => DateTime.civil(2011, 9, 2, 12, 0, 0),
-      :amount => 300, :from => purchase, :to => svsale2, :resource => svsale2.give)
+      :amount => 300, :from => purchase, :to => svsale2, :resource => svsale2.give.resource)
     State.open.count.should eq(12), "Wrong open state count"
     assert_equal 12, State.open.count, "Wrong state count"
     state = purchase.state
@@ -253,13 +289,19 @@ describe Rule do
     state.should be_nil, "Sale state is not nil"
 
     galaxy = Factory(:asset)
-    purchase_g = Factory(:deal, :entity => equipmentsupl, :rate => 0.0002,
-      :give => rub, :take => galaxy)
-    sale_g = Factory(:deal, :rate => 5000, :entity => buyer,
-      :give => galaxy, :take => rub)
+    purchase_g = Factory(:deal,
+                         :entity => equipmentsupl,
+                         :rate => 0.0002,
+                         :give => Factory.build(:deal_give, :resource => rub),
+                         :take => Factory.build(:deal_take, :resource => galaxy))
+    sale_g = Factory(:deal,
+                     :rate => 5000,
+                     :entity => buyer,
+                     :give => Factory.build(:deal_give, :resource => galaxy),
+                     :take => Factory.build(:deal_take, :resource => rub))
 
     Factory(:fact, :day => DateTime.civil(2011, 9, 3, 12, 0, 0),
-      :amount => 300, :from => purchase_g, :to => sale_g, :resource => sale_g.give)
+      :amount => 300, :from => purchase_g, :to => sale_g, :resource => sale_g.give.resource)
     state = purchase_g.state
     state.should_not be_nil, "Buyer bank state is nil"
     state.side.should eq(State::PASSIVE), "Wrong state side"
@@ -273,7 +315,7 @@ describe Rule do
       :fact_side => true, :rate => 5000.0)
 
     Factory(:fact, :day => DateTime.civil(2011, 9, 4, 12, 0, 0), :amount => sale_g.rate * 200,
-      :from => sale_g, :to => bankaccount, :resource => bankaccount.give)
+      :from => sale_g, :to => bankaccount, :resource => bankaccount.give.resource)
     state = purchase_g.state
     state.should_not be_nil, "Buyer bank state is nil"
     state.side.should eq(State::PASSIVE), "Wrong state side"
@@ -284,7 +326,7 @@ describe Rule do
     state.amount.should eq(100 * sale_g.rate), "Wrong state amount"
 
     Factory(:fact, :day => DateTime.civil(2011, 9, 4, 12, 0, 0), :amount => sale_g.rate * 200,
-      :from => sale_g, :to => bankaccount, :resource => bankaccount.give)
+      :from => sale_g, :to => bankaccount, :resource => bankaccount.give.resource)
     state = purchase_g.state
     state.should_not be_nil, "Buyer bank state is nil"
     state.side.should eq(State::PASSIVE), "Wrong state side"
@@ -295,14 +337,20 @@ describe Rule do
     state.amount.should eq(100), "Wrong state amount"
 
     nokia = Factory(:asset)
-    purchase_n = Factory(:deal, :rate => 0.00033, :entity => equipmentsupl,
-      :give => rub, :take => nokia)
-    sale_n = Factory(:deal, :rate => 3000, :entity => buyer,
-      :give => nokia, :take => rub)
+    purchase_n = Factory(:deal,
+                         :rate => 0.00033,
+                         :entity => equipmentsupl,
+                         :give => Factory.build(:deal_give, :resource => rub),
+                         :take => Factory.build(:deal_take, :resource => nokia))
+    sale_n = Factory(:deal,
+                     :rate => 3000,
+                     :entity => buyer,
+                     :give => Factory.build(:deal_give, :resource => nokia),
+                     :take => Factory.build(:deal_take, :resource => rub))
 
     Factory(:fact, :day => DateTime.civil(2011, 9, 4, 12, 0, 0),
       :amount => (200 / purchase_n.rate).accounting_norm, :from => bankaccount,
-      :to => purchase_n, :resource => purchase_n.give)
+      :to => purchase_n, :resource => purchase_n.give.resource)
     state = purchase_n.state
     state.should_not be_nil, "Purchase state is nil"
     state.side.should eq(State::ACTIVE), "Wrong state side"
@@ -313,7 +361,7 @@ describe Rule do
 
     Factory(:fact, :day => DateTime.civil(2011, 9, 4, 12, 0, 0),
       :amount => 100, :from => purchase_n,
-      :to => sale_n, :resource => sale_n.give)
+      :to => sale_n, :resource => sale_n.give.resource)
     state = purchase_n.state
     state.should_not be_nil, "Purchase state is nil"
     state.side.should eq(State::ACTIVE), "Wrong state side"
@@ -322,17 +370,23 @@ describe Rule do
     state.should be_nil, "Sale state is not nil"
 
     nokia33 = Factory(:asset)
-    purchase_n33 = Factory(:deal, :rate => 0.00025,
-      :entity => equipmentsupl, :give => rub, :take => nokia33)
-    sale_n33 = Factory(:deal, :rate => 4000,
-      :entity => buyer, :give => nokia33, :take => rub)
+    purchase_n33 = Factory(:deal,
+                           :rate => 0.00025,
+                           :entity => equipmentsupl,
+                           :give => Factory.build(:deal_give, :resource => rub),
+                           :take => Factory.build(:deal_take, :resource => nokia33))
+    sale_n33 = Factory(:deal,
+                       :rate => 4000,
+                       :entity => buyer,
+                       :give => Factory.build(:deal_give, :resource => nokia33),
+                       :take => Factory.build(:deal_take, :resource => rub))
 
     Factory(:rule, :deal => sale_n33, :from => bankaccount, :to => purchase_n33,
       :change_side => false, :rate => 4000.0)
 
     Factory(:fact, :day => DateTime.civil(2011, 9, 4, 12, 0, 0),
       :amount => 100, :from => purchase_n33,
-      :to => sale_n33, :resource => sale_n33.give)
+      :to => sale_n33, :resource => sale_n33.give.resource)
     state = purchase_n33.state
     state.should_not be_nil, "Purchase state is nil"
     state.side.should eq(State::PASSIVE), "Wrong state side"
@@ -348,7 +402,7 @@ describe Rule do
 
     Factory(:fact, :day => DateTime.civil(2011, 9, 4, 12, 0, 0),
       :amount => 200 * sale_n33.rate, :from => sale_n33,
-      :to => bankaccount, :resource => sale_n33.take)
+      :to => bankaccount, :resource => sale_n33.take.resource)
     state = purchase_n33.state
     state.should be_nil, "Purchase state is not nil"
     state = sale_n33.state
@@ -357,10 +411,16 @@ describe Rule do
     state.amount.should eq(100), "Wrong state amount"
 
     alcatel = Factory(:asset)
-    purchase_a = Factory(:deal, :rate => 0.0001, :entity => equipmentsupl,
-      :give => rub, :take => alcatel)
-    sale_a = Factory(:deal, :rate => 1000, :entity => buyer,
-      :give => alcatel, :take => rub)
+    purchase_a = Factory(:deal,
+                         :rate => 0.0001,
+                         :entity => equipmentsupl,
+                         :give => Factory.build(:deal_give, :resource => rub),
+                         :take => Factory.build(:deal_take, :resource => alcatel))
+    sale_a = Factory(:deal,
+                     :rate => 1000,
+                     :entity => buyer,
+                     :give => Factory.build(:deal_give, :resource => alcatel),
+                     :take => Factory.build(:deal_take, :resource => rub))
 
     Factory(:rule, :deal => purchase_a, :from => bankaccount, :to => purchase_a,
       :fact_side => true)
@@ -368,7 +428,7 @@ describe Rule do
     Factory(:rule, :deal => sale_a, :from => sale_a, :to => bankaccount)
 
     Factory(:fact, :day => DateTime.civil(2011, 9, 4, 12, 0, 0), :amount => 100,
-      :from => purchase_a, :to => sale_a, :resource => sale_a.give)
+      :from => purchase_a, :to => sale_a, :resource => sale_a.give.resource)
     state = purchase_a.state
     state.should be_nil, "Purchase state is not nil"
     state = sale_a.state

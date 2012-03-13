@@ -28,8 +28,8 @@ FactoryGirl.define do
 
   factory :deal do |d|
     d.sequence(:tag) { |n| "deal#{n}" }
-    d.give { |deal| deal.association(:asset) }
-    d.take { |deal| deal.association(:asset) }
+    d.give { |deal| deal.association(:deal_give, :strategy => :build) }
+    d.take { |deal| deal.association(:deal_take, :strategy => :build) }
     d.entity { |deal| deal.association(:entity) }
     d.rate 1.0
   end
@@ -53,8 +53,12 @@ FactoryGirl.define do
     f.day DateTime.civil(DateTime.now.year, DateTime.now.month, DateTime.now.day, 12, 0, 0)
     f.amount 1.0
     f.resource { |fact| fact.association(:money) }
-    f.from { |fact| fact.association(:deal, :take => fact.resource) }
-    f.to { |fact| fact.association(:deal, :give => fact.resource) }
+    f.from { |fact| fact.association(:deal,
+                                     :take => Factory.build(:deal_take,
+                                                            :resource => fact.resource)) }
+    f.to { |fact| fact.association(:deal,
+                                   :give => Factory.build(:deal_give,
+                                                          :resource => fact.resource)) }
   end
 
   factory :txn do |t|
@@ -151,5 +155,13 @@ FactoryGirl.define do
   factory :term do |t|
     t.place { |term| term.association(:place) }
     t.resource { |term| term.association(:asset) }
+  end
+
+  factory :deal_give, :parent => :term do |t|
+    t.side false
+  end
+
+  factory :deal_take, :parent => :term do |t|
+    t.side true
   end
 end

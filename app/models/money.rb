@@ -14,12 +14,15 @@ class Money < ActiveRecord::Base
   validates_presence_of :alpha_code
   validates_uniqueness_of :num_code
   validates_uniqueness_of :alpha_code
-  has_many :deal_gives, :class_name => "Deal", :as => :give
-  has_many :deal_takes, :class_name => "Deal", :as => :take
-  has_many :balances_gives, :class_name => "Balance", :through => :deal_gives, :source => :balances
-  has_many :balances_takes, :class_name => "Balance", :through => :deal_takes, :source => :balances
   has_many :quotes
   has_many :terms, :as => :resource
+  # TODO: fix direct access to side
+  has_many :terms_as_give, :class_name => Term, :as => :resource, :conditions => { :side => false }
+  has_many :terms_as_take, :class_name => Term, :as => :resource, :conditions => { :side => true }
+  has_many :deal_gives, :class_name => "Deal", :through => :terms_as_give, :source => :deal
+  has_many :deal_takes, :class_name => "Deal", :through => :terms_as_take, :source => :deal
+  has_many :balances_gives, :class_name => "Balance", :through => :deal_gives, :source => :balances
+  has_many :balances_takes, :class_name => "Balance", :through => :deal_takes, :source => :balances
 
   def quote
     self.quotes.where(:day => self.quotes.maximum(:day)).first

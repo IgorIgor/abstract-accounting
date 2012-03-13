@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120312095943) do
+ActiveRecord::Schema.define(:version => 20120313093737) do
 
   create_table "assets", :force => true do |t|
     t.string  "tag"
@@ -97,10 +97,6 @@ ActiveRecord::Schema.define(:version => 20120312095943) do
     t.string  "tag"
     t.float   "rate"
     t.integer "entity_id"
-    t.integer "give_id"
-    t.string  "give_type"
-    t.integer "take_id"
-    t.string  "take_type"
     t.boolean "isOffBalance", :default => false
     t.string  "entity_type"
   end

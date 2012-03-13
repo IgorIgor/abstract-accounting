@@ -15,16 +15,16 @@ describe Deal do
     should validate_presence_of :tag
     should validate_presence_of :rate
     should validate_presence_of :entity_id
-    should validate_presence_of :give_id
-    should validate_presence_of :take_id
+    should validate_presence_of :give
+    should validate_presence_of :take
     should validate_uniqueness_of(:tag).scoped_to(:entity_id, :entity_type)
     should belong_to :entity
-    should belong_to :give
-    should belong_to :take
     should have_many(:states)
     should have_many(:balances)
     should have_many(:rules)
     should have_many(:terms)
+    should have_one(:give).class_name(Term).conditions(:side => false)
+    should have_one(:take).class_name(Term).conditions(:side => true)
     should have_many Deal.versions_association_name
 
     deal_has_states

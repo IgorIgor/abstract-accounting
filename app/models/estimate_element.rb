@@ -15,10 +15,10 @@ class EstimateElement < ActiveRecord::Base
   belongs_to :bom, :class_name => "BoM"
   belongs_to :estimate
 
-  def to_rule(deal, price_list = nil)
+  def to_rule(deal, place, price_list = nil)
     deal.rules.create!(:tag => "deal: #{deal.tag}; rule ##{deal.rules.count() + 1}",
                        :from => nil, :rate => 1.0, :fact_side => false, :change_side => true,
-                       :to => self.bom.to_deal(deal.entity,
+                       :to => self.bom.to_deal(deal.entity, place,
                          self.estimate ? self.estimate.price_list(self.bom) : price_list,
                          self.amount))
   end

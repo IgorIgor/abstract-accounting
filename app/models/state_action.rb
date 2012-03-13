@@ -13,7 +13,7 @@ module StateAction
 
   def resource
     return nil if self.deal.nil?
-    self.side == ACTIVE ? self.deal.take : self.deal.give
+    self.side == ACTIVE ? self.deal.take.resource : self.deal.give.resource
   end
 
   def update_amount(side, amount)

@@ -52,7 +52,7 @@ describe Estimate do
 
     it "should create rules when item added" do
       @estimate.deal.rules.count.should eq(1)
-      @estimate.deal.rules.first.to.give.should eq(@compaction)
+      @estimate.deal.rules.first.to.give.resource.should eq(@compaction)
       bom = @estimate.catalog.boms.create!(:resource => @covering, :tab => "tab1")
       bom.items.create!(:resource => @truck, :rate => 0.64)
       pl = @estimate.catalog.price_lists.create!(:resource => @covering, :tab => "tab1",
@@ -60,8 +60,8 @@ describe Estimate do
       pl.items.create!(:resource => @truck, :rate => (74.03 * 4.70))
       @estimate.items.build(:bom => bom, :amount => 2.0)
       @estimate.deal.rules.count.should eq(2)
-      [@estimate.deal.rules.first.to.give,
-      @estimate.deal.rules.last.to.give].should =~ [@compaction, @covering]
+      [@estimate.deal.rules.first.to.give.resource,
+      @estimate.deal.rules.last.to.give.resource].should =~ [@compaction, @covering]
     end
 
     it "should remove rules from deal when item removed" do
@@ -70,7 +70,7 @@ describe Estimate do
         @estimate.items.delete(@estimate.items.last.destroy)
       }.should change(Rule, :count).by(-1)
       @estimate.deal.rules.count.should eq(1)
-      @estimate.deal.rules.first.to.give.should eq(@estimate.items.first.bom.resource)
+      @estimate.deal.rules.first.to.give.resource.should eq(@estimate.items.first.bom.resource)
     end
 
     it "should remove deal when item removed and items.count = 0" do

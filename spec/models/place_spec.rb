@@ -16,5 +16,6 @@ describe Place do
     should validate_uniqueness_of :tag
     should have_many(:waybills)
     should have_many :terms
+    should have_many Place.versions_association_name
   end
 end

@@ -13,14 +13,16 @@ describe Waybill do
   it "should have next behaviour" do
     Factory(:waybill)
     should validate_presence_of :document_id
-    should validate_presence_of :legal_entity_id
-    should validate_presence_of :place_id
-    should validate_presence_of :entity_id
+    should validate_presence_of :distributor
+    should validate_presence_of :storekeeper
+    should validate_presence_of :distributor_place
+    should validate_presence_of :storekeeper_place
     should validate_presence_of :created
     should validate_uniqueness_of :document_id
-    should belong_to :legal_entity
-    should belong_to :place
-    should belong_to :entity
+    should belong_to :distributor
+    should belong_to :storekeeper
+    should belong_to(:distributor_place).class_name(Place)
+    should belong_to(:storekeeper_place).class_name(Place)
   end
 
   describe "#items" do

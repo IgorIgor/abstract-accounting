@@ -12,6 +12,5 @@ class Place < ActiveRecord::Base
 
   validates_presence_of :tag
   validates_uniqueness_of :tag
-  has_many :waybills
   has_many :terms
 end

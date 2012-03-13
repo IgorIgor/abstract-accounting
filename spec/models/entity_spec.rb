@@ -15,7 +15,6 @@ describe Entity do
     should validate_presence_of :tag
     should validate_uniqueness_of :tag
     should have_many Entity.versions_association_name
-    should have_many(:waybills)
     should belong_to(:detail).class_name(Person)
   end
 end

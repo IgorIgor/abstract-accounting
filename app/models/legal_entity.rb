@@ -14,5 +14,4 @@ class LegalEntity < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => :country_id
   belongs_to :country
   belongs_to :detail, :polymorphic => true
-  has_many :waybills
 end

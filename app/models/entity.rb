@@ -13,7 +13,6 @@ class Entity < ActiveRecord::Base
   validates_presence_of :tag
   validates_uniqueness_of :tag
   has_many :deals
-  has_many :waybills
   belongs_to :detail, :class_name => "Person"
 end
 

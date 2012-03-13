@@ -10,12 +10,13 @@
 class Waybill < ActiveRecord::Base
   has_paper_trail
 
-  validates :document_id, :legal_entity_id, :place_id, :entity_id,
-            :created, :presence => true
+  validates :document_id, :distributor, :distributor_place, :storekeeper,
+            :storekeeper_place, :created, :presence => true
   validates_uniqueness_of :document_id
-  belongs_to :legal_entity
-  belongs_to :place
-  belongs_to :entity
+  belongs_to :distributor, :polymorphic => true
+  belongs_to :storekeeper, :polymorphic => true
+  belongs_to :distributor_place, :class_name => 'Place'
+  belongs_to :storekeeper_place, :class_name => 'Place'
 
   attr_reader :items
 

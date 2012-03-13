@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120307072740) do
+ActiveRecord::Schema.define(:version => 20120312095943) do
 
   create_table "assets", :force => true do |t|
     t.string  "tag"
@@ -295,6 +295,14 @@ ActiveRecord::Schema.define(:version => 20120307072740) do
     t.float    "amount"
     t.datetime "start"
     t.datetime "paid"
+  end
+
+  create_table "terms", :force => true do |t|
+    t.integer "deal_id"
+    t.boolean "side"
+    t.integer "place_id"
+    t.integer "resource_id"
+    t.string  "resource_type"
   end
 
   create_table "txns", :force => true do |t|

@@ -7,11 +7,13 @@
 #
 # Please see ./COPYING for details
 
-class Service < ActiveRecord::Base
-  has_paper_trail
-
-  validates_presence_of :tag, :mu
-  validates_uniqueness_of :tag, :scope => :mu
-  belongs_to :detailed, :class_name => "DetailedService"
-  has_many :terms, :as => :resource
+class CreateTerms < ActiveRecord::Migration
+  def change
+    create_table :terms do |t|
+      t.references :deal
+      t.boolean :side
+      t.references :place
+      t.references :resource, :polymorphic => true
+    end
+  end
 end

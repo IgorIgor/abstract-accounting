@@ -147,4 +147,9 @@ FactoryGirl.define do
     w.entity { |waybill| waybill.association(:entity) }
     w.created Date.today
   end
+
+  factory :term do |t|
+    t.place { |term| term.association(:place) }
+    t.resource { |term| term.association(:asset) }
+  end
 end

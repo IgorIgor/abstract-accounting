@@ -16,6 +16,7 @@ describe Service do
     should validate_presence_of :mu
     should validate_uniqueness_of(:tag).scoped_to(:mu)
     should belong_to(:detailed).class_name(DetailedService)
+    should have_many :terms
     should have_many Service.versions_association_name
   end
 end

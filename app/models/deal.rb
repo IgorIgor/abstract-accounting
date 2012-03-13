@@ -18,6 +18,7 @@ class Deal < ActiveRecord::Base
   has_many :states
   has_many :balances
   has_many :rules
+  has_many :terms
 
   def self.income
     income = Deal.where(:id => INCOME_ID).first

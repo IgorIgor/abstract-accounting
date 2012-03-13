@@ -7,15 +7,12 @@
 #
 # Please see ./COPYING for details
 
-class Asset < ActiveRecord::Base
+class Term < ActiveRecord::Base
   has_paper_trail
 
-  validates_presence_of :tag
-  validates_uniqueness_of :tag, :scope => :mu
-  has_many :deal_gives, :class_name => "Deal", :as => :give
-  has_many :deal_takes, :class_name => "Deal", :as => :take
-  has_many :terms, :as => :resource
-  belongs_to :detail, :class_name => "DetailedAsset"
+  validates :deal_id, :place_id, :resource_id, :presence => true
+  validates_uniqueness_of :deal_id, :scope => [:side]
+  belongs_to :deal
+  belongs_to :place
+  belongs_to :resource, :polymorphic => true
 end
-
-# vim: ts=2 sts=2 sw=2 et:

@@ -9,15 +9,15 @@
 
 require 'spec_helper'
 
-describe Asset do
+describe Term do
   it "should have next behaviour" do
-    Factory(:asset)
-    should validate_presence_of :tag
-    should validate_uniqueness_of(:tag).scoped_to(:mu)
-    should have_many :deal_gives
-    should have_many :deal_takes
-    should have_many(:terms)
-    should have_many Asset.versions_association_name
-    should belong_to(:detail).class_name(DetailedAsset)
+    Factory(:term, :deal_id => 0)
+    should validate_presence_of :deal_id
+    should validate_presence_of :place_id
+    should validate_presence_of :resource_id
+    should validate_uniqueness_of(:deal_id).scoped_to(:side)
+    should belong_to :deal
+    should belong_to :place
+    should belong_to :resource
   end
 end

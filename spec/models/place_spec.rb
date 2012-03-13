@@ -15,5 +15,6 @@ describe Place do
     should validate_presence_of :tag
     should validate_uniqueness_of :tag
     should have_many(:waybills)
+    should have_many :terms
   end
 end

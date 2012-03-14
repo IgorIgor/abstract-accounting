@@ -35,6 +35,7 @@ Abstract::Application.routes.draw do
       get 'preview'
     end
   end
+  resources :places
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

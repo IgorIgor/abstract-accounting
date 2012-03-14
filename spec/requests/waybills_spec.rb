@@ -60,7 +60,25 @@ feature "waybill", %q{
       within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
         all(:xpath, ".//ul//li")[1].click
       end
-    end
 
+      items = 6.times.collect { Factory(:place) } .sort
+      fill_in("distributor_place", :with => items[0].tag[0..1])
+      page.should have_xpath("//div[@class='ac_results' and contains(@style, 'display: block')]")
+      within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
+        all(:xpath, ".//ul//li").length.should eq(5)
+        (0..4).each do |idx|
+          page.should have_content(items[idx].tag)
+        end
+        page.should_not have_content(items[5].tag)
+        all(:xpath, ".//ul//li")[1].click
+      end
+      find("#distributor_place")["value"].should eq(items[1].tag)
+      fill_in("distributor_place", :with => "")
+      find("#distributor_place")["value"].should eq("")
+      fill_in("distributor_place", :with => items[0].tag[0..1])
+      within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
+        all(:xpath, ".//ul//li")[1].click
+      end
+    end
   end
 end

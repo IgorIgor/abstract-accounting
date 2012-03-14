@@ -56,7 +56,37 @@
         <span>
           <input id="distributor_place" type="text" data-url="places.json"
                  data-field="tag" bind-param="place_id"
-                 data-bind="value: place.tag,
+                 data-bind="value: distributor_place.tag,
+                            event: {focus: autocomplete_init},
+                            disable: readonly()" />
+        </span>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>storekeeper</legend>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="storekeeper_entity">Entity:</label>
+        </span>
+        <span>
+          <input id="storekeeper_entity" type="text" data-url="entities.json"
+                 data-field="tag" bind-param="entity_id"
+                 data-bind="value: entity.tag,
+                            event: {focus: autocomplete_init},
+                            disable: readonly()"/>
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="distributor_place">Place:</label>
+        </span>
+        <span>
+          <input id="storekeeper_place" type="text" data-url="places.json"
+                 data-field="tag" bind-param="place_id"
+                 data-bind="value: storekeeper_place.tag,
                             event: {focus: autocomplete_init},
                             disable: readonly()" />
         </span>

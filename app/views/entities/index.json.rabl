@@ -7,5 +7,5 @@
 #
 # Please see ./COPYING for details
 
-object @waybill
-attributes :created, :document_id, :legal_entity_id, :place_id, :entity_id
+collection @entities
+attributes :id, :tag

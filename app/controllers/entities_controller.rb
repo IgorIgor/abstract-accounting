@@ -7,5 +7,8 @@
 #
 # Please see ./COPYING for details
 
-object @waybill
-attributes :created, :document_id, :legal_entity_id, :place_id, :entity_id
+class EntitiesController < ApplicationController
+  def index
+    @entities = Entity.where("tag LIKE ?", "%#{params[:q]}%").order("tag").limit(5)
+  end
+end

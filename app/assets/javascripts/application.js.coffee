@@ -37,8 +37,12 @@ $ ->
       name: ko.observable(if readonly then data.legal_entity.name else "")
       identifier_name: ko.observable(if readonly then data.legal_entity.identifier_name else "")
       identifier_value: ko.observable(if readonly then data.legal_entity.identifier_value else "")
-    self.place =
-      tag: ko.observable(if readonly then data.place.tag else "")
+    self.distributor_place =
+      tag: ko.observable(if readonly then data.distributor_place.tag else "")
+    self.storekeeper_place =
+      tag: ko.observable(if readonly then data.storekeeper_place.tag else "")
+    self.entity =
+      tag: ko.observable(if readonly then data.entity.tag else "")
     self.boms = ko.observableArray([])
     if readonly
       for item in data.boms
@@ -89,8 +93,6 @@ $ ->
                 self.legal_entity.identifier_value("")
               when "estimate_catalog_date"
                 $(event.target).val("")
-              when "distributor_place"
-                self.place.tag("")
         )
         $(event.target).result((event, data, formatted) ->
           if($(event.target).attr("class").search("bom_tab") == 0)
@@ -111,7 +113,7 @@ $ ->
                 self.legal_entity.identifier_value(data[$("#waybill_ident_value").attr("data-field")])
               when "estimate_catalog_date"
                 self.object()[$(event.target).attr("bind-param")] = data["date"]
-              when "distributor_place"
+              when "distributor_place", "storekeeper_entity", "storekeeper_place"
                 self.object()[$(event.target).attr("bind-param")] = data["id"]
         )
     self.catalogs = ko.observableArray([])

@@ -37,6 +37,11 @@ feature "waybill", %q{
     page.should have_selector("input[@id='waybill_document_id']")
 
     within("#container_documents form") do
+      #test distributor fields
+      #entities fields
+      fill_in("waybill_entity", :with => "qqqqq")
+      page.find("#waybill_ident_value").click
+      find("#waybill_entity")["value"].should eq("qqqqq")
       items = 6.times.collect { Factory(:legal_entity) } .sort
       fill_in("waybill_entity", :with => items[0].name[0..1])
       page.should have_xpath(
@@ -61,6 +66,7 @@ feature "waybill", %q{
         all(:xpath, ".//ul//li")[1].click
       end
 
+      #distributor place
       items = 6.times.collect { Factory(:place) } .sort
       fill_in("distributor_place", :with => items[0].tag[0..1])
       page.should have_xpath("//div[@class='ac_results' and contains(@style, 'display: block')]")
@@ -79,6 +85,55 @@ feature "waybill", %q{
       within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
         all(:xpath, ".//ul//li")[1].click
       end
+      fill_in("distributor_place", :with => "qqqqq")
+      page.find("#waybill_ident_value").click
+      find("#distributor_place")["value"].should eq("qqqqq")
+
+      #test storekeeper fields
+      #storekeeper place
+      fill_in("storekeeper_place", :with => items[0].tag[0..1])
+      page.should have_xpath("//div[@class='ac_results' and contains(@style, 'display: block')]")
+      within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
+        all(:xpath, ".//ul//li").length.should eq(5)
+        (0..4).each do |idx|
+          page.should have_content(items[idx].tag)
+        end
+        page.should_not have_content(items[5].tag)
+        all(:xpath, ".//ul//li")[1].click
+      end
+      find("#storekeeper_place")["value"].should eq(items[1].tag)
+      fill_in("storekeeper_place", :with => "")
+      find("#storekeeper_place")["value"].should eq("")
+      fill_in("storekeeper_place", :with => items[0].tag[0..1])
+      within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
+        all(:xpath, ".//ul//li")[1].click
+      end
+      fill_in("storekeeper_place", :with => "qqqqq")
+      page.find("#waybill_ident_value").click
+      find("#storekeeper_place")["value"].should eq("qqqqq")
+
+      #storekeeper entity
+      items = 6.times.collect { Factory(:entity) } .sort
+      fill_in("storekeeper_entity", :with => items[0].tag[0..1])
+      page.should have_xpath("//div[@class='ac_results' and contains(@style, 'display: block')]")
+      within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
+        all(:xpath, ".//ul//li").length.should eq(5)
+        (0..4).each do |idx|
+          page.should have_content(items[idx].tag)
+        end
+        page.should_not have_content(items[5].tag)
+        all(:xpath, ".//ul//li")[1].click
+      end
+      find("#storekeeper_entity")["value"].should eq(items[1].tag)
+      fill_in("storekeeper_entity", :with => "")
+      find("#storekeeper_entity")["value"].should eq("")
+      fill_in("storekeeper_entity", :with => items[0].tag[0..1])
+      within(:xpath, "//div[@class='ac_results' and contains(@style, 'display: block')]") do
+        all(:xpath, ".//ul//li")[1].click
+      end
+      fill_in("storekeeper_entity", :with => "qqqqq")
+      page.find("#waybill_ident_value").click
+      find("#storekeeper_entity")["value"].should eq("qqqqq")
     end
   end
 end

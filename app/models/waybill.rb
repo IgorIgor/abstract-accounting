@@ -10,20 +10,19 @@
 class ItemsValidator < ActiveModel::Validator
   def validate(record)
     record.errors[:items] <<
-      "must exist" if record.items.empty?
-    items = Hash.new
+      'must exist' if record.items.empty?
+    items = []
     record.items.each { |item|
       record.errors[:items] <<
-        "invalid" if item.resource.nil? || item.resource.invalid?
-      record.errors[:items] <<
-        "invalid amount" if item.amount <= 0
-      record.errors[:items] <<
-        "invalid price" if item.price <= 0
-      unless items.select{|key, val| (key == item.resource.tag) &&
-                                     (val == item.resource.mu)}.empty?
-        record.errors[:items] << "two identical resources"
+        'invalid' if item.resource.nil? || item.resource.invalid?
+      record.errors[:items] << 'invalid amount' if item.amount <= 0
+      record.errors[:items] << 'invalid price' if item.price <= 0
+      unless items.select{|i| (i[:tag] == item.resource.tag) &&
+                              (i[:mu] == item.resource.mu) &&
+                              (i[:price] == item.price)} .empty?
+        record.errors[:items] << 'two identical resources'
       end
-      items[item.resource.tag] = item.resource.mu
+      items << {tag: item.resource.tag, mu: item.resource.mu, price: item.price}
     }
   end
 end
@@ -107,20 +106,18 @@ class WaybillItem
     give_r ||= self.resource
 
     deal = Deal.all(
-      :joins => ["INNER JOIN terms AS gives ON gives.deal_id = deals.id
-                    AND gives.side = 'f'",
-                  "INNER JOIN terms AS takes ON takes.deal_id = deals.id
-                    AND takes.side = 't'"],
-      :conditions => ["gives.resource_id = ? AND gives.place_id = ? AND
-                       takes.resource_id = ? AND takes.place_id = ? AND
-                       deals.entity_id = ? AND deals.entity_type = ?",
-                      give_r, place, self.resource, place, entity, entity.class.name]
+      joins: ["INNER JOIN terms AS gives ON gives.deal_id = deals.id
+                 AND gives.side = 'f'",
+              "INNER JOIN terms AS takes ON takes.deal_id = deals.id
+                 AND takes.side = 't'"],
+      conditions: ["gives.resource_id = ? AND gives.place_id = ? AND
+                    takes.resource_id = ? AND takes.place_id = ? AND
+                    deals.entity_id = ? AND deals.entity_type = ? AND deals.rate = ?",
+                  give_r, place, self.resource, place, entity, entity.class.name, rate]
     ).first
-
     if deal.nil?
-      deal = Deal.new(:entity => entity,
-        :rate => rate, :isOffBalance => true,
-        :tag => "storehouse resource: #{self.resource.tag}[#{self.resource.mu}];")
+      deal = Deal.new(entity: entity, rate: rate, isOffBalance: true,
+        tag: "storehouse resource: #{self.resource.tag}[#{self.resource.mu}]; rate: #{rate}")
       return nil if deal.build_give(place: place, resource: give_r).nil?
       return nil if deal.build_take(place: place, resource: self.resource).nil?
       return nil unless deal.save

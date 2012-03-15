@@ -127,6 +127,30 @@ describe Waybill do
     deal.should_not be_nil
     deal.rate.should eq(1.0)
     deal.isOffBalance.should be_true
+
+    wb = Factory.build(:waybill, distributor: wb.distributor,
+                                 distributor_place: wb.distributor_place,
+                                 storekeeper: wb.storekeeper,
+                                 storekeeper_place: wb.storekeeper_place)
+    wb.add_item('roof', 'm2', 100, 10.0)
+    wb.add_item('roof', 'm2', 70, 12.0)
+    lambda { wb.save } .should change(Deal, :count).by(3)
+
+    deal = Deal.find(wb.deal)
+    deal.entity.should eq(wb.storekeeper)
+    deal.isOffBalance.should be_true
+
+    wb.items.each {|i|
+      deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
+      deal.should_not be_nil
+      deal.rate.should eq(i.price)
+      deal.isOffBalance.should be_true
+
+      deal = i.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+      deal.should_not be_nil
+      deal.rate.should eq(1.0)
+      deal.isOffBalance.should be_true
+    }
   end
 
   it 'should create rules' do

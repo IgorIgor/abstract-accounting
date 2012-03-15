@@ -21,8 +21,8 @@
         </span>
         <span>
           <input id="waybill_entity" type="text" data-url="legal_entities.json"
-                 data-field="name" bind-param="legal_entity_id"
-                 data-bind="value: legal_entity.name,
+                 data-field="name" bind-param="distributor_id"
+                 data-bind="value: distributor.name,
                             event: {focus: autocomplete_init},
                             disable: readonly()"/>
         </span>
@@ -34,7 +34,7 @@
         <span>
           <input id="waybill_ident_name" type="text"
                  data-field="identifier_name"
-                 data-bind="value: legal_entity.identifier_name,
+                 data-bind="value: distributor.identifier_name,
                             disable: readonly()"/>
         </span>
       </div>
@@ -45,7 +45,7 @@
         <span>
           <input id="waybill_ident_value" type="text"
                  data-field="identifier_value"
-                 data-bind="value: legal_entity.identifier_value,
+                 data-bind="value: distributor.identifier_value,
                             disable: readonly()" />
         </span>
       </div>
@@ -55,7 +55,7 @@
         </span>
         <span>
           <input id="distributor_place" type="text" data-url="places.json"
-                 data-field="tag" bind-param="place_id"
+                 data-field="tag" bind-param="distributor_place_id"
                  data-bind="value: distributor_place.tag,
                             event: {focus: autocomplete_init},
                             disable: readonly()" />
@@ -73,8 +73,8 @@
         </span>
         <span>
           <input id="storekeeper_entity" type="text" data-url="entities.json"
-                 data-field="tag" bind-param="entity_id"
-                 data-bind="value: entity.tag,
+                 data-field="tag" bind-param="storekeeper_id"
+                 data-bind="value: storekeeper.tag,
                             event: {focus: autocomplete_init},
                             disable: readonly()"/>
         </span>
@@ -85,7 +85,7 @@
         </span>
         <span>
           <input id="storekeeper_place" type="text" data-url="places.json"
-                 data-field="tag" bind-param="place_id"
+                 data-field="tag" bind-param="storekeeper_place_id"
                  data-bind="value: storekeeper_place.tag,
                             event: {focus: autocomplete_init},
                             disable: readonly()" />

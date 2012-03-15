@@ -37,12 +37,16 @@ $ ->
       name: ko.observable(if readonly then data.legal_entity.name else "")
       identifier_name: ko.observable(if readonly then data.legal_entity.identifier_name else "")
       identifier_value: ko.observable(if readonly then data.legal_entity.identifier_value else "")
+    self.distributor =
+      name: ko.observable(if readonly then data.distributor.name else "")
+      identifier_name: ko.observable(if readonly then data.distributor.identifier_name else "")
+      identifier_value: ko.observable(if readonly then data.distributor.identifier_value else "")
     self.distributor_place =
       tag: ko.observable(if readonly then data.distributor_place.tag else "")
     self.storekeeper_place =
       tag: ko.observable(if readonly then data.storekeeper_place.tag else "")
-    self.entity =
-      tag: ko.observable(if readonly then data.entity.tag else "")
+    self.storekeeper =
+      tag: ko.observable(if readonly then data.storekeeper.tag else "")
     self.boms = ko.observableArray([])
     if readonly
       for item in data.boms
@@ -89,8 +93,8 @@ $ ->
                 self.legal_entity.identifier_name("")
                 self.legal_entity.identifier_value("")
               when "waybill_entity"
-                self.legal_entity.identifier_name("")
-                self.legal_entity.identifier_value("")
+                self.distributor.identifier_name("")
+                self.distributor.identifier_value("")
               when "estimate_catalog_date"
                 $(event.target).val("")
         )
@@ -109,8 +113,8 @@ $ ->
                 self.legal_entity.identifier_value(data[$("#estimate_ident_value").attr("data-field")])
               when "waybill_entity"
                 self.object()[$(event.target).attr("bind-param")] = data["id"]
-                self.legal_entity.identifier_name(data[$("#waybill_ident_name").attr("data-field")])
-                self.legal_entity.identifier_value(data[$("#waybill_ident_value").attr("data-field")])
+                self.distributor.identifier_name(data[$("#waybill_ident_name").attr("data-field")])
+                self.distributor.identifier_value(data[$("#waybill_ident_value").attr("data-field")])
               when "estimate_catalog_date"
                 self.object()[$(event.target).attr("bind-param")] = data["date"]
               when "distributor_place", "storekeeper_entity", "storekeeper_place"

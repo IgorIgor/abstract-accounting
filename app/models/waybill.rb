@@ -7,12 +7,35 @@
 #
 # Please see ./COPYING for details
 
+class ItemsValidator < ActiveModel::Validator
+  def validate(record)
+    record.errors[:items] <<
+      "must exist" if record.items.empty?
+    items = Hash.new
+    record.items.each { |item|
+      record.errors[:items] <<
+        "invalid" if item.resource.nil? || item.resource.invalid?
+      record.errors[:items] <<
+        "invalid amount" if item.amount <= 0
+      record.errors[:items] <<
+        "invalid price" if item.price <= 0
+      unless items.select{|key, val| (key == item.resource.tag) &&
+                                     (val == item.resource.mu)}.empty?
+        record.errors[:items] << "two identical resources"
+      end
+      items[item.resource.tag] = item.resource.mu
+    }
+  end
+end
+
 class Waybill < ActiveRecord::Base
   has_paper_trail
 
   validates :document_id, :distributor, :distributor_place, :storekeeper,
             :storekeeper_place, :created, :presence => true
   validates_uniqueness_of :document_id
+  validates_with ItemsValidator
+
   belongs_to :deal
   belongs_to :distributor, :polymorphic => true
   belongs_to :storekeeper, :polymorphic => true
@@ -105,3 +128,4 @@ class WaybillItem
     deal
   end
 end
+

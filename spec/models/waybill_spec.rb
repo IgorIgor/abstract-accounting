@@ -15,7 +15,9 @@ describe Waybill do
   end
 
   it 'should have next behaviour' do
-    Factory(:waybill)
+    wb = Factory.build(:waybill)
+    wb.add_item('roof', 'rm', 100, 120.0)
+    wb.save
     should validate_presence_of :document_id
     should validate_presence_of :distributor
     should validate_presence_of :storekeeper
@@ -210,5 +212,23 @@ describe Waybill do
     state.side.should eq("active")
     state.amount.should eq(500.0)
     state.start.should eq(DateTime.current.change(hour: 12))
+  end
+end
+
+describe ItemsValidator do
+  it 'should not validate' do
+    wb = Factory.build(:waybill)
+    wb.add_item('roof', 'm2', 1, 10.0)
+    wb.add_item('roof', 'm2', 1, 10.0)
+    wb.should be_invalid
+    wb.items.clear
+    wb.add_item('', 'm2', 1, 10.0)
+    wb.should be_invalid
+    wb.items.clear
+    wb.add_item('roof', 'm2', 0, 10.0)
+    wb.should be_invalid
+    wb.items.clear
+    wb.add_item('roof', 'm2', 1, 0)
+    wb.should be_invalid
   end
 end

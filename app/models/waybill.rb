@@ -41,8 +41,6 @@ class Waybill < ActiveRecord::Base
   belongs_to :distributor_place, :class_name => 'Place'
   belongs_to :storekeeper_place, :class_name => 'Place'
 
-  attr_reader :items
-
   after_initialize :do_after_initialize
   before_save :do_before_save
 
@@ -50,6 +48,15 @@ class Waybill < ActiveRecord::Base
     resource = Asset.find_by_tag_and_mu(tag, mu)
     resource = Asset.new(:tag => tag, :mu => mu) if resource.nil?
     @items << WaybillItem.new(resource, amount, price)
+  end
+
+  def items
+    if @items.empty? and !self.deal.nil?
+      self.deal.rules.each { |rule|
+        @items << WaybillItem.new(rule.from.take.resource, rule.rate, rule.from.rate)
+      }
+    end
+    @items
   end
 
   private
@@ -67,6 +74,7 @@ class Waybill < ActiveRecord::Base
       return false if self.deal.build_take(place: self.storekeeper_place,
                                            resource: shipment).nil?
       return false unless self.deal.save
+      self.deal_id = self.deal.id
 
       @items.each { |item, idx|
         return false unless item.resource.save if item.resource.new_record?
@@ -78,7 +86,7 @@ class Waybill < ActiveRecord::Base
                                                self.storekeeper)
         return false if storekeeper_item.nil?
 
-        return false if deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
+        return false if self.deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
           from: distributor_item, to: storekeeper_item, fact_side: false,
           change_side: true, rate: item.amount).nil?
       }

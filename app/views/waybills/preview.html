@@ -1,0 +1,139 @@
+<form data-bind="with: object">
+  <span class="form-cell-label">
+    <label for="created">Created at:</label>
+  </span>
+  <span>
+    <input type="text" id="created" data-bind="datepicker: created">
+  </span>
+  <span class="form-cell-label">
+    <label for="waybill_document_id">Document id:</label>
+  </span>
+  <span>
+    <input type="text" id="waybill_document_id" data-bind="value: document_id">
+  </span>
+
+  <fieldset>
+    <legend>distributor</legend>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="waybill_entity">Entity:</label>
+        </span>
+        <span>
+          <input id="waybill_entity" type="text" data-url="legal_entities.json"
+                 data-field="name" bind-param="distributor_id"
+                 data-bind="value: distributor.name,
+                            event: {focus: autocomplete_init},
+                            disable: readonly()"/>
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="waybill_ident_name">Ident. name:</label>
+        </span>
+        <span>
+          <input id="waybill_ident_name" type="text"
+                 data-field="identifier_name"
+                 data-bind="value: distributor.identifier_name,
+                            disable: readonly()"/>
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="waybill_ident_value">Ident. value:</label>
+        </span>
+        <span>
+          <input id="waybill_ident_value" type="text"
+                 data-field="identifier_value"
+                 data-bind="value: distributor.identifier_value,
+                            disable: readonly()" />
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="distributor_place">Place:</label>
+        </span>
+        <span>
+          <input id="distributor_place" type="text" data-url="places.json"
+                 data-field="tag" bind-param="distributor_place_id"
+                 data-bind="value: distributor_place.tag,
+                            event: {focus: autocomplete_init},
+                            disable: readonly()" />
+        </span>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>storekeeper</legend>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="storekeeper_entity">Entity:</label>
+        </span>
+        <span>
+          <input id="storekeeper_entity" type="text" data-url="entities.json"
+                 data-field="tag" bind-param="storekeeper_id"
+                 data-bind="value: storekeeper.tag,
+                            event: {focus: autocomplete_init},
+                            disable: readonly()"/>
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="distributor_place">Place:</label>
+        </span>
+        <span>
+          <input id="storekeeper_place" type="text" data-url="places.json"
+                 data-field="tag" bind-param="storekeeper_place_id"
+                 data-bind="value: storekeeper_place.tag,
+                            event: {focus: autocomplete_init},
+                            disable: readonly()" />
+        </span>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="with-legend">
+    <legend>Waybill Entry</legend>
+    <input type="button" value="Add"
+           data-bind="click: waybill_entry_add, disable: readonly()"/>
+    <table id="estimate_boms">
+      <thead>
+      <tr>
+        <th class="waybill-entry-tag">Entry name</th>
+        <th class="waybill-entry-mu">Measure</th>
+        <th class="waybill-entry-count">Count</th>
+        <th class="waybill-entry-price">Price</th>
+        <th class="estimate-boms-actions"></th>
+      </tr>
+      </thead>
+      <tbody data-bind="foreach: waybill_entries">
+      <tr data-bind="attr: { idx: waybill_entries.indexOf($data) }">
+        <td>
+          <input type="text" data-bind="value: tag, disable: readonly(),
+                                        attr: { id: 'tag_' + waybill_entries.indexOf($data) }" />
+        </td>
+        <td>
+          <input type="text" data-bind="value: mu, disable: readonly(),
+                                        attr: { id: 'mu_' + waybill_entries.indexOf($data) }" />
+        </td>
+        <td>
+          <input type="text" data-bind="value: count, disable: readonly(),
+                                        attr: { id: 'count_' + waybill_entries.indexOf($data) }"/>
+        </td>
+        <td>
+          <input type="text" data-bind="value: price, disable: readonly(),
+                                        attr: { id: 'price_' + waybill_entries.indexOf($data) }" />
+        </td>
+        <td class="estimate-boms-actions">
+          <label data-bind="click: waybill_entry_remove, visible: !readonly()"></label>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <input type="button" value="Add"
+          data-bind="click: waybill_entry_add, disable: readonly()"/>
+  </fieldset>
+
+</form>

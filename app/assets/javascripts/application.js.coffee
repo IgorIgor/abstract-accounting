@@ -7,6 +7,7 @@
 #
 # Please see ./COPYING for details
 #= require jquery
+#= require jquery-ui
 #= require jquery_ujs
 #= require jquery.autocomplete
 #= require sammy
@@ -25,14 +26,35 @@ $ ->
       sum: ko.observable(data.sum)
       opened: ko.observable(false)
       elements: ko.observableArray([])
+    waybill_entry = (data = { id: null, tag: "", mu: null, count: null, price: null }) ->
+      id: ko.observable(data.id)
+      tag: ko.observable(data.tag)
+      mu: ko.observable(data.mu)
+      count: ko.observable(data.count)
+      price: ko.observable(data.sum)
     self.readonly = ko.observable(readonly)
+    #TODO: refactor
     self.object = ko.observable(if readonly then data.object else data)
     self.object().catalog_id = ko.observable(object().catalog_id)
+    self.object().created = ko.observable(object().created)
+    self.object().place_id = ko.observable(object().place_id)
+    self.object().document_id = ko.observable(object().document_id)
     self.legal_entity =
       name: ko.observable(if readonly then data.legal_entity.name else "")
       identifier_name: ko.observable(if readonly then data.legal_entity.identifier_name else "")
       identifier_value: ko.observable(if readonly then data.legal_entity.identifier_value else "")
+    self.distributor =
+      name: ko.observable(if readonly then data.distributor.name else "")
+      identifier_name: ko.observable(if readonly then data.distributor.identifier_name else "")
+      identifier_value: ko.observable(if readonly then data.distributor.identifier_value else "")
+    self.distributor_place =
+      tag: ko.observable(if readonly then data.distributor_place.tag else "")
+    self.storekeeper_place =
+      tag: ko.observable(if readonly then data.storekeeper_place.tag else "")
+    self.storekeeper =
+      tag: ko.observable(if readonly then data.storekeeper.tag else "")
     self.boms = ko.observableArray([])
+    self.waybill_entries = ko.observableArray([])
     if readonly
       for item in data.boms
         self.boms.push(estimateBoM(item))
@@ -77,6 +99,9 @@ $ ->
               when "estimate_entity"
                 self.legal_entity.identifier_name("")
                 self.legal_entity.identifier_value("")
+              when "waybill_entity"
+                self.distributor.identifier_name("")
+                self.distributor.identifier_value("")
               when "estimate_catalog_date"
                 $(event.target).val("")
         )
@@ -93,8 +118,14 @@ $ ->
                 self.object()[$(event.target).attr("bind-param")] = data["id"]
                 self.legal_entity.identifier_name(data[$("#estimate_ident_name").attr("data-field")])
                 self.legal_entity.identifier_value(data[$("#estimate_ident_value").attr("data-field")])
+              when "waybill_entity"
+                self.object()[$(event.target).attr("bind-param")] = data["id"]
+                self.distributor.identifier_name(data[$("#waybill_ident_name").attr("data-field")])
+                self.distributor.identifier_value(data[$("#waybill_ident_value").attr("data-field")])
               when "estimate_catalog_date"
                 self.object()[$(event.target).attr("bind-param")] = data["date"]
+              when "distributor_place", "storekeeper_entity", "storekeeper_place"
+                self.object()[$(event.target).attr("bind-param")] = data["id"]
         )
     self.catalogs = ko.observableArray([])
     self.parent_id = null
@@ -129,8 +160,12 @@ $ ->
       hide_catalog_selector()
     self.bom_add = ->
       self.boms.push(estimateBoM())
+    self.waybill_entry_add = ->
+      self.waybill_entries.push(waybill_entry())
     self.bom_remove = (bom) ->
       self.boms.remove(bom)
+    self.waybill_entry_remove = (waybill_entry) ->
+      self.waybill_entries.remove(waybill_entry)
     self.load_bom_sum = (data, event) ->
       if($(event.target).val().length && $(event.target).val() != "0" &&
          $(event.target).val().match('^([0-9]*)$'))

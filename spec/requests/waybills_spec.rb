@@ -30,6 +30,21 @@ feature "waybill", %q{
     page.should have_selector("input[@value='Draft']")
     page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
 
+    click_button("Save")
+    within("#container_documents form") do
+      find("#container_notification").visible?.should be_true
+      within("#container_notification") do
+        page.should have_content("Created field is required.")
+        page.should have_content("Document Id field is required.")
+        page.should have_content("Distributor Entity field is required.")
+        page.should have_content("Distributor Ident. Name field is required.")
+        page.should have_content("Distributor Ident. Value field is required.")
+        page.should have_content("Distributor Place field is required.")
+        page.should have_content("Storekeeper Entity field is required.")
+        page.should have_content("Storekeeper Place field is required.")
+      end
+    end
+
     page.should have_xpath("//div[@id='ui-datepicker-div']")
     page.find("#created").click
     page.should have_xpath("//div[@id='ui-datepicker-div' and contains(@style, 'display: block')]")

@@ -1,16 +1,31 @@
-<form data-bind="with: waybill_object, submit: waybill_save">
-  <span class="form-cell-label">
-    <label for="created">Created at:</label>
-  </span>
-  <span>
-    <input type="text" id="created" data-bind="datepicker: created">
-  </span>
-  <span class="form-cell-label">
-    <label for="waybill_document_id">Document id:</label>
-  </span>
-  <span>
-    <input type="text" id="waybill_document_id" data-bind="value: document_id">
-  </span>
+<form data-bind="with: object, submit: waybill_save">
+  <fieldset id="container_notification">
+    <legend>Errors</legend>
+    <ul></ul>
+  </fieldset>
+
+  <fieldset>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="created">Created at:</label>
+        </span>
+        <span>
+          <input type="text" id="created" data-bind="datepicker: created"
+                 rule="required" name="Created">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="waybill_document_id">Document id:</label>
+        </span>
+        <span>
+          <input type="text" id="waybill_document_id" data-bind="value: document_id"
+                 rule="required" name="Document Id">
+        </span>
+      </div>
+    </div>
+  </fieldset>
 
   <fieldset>
     <legend>Distributor</legend>
@@ -22,6 +37,7 @@
         <span>
           <input id="waybill_entity" type="text" data-url="legal_entities.json"
                  data-field="name" bind-param="distributor_id"
+                 rule="required" name="Distributor Entity"
                  data-bind="value: distributor.name,
                             event: {focus: autocomplete_init},
                             disable: readonly()"/>
@@ -34,6 +50,7 @@
         <span>
           <input id="waybill_ident_name" type="text"
                  data-field="identifier_name"
+                 rule="required" name="Distributor Ident. Name"
                  data-bind="value: distributor.identifier_name,
                             disable: readonly()"/>
         </span>
@@ -45,6 +62,7 @@
         <span>
           <input id="waybill_ident_value" type="text"
                  data-field="identifier_value"
+                 rule="required" name="Distributor Ident. Value"
                  data-bind="value: distributor.identifier_value,
                             disable: readonly()" />
         </span>
@@ -56,6 +74,7 @@
         <span>
           <input id="distributor_place" type="text" data-url="places.json"
                  data-field="tag" bind-param="distributor_place_id"
+                 rule="required" name="Distributor Place"
                  data-bind="value: distributor_place.tag,
                             event: {focus: autocomplete_init},
                             disable: readonly()" />
@@ -74,6 +93,7 @@
         <span>
           <input id="storekeeper_entity" type="text" data-url="entities.json"
                  data-field="tag" bind-param="storekeeper_id"
+                 rule="required" name="Storekeeper Entity"
                  data-bind="value: storekeeper.tag,
                             event: {focus: autocomplete_init},
                             disable: readonly()"/>
@@ -86,6 +106,7 @@
         <span>
           <input id="storekeeper_place" type="text" data-url="places.json"
                  data-field="tag" bind-param="storekeeper_place_id"
+                 rule="required" name="Storekeeper Place"
                  data-bind="value: storekeeper_place.tag,
                             event: {focus: autocomplete_init},
                             disable: readonly()" />
@@ -111,20 +132,28 @@
       <tbody data-bind="foreach: waybill_entries">
       <tr data-bind="attr: { idx: waybill_entries.indexOf($data) }">
         <td>
-          <input type="text" data-bind="value: tag, disable: readonly(),
-                                        attr: { id: 'tag_' + waybill_entries.indexOf($data) }" />
+          <input type="text" rule="required"
+                 data-bind="value: tag, disable: readonly(),
+                            attr: { id: 'tag_' + waybill_entries.indexOf($data),
+                                    name: 'Item#' + waybill_entries.indexOf($data) + ' Tag'}" />
         </td>
         <td>
-          <input type="text" data-bind="value: mu, disable: readonly(),
-                                        attr: { id: 'mu_' + waybill_entries.indexOf($data) }" />
+          <input type="text" rule="required"
+                 data-bind="value: mu, disable: readonly(),
+                            attr: { id: 'mu_' + waybill_entries.indexOf($data),
+                                    name: 'Item#' + waybill_entries.indexOf($data) + ' MU'}" />
         </td>
         <td>
-          <input type="text" data-bind="value: count, disable: readonly(),
-                                        attr: { id: 'count_' + waybill_entries.indexOf($data) }"/>
+          <input type="text" rule="required_num"
+                 data-bind="value: count, disable: readonly(),
+                            attr: { id: 'count_' + waybill_entries.indexOf($data),
+                                    name: 'Item#' + waybill_entries.indexOf($data) + ' Count'}"/>
         </td>
         <td>
-          <input type="text" data-bind="value: price, disable: readonly(),
-                                        attr: { id: 'price_' + waybill_entries.indexOf($data) }" />
+          <input type="text" rule="required_num"
+                 data-bind="value: price, disable: readonly(),
+                            attr: { id: 'price_' + waybill_entries.indexOf($data),
+                                    name: 'Item#' + waybill_entries.indexOf($data) + ' Price'}" />
         </td>
         <td class="estimate-boms-actions">
           <label data-bind="click: waybill_entry_remove, visible: !readonly()"></label>
@@ -133,7 +162,7 @@
       </tbody>
     </table>
     <input type="button" value="Add"
-          data-bind="click: waybill_entry_add, disable: readonly()"/>
+           data-bind="click: waybill_entry_add, disable: readonly()"/>
   </fieldset>
 
 </form>

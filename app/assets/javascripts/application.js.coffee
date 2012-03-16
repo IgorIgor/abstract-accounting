@@ -271,7 +271,7 @@ $ ->
     $.sammy( ->
       this.get("#inbox", ->
         $.get("/inbox", {}, (form) ->
-          $.getJSON("/estimates.json", {}, (data) ->
+          $.getJSON("/inbox_data.json", {}, (data) ->
             $(".actions").html("")
             $("#container_documents").html(form)
             $(".sidebar-selected").removeClass("sidebar-selected")

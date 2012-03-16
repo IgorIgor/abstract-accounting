@@ -15,6 +15,8 @@ feature "waybill", %q{
 }do
 
   scenario "manage waybills", :js => true do
+    PaperTrail.enabled = true
+
     page_login
 
     page.find("#btn_create").click
@@ -86,5 +88,7 @@ feature "waybill", %q{
       page.find(:xpath, "//div[@class='actions']//input[@value='Save']").click
       page.should have_selector("#inbox[@class='sidebar-selected']")
     }.should change(Waybill, :count).by(1)
+
+    PaperTrail.enabled = false
   end
 end

@@ -14,6 +14,22 @@ feature "single page application", %q{
   I want to work with single page
 } do
 
+  before {
+    PaperTrail.enabled = true
+    Factory(:chart)
+    @data = []
+    (0..2).each {
+      wb = Factory.build(:waybill)
+      wb.add_item('roof', 'm2', 1, 10.0)
+      wb.save!
+      @data << wb
+    }
+  }
+
+  after {
+    PaperTrail.enabled = false
+  }
+
   scenario "visit home page", :js => true do
     page_login
     visit home_index_path
@@ -46,6 +62,14 @@ feature "single page application", %q{
     page.find("#btn_create").click
     page.find("#container_documents").click
     page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
-  end
 
+    within('#container_documents table tbody') do
+      all(:xpath, './/tr').each_with_index {|tr, idx|
+        tr.should have_content(@data[idx].class.name)
+        tr.should have_content(@data[idx].storekeeper.tag)
+        tr.should have_content(@data[idx].versions.first.created_at.strftime('%Y-%m-%d'))
+        tr.should have_content(@data[idx].versions.last.created_at.strftime('%Y-%m-%d'))
+      }
+    end
+  end
 end

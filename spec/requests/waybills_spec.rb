@@ -51,6 +51,26 @@ feature "waybill", %q{
       items = 6.times.collect { Factory(:entity) } .sort
       check_autocomplete("storekeeper_entity", items, :tag)
 
+      page.should have_xpath("//table[@id='estimate_boms']")
+      page.should_not have_selector(:xpath, "//table[@id='estimate_boms']//tbody//tr")
+      page.find(:xpath, "//fieldset[@class='with-legend']//input[@value='Add']").click
+      page.should have_selector(:xpath, "//table[@id='estimate_boms']//tbody//tr")
+      page.should have_selector(:xpath, "//table[@id='estimate_boms']//tbody//tr//td[@class='estimate-boms-actions']")
+      fill_in("tag_0", :with => "tag")
+      fill_in("mu_0", :with => "mu")
+      fill_in("count_0", :with => "0")
+      fill_in("price_0", :with => "0")
+      find("table[@id='estimate_boms'] thead tr").click
+      find("#tag_0")["value"].should eq("tag")
+      find("#mu_0")["value"].should eq("mu")
+      find("#count_0")["value"].should eq("0")
+      find("#price_0")["value"].should eq("0")
+      find("table[@id='estimate_boms'] tbody tr td[@class='estimate-boms-actions'] label").click
+      page.has_no_selector?("#tag_0").should be_true
+      page.has_no_selector?("#mu_0").should be_true
+      page.has_no_selector?("#count_0").should be_true
+      page.has_no_selector?("#price_0").should be_true
+      page.should_not have_selector("table[@id='estimate_boms'] tbody tr")
     end
   end
 end

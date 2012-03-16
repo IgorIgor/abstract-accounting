@@ -26,6 +26,12 @@ $ ->
       sum: ko.observable(data.sum)
       opened: ko.observable(false)
       elements: ko.observableArray([])
+    waybill_entry = (data = { id: null, tag: "", mu: null, count: null, price: null }) ->
+      id: ko.observable(data.id)
+      tag: ko.observable(data.tag)
+      mu: ko.observable(data.mu)
+      count: ko.observable(data.count)
+      price: ko.observable(data.sum)
     self.readonly = ko.observable(readonly)
     #TODO: refactor
     self.object = ko.observable(if readonly then data.object else data)
@@ -48,6 +54,7 @@ $ ->
     self.storekeeper =
       tag: ko.observable(if readonly then data.storekeeper.tag else "")
     self.boms = ko.observableArray([])
+    self.waybill_entries = ko.observableArray([])
     if readonly
       for item in data.boms
         self.boms.push(estimateBoM(item))
@@ -153,8 +160,12 @@ $ ->
       hide_catalog_selector()
     self.bom_add = ->
       self.boms.push(estimateBoM())
+    self.waybill_entry_add = ->
+      self.waybill_entries.push(waybill_entry())
     self.bom_remove = (bom) ->
       self.boms.remove(bom)
+    self.waybill_entry_remove = (waybill_entry) ->
+      self.waybill_entries.remove(waybill_entry)
     self.load_bom_sum = (data, event) ->
       if($(event.target).val().length && $(event.target).val() != "0" &&
          $(event.target).val().match('^([0-9]*)$'))

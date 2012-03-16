@@ -93,4 +93,47 @@
       </div>
     </div>
   </fieldset>
+
+  <fieldset class="with-legend">
+    <legend>Waybill Entry</legend>
+    <input type="button" value="Add"
+           data-bind="click: waybill_entry_add, disable: readonly()"/>
+    <table id="estimate_boms">
+      <thead>
+      <tr>
+        <th class="waybill-entry-tag">Entry name</th>
+        <th class="waybill-entry-mu">Measure</th>
+        <th class="waybill-entry-count">Count</th>
+        <th class="waybill-entry-price">Price</th>
+        <th class="estimate-boms-actions"></th>
+      </tr>
+      </thead>
+      <tbody data-bind="foreach: waybill_entries">
+      <tr data-bind="attr: { idx: waybill_entries.indexOf($data) }">
+        <td>
+          <input type="text" data-bind="value: tag, disable: readonly(),
+                                        attr: { id: 'tag_' + waybill_entries.indexOf($data) }" />
+        </td>
+        <td>
+          <input type="text" data-bind="value: mu, disable: readonly(),
+                                        attr: { id: 'mu_' + waybill_entries.indexOf($data) }" />
+        </td>
+        <td>
+          <input type="text" data-bind="value: count, disable: readonly(),
+                                        attr: { id: 'count_' + waybill_entries.indexOf($data) }"/>
+        </td>
+        <td>
+          <input type="text" data-bind="value: price, disable: readonly(),
+                                        attr: { id: 'price_' + waybill_entries.indexOf($data) }" />
+        </td>
+        <td class="estimate-boms-actions">
+          <label data-bind="click: waybill_entry_remove, visible: !readonly()"></label>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <input type="button" value="Add"
+          data-bind="click: waybill_entry_add, disable: readonly()"/>
+  </fieldset>
+
 </form>

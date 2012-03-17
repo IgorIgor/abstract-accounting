@@ -17,6 +17,7 @@ class WaybillsController < ApplicationController
   end
 
   def create
+    waybill = nil
     begin
       Waybill.transaction do
         Chart.create!(:currency => Money.create!(:alpha_code => "RUB",
@@ -52,12 +53,12 @@ class WaybillsController < ApplicationController
         end
         params[:items].each_value { |item|
           waybill.add_item(item[:tag], item[:mu], item[:count].to_f, item[:price].to_f)
-        }
+        } if params[:items]
         waybill.save!
         render :text => "success"
       end
     rescue
-      render :text => "errors"
+      render json: waybill.errors.messages
     end
   end
 

@@ -92,6 +92,14 @@ feature "waybill", %q{
       page.has_no_selector?("#count_0").should be_true
       page.has_no_selector?("#price_0").should be_true
       page.should_not have_selector("table[@id='estimate_boms'] tbody tr")
+    end
+
+    click_button("Save")
+    within("#container_documents form") do
+      find("#container_notification").visible?.should be_true
+      within("#container_notification") do
+        page.should have_content("items: must exist")
+      end
 
       page.find(:xpath, "//fieldset[@class='with-legend']//input[@value='Add']").click
       fill_in("tag_0", :with => "tag_1")

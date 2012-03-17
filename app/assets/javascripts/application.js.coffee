@@ -19,6 +19,7 @@
 
 $ ->
   waybillFormValidate = ->
+    $(".server-message").remove()
     $("#container_documents form").validate({
       errorContainer: "#container_notification"
       errorLabelContainer: "#container_notification ul",
@@ -272,7 +273,14 @@ $ ->
         url: "/waybills" + if self.waybill_object().id then "/#{self.waybill_object().id}" else "",
         data: params,
         complete: (data) ->
-          location.hash = "inbox" if data.responseText == "success"
+          if data.responseText == "success"
+            location.hash = "inbox"
+          else
+            $("#container_notification").css("display", "block")
+            $("#container_notification ul").css("display", "block")
+            for key, value of JSON.parse(data.responseText)
+              $("#container_notification ul")
+                .append($("<li class='server-message'>#{key}: #{value}</li>"))
       })
     $.sammy( ->
       this.get("#documents/:type/:id/edit", ->

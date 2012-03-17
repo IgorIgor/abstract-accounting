@@ -11,8 +11,8 @@
           <label for="created">Created at:</label>
         </span>
         <span>
-          <input type="text" id="created" data-bind="datepicker: created"
-                 rule="required" name="Created">
+          <input type="text" id="created" rule="required" name="Created"
+                 data-bind="datepicker: created, disable: readonly()">
         </span>
       </div>
       <div>
@@ -20,8 +20,8 @@
           <label for="waybill_document_id">Document id:</label>
         </span>
         <span>
-          <input type="text" id="waybill_document_id" data-bind="value: document_id"
-                 rule="required" name="Document Id">
+          <input type="text" id="waybill_document_id" rule="required"
+                 name="Document Id" data-bind="value: document_id, disable: readonly()">
         </span>
       </div>
     </div>

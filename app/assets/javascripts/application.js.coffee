@@ -58,24 +58,25 @@ $ ->
       sum: ko.observable(data.sum)
       opened: ko.observable(false)
       elements: ko.observableArray([])
-    waybill_entry = (data = { id: null, tag: null, mu: null, count: null, price: null }) ->
-      id: ko.observable(data.id)
+    waybill_entry = (data = { tag: null, mu: null, count: null, price: null }) ->
       tag: ko.observable(data.tag)
       mu: ko.observable(data.mu)
-      count: ko.observable(data.count)
-      price: ko.observable(data.sum)
+      count: ko.observable(data.amount)
+      price: ko.observable(data.price)
     self.readonly = ko.observable(readonly)
     #TODO: refactor
+
     self.object = ko.observable(if readonly then data.object else data)
     self.object().catalog_id = ko.observable(object().catalog_id)
     self.object().place_id = ko.observable(object().place_id)
     self.waybill_object = ko.observable(if readonly then data.object else data)
     self.waybill_object().created = ko.observable(waybill_object().created)
     self.waybill_object().document_id = ko.observable(waybill_object().document_id)
-    self.legal_entity =
-      name: ko.observable(if readonly then data.legal_entity.name else "")
-      identifier_name: ko.observable(if readonly then data.legal_entity.identifier_name else "")
-      identifier_value: ko.observable(if readonly then data.legal_entity.identifier_value else "")
+    if(data.legal_entity)
+      self.legal_entity =
+        name: ko.observable(if readonly then data.legal_entity.name else "")
+        identifier_name: ko.observable(if readonly then data.legal_entity.identifier_name else "")
+        identifier_value: ko.observable(if readonly then data.legal_entity.identifier_value else "")
     self.distributor =
       name: ko.observable(if readonly then data.distributor.name else "")
       identifier_name: ko.observable(if readonly then data.distributor.identifier_name else "")
@@ -89,8 +90,12 @@ $ ->
     self.boms = ko.observableArray([])
     self.waybill_entries = ko.observableArray([])
     if readonly
-      for item in data.boms
-        self.boms.push(estimateBoM(item))
+      unless data.boms == undefined
+        for item in data.boms
+          self.boms.push(estimateBoM(item))
+      unless data.items == undefined
+        for item in data.items
+          self.waybill_entries.push(waybill_entry(item))
     else
       self.boms.push(estimateBoM())
 

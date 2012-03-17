@@ -61,4 +61,7 @@ class WaybillsController < ApplicationController
     end
   end
 
+  def show
+    @waybill = Waybill.find(params[:id])
+  end
 end

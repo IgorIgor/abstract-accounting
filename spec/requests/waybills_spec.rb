@@ -104,6 +104,36 @@ feature "waybill", %q{
       page.should have_selector("#inbox[@class='sidebar-selected']")
     }.should change(Waybill, :count).by(1)
 
+    page.find("td[@class='cell-entity']").click
+    current_hash.should eq("documents/waybills/" + Waybill.first.id.to_s)
+
+    within("#container_documents form") do
+      find("#created")[:value].should eq(Waybill.first.created.strftime("%m/%d/%Y"))
+      find("#waybill_document_id")[:value].should eq(Waybill.first.document_id)
+      find("#waybill_entity")[:value].should eq(Waybill.first.distributor.name)
+      find("#waybill_ident_name")[:value].should eq(Waybill.first.distributor.identifier_name)
+      find("#waybill_ident_value")[:value].should eq(Waybill.first.distributor.identifier_value)
+      find("#distributor_place")[:value].should eq(Waybill.first.distributor_place.tag)
+      find("#storekeeper_entity")[:value].should eq(Waybill.first.storekeeper.tag)
+      find("#storekeeper_place")[:value].should eq(Waybill.first.storekeeper_place.tag)
+
+      find("#created")[:disabled].should be_true
+      find("#waybill_document_id")[:disabled].should be_true
+      find("#waybill_entity")[:disabled].should be_true
+      find("#waybill_ident_name")[:disabled].should be_true
+      find("#waybill_ident_value")[:disabled].should be_true
+      find("#distributor_place")[:disabled].should be_true
+      find("#storekeeper_entity")[:disabled].should be_true
+      find("#storekeeper_place")[:disabled].should be_true
+
+      within("#estimate_boms tbody") do
+        find("#tag_0")[:value].should eq(Waybill.first.items[0].resource.tag)
+        find("#mu_0")[:value].should eq(Waybill.first.items[0].resource.mu)
+        find("#count_0")[:value].should eq(Waybill.first.items[0].amount.to_i.to_s)
+        find("#price_0")[:value].should eq(Waybill.first.items[0].price.to_i.to_s)
+      end
+    end
+
     PaperTrail.enabled = false
   end
 end

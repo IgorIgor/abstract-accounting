@@ -1,4 +1,4 @@
-<form data-bind="with: object">
+<form data-bind="with: waybill_object, submit: waybill_save">
   <span class="form-cell-label">
     <label for="created">Created at:</label>
   </span>
@@ -13,7 +13,7 @@
   </span>
 
   <fieldset>
-    <legend>distributor</legend>
+    <legend>Distributor</legend>
     <div>
       <div>
         <span class="form-cell-label">
@@ -65,7 +65,7 @@
   </fieldset>
 
   <fieldset>
-    <legend>storekeeper</legend>
+    <legend>Storekeeper</legend>
     <div>
       <div>
         <span class="form-cell-label">
@@ -81,7 +81,7 @@
       </div>
       <div>
         <span class="form-cell-label">
-          <label for="distributor_place">Place:</label>
+          <label for="storekeeper_place">Place:</label>
         </span>
         <span>
           <input id="storekeeper_place" type="text" data-url="places.json"

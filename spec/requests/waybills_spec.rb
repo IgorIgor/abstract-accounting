@@ -34,7 +34,11 @@ feature "waybill", %q{
     page.find("#container_documents").click
     page.should have_xpath("//div[@id='ui-datepicker-div' and contains(@style, 'display: none')]")
 
+    page.find("#created").click
+    page.find("#ui-datepicker-div table[@class='ui-datepicker-calendar'] tbody tr td a").click
+
     page.should have_selector("input[@id='waybill_document_id']")
+    fill_in("waybill_document_id", :with => "1233321")
 
     within("#container_documents form") do
       items = 6.times.collect { Factory(:legal_entity) } .sort
@@ -60,17 +64,27 @@ feature "waybill", %q{
       fill_in("mu_0", :with => "mu")
       fill_in("count_0", :with => "0")
       fill_in("price_0", :with => "0")
-      find("table[@id='estimate_boms'] thead tr").click
-      find("#tag_0")["value"].should eq("tag")
-      find("#mu_0")["value"].should eq("mu")
-      find("#count_0")["value"].should eq("0")
-      find("#price_0")["value"].should eq("0")
-      find("table[@id='estimate_boms'] tbody tr td[@class='estimate-boms-actions'] label").click
+      page.find("table[@id='estimate_boms'] thead tr").click
+      page.find("#tag_0")["value"].should eq("tag")
+      page.find("#mu_0")["value"].should eq("mu")
+      page.find("#count_0")["value"].should eq("0")
+      page.find("#price_0")["value"].should eq("0")
+      page.find("table[@id='estimate_boms'] tbody tr td[@class='estimate-boms-actions'] label").click
       page.has_no_selector?("#tag_0").should be_true
       page.has_no_selector?("#mu_0").should be_true
       page.has_no_selector?("#count_0").should be_true
       page.has_no_selector?("#price_0").should be_true
       page.should_not have_selector("table[@id='estimate_boms'] tbody tr")
+
+      page.find(:xpath, "//fieldset[@class='with-legend']//input[@value='Add']").click
+      fill_in("tag_0", :with => "tag_1")
+      fill_in("mu_0", :with => "RUB")
+      fill_in("count_0", :with => "10")
+      fill_in("price_0", :with => "100")
     end
+    lambda {
+      page.find(:xpath, "//div[@class='actions']//input[@value='Save']").click
+      page.should have_selector("#inbox[@class='sidebar-selected']")
+    }.should change(Waybill, :count).by(1)
   end
 end

@@ -328,6 +328,14 @@ $ ->
           )
         )
       )
+      this.get("#warehouses", ->
+        $.get("/warehouses", {}, (form) ->
+          $(".actions").html("")
+          $("#container_documents").html(form)
+          $(".sidebar-selected").removeClass("sidebar-selected")
+          $("#warehouses").addClass("sidebar-selected")
+        )
+      )
     ).run()
     location.hash = "inbox" if $("#main").length
 

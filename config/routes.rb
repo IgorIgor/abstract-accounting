@@ -43,6 +43,11 @@ Abstract::Application.routes.draw do
       get 'data'
     end
   end
+  resources :distributions do
+    collection do
+      get 'preview'
+    end
+  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

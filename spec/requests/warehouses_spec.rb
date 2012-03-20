@@ -9,15 +9,26 @@
 
 require 'spec_helper'
 
-feature "warehouses", %q{
+feature 'warehouses', %q{
   As an user
   I want to view warehouses
 } do
 
-  scenario "view warehouses", js: true do
+  scenario 'view warehouses', js: true do
     page_login
 
-    page.find("#warehouses a").click
-    current_hash.should eq("warehouses")
+    page.find('#warehouses a').click
+    current_hash.should eq('warehouses')
+
+    within('#container_documents table') do
+      within('thead tr') do
+        page.should have_content('Place')
+        page.should have_content('Tag')
+        page.should have_content('Real Amount')
+        page.should have_content('Expiration Amount')
+        page.should have_content('MU')
+      end
+      page.should have_selector("tbody[@data-bind='foreach: documents']")
+    end
   end
 end

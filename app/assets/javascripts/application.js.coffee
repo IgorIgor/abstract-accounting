@@ -343,10 +343,14 @@ $ ->
       )
       this.get("#warehouses", ->
         $.get("/warehouses", {}, (form) ->
-          $(".actions").html("")
-          $("#container_documents").html(form)
-          $(".sidebar-selected").removeClass("sidebar-selected")
-          $("#warehouses").addClass("sidebar-selected")
+          $.getJSON("/warehouses/data.json", {}, (data) ->
+            $(".actions").html("")
+            $("#container_documents").html(form)
+            $(".sidebar-selected").removeClass("sidebar-selected")
+            $("#warehouses").addClass("sidebar-selected")
+            self.folderVM = new folderViewModel(data)
+            ko.applyBindings(self.folderVM, $("#container_documents").get(0))
+          )
         )
       )
     ).run()

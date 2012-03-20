@@ -7,12 +7,9 @@
 #
 # Please see ./COPYING for details
 
-class WarehousesController < ApplicationController
-   def index
-     render 'index', layout: false
-   end
-
-  def data
-    @data = (0..5)
-  end
-end
+collection @data
+node(:place) { "place 1" }
+node(:tag) { "some warehouse" }
+node(:real_amount) { 100 }
+node(:exp_amount) { 100 }
+node(:mu) { "RUB" }

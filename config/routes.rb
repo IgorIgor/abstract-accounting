@@ -38,7 +38,11 @@ Abstract::Application.routes.draw do
   end
   resources :places
   resources :entities
-  resources :warehouses, only: [:index]
+  resources :warehouses, only: [:index] do
+    collection do
+      get 'data'
+    end
+  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

@@ -235,11 +235,6 @@ input[type=text] {
               input[type=text] {
                 width: 100%;
                 min-width: 300px;
-                border: 1px solid #b0b0b0;
-                padding: 2px 0 2px 4px;
-              }
-              input[type=text]:focus {
-                background-color: #efefef;
               }
 
               label {
@@ -253,6 +248,15 @@ input[type=text] {
             }
           }
         }
+      }
+
+      input[type=text] {
+        border: 1px solid #b0b0b0;
+        padding: 2px 0 2px 4px;
+      }
+
+      input[type=text]:focus {
+        background-color: #efefef;
       }
 
       input.error {

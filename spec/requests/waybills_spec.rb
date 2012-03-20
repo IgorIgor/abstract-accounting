@@ -96,7 +96,6 @@ feature "waybill", %q{
 
     click_button("Save")
     within("#container_documents form") do
-      find("#container_notification").visible?.should be_true
       within("#container_notification") do
         page.should have_content("items: must exist")
       end

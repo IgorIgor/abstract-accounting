@@ -21,7 +21,10 @@
 @import "password_resets.css.scss";
 @import "drop_down_list_button.css.scss";
 
-$table_border: 1px solid #e5e5e5;
+$table_border: 1px solid #d8d8d8;
+$table_head_background: #ededed;
+$table_head_title: #878787;
+$menu_selected: #e5e5e5;
 
 body, html {
   margin: 0;
@@ -34,6 +37,13 @@ body, html {
 input[type=button] {
   height: 25px;
   min-width: 60px;
+}
+
+input[type=text] {
+  border: 1px solid #b0b0b0;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
 }
 
 #header {
@@ -58,7 +68,6 @@ input[type=button] {
     margin-left: 160px;
 
     input[type=text] {
-      border: 1px solid #c0c0c0;
       margin: 0;
       padding-left: 4px;
       height: 20px;
@@ -117,6 +126,14 @@ input[type=button] {
       margin: 0;
       border-spacing: 0;
       width: 100%;
+
+      th {
+        border-right: $table_border;
+        border-bottom: $table_border;
+        background: $table_head_background;
+        padding-top: 4px;
+        color: $table_head_title;
+      }
 
       tr {
         cursor: pointer;
@@ -196,6 +213,12 @@ input[type=button] {
         width: 700px;
         margin-bottom: 2px;
 
+        legend{
+          font-size: smaller;
+          font-weight: bolder;
+          color: $table_head_title;
+        }
+
         div {
           display: table;
           width: 700px;
@@ -212,6 +235,11 @@ input[type=button] {
               input[type=text] {
                 width: 100%;
                 min-width: 300px;
+                border: 1px solid #b0b0b0;
+                padding: 2px 0 2px 4px;
+              }
+              input[type=text]:focus {
+                background-color: #efefef;
               }
 
               label {
@@ -294,29 +322,32 @@ input[type=button] {
   position: absolute;
   top: 115px;
   width: 140px;
-  border-top: $table_border;
-  border-bottom: $table_border;
   padding: 10px 15px;
 
   ul {
     list-style: none;
-    padding-left: 12px;
-    margin: 12px 0 0 0;
+    padding: 0;
+    margin: 14px 0 0;
+    clear: left;
 
     li {
-      margin-bottom: 5px;
-
       a {
         color: black;
         text-decoration: none;
+        display: block;
+        padding: 2px;
+      }
+      a:hover{
+        background: $menu_selected;
+        font-weight: bold;
       }
     }
 
     .sidebar-selected {
       font-weight: bold;
-      background: #e5e5e5;
-      padding: 2px 15px 0 27px;
-      margin: -2px -15px 5px -27px;
+      background: $menu_selected;
+      border-left: 2px solid #a5a5a5;
+      margin-left: -2px;
     }
   }
 }

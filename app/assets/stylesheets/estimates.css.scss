@@ -1,4 +1,4 @@
-$table_border: 1px solid #e5e5e5;
+$table_border: 1px solid #d8d8d8;
 
 #container_documents form fieldset {
   input[type=button] {
@@ -12,14 +12,6 @@ $table_border: 1px solid #e5e5e5;
     margin: 30px 0 5px 0;
     border-top: $table_border;
     border-left: $table_border;
-
-    th {
-      border-right: $table_border;
-      border-bottom: $table_border;
-      background: #f5f5f5;
-      padding-top: 4px;
-      color: #b8b8b8;
-    }
 
     td {
       border-right: $table_border;

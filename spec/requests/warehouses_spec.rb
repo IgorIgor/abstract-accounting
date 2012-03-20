@@ -15,6 +15,13 @@ feature 'warehouses', %q{
 } do
 
   scenario 'view warehouses', js: true do
+    Factory(:chart)
+    wb = Factory.build(:waybill)
+    [0,1].each { |i|
+      wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
+    }
+    wb.save!
+
     page_login
 
     page.find('#warehouses a').click
@@ -29,6 +36,13 @@ feature 'warehouses', %q{
         page.should have_content('MU')
       end
       page.should have_selector("tbody[@data-bind='foreach: documents']")
+      page.should have_selector('tbody tr', count: 2)
+      page.all('tbody tr').each_with_index { |tr, i|
+        tr.should have_content(wb.storekeeper_place.tag)
+        tr.should have_content("resource##{i}")
+        tr.should have_content("mu#{i}")
+        tr.should have_content(100+i)
+      }
     end
   end
 end

@@ -8,8 +8,4 @@
 # Please see ./COPYING for details
 
 collection @data
-node(:place) { "place 1" }
-node(:tag) { "some warehouse" }
-node(:real_amount) { 100 }
-node(:exp_amount) { 100 }
-node(:mu) { "RUB" }
+attributes :place, :tag, :real_amount, :exp_amount, :mu

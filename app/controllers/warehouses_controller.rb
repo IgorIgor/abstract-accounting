@@ -13,6 +13,6 @@ class WarehousesController < ApplicationController
    end
 
   def data
-    @data = (0..5)
+    @data = Warehouse.all
   end
 end

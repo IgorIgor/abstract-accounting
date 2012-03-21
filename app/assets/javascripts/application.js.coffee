@@ -50,6 +50,50 @@ $ ->
       })
     $("#container_documents form").valid()
 
+  distributionViewModel = (type, data, readonly = false) ->
+    self.readonly = ko.observable(readonly)
+    self.object = ko.observable(if readonly then data.object else data)
+    self.object().created = ko.observable(object().created)
+    self.foreman_place =
+      tag: ko.observable(if readonly then data.foreman_place.tag else "")
+    self.foreman =
+      tag: ko.observable(if readonly then data.foreman.tag else "")
+    self.storekeeper_place =
+      tag: ko.observable(if readonly then data.storekeeper_place.tag else "")
+    self.storekeeper =
+      tag: ko.observable(if readonly then data.storekeeper.tag else "")
+    self.autocomplete_init = (data, event) ->
+      unless $(event.target).attr("autocomplete")
+        params = {}
+        $(event.target).autocomplete($(event.target).attr("data-url"), {
+        dataType: "json",
+        selectFirst: false,
+        delay: 600,
+        cacheLength: 0,
+        matchCase: true,
+        extraParams: params,
+        parse: (data) ->
+          parsed = []
+          for object, id in data
+            parsed[id] =
+              data: object
+              value: object[$(event.target).attr("data-field")]
+              result: object[$(event.target).attr("data-field")]
+          parsed
+        ,
+        formatItem: (item) ->
+          return item[$(event.target).attr("data-field")]
+        })
+        $(event.target).change( ->
+          self.object()[$(event.target).attr("bind-param")] = null
+        )
+        $(event.target).result((event, data, formatted) ->
+          switch $(event.target).attr("id")
+            when "storekeeper_entity", "storekeeper_place", "foreman_entity", "foreman_place"
+              self.object()[$(event.target).attr("bind-param")] = data["id"]
+              self.object()[$(event.target).attr("bind-param")] = data["id"]
+        )
+
   documentViewModel = (type, data, readonly = false) ->
     estimateBoM = (data = { id: null, tag: "", tab: "", count: null, sum: null }) ->
       id: ko.observable(data.id)
@@ -336,7 +380,10 @@ $ ->
             actions()
             $("#container_documents").html(form)
             $("#inbox").removeClass("sidebar-selected")
-            self.documentVM = new documentViewModel(document_type, data)
+            if document_type == "distributions"
+              self.documentVM = new distributionViewModel(document_type, data)
+            else
+              self.documentVM = new documentViewModel(document_type, data)
             ko.applyBindings(self.documentVM, $("#container_documents").get(0))
           )
         )

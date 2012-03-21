@@ -20,5 +20,32 @@ feature 'distributions', %q{
     page.find("#btn_create").click
     page.find("a[@href='#documents/distributions/new']").click
     current_hash.should eq('documents/distributions/new')
+
+    page.should have_selector("div[@id='container_documents'] form")
+    page.should have_selector("input[@value='Save']")
+    page.should have_selector("input[@value='Cancel']")
+    page.should have_selector("input[@value='Draft']")
+    page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
+
+    page.should have_xpath("//div[@id='ui-datepicker-div']")
+    page.find("#created").click
+    page.should have_xpath("//div[@id='ui-datepicker-div' and contains(@style, 'display: block')]")
+    page.find("#container_documents").click
+    page.should have_xpath("//div[@id='ui-datepicker-div' and contains(@style, 'display: none')]")
+
+    page.find("#created").click
+    page.find("#ui-datepicker-div table[@class='ui-datepicker-calendar'] tbody tr td a").click
+
+    within("#container_documents form") do
+      6.times.collect { Factory(:place) }
+      items = Place.find(:all, order: :tag, limit: 5)
+      check_autocomplete("storekeeper_place", items, :tag)
+      check_autocomplete("foreman_place", items, :tag)
+
+      6.times.collect { Factory(:entity) }
+      items = Entity.find(:all, order: :tag, limit: 5)
+      check_autocomplete("storekeeper_entity", items, :tag)
+      check_autocomplete("foreman_entity", items, :tag)
+    end
   end
 end

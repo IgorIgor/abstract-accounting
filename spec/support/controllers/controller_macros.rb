@@ -34,7 +34,6 @@ module ControllerMacros
       (0..4).each do |idx|
         page.should have_content(items[idx].send(attr))
       end
-      page.should_not have_content(items[5].send(attr))
       all(:xpath, ".//ul//li")[1].click
     end
     find("##{element_id}")["value"].should eq(items[1].send(attr))

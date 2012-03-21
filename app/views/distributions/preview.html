@@ -1,0 +1,85 @@
+<form data-bind="with: object" method="post" action="#">
+  <fieldset id="container_notification">
+    <legend>Errors</legend>
+    <ul></ul>
+  </fieldset>
+
+  <fieldset>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="created">Created at:</label>
+        </span>
+        <span>
+          <input type="text" id="created" rule="required" name="Created"
+                 data-bind="datepicker: created, disable: readonly()">
+        </span>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Storekeeper</legend>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="storekeeper_entity">Entity:</label>
+        </span>
+        <span>
+          <input id="storekeeper_entity" type="text" data-url="entities.json"
+                 data-field="tag" bind-param="storekeeper_id"
+                 rule="required" name="Storekeeper Entity"
+                 data-bind="value: storekeeper.tag,
+                            event: {focus: autocomplete_init},
+                            disable: readonly()"/>
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="storekeeper_place">Place:</label>
+        </span>
+        <span>
+          <input id="storekeeper_place" type="text" data-url="places.json"
+                 data-field="tag" bind-param="storekeeper_place_id"
+                 rule="required" name="Storekeeper Place"
+                 data-bind="value: storekeeper_place.tag,
+                            event: {focus: autocomplete_init},
+                            disable: readonly()" />
+        </span>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Foreman</legend>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="foreman_entity">Entity:</label>
+        </span>
+        <span>
+          <input id="foreman_entity" type="text" data-url="entities.json"
+                 data-field="tag" bind-param="foreman_id"
+                 rule="required" name="Foreman Entity"
+                 data-bind="value: foreman.tag,
+                            event: {focus: autocomplete_init},
+                            disable: readonly()"/>
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="foreman_place">Place:</label>
+        </span>
+        <span>
+          <input id="foreman_place" type="text" data-url="places.json"
+                 data-field="tag" bind-param="foreman_place_id"
+                 rule="required" name="Foreman Place"
+                 data-bind="value: foreman_place.tag,
+                            event: {focus: autocomplete_init},
+                            disable: readonly()" />
+        </span>
+      </div>
+    </div>
+  </fieldset>
+
+</form>

@@ -23,4 +23,18 @@ describe Distribution do
     should belong_to(:foreman_place).class_name(Place)
     should belong_to(:storekeeper_place).class_name(Place)
   end
+
+  it 'should create items' do
+    Factory(:chart)
+
+    wb = Factory.build(:waybill)
+    wb.add_item('nails', 'pcs', 1200, 1.0)
+    wb.add_item('nails', 'kg', 10, 150.0)
+    wb.save!
+
+    db = Factory.build(:distribution)
+    db.add_item("nails", "pcs", 500)
+    db.add_item("nails", "kg", 2)
+    db.items.count.should eq(2)
+  end
 end

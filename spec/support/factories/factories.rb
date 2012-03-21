@@ -165,4 +165,13 @@ FactoryGirl.define do
   factory :deal_take, :parent => :term do |t|
     t.side true
   end
+
+  factory :distribution do |d|
+    d.foreman { |distribution| distribution.association(:entity) }
+    d.foreman_place { |distribution| distribution.association(:place) }
+    d.storekeeper { |distribution| distribution.association(:entity) }
+    d.storekeeper_place { |distribution| distribution.association(:place) }
+    d.created Date.today
+    d.state 0
+  end
 end

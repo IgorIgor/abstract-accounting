@@ -7,6 +7,8 @@
 #
 # Please see ./COPYING for details
 
+require 'waybill'
+
 class Distribution < ActiveRecord::Base
   has_paper_trail
 
@@ -18,4 +20,27 @@ class Distribution < ActiveRecord::Base
   belongs_to :storekeeper, :polymorphic => true
   belongs_to :foreman_place, :class_name => 'Place'
   belongs_to :storekeeper_place, :class_name => 'Place'
+
+  after_initialize :do_after_initialize
+
+  def add_item(tag, mu, amount)
+    resource = Asset.find_by_tag_and_mu(tag, mu)
+    @items << DistributionItem.new(resource, amount)
+  end
+
+  def items
+    @items
+  end
+
+  private
+  def do_after_initialize
+    @items = Array.new
+  end
+end
+
+class DistributionItem < WaybillItem
+  def initialize(resource, amount)
+    @resource = resource
+    @amount = amount
+  end
 end

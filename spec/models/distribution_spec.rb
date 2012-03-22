@@ -145,8 +145,14 @@ describe Distribution do
     db.add_item('roof', 'm2', 5)
     db.state.should eq(Distribution::UNKNOWN)
 
+    db.cancel.should be_false
+
     db.save!
     db.state.should eq(Distribution::INWORK)
+
+    db = Distribution.find(db)
+    db.cancel.should be_true
+    db.state.should eq(Distribution::CANCELED)
   end
 end
 

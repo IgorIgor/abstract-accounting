@@ -32,6 +32,7 @@ class Distribution < ActiveRecord::Base
 
   UNKNOWN = 0
   INWORK = 1
+  CANCELED = 2
 
   validates :foreman, :foreman_place, :storekeeper, :storekeeper_place,
             :created, :state, presence: true
@@ -60,10 +61,18 @@ class Distribution < ActiveRecord::Base
     @items
   end
 
+  def cancel
+    if self.state == INWORK
+      self.state = CANCELED
+      return self.save
+    end
+    false
+  end
+
   private
   def do_after_initialize
     @items = Array.new
-    self.state = UNKNOWN
+    self.state = UNKNOWN if self.new_record?
   end
 
   def do_before_save
@@ -91,8 +100,6 @@ class Distribution < ActiveRecord::Base
           change_side: true, rate: item.amount).nil?
       }
       self.state = INWORK if self.state == UNKNOWN
-    else
-      return false
     end
     true
   end

@@ -126,7 +126,8 @@ class DistributionItem < WaybillItem
 
       rules = Rule.where('rules.from_id = ?', deal).
               joins('INNER JOIN distributions ON distributions.deal_id = rules.deal_id').
-              where('distributions.created <= ?', date)
+              where('distributions.created <= ? AND distributions.state != ?',
+                    date, Distribution::CANCELED)
       unless place.nil?
         rules.where('distributions.place_id = ?', place)
       end

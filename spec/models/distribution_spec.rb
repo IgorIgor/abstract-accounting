@@ -179,9 +179,13 @@ describe DistributionItemsValidator do
     db.add_item('roof', 'm2', 300)
     db.save!
 
-    db = Factory.build(:distribution, storekeeper: wb.storekeeper,
-                                      storekeeper_place: wb.storekeeper_place)
+    db2 = Factory.build(:distribution, storekeeper: wb.storekeeper,
+                                       storekeeper_place: wb.storekeeper_place)
+    db2.add_item('roof', 'm2', 201)
+    db2.should be_invalid
+
+    db.cancel
     db.add_item('roof', 'm2', 201)
-    db.should be_invalid
+    db.should be_valid
   end
 end

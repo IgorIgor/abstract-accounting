@@ -34,7 +34,8 @@ describe Distribution do
   end
 
   it 'should create items' do
-    db = Factory.build(:distribution)
+    db = Factory.build(:distribution, storekeeper: @wb.storekeeper,
+                                      storekeeper_place: @wb.storekeeper_place)
     db.add_item('nails', 'pcs', 500)
     db.add_item('nails', 'kg', 2)
     db.items.count.should eq(2)
@@ -53,9 +54,10 @@ describe Distribution do
   end
 
   it 'should create deals' do
-    db = Factory.build(:distribution)
+    db = Factory.build(:distribution, storekeeper: @wb.storekeeper,
+                                      storekeeper_place: @wb.storekeeper_place)
     db.add_item('roof', 'm2', 200)
-    lambda { db.save } .should change(Deal, :count).by(3)
+    lambda { db.save } .should change(Deal, :count).by(2)
 
     deal = Deal.find(db.deal)
     deal.entity.should eq(db.storekeeper)
@@ -81,10 +83,10 @@ describe Distribution do
 
     db = Factory.build(:distribution, storekeeper: db.storekeeper,
                                       storekeeper_place: db.storekeeper_place)
-    db.add_item('roof', 'm2', 200)
-    db.add_item('nails', 'pcs', 1200)
-    db.add_item('hammer', 'th', 500)
-    lambda { db.save } .should change(Deal, :count).by(6)
+    db.add_item('roof', 'm2', 20)
+    db.add_item('nails', 'pcs', 10)
+    db.add_item('hammer', 'th', 50)
+    lambda { db.save } .should change(Deal, :count).by(4)
 
     deal = Deal.find(db.deal)
     deal.entity.should eq(db.storekeeper)
@@ -104,7 +106,8 @@ describe Distribution do
   end
 
   it 'should create rules' do
-    db = Factory.build(:distribution)
+    db = Factory.build(:distribution, storekeeper: @wb.storekeeper,
+                                      storekeeper_place: @wb.storekeeper_place)
     db.add_item('roof', 'm2', 200)
     lambda { db.save } .should change(Rule, :count).by(1)
 
@@ -137,11 +140,42 @@ describe Distribution do
   end
 
   it 'should change state' do
-    db = Factory.build(:distribution)
-    db.add_item('roof', 'm2', 200)
+    db = Factory.build(:distribution, storekeeper: @wb.storekeeper,
+                                      storekeeper_place: @wb.storekeeper_place)
+    db.add_item('roof', 'm2', 5)
     db.state.should eq(Distribution::UNKNOWN)
 
     db.save!
     db.state.should eq(Distribution::INWORK)
+  end
+end
+
+describe DistributionItemsValidator do
+  it 'should not validate' do
+    Factory(:chart)
+    wb = Factory.build(:waybill)
+    wb.add_item('roof', 'm2', 500, 10.0)
+    wb.add_item('nails', 'pcs', 1200, 1.0)
+    wb.save!
+
+    db = Factory.build(:distribution, storekeeper: wb.storekeeper,
+                                      storekeeper_place: wb.storekeeper_place)
+    db.add_item('', 'm2', 1)
+    db.should be_invalid
+    db.items.clear
+    db.add_item('roof', 'm2', 0)
+    db.should be_invalid
+    db.items.clear
+    db.add_item('roof', 'm2', 500)
+    db.add_item('nails', 'pcs', 1201)
+    db.should be_invalid
+    db.items.clear
+    db.add_item('roof', 'm2', 300)
+    db.save!
+
+    db = Factory.build(:distribution, storekeeper: wb.storekeeper,
+                                      storekeeper_place: wb.storekeeper_place)
+    db.add_item('roof', 'm2', 201)
+    db.should be_invalid
   end
 end

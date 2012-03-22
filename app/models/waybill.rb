@@ -123,7 +123,7 @@ class WaybillItem
                     deals.entity_id = ? AND deals.entity_type = ? AND deals.rate = ?",
                   give_r, place, self.resource, place, entity, entity.class.name, rate]
     ).first
-    if deal.nil?
+    if deal.nil? && !self.resource.nil?
       deal = Deal.new(entity: entity, rate: rate, isOffBalance: true,
         tag: "storehouse resource: #{self.resource.tag}[#{self.resource.mu}]; rate: #{rate}")
       return nil if deal.build_give(place: place, resource: give_r).nil?

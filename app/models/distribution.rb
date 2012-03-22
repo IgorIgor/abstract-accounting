@@ -9,6 +9,24 @@
 
 require 'waybill'
 
+class DistributionItemsValidator < ActiveModel::Validator
+  def validate(record)
+    if record.state == Distribution::UNKNOWN
+      record.errors[:items] << 'must exist' if record.items.empty?
+
+      record.items.each { |item|
+        deal = item.warehouse_deal(nil, record.storekeeper_place, record.storekeeper)
+        record.errors[:items] = 'invalid' if deal.nil?
+        if (item.amount > item.warehouse_state(record.storekeeper,
+                                               record.storekeeper_place,
+                                               record.created)) || (item.amount <= 0)
+          record.errors[:items] = 'invalid amount'
+        end
+      }
+    end
+  end
+end
+
 class Distribution < ActiveRecord::Base
   has_paper_trail
 
@@ -17,6 +35,7 @@ class Distribution < ActiveRecord::Base
 
   validates :foreman, :foreman_place, :storekeeper, :storekeeper_place,
             :created, :state, presence: true
+  validates_with DistributionItemsValidator
 
   belongs_to :deal
   belongs_to :foreman, polymorphic: true
@@ -83,5 +102,27 @@ class DistributionItem < WaybillItem
   def initialize(resource, amount)
     @resource = resource
     @amount = amount
+  end
+
+  def warehouse_state entity, place, date
+      deal = self.warehouse_deal(nil, place, entity)
+      return 0 if deal.nil?
+      date += 1
+
+      rules = Rule.where('rules.to_id = ?', deal).
+              joins('INNER JOIN waybills ON waybills.deal_id = rules.deal_id').
+              where('waybills.created <= ?', date)
+      unless place.nil?
+        rules.where('waybills.place_id = ?', place)
+      end
+      state = rules.sum('rules.rate')
+
+      rules = Rule.where('rules.from_id = ?', deal).
+              joins('INNER JOIN distributions ON distributions.deal_id = rules.deal_id').
+              where('distributions.created <= ?', date)
+      unless place.nil?
+        rules.where('distributions.place_id = ?', place)
+      end
+      state - rules.sum('rules.rate')
   end
 end

@@ -153,6 +153,34 @@ describe Distribution do
     db = Distribution.find(db)
     db.cancel.should be_true
     db.state.should eq(Distribution::CANCELED)
+
+    db = Factory.build(:distribution, storekeeper: @wb.storekeeper,
+                                      storekeeper_place: @wb.storekeeper_place)
+    db.add_item('roof', 'm2', 1)
+    db.save!
+    db.apply.should be_true
+    db.state.should eq(Distribution::APPLIED)
+  end
+
+  it 'should create facts by rules after apply' do
+    db = Factory.build(:distribution, storekeeper: @wb.storekeeper,
+                                      storekeeper_place: @wb.storekeeper_place)
+    db.add_item('roof', 'm2', 5)
+    db.add_item('nails', 'pcs', 10)
+
+    roof_deal = db.items[0].warehouse_deal(nil, db.storekeeper_place,
+      db.storekeeper)
+    nails_deal = db.items[1].warehouse_deal(nil, db.storekeeper_place,
+      db.storekeeper)
+
+    roof_deal.state.amount.should eq(599.0)
+    nails_deal.state.amount.should eq(1200.0)
+
+    db.save.should be_true
+    lambda { db.apply } .should change(Fact, :count).by(3)
+
+    roof_deal.state.amount.should eq(594.0)
+    nails_deal.state.amount.should eq(1190.0)
   end
 end
 

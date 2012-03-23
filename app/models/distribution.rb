@@ -33,6 +33,7 @@ class Distribution < ActiveRecord::Base
   UNKNOWN = 0
   INWORK = 1
   CANCELED = 2
+  APPLIED = 3
 
   validates :foreman, :foreman_place, :storekeeper, :storekeeper_place,
             :created, :state, presence: true
@@ -64,6 +65,16 @@ class Distribution < ActiveRecord::Base
   def cancel
     if self.state == INWORK
       self.state = CANCELED
+      return self.save
+    end
+    false
+  end
+
+  def apply
+    if self.state == INWORK and !self.deal.nil?
+      return false if Fact.create(amount: 1.0, resource: self.deal.give.resource,
+        day: DateTime.current.change(hour: 12), to: self.deal).nil?
+      self.state = APPLIED
       return self.save
     end
     false

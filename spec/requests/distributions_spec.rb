@@ -15,6 +15,13 @@ feature 'distributions', %q{
 } do
 
   scenario 'view distributions', js: true do
+    Factory(:chart)
+    wb = Factory.build(:waybill)
+    (0..4).each { |i|
+      wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
+    }
+    wb.save!
+
     page_login
 
     page.find("#btn_create").click
@@ -46,6 +53,51 @@ feature 'distributions', %q{
       items = Entity.find(:all, order: :tag, limit: 5)
       check_autocomplete("storekeeper_entity", items, :tag)
       check_autocomplete("foreman_entity", items, :tag)
+    end
+
+    within("#container_documents") do
+      page.should have_selector("div[@id='resources-tables']")
+      within("#resources-tables") do
+        page.should have_selector("#available-resources tbody tr")
+        within("#available-resources") do
+          page.should have_selector('tbody tr', count: 5)
+          page.all('tbody tr').each_with_index { |tr, i|
+            tr.should have_content("resource##{i}")
+            tr.should have_content("mu#{i}")
+            tr.should have_content(100+i)
+          }
+        end
+
+        within("#selected-resources") do
+          page.should_not have_selector('tbody tr')
+        end
+
+        (0..4).each do |i|
+          page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
+          if i < 4 then
+            page.should have_selector('#available-resources tbody tr', count: 4-i)
+            page.should have_selector('#selected-resources tbody tr', count: 1+i)
+          else
+            page.should_not have_selector('#available-resources tbody tr')
+          end
+        end
+
+        within("#available-resources") do
+          page.all('tbody tr').each_with_index { |tr, i|
+            tr.find("td input[@type='text']")[:value].should eq("#{100+i}")
+          }
+        end
+
+        (0..4).each do |i|
+          page.find("#selected-resources tbody tr td[@class='distribution-actions'] span").click
+          if i < 4 then
+            page.should have_selector('#selected-resources tbody tr', count: 4-i)
+            page.should have_selector('#available-resources tbody tr', count: 1+i)
+          else
+            page.should_not have_selector('#selected-resources tbody tr')
+          end
+        end
+      end
     end
   end
 end

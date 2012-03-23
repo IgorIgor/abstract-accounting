@@ -12,4 +12,7 @@ class DistributionsController < ApplicationController
     render "distributions/preview", :layout => false
   end
 
+  def new
+    @distribution = Distribution.new
+  end
 end

@@ -50,7 +50,7 @@ $ ->
       })
     $("#container_documents form").valid()
 
-  distributionViewModel = (type, data, readonly = false) ->
+  distributionViewModel = (type, data, resources, readonly = false) ->
     self.readonly = ko.observable(readonly)
     self.object = ko.observable(if readonly then data.object else data)
     self.object().created = ko.observable(object().created)
@@ -91,8 +91,17 @@ $ ->
           switch $(event.target).attr("id")
             when "storekeeper_entity", "storekeeper_place", "foreman_entity", "foreman_place"
               self.object()[$(event.target).attr("bind-param")] = data["id"]
-              self.object()[$(event.target).attr("bind-param")] = data["id"]
         )
+    self.availableResources = ko.observableArray(resources)
+    self.selectedResources = ko.observableArray([])
+    self.selectResource = (resource) ->
+      resource['count'] = resource['exp_amount']
+      self.selectedResources.push(resource)
+      self.availableResources.remove(resource)
+    self.unselectResource = (resource) ->
+      self.availableResources.push(resource)
+      self.selectedResources.remove(resource)
+    self
 
   documentViewModel = (type, data, readonly = false) ->
     estimateBoM = (data = { id: null, tag: "", tab: "", count: null, sum: null }) ->
@@ -381,10 +390,13 @@ $ ->
             $("#container_documents").html(form)
             $("#inbox").removeClass("sidebar-selected")
             if document_type == "distributions"
-              self.documentVM = new distributionViewModel(document_type, data)
+              $.getJSON("warehouses/data.json", {}, (items) ->
+                self.documentVM = new distributionViewModel(document_type, data, items)
+                ko.applyBindings(self.documentVM, $("#container_documents").get(0))
+              )
             else
               self.documentVM = new documentViewModel(document_type, data)
-            ko.applyBindings(self.documentVM, $("#container_documents").get(0))
+              ko.applyBindings(self.documentVM, $("#container_documents").get(0))
           )
         )
       )

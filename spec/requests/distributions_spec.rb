@@ -16,6 +16,7 @@ feature 'distributions', %q{
 
   scenario 'view distributions', js: true do
     Factory(:chart)
+    @waybills = nil
     wb = Factory.build(:waybill)
     (0..4).each { |i|
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
@@ -100,4 +101,44 @@ feature 'distributions', %q{
       end
     end
   end
+
+  scenario 'test distributions save', js: true do
+    PaperTrail.enabled = true
+
+    Factory(:chart)
+    @waybill = nil
+    wb = Factory.build(:waybill, created: DateTime.current.change(year: 2011))
+    wb.add_item('roof', 'm2', 12, 100.0)
+    wb.add_item('roof2', 'm2', 12, 100.0)
+    wb.save!
+    @waybill = wb
+
+    page_login
+
+    page.find("#btn_create").click
+    page.find("a[@href='#documents/distributions/new']").click
+
+    page.find("#created").click
+    page.find("#ui-datepicker-div table[@class='ui-datepicker-calendar'] tbody tr td a").click
+
+    within("#container_documents form") do
+      fill_in("storekeeper_entity", :with => @waybill.storekeeper.tag)
+      fill_in("storekeeper_place", :with => @waybill.storekeeper_place.tag)
+      fill_in("foreman_entity", :with =>"entity")
+      fill_in("foreman_place", :with => "place")
+    end
+
+    within("#container_documents #resources-tables") do
+      page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
+      page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
+    end
+
+    lambda {
+      click_button("Save")
+      page.should have_selector("#inbox[@class='sidebar-selected']")
+    }.should change(Distribution, :count).by(1)
+
+    PaperTrail.enabled = false
+  end
+
 end

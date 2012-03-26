@@ -51,6 +51,11 @@ $ ->
     $("#container_documents form").valid()
 
   distributionViewModel = (type, data, resources, readonly = false) ->
+    resource = (data = { tag: null, mu: null, amount: null }) ->
+      tag: ko.observable(data.tag)
+      mu: ko.observable(data.mu)
+      amount: ko.observable(data.amount)
+
     self.readonly = ko.observable(readonly)
     self.object = ko.observable(if readonly then data.object else data)
     self.object().created = ko.observable(object().created)
@@ -62,6 +67,13 @@ $ ->
       tag: ko.observable(if readonly then data.storekeeper_place.tag else "")
     self.storekeeper =
       tag: ko.observable(if readonly then data.storekeeper.tag else "")
+    self.resources = ko.observableArray([])
+
+    if readonly
+      unless data.items == undefined
+        for item in data.items
+          self.resources.push(resource(item))
+
     self.autocomplete_init = (data, event) ->
       unless $(event.target).attr("autocomplete")
         params = {}
@@ -95,12 +107,42 @@ $ ->
     self.availableResources = ko.observableArray(resources)
     self.selectedResources = ko.observableArray([])
     self.selectResource = (resource) ->
-      resource['count'] = resource['exp_amount']
+      resource['amount'] = resource['exp_amount']
       self.selectedResources.push(resource)
       self.availableResources.remove(resource)
     self.unselectResource = (resource) ->
       self.availableResources.push(resource)
       self.selectedResources.remove(resource)
+    self.distribution_save = ->
+      items =[]
+      for id, item of self.selectedResources()
+        items.push({tag: item.tag, mu: item.mu, amount: item.amount})
+      params =
+        object:
+          created: self.object().created
+          storekeeper_id: self.object().storekeeper_id
+          storekeeper_place_id: self.object().storekeeper_place_id
+          foreman_id: self.object().foreman_id
+          foreman_place_id: self.object().foreman_place_id
+        items: items
+      params["storekeeper"] = self.storekeeper unless self.object().storekeeper_id
+      params["storekeeper_place"] = self.storekeeper_place unless self.object().storekeeper_place_id
+      params["foreman"] = self.foreman unless self.object().foreman_id
+      params["foreman_place"] = self.foreman_place unless self.object().foreman_place_id
+      $.ajax({
+        type: if self.object().id then "PUT" else "POST",
+        url: "/distributions" + if self.object().id then "/#{self.object().id}" else "",
+        data: params,
+        complete: (data) ->
+          if data.responseText == "success"
+            location.hash = "inbox"
+          else
+            $("#container_notification").css("display", "block")
+            $("#container_notification ul").css("display", "block")
+            for key, value of JSON.parse(data.responseText)
+              $("#container_notification ul")
+              .append($("<li class='server-message'>#{key}: #{value}</li>"))
+      })
     self
 
   documentViewModel = (type, data, readonly = false) ->
@@ -386,7 +428,7 @@ $ ->
         document_type = this.params.type
         $.get("/" + document_type + "/preview", {}, (form) ->
           $.getJSON("/" + document_type + "/new.json", {}, (data) ->
-            actions()
+            actions(document_type)
             $("#container_documents").html(form)
             $("#inbox").removeClass("sidebar-selected")
             if document_type == "distributions"
@@ -417,8 +459,10 @@ $ ->
 
   ko.applyBindings(new homeViewModel())
 
-  window.actions = ->
-    $(".actions").html(button("Save", -> $("#container_documents form").submit() if waybillFormValidate()))
+  window.actions = (type) ->
+    switch type
+      when 'waybills' then $(".actions").html(button("Save", -> $("#container_documents form").submit() if waybillFormValidate()))
+      when 'distributions' then $(".actions").html(button("Save", -> $("#container_documents form").submit()))
     $(".actions").append(button("Cancel", -> location.hash = "inbox"))
     $(".actions").append(button("Draft"))
   window.button = (value, func = null) ->

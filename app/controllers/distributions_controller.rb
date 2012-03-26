@@ -15,4 +15,44 @@ class DistributionsController < ApplicationController
   def new
     @distribution = Distribution.new
   end
+
+  def create
+    distribution = nil
+    begin
+      Distribution.transaction do
+        Chart.create!(:currency => Money.create!(:alpha_code => "RUB",
+                                                 :num_code => 222)) unless Chart.count > 0
+        params[:object][:storekeeper_type] = "Entity"
+        params[:object][:foreman_type] = "Entity"
+        distribution = Distribution.new(params[:object])
+        if distribution.storekeeper_id.zero?
+          storekeeper = Entity.find_or_create_by_tag(params[:storekeeper])
+          storekeeper.save!
+          distribution.storekeeper = storekeeper
+        end
+        if distribution.storekeeper_place_id.zero?
+          storekeeper_place = Place.find_or_create_by_tag(params[:storekeeper_place])
+          storekeeper_place.save!
+          distribution.storekeeper_place = storekeeper_place
+        end
+        if distribution.foreman_id.zero?
+          foreman = Entity.find_or_create_by_tag(params[:foreman])
+          foreman.save!
+          distribution.foreman = foreman
+        end
+        if distribution.foreman_place_id.zero?
+          foreman_place = Place.find_or_create_by_tag(params[:foreman_place])
+          foreman_place.save!
+          distribution.foreman_place = foreman_place
+        end
+        params[:items].each_value { |item|
+          distribution.add_item(item[:tag], item[:mu], item[:amount].to_f)
+        } if params[:items]
+        distribution.save!
+        render :text => "success"
+      end
+    rescue
+      render json: distribution.errors.messages
+    end
+  end
 end

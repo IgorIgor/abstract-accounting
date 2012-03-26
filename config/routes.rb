@@ -43,7 +43,7 @@ Abstract::Application.routes.draw do
       get 'data'
     end
   end
-  resources :distributions do
+  resources :distributions, only: [:new, :show, :create] do
     collection do
       get 'preview'
     end

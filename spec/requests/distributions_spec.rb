@@ -141,4 +141,53 @@ feature 'distributions', %q{
     PaperTrail.enabled = false
   end
 
+  scenario 'show distributions', js: true do
+    PaperTrail.enabled = true
+
+    Factory(:chart)
+    wb = Factory.build(:waybill)
+    (0..4).each { |i|
+      wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
+    }
+    wb.save!
+    ds = Factory.build(:distribution, storekeeper: wb.storekeeper,
+                                      storekeeper_place: wb.storekeeper_place)
+    (0..4).each { |i|
+      ds.add_item("resource##{i}", "mu#{i}", 10+i)
+    }
+    ds.save!
+
+    page_login
+
+    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
+      'Distribution - #{wb.storekeeper.tag}')]").click
+    current_hash.should eq("documents/distributions/#{ds.id}")
+
+    within("#container_documents form") do
+      find("#created")[:value].should eq(ds.created.strftime("%m/%d/%Y"))
+      find("#storekeeper_entity")[:value].should eq(ds.storekeeper.tag)
+      find("#storekeeper_place")[:value].should eq(ds.storekeeper_place.tag)
+      find("#foreman_entity")[:value].should eq(ds.foreman.tag)
+      find("#foreman_place")[:value].should eq(ds.foreman_place.tag)
+      find("#state")[:value].should eq('Inwork')
+
+      find("#created")[:disabled].should be_true
+      find("#storekeeper_entity")[:disabled].should be_true
+      find("#storekeeper_place")[:disabled].should be_true
+      find("#foreman_entity")[:disabled].should be_true
+      find("#foreman_place")[:disabled].should be_true
+      find("#state")[:disabled].should be_true
+    end
+
+    within("#selected-resources tbody") do
+      all(:xpath, './/tr').count.should eq(5)
+      all(:xpath, './/tr').each_with_index {|tr, idx|
+        tr.should have_content("resource##{idx}")
+        tr.should have_content("mu#{idx}")
+        tr.find(:xpath, './/input')[:value].should eq("#{10+idx}")
+      }
+    end
+
+    PaperTrail.enabled = false
+  end
 end

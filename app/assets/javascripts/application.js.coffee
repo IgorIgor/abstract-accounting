@@ -106,6 +106,10 @@ $ ->
         )
     self.availableResources = ko.observableArray(resources)
     self.selectedResources = ko.observableArray([])
+    if readonly
+      for item in data.items
+        self.selectedResources.push(item)
+
     self.selectResource = (resource) ->
       resource['amount'] = resource['exp_amount']
       self.selectedResources.push(resource)
@@ -143,6 +147,12 @@ $ ->
               $("#container_notification ul")
               .append($("<li class='server-message'>#{key}: #{value}</li>"))
       })
+    self.getState = (state) ->
+      switch state
+        when 0 then 'Unknown'
+        when 1 then 'Inwork'
+        when 2 then 'Canceled'
+        when 3 then 'Applied'
     self
 
   documentViewModel = (type, data, readonly = false) ->
@@ -399,7 +409,10 @@ $ ->
             $(".actions").append(button("Edit", -> location.hash =
               "#documents/#{document_type}/#{document_id}/edit"))
             $("#container_documents").html(form)
-            viewModel = new documentViewModel(document_type, data, true)
+            if document_type == 'distributions'
+              viewModel = new distributionViewModel(document_type, data, null, true)
+            else
+              viewModel = new documentViewModel(document_type, data, true)
             ko.applyBindings(viewModel, $("#container_documents").get(0))
           )
         )

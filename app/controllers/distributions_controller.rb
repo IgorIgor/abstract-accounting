@@ -55,4 +55,8 @@ class DistributionsController < ApplicationController
       render json: distribution.errors.messages
     end
   end
+
+  def show
+    @distribution = Distribution.find(params[:id])
+  end
 end

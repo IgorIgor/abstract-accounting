@@ -18,6 +18,22 @@
     </div>
   </fieldset>
 
+  <!-- ko if: readonly -->
+  <fieldset>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="state">State:</label>
+        </span>
+        <span>
+          <input type="text" id="state" disabled="disabled"
+                 data-bind="value: getState(state)">
+        </span>
+      </div>
+    </div>
+  </fieldset>
+  <!-- /ko -->
+
   <fieldset>
     <legend>Storekeeper</legend>
     <div>
@@ -84,6 +100,7 @@
 </form>
 
 <div id="resources-tables">
+  <!-- ko ifnot: readonly -->
   <table id="available-resources">
     <caption>Available resources</caption>
     <thead>
@@ -105,26 +122,35 @@
         </tr>
       </tbody>
   </table>
+  <!-- /ko -->
 
   <table id="selected-resources">
     <caption>Selected resources</caption>
     <thead>
       <tr>
+        <!-- ko ifnot: readonly -->
         <th class="distribution-actions"></th>
+        <!-- /ko -->
         <th class="selected-resources-tag">Tag</th>
         <th class="selected-resources-mu">MU</th>
+        <!-- ko ifnot: readonly -->
         <th class="selected-resources-exp-amount">Exp. Amount</th>
+        <!-- /ko -->
         <th class="selected-resources-count">Amount</th>
       </tr>
     </thead>
     <tbody data-bind="foreach: selectedResources">
       <tr>
+        <!-- ko ifnot: readonly -->
         <td class="distribution-actions">
           <span class="mini-icon delete" data-bind="click: unselectResource"></span>
         </td>
+        <!-- /ko -->
         <td data-bind="text: tag"></td>
         <td data-bind="text: mu"></td>
+        <!-- ko ifnot: readonly -->
         <td data-bind="text: exp_amount"></td>
+        <!-- /ko -->
         <td>
           <input type="text" size="8" rule="required_num"
                  data-bind="value: amount, disable: readonly()" />

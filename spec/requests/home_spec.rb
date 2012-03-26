@@ -17,13 +17,21 @@ feature "single page application", %q{
   before {
     PaperTrail.enabled = true
     Factory(:chart)
-    @data = []
+    @waybills = []
+    @distributions = []
     (0..2).each {
       wb = Factory.build(:waybill)
-      wb.add_item('roof', 'm2', 1, 10.0)
+      wb.add_item('roof', 'm2', 2, 10.0)
       wb.save!
-      @data << wb
+      @waybills << wb
+
+      ds = Factory.build(:distribution, storekeeper: wb.storekeeper,
+                                        storekeeper_place: wb.storekeeper_place)
+      ds.add_item('roof', 'm2', 1)
+      ds.save!
+      @distributions << ds
     }
+    @data = @waybills + @distributions
   }
 
   after {

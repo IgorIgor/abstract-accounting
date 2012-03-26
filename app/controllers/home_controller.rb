@@ -7,6 +7,7 @@ class HomeController < ApplicationController
   end
 
   def inbox_data
-    @data = Waybill.find(:all, :include => :versions)
+    @data = Waybill.find(:all, include: [:versions, :storekeeper]) +
+            Distribution.find(:all, include: [:versions, :storekeeper])
   end
 end

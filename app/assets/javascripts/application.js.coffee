@@ -153,6 +153,23 @@ $ ->
         when 1 then 'Inwork'
         when 2 then 'Canceled'
         when 3 then 'Applied'
+
+    $.sammy( ->
+      this.get("#documents/:type/:id/apply", ->
+        $.ajax({
+        type: "GET",
+        url: "/distributions/#{self.object().id}/apply",
+        complete: (data) ->
+          if data.responseText == "success"
+            location.hash = "inbox"
+          else
+            $("#container_notification").css("display", "block")
+            $("#container_notification ul").css("display", "block")
+            $("#container_notification ul")
+            .append($("<li class='server-message'>Apply failed.</li>"))
+        })
+      )
+    )
     self
 
   documentViewModel = (type, data, readonly = false) ->
@@ -406,8 +423,12 @@ $ ->
         $.get("/" + document_type + "/preview", {}, (form) ->
           $.getJSON("/" + document_type + "/" + document_id + ".json", {}, (data) ->
             $(".actions").html(button("Back", -> location.hash = "inbox"))
-            $(".actions").append(button("Edit", -> location.hash =
-              "#documents/#{document_type}/#{document_id}/edit"))
+            if document_type == "distributions" && data.object.state == 1
+              $(".actions").append(button("Apply", -> location.hash =
+                "#documents/#{document_type}/#{document_id}/apply"))
+            else if document_type == "estimates"
+              $(".actions").append(button("Edit", -> location.hash =
+                "#documents/#{document_type}/#{document_id}/edit"))
             $("#container_documents").html(form)
             if document_type == 'distributions'
               viewModel = new distributionViewModel(document_type, data, null, true)

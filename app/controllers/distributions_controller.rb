@@ -59,4 +59,14 @@ class DistributionsController < ApplicationController
   def show
     @distribution = Distribution.find(params[:id])
   end
+
+  def apply
+    distribution = Distribution.find(params[:id])
+    if distribution.apply
+      render :text => "success"
+    else
+      render json: distribution.errors.messages
+    end
+  end
+
 end

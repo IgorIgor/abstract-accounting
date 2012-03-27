@@ -47,6 +47,9 @@ Abstract::Application.routes.draw do
     collection do
       get 'preview'
     end
+    member do
+      get 'apply'
+    end
   end
 
   # The priority is based upon order of creation:

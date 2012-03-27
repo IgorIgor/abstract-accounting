@@ -69,4 +69,13 @@ class DistributionsController < ApplicationController
     end
   end
 
+  def cancel
+    distribution = Distribution.find(params[:id])
+    if distribution.cancel
+      render :text => "success"
+    else
+      render json: distribution.errors.messages
+    end
+  end
+
 end

@@ -216,4 +216,30 @@ feature 'distributions', %q{
 
     PaperTrail.enabled = false
   end
+
+  scenario 'canceling distributions', js: true do
+    PaperTrail.enabled = true
+
+    Factory(:chart)
+    wb = Factory.build(:waybill)
+    wb.add_item("test resource", "test mu", 100, 10)
+    wb.save!
+
+    ds = Factory.build(:distribution, storekeeper: wb.storekeeper,
+                       storekeeper_place: wb.storekeeper_place)
+    ds.add_item("test resource", "test mu", 10)
+    ds.save!
+
+    page_login
+
+    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
+      'Distribution - #{wb.storekeeper.tag}')]").click
+    click_button("Cancel")
+    page.should have_selector("#inbox[@class='sidebar-selected']")
+    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
+      'Distribution - #{wb.storekeeper.tag}')]").click
+    page.should_not have_selector("div[@class='actions'] input[@value='Cancel']")
+    PaperTrail.enabled = false
+  end
+
 end

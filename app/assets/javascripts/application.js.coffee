@@ -169,6 +169,20 @@ $ ->
             .append($("<li class='server-message'>Apply failed.</li>"))
         })
       )
+      this.get("#documents/:type/:id/cancel", ->
+        $.ajax({
+        type: "GET",
+        url: "/distributions/#{self.object().id}/cancel",
+        complete: (data) ->
+          if data.responseText == "success"
+            location.hash = "inbox"
+          else
+            $("#container_notification").css("display", "block")
+            $("#container_notification ul").css("display", "block")
+            $("#container_notification ul")
+            .append($("<li class='server-message'>Cancel failed.</li>"))
+        })
+      )
     )
     self
 
@@ -426,6 +440,8 @@ $ ->
             if document_type == "distributions" && data.object.state == 1
               $(".actions").append(button("Apply", -> location.hash =
                 "#documents/#{document_type}/#{document_id}/apply"))
+              $(".actions").append(button("Cancel", -> location.hash =
+                "#documents/#{document_type}/#{document_id}/cancel"))
             else if document_type == "estimates"
               $(".actions").append(button("Edit", -> location.hash =
                 "#documents/#{document_type}/#{document_id}/edit"))

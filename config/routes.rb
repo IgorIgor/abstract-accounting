@@ -49,6 +49,7 @@ Abstract::Application.routes.draw do
     end
     member do
       get 'apply'
+      get 'cancel'
     end
   end
 

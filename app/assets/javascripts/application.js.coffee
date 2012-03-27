@@ -438,6 +438,7 @@ $ ->
           $.getJSON("/" + document_type + "/" + document_id + ".json", {}, (data) ->
             $(".actions").html(button("Back", -> location.hash = "inbox"))
             if document_type == "distributions" && data.object.state == 1
+              $(".actions").append("<div class='buttons-separator'></div>")
               $(".actions").append(button("Apply", -> location.hash =
                 "#documents/#{document_type}/#{document_id}/apply"))
               $(".actions").append(button("Cancel", -> location.hash =

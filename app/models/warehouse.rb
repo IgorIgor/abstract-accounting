@@ -18,7 +18,12 @@ class Warehouse
     @mu = attrs['mu']
   end
 
-  def self.all
+  def self.all(attrs = nil)
+    where = ''
+    unless attrs.nil? || attrs[:storekeeper_id].nil? || attrs[:place_id].nil?
+      where = "AND waybills.storekeeper_id = '#{attrs[:storekeeper_id]}'
+               AND waybills.storekeeper_place_id = '#{attrs[:place_id]}'"
+    end
     sql = "
       SELECT warehouse.* FROM (
         SELECT place, tag, SUM(real_amount) as real_amount,
@@ -32,7 +37,7 @@ class Warehouse
             INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
             INNER JOIN assets ON assets.id = terms.resource_id
             INNER JOIN places ON places.id = terms.place_id
-          WHERE states.paid is NULL
+          WHERE states.paid is NULL #{where}
           GROUP BY places.id, terms.resource_id
           UNION
           SELECT places.tag as place, assets.tag as tag, 0.0 as amount,

@@ -112,5 +112,56 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'roof') &&
                    (w.real_amount == 500) && (w.exp_amount == 500) &&
                    (w.mu == 'rm') } .empty?.should be_false
+
+    wh = Warehouse.all(storekeeper_id: ivanov.id, place_id: moscow.id)
+    wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'roof') &&
+        (w.real_amount == 143) && (w.exp_amount == 143) &&
+        (w.mu == 'rm') } .empty?.should be_false
+    wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'nails') &&
+        (w.real_amount == 1390) && (w.exp_amount == 1390) &&
+        (w.mu == 'pcs') } .empty?.should be_false
+    wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'nails') &&
+        (w.real_amount == 10) && (w.exp_amount == 10) &&
+        (w.mu == 'kg') } .empty?.should be_false
+    wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'roof') &&
+        (w.real_amount == 500) && (w.exp_amount == 500) &&
+        (w.mu == 'rm') } .empty?.should be_true
+    wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
+        (w.real_amount == 300) && (w.exp_amount == 300) &&
+        (w.mu == 'kg') } .empty?.should be_true
+
+    wh = Warehouse.all(storekeeper_id: petrov.id, place_id: minsk.id)
+    wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'roof') &&
+        (w.real_amount == 143) && (w.exp_amount == 143) &&
+        (w.mu == 'rm') } .empty?.should be_true
+    wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'nails') &&
+        (w.real_amount == 1390) && (w.exp_amount == 1390) &&
+        (w.mu == 'pcs') } .empty?.should be_true
+    wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'nails') &&
+        (w.real_amount == 10) && (w.exp_amount == 10) &&
+        (w.mu == 'kg') } .empty?.should be_true
+    wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'roof') &&
+        (w.real_amount == 500) && (w.exp_amount == 500) &&
+        (w.mu == 'rm') } .empty?.should be_false
+    wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
+        (w.real_amount == 300) && (w.exp_amount == 300) &&
+        (w.mu == 'kg') } .empty?.should be_false
+
+    wh = Warehouse.all(storekeeper_id: petrov.id, place_id: moscow.id)
+    wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'roof') &&
+        (w.real_amount == 143) && (w.exp_amount == 143) &&
+        (w.mu == 'rm') } .empty?.should be_true
+    wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'nails') &&
+        (w.real_amount == 1390) && (w.exp_amount == 1390) &&
+        (w.mu == 'pcs') } .empty?.should be_true
+    wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'nails') &&
+        (w.real_amount == 10) && (w.exp_amount == 10) &&
+        (w.mu == 'kg') } .empty?.should be_true
+    wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'roof') &&
+        (w.real_amount == 500) && (w.exp_amount == 500) &&
+        (w.mu == 'rm') } .empty?.should be_true
+    wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
+        (w.real_amount == 300) && (w.exp_amount == 300) &&
+        (w.mu == 'kg') } .empty?.should be_true
   end
 end

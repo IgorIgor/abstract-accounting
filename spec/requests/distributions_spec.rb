@@ -118,6 +118,18 @@ feature 'distributions', %q{
     page.find("#btn_create").click
     page.find("a[@href='#documents/distributions/new']").click
 
+    click_button("Save")
+    within("#container_documents form") do
+      find("#container_notification").visible?.should be_true
+      within("#container_notification") do
+        page.should have_content("Created field is required.")
+        page.should have_content("Storekeeper Entity field is required.")
+        page.should have_content("Storekeeper Place field is required.")
+        page.should have_content("Foreman Entity field is required.")
+        page.should have_content("Foreman Place field is required.")
+      end
+    end
+
     page.find("#created").click
     page.find("#ui-datepicker-div table[@class='ui-datepicker-calendar'] tbody tr td a").click
 

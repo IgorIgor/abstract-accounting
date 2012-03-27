@@ -18,7 +18,7 @@
 #= require_tree .
 
 $ ->
-  waybillFormValidate = ->
+  formValidate = ->
     $(".server-message").remove()
     $("#container_documents form").validate({
       errorContainer: "#container_notification"
@@ -338,12 +338,12 @@ $ ->
       self.boms.push(estimateBoM())
     self.waybill_entry_add = ->
       self.waybill_entries.push(waybill_entry())
-      waybillFormValidate() if $("#container_documents form").attr("novalidate")
+      formValidate() if $("#container_documents form").attr("novalidate")
     self.bom_remove = (bom) ->
       self.boms.remove(bom)
     self.waybill_entry_remove = (waybill_entry) ->
       self.waybill_entries.remove(waybill_entry)
-      waybillFormValidate() if $("#container_documents form").attr("novalidate")
+      formValidate() if $("#container_documents form").attr("novalidate")
     self.load_bom_sum = (data, event) ->
       if($(event.target).val().length && $(event.target).val() != "0" &&
          $(event.target).val().match('^([0-9]*)$'))
@@ -511,9 +511,7 @@ $ ->
   ko.applyBindings(new homeViewModel())
 
   window.actions = (type) ->
-    switch type
-      when 'waybills' then $(".actions").html(button("Save", -> $("#container_documents form").submit() if waybillFormValidate()))
-      when 'distributions' then $(".actions").html(button("Save", -> $("#container_documents form").submit()))
+    $(".actions").html(button("Save", -> $("#container_documents form").submit() if formValidate()))
     $(".actions").append(button("Cancel", -> location.hash = "inbox"))
     $(".actions").append(button("Draft"))
   window.button = (value, func = null) ->

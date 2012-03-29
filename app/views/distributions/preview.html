@@ -1,4 +1,4 @@
-<form data-bind="with: object, submit: distribution_save" method="post" action="#">
+<form data-bind="with: object, validate: { success: distribution_save }" method="post" action="#">
   <fieldset id="container_notification">
     <legend>Errors</legend>
     <ul></ul>

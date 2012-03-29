@@ -18,38 +18,6 @@
 #= require_tree .
 
 $ ->
-  formValidate = ->
-    $(".server-message").remove()
-    $("#container_documents form").validate({
-      errorContainer: "#container_notification"
-      errorLabelContainer: "#container_notification ul",
-      errorElement: "li"
-      rules: {
-        count: {
-          required: true,
-          number: true,
-          min: 1
-        }
-      }
-    })
-    for item in $("input[rule='required']")
-      $(item).rules("add", {
-        required: true,
-        messages: {
-          required: $(item).attr("name") + " field is required.",
-        }
-      })
-    for item in $("input[rule='required_num']")
-      $(item).rules("add", {
-        required: true,
-        min: 1,
-        messages: {
-          required: $(item).attr("name") + " field is required.",
-          min: $(item).attr("name") + " should be greater than or equal to 1."
-        }
-      })
-    $("#container_documents form").valid()
-
   distributionViewModel = (type, data, resources, readonly = false) ->
     resource = (data = { tag: null, mu: null, amount: null }) ->
       tag: ko.observable(data.tag)
@@ -338,12 +306,10 @@ $ ->
       self.boms.push(estimateBoM())
     self.waybill_entry_add = ->
       self.waybill_entries.push(waybill_entry())
-      formValidate() if $("#container_documents form").attr("novalidate")
     self.bom_remove = (bom) ->
       self.boms.remove(bom)
     self.waybill_entry_remove = (waybill_entry) ->
       self.waybill_entries.remove(waybill_entry)
-      formValidate() if $("#container_documents form").attr("novalidate")
     self.load_bom_sum = (data, event) ->
       if($(event.target).val().length && $(event.target).val() != "0" &&
          $(event.target).val().match('^([0-9]*)$'))
@@ -511,7 +477,7 @@ $ ->
   ko.applyBindings(new homeViewModel())
 
   window.actions = (type) ->
-    $(".actions").html(button("Save", -> $("#container_documents form").submit() if formValidate()))
+    $(".actions").html(button("Save", -> $("#container_documents form").submit()))
     $(".actions").append(button("Cancel", -> location.hash = "inbox"))
     $(".actions").append(button("Draft"))
   window.button = (value, func = null) ->

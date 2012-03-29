@@ -1,4 +1,5 @@
-<form data-bind="with: object, submit: waybill_save" method="post" action="#">
+<form data-bind="with: object, validate: { event: 'submit', success: waybill_save }"
+      method="post" action="#">
   <fieldset id="container_notification">
     <legend>Errors</legend>
     <ul></ul>
@@ -129,7 +130,7 @@
         <th class="estimate-boms-actions"></th>
       </tr>
       </thead>
-      <tbody data-bind="foreach: waybill_entries">
+      <tbody data-bind="foreach: waybill_entries, elementValidate: waybill_entries">
       <tr data-bind="attr: { idx: waybill_entries.indexOf($data) }">
         <td>
           <input type="text" rule="required"

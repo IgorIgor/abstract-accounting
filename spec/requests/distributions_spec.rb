@@ -254,4 +254,49 @@ feature 'distributions', %q{
     PaperTrail.enabled = false
   end
 
+  scenario 'generate pdf', js: true do
+    PaperTrail.enabled = true
+
+    Factory(:chart)
+    wb = Factory.build(:waybill)
+    wb.add_item("test resource", "test mu", 100, 10)
+    wb.save!
+
+    ds = Factory.build(:distribution, storekeeper: wb.storekeeper,
+                       storekeeper_place: wb.storekeeper_place)
+    ds.add_item("test resource", "test mu", 10)
+    ds.save!
+
+    page_login
+
+    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
+                      'Distribution - #{wb.storekeeper.tag}')]").click
+
+    visit("#{distribution_path(ds)}.html")
+
+    page.should have_selector("span [@class='description_element']")
+
+    within('#person-list') do
+      page.should have_content("#{ds.storekeeper.tag}")
+      page.should have_content("#{ds.foreman.tag}")
+    end
+
+    within("table[@class='distributions'] tbody tr") do
+      page.should have_content("test resource")
+      page.should have_content("test mu")
+      page.should have_content("10")
+    end
+
+    within("div[@class='date-block']") do
+      page.should have_content(ds.created.strftime('%Y-%m-%d'))
+    end
+
+    within('#signature') do
+      page.should have_content("#{ds.storekeeper.tag}")
+      page.should have_content("#{ds.foreman.tag}")
+    end
+
+    PaperTrail.enabled = false
+  end
+
 end

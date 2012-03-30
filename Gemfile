@@ -10,6 +10,7 @@ gem 'paper_trail'
 gem 'sorcery'
 gem 'settingslogic'
 gem 'cancan'
+gem 'wicked_pdf'
 
 group :assets do
   gem 'sass-rails', "  ~> 3.2.3"

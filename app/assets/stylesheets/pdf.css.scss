@@ -1,0 +1,87 @@
+#pdf-wrapper{
+  margin: 20px 30px 15px;
+  padding: 0;
+  color: black;
+  background: white;
+  font-size: 14px;
+
+  ul{
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    list-style-position: inside;
+
+    li{
+      padding: 4px;
+    }
+  }
+
+  #person-list{
+
+  }
+
+  .name_element{
+    font-weight: bolder;
+  }
+
+  .description_element{
+    font-weight: normal;
+  }
+
+  table {
+    border-collapse: collapse;
+  }
+
+  table.distributions{
+    margin: 20px 0;
+    width: 100%;
+    padding: 4px;
+    border: 1px solid black;
+
+    tr{
+
+      th{
+        text-align: center;
+        background-color: #e8e8e8;
+      }
+
+      td{
+        padding: 2px 4px;
+        text-align: left;
+        border: 1px solid #000;
+      }
+    }
+  }
+
+  .date-block{
+    float: left;
+  }
+
+  #signature{
+    float: right;
+    text-align: left;
+
+    .fio{
+      margin-right: 12px;
+      display: inline-block;
+      width: 300px;
+      border-bottom: none;
+      padding-bottom: 1px;
+    }
+
+    .fio:before{
+      content: "/ ";
+    }
+
+    .fio:after{
+      content: " /";
+    }
+
+    .autograph{
+      width: 150px;
+      display: inline-block;
+      border-bottom: 1px solid black;
+      padding-bottom: 1px;
+    }
+  }
+}

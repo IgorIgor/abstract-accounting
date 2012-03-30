@@ -58,6 +58,17 @@ class DistributionsController < ApplicationController
 
   def show
     @distribution = Distribution.find(params[:id])
+
+    respond_to { |format|
+      format.html { render :show, layout: false }
+      format.json
+      format.pdf {
+        render pdf: 'distribution',
+               template: 'distributions/show.html.erb',
+               encoding: 'utf-8',
+               layout: false
+      }
+    }
   end
 
   def apply

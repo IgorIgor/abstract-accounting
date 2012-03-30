@@ -69,3 +69,5 @@ $ ->
       location.hash = "#documents/distributions/#{@distribution().id}/apply"
     cancel: =>
       location.hash = "#documents/distributions/#{@distribution().id}/cancel"
+    print: =>
+      location.href = "distributions/#{@distribution().id}.pdf"

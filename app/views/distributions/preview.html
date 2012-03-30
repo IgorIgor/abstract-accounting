@@ -5,12 +5,12 @@
     <input type='button' value='Draft' data-bind='visible: !readonly()'/>
 
     <input type='button' value='Back' data-bind='click: back, visible: readonly'/>
-    <div class='buttons-separator'
-         data-bind='visible: readonly && distribution().state == 1'></div>
+    <div class='buttons-separator' data-bind='visible: readonly'></div>
     <input type='button' value='Apply'
            data-bind='click: apply, visible: readonly && distribution().state == 1'/>
     <input type='button' value='Cancel'
            data-bind='click: cancel, visible: readonly && distribution().state == 1'/>
+    <input type='button' value='Print' data-bind='click: print, visible: readonly'/>
   </div>
 
   <fieldset id="container_notification">

@@ -36,26 +36,26 @@
         <span class="form-cell-label">
           <label for="storekeeper_entity">Entity:</label>
         </span>
-        <span>
-          <input id="storekeeper_entity" type="text" data-url="entities.json"
-                 data-field="tag" bind-param="storekeeper_id"
-                 rule="required" name="Storekeeper Entity"
-                 data-bind="value: storekeeper.tag,
-                            event: {focus: autocomplete_init},
-                            disable: readonly()"/>
+        <span data-bind='with: storekeeper'>
+          <input type='text' id='storekeeper_entity'
+                 name='Storekeeper Entity' rule='required'
+                 data-bind="autocomplete: { source: '/entities.json',
+                                            value: 'tag',
+                                            bindId: $parent.storekeeper_id },
+                            value: tag, disable: readonly()" />
         </span>
       </div>
       <div>
         <span class="form-cell-label">
           <label for="storekeeper_place">Place:</label>
         </span>
-        <span>
-          <input id="storekeeper_place" type="text" data-url="places.json"
-                 data-field="tag" bind-param="storekeeper_place_id"
-                 rule="required" name="Storekeeper Place"
-                 data-bind="value: storekeeper_place.tag,
-                            event: {focus: autocomplete_init},
-                            disable: readonly()" />
+        <span data-bind='with: storekeeper_place'>
+          <input type='text' id='storekeeper_place'
+                 name='Storekeeper Place' rule='required'
+                 data-bind="autocomplete: { source: '/places.json',
+                                            value: 'tag',
+                                            bindId: $parent.storekeeper_place_id },
+                            value: tag, disable: readonly()" />
         </span>
       </div>
     </div>
@@ -68,26 +68,26 @@
         <span class="form-cell-label">
           <label for="foreman_entity">Entity:</label>
         </span>
-        <span>
-          <input id="foreman_entity" type="text" data-url="entities.json"
-                 data-field="tag" bind-param="foreman_id"
-                 rule="required" name="Foreman Entity"
-                 data-bind="value: foreman.tag,
-                            event: {focus: autocomplete_init},
-                            disable: readonly()"/>
+        <span data-bind='with: foreman'>
+          <input type='text' id='foreman_entity'
+                 name='Foreman Entity' rule='required'
+                 data-bind="autocomplete: { source: '/entities.json',
+                                            value: 'tag',
+                                            bindId: $parent.foreman_id },
+                            value: tag, disable: readonly()" />
         </span>
       </div>
       <div>
         <span class="form-cell-label">
           <label for="foreman_place">Place:</label>
         </span>
-        <span>
-          <input id="foreman_place" type="text" data-url="places.json"
-                 data-field="tag" bind-param="foreman_place_id"
-                 rule="required" name="Foreman Place"
-                 data-bind="value: foreman_place.tag,
-                            event: {focus: autocomplete_init},
-                            disable: readonly()" />
+        <span data-bind='with: foreman_place'>
+          <input type='text' id='foreman_place'
+                 name='Foreman Place' rule='required'
+                 data-bind="autocomplete: { source: '/places.json',
+                                            value: 'tag',
+                                            bindId: $parent.foreman_id },
+                            value: tag, disable: readonly()" />
         </span>
       </div>
     </div>

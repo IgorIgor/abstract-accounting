@@ -9,6 +9,6 @@
 
 class LegalEntitiesController < ApplicationController
   def index
-    @entities = LegalEntity.where("name LIKE ?", "#{params[:q]}%").order("name").limit(5)
+    @entities = LegalEntity.where("name LIKE ?", "#{params[:term]}%").order("name").limit(5)
   end
 end

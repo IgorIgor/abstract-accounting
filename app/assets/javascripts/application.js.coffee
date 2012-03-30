@@ -9,7 +9,6 @@
 #= require jquery
 #= require jquery-ui
 #= require jquery_ujs
-#= require jquery.autocomplete
 #= require jquery.validate
 #= require sammy
 #= require knockout
@@ -27,6 +26,11 @@ $ ->
     self.readonly = ko.observable(readonly)
     self.object = ko.observable(if readonly then data.object else data)
     self.object().created = ko.observable(object().created)
+    self.object().storekeeper_id = ko.observable(object().storekeeper_id)
+    self.object().storekeeper_place_id = ko.observable(object().storekeeper_place_id)
+    self.object().foreman_id = ko.observable(object().foreman_id)
+    self.object().foreman_place_id = ko.observable(object().foreman_place_id)
+
     self.foreman_place =
       tag: ko.observable(if readonly then data.foreman_place.tag else "")
     self.foreman =
@@ -42,36 +46,6 @@ $ ->
         for item in data.items
           self.resources.push(resource(item))
 
-    self.autocomplete_init = (data, event) ->
-      unless $(event.target).attr("autocomplete")
-        params = {}
-        $(event.target).autocomplete($(event.target).attr("data-url"), {
-        dataType: "json",
-        selectFirst: false,
-        delay: 600,
-        cacheLength: 0,
-        matchCase: true,
-        extraParams: params,
-        parse: (data) ->
-          parsed = []
-          for object, id in data
-            parsed[id] =
-              data: object
-              value: object[$(event.target).attr("data-field")]
-              result: object[$(event.target).attr("data-field")]
-          parsed
-        ,
-        formatItem: (item) ->
-          return item[$(event.target).attr("data-field")]
-        })
-        $(event.target).change( ->
-          self.object()[$(event.target).attr("bind-param")] = null
-        )
-        $(event.target).result((event, data, formatted) ->
-          switch $(event.target).attr("id")
-            when "storekeeper_entity", "storekeeper_place", "foreman_entity", "foreman_place"
-              self.object()[$(event.target).attr("bind-param")] = data["id"]
-        )
     self.availableResources = ko.observableArray(resources)
     self.selectedResources = ko.observableArray([])
     if readonly
@@ -97,10 +71,10 @@ $ ->
           foreman_id: self.object().foreman_id
           foreman_place_id: self.object().foreman_place_id
         items: items
-      params["storekeeper"] = self.storekeeper unless self.object().storekeeper_id
-      params["storekeeper_place"] = self.storekeeper_place unless self.object().storekeeper_place_id
-      params["foreman"] = self.foreman unless self.object().foreman_id
-      params["foreman_place"] = self.foreman_place unless self.object().foreman_place_id
+      params["storekeeper"] = self.storekeeper unless self.object().storekeeper_id()
+      params["storekeeper_place"] = self.storekeeper_place unless self.object().storekeeper_place_id()
+      params["foreman"] = self.foreman unless self.object().foreman_id()
+      params["foreman_place"] = self.foreman_place unless self.object().foreman_place_id()
       $.ajax({
         type: if self.object().id then "PUT" else "POST",
         url: "/distributions" + if self.object().id then "/#{self.object().id}" else "",
@@ -174,9 +148,21 @@ $ ->
     self.object = ko.observable(if readonly then data.object else data)
     self.object().catalog_id = ko.observable(object().catalog_id)
     self.object().place_id = ko.observable(object().place_id)
+
     self.waybill_object = ko.observable(if readonly then data.object else data)
     self.waybill_object().created = ko.observable(waybill_object().created)
-    self.waybill_object().document_id = ko.observable(waybill_object().document_id)
+    self.waybill_object().document_id =
+      ko.observable(waybill_object().document_id)
+    self.waybill_object().distributor_id =
+      ko.observable(waybill_object().distributor_id)
+    self.waybill_object().distributor_place_id =
+      ko.observable(waybill_object().distributor_place_id)
+    self.waybill_object().storekeeper_id =
+      ko.observable(waybill_object().storekeeper_id)
+    self.waybill_object().storekeeper_place_id =
+      ko.observable(waybill_object().storekeeper_place_id)
+
+
     if(data.legal_entity)
       self.legal_entity =
         name: ko.observable(if readonly then data.legal_entity.name else "")
@@ -188,10 +174,11 @@ $ ->
       identifier_value: ko.observable(if readonly then data.distributor.identifier_value else "")
     self.distributor_place =
       tag: ko.observable(if readonly then data.distributor_place.tag else "")
-    self.storekeeper_place =
-      tag: ko.observable(if readonly then data.storekeeper_place.tag else "")
     self.storekeeper =
       tag: ko.observable(if readonly then data.storekeeper.tag else "")
+    self.storekeeper_place =
+      tag: ko.observable(if readonly then data.storekeeper_place.tag else "")
+
     self.boms = ko.observableArray([])
     self.waybill_entries = ko.observableArray([])
     if readonly
@@ -204,73 +191,6 @@ $ ->
     else
       self.boms.push(estimateBoM())
 
-    self.autocomplete_init = (data, event) ->
-      unless $(event.target).attr("autocomplete")
-        params = {}
-        if((event.target.id == "estimate_catalog_date") ||
-           ($(event.target).attr("class") == "bom_tab"))
-          params["catalog_id"] = self.object()["catalog_id"]
-        $(event.target).autocomplete($(event.target).attr("data-url"), {
-          dataType: "json",
-          selectFirst: false,
-          delay: 600,
-          cacheLength: 0,
-          matchCase: true,
-          extraParams: params,
-          parse: (data) ->
-            parsed = []
-            for object, id in data
-              parsed[id] =
-                data: object
-                value: object[$(event.target).attr("data-field")]
-                result: object[$(event.target).attr("data-field")]
-            parsed
-          ,
-          formatItem: (item) ->
-            return item[$(event.target).attr("data-field")]
-        })
-        $(event.target).change( ->
-          if($(event.target).attr("class").search("bom_tab") == 0)
-            self.boms()[$(event.target).closest("tr").attr("idx")].id(null)
-            self.boms()[$(event.target).closest("tr").attr("idx")].tag("")
-            self.boms()[$(event.target).closest("tr").attr("idx")].tab("")
-            self.boms()[$(event.target).closest("tr").attr("idx")].count(null)
-            self.boms()[$(event.target).closest("tr").attr("idx")].sum(null)
-          else
-            self.object()[$(event.target).attr("bind-param")] = null
-            self.waybill_object()[$(event.target).attr("bind-param")] = null
-            switch $(event.target).attr("id")
-              when "estimate_entity"
-                self.legal_entity.identifier_name("")
-                self.legal_entity.identifier_value("")
-              when "waybill_entity"
-                self.distributor.identifier_name("")
-                self.distributor.identifier_value("")
-              when "estimate_catalog_date"
-                $(event.target).val("")
-        )
-        $(event.target).result((event, data, formatted) ->
-          if($(event.target).attr("class").search("bom_tab") == 0)
-            self.boms()[$(event.target).closest("tr").attr("idx")].id(data["id"])
-            self.boms()[$(event.target).closest("tr").attr("idx")].tab($(event.target).val())
-            self.boms()[$(event.target).closest("tr").attr("idx")].tag(data["tag"])
-            self.boms()[$(event.target).closest("tr").attr("idx")].count("1")
-            self.bom_sum(self.boms()[$(event.target).closest("tr").attr("idx")])
-          else
-            switch $(event.target).attr("id")
-              when "estimate_entity"
-                self.object()[$(event.target).attr("bind-param")] = data["id"]
-                self.legal_entity.identifier_name(data[$("#estimate_ident_name").attr("data-field")])
-                self.legal_entity.identifier_value(data[$("#estimate_ident_value").attr("data-field")])
-              when "waybill_entity"
-                self.waybill_object()[$(event.target).attr("bind-param")] = data["id"]
-                self.distributor.identifier_name(data[$("#waybill_ident_name").attr("data-field")])
-                self.distributor.identifier_value(data[$("#waybill_ident_value").attr("data-field")])
-              when "estimate_catalog_date"
-                self.object()[$(event.target).attr("bind-param")] = data["date"]
-              when "distributor_place", "storekeeper_entity", "storekeeper_place"
-                self.waybill_object()[$(event.target).attr("bind-param")] = data["id"]
-        )
     self.catalogs = ko.observableArray([])
     self.parent_id = null
     self.get_catalogs = (params = {}) ->

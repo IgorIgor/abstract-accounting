@@ -9,6 +9,6 @@
 
 class EntitiesController < ApplicationController
   def index
-    @entities = Entity.where("tag LIKE ?", "%#{params[:q]}%").order("tag").limit(5)
+    @entities = Entity.where("tag LIKE ?", "%#{params[:term]}%").order("tag").limit(5)
   end
 end

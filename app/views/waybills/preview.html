@@ -1,4 +1,4 @@
-<form data-bind="with: object, validate: { event: 'submit', success: waybill_save }"
+<form data-bind="with: waybill_object, validate: { event: 'submit', success: waybill_save }"
       method="post" action="#">
   <fieldset id="container_notification">
     <legend>Errors</legend>
@@ -35,13 +35,13 @@
         <span class="form-cell-label">
           <label for="waybill_entity">Entity:</label>
         </span>
-        <span>
-          <input id="waybill_entity" type="text" data-url="legal_entities.json"
-                 data-field="name" bind-param="distributor_id"
-                 rule="required" name="Distributor Entity"
-                 data-bind="value: distributor.name,
-                            event: {focus: autocomplete_init},
-                            disable: readonly()"/>
+        <span data-bind='with: distributor'>
+          <input type='text' id='waybill_entity'
+                 name='Distributor Entity' rule='required'
+                 data-bind="autocomplete: { source: '/legal_entities.json',
+                                            value: 'name',
+                                            bindId: $parent.distributor_id },
+                            value: name, disable: readonly()" />
         </span>
       </div>
       <div>
@@ -49,9 +49,8 @@
           <label for="waybill_ident_name">Ident. name:</label>
         </span>
         <span>
-          <input id="waybill_ident_name" type="text"
-                 data-field="identifier_name"
-                 rule="required" name="Distributor Ident. Name"
+          <input type='text' id='waybill_ident_name'
+                 name='Distributor Ident. Name' rule='required'
                  data-bind="value: distributor.identifier_name,
                             disable: readonly()"/>
         </span>
@@ -72,13 +71,13 @@
         <span class="form-cell-label">
           <label for="distributor_place">Place:</label>
         </span>
-        <span>
-          <input id="distributor_place" type="text" data-url="places.json"
-                 data-field="tag" bind-param="distributor_place_id"
-                 rule="required" name="Distributor Place"
-                 data-bind="value: distributor_place.tag,
-                            event: {focus: autocomplete_init},
-                            disable: readonly()" />
+        <span data-bind="with: distributor_place">
+          <input type='text' id='distributor_place'
+                 name='Distributor Place' rule='required'
+                 data-bind="autocomplete: { source: '/places.json',
+                                            value: 'tag',
+                                            bindId: $parent.distributor_place_id },
+                            value: tag, disable: readonly()" />
         </span>
       </div>
     </div>
@@ -91,26 +90,26 @@
         <span class="form-cell-label">
           <label for="storekeeper_entity">Entity:</label>
         </span>
-        <span>
-          <input id="storekeeper_entity" type="text" data-url="entities.json"
-                 data-field="tag" bind-param="storekeeper_id"
-                 rule="required" name="Storekeeper Entity"
-                 data-bind="value: storekeeper.tag,
-                            event: {focus: autocomplete_init},
-                            disable: readonly()"/>
+        <span data-bind='with: storekeeper'>
+          <input type='text' id='storekeeper_entity'
+                 name='Storekeeper Entity' rule='required'
+                 data-bind="autocomplete: { source: '/entities.json',
+                                            value: 'tag',
+                                            bindId: $parent.storekeeper_id },
+                            value: tag, disable: readonly()" />
         </span>
       </div>
       <div>
         <span class="form-cell-label">
           <label for="storekeeper_place">Place:</label>
         </span>
-        <span>
-          <input id="storekeeper_place" type="text" data-url="places.json"
-                 data-field="tag" bind-param="storekeeper_place_id"
-                 rule="required" name="Storekeeper Place"
-                 data-bind="value: storekeeper_place.tag,
-                            event: {focus: autocomplete_init},
-                            disable: readonly()" />
+        <span data-bind='with: storekeeper_place'>
+          <input type='text' id='storekeeper_place'
+                 name='Storekeeper Place' rule='required'
+                 data-bind="autocomplete: { source: '/places.json',
+                                            value: 'tag',
+                                            bindId: $parent.storekeeper_place_id },
+                            value: tag, disable: readonly()" />
         </span>
       </div>
     </div>

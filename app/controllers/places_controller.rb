@@ -9,6 +9,6 @@
 
 class PlacesController < ApplicationController
   def index
-    @places = Place.where("tag LIKE ?", "%#{params[:q]}%").order("tag").limit(5)
+    @places = Place.where("tag LIKE ?", "%#{params[:term]}%").order("tag").limit(5)
   end
 end

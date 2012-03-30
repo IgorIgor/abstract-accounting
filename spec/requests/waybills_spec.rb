@@ -60,8 +60,8 @@ feature "waybill", %q{
     within("#container_documents form") do
       items = 6.times.collect { Factory(:legal_entity) } .sort
       check_autocomplete("waybill_entity", items, :name) do |entity|
-        find("#waybill_ident_name")["value"].should eq(entity ? entity.identifier_name : "")
-        find("#waybill_ident_value")["value"].should eq(entity ? entity.identifier_value : "")
+        find("#waybill_ident_name")["value"].should eq(entity.identifier_name)
+        find("#waybill_ident_value")["value"].should eq(entity.identifier_value)
       end
 
       items = 6.times.collect { Factory(:place) } .sort

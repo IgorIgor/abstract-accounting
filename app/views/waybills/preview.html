@@ -1,5 +1,4 @@
-<form data-bind="with: waybill_object, validate: { event: 'submit', success: waybill_save }"
-      method="post" action="#">
+<form data-bind="validate: { success: save }">
   <fieldset id="container_notification">
     <legend>Errors</legend>
     <ul></ul>
@@ -12,8 +11,8 @@
           <label for="created">Created at:</label>
         </span>
         <span>
-          <input type="text" id="created" rule="required" name="Created"
-                 data-bind="datepicker: created, disable: readonly()">
+          <input type="text" id="created" name="Created" rule="required"
+                 data-bind="datepicker: waybill.created, disable: readonly">
         </span>
       </div>
       <div>
@@ -21,8 +20,8 @@
           <label for="waybill_document_id">Document id:</label>
         </span>
         <span>
-          <input type="text" id="waybill_document_id" rule="required"
-                 name="Document Id" data-bind="value: document_id, disable: readonly()">
+          <input type="text" id="waybill_document_id" name="Document Id"
+                 rule="required" data-bind="value: waybill.documentId, disable: readonly">
         </span>
       </div>
     </div>
@@ -35,13 +34,13 @@
         <span class="form-cell-label">
           <label for="waybill_entity">Entity:</label>
         </span>
-        <span data-bind='with: distributor'>
+        <span data-bind='with: waybill.distributor'>
           <input type='text' id='waybill_entity'
                  name='Distributor Entity' rule='required'
                  data-bind="autocomplete: { source: '/legal_entities.json',
                                             value: 'name',
-                                            bindId: $parent.distributor_id },
-                            value: name, disable: readonly()" />
+                                            bindId: $parent.waybill.distributorId },
+                            value: name, disable: $parent.readonly" />
         </span>
       </div>
       <div>
@@ -51,8 +50,8 @@
         <span>
           <input type='text' id='waybill_ident_name'
                  name='Distributor Ident. Name' rule='required'
-                 data-bind="value: distributor.identifier_name,
-                            disable: readonly()"/>
+                 data-bind="value: waybill.distributor.identifier_name,
+                            disable: readonly"/>
         </span>
       </div>
       <div>
@@ -63,21 +62,21 @@
           <input id="waybill_ident_value" type="text"
                  data-field="identifier_value"
                  rule="required" name="Distributor Ident. Value"
-                 data-bind="value: distributor.identifier_value,
-                            disable: readonly()" />
+                 data-bind="value: waybill.distributor.identifier_value,
+                            disable: readonly" />
         </span>
       </div>
       <div>
         <span class="form-cell-label">
           <label for="distributor_place">Place:</label>
         </span>
-        <span data-bind="with: distributor_place">
+        <span data-bind="with: waybill.distributorPlace">
           <input type='text' id='distributor_place'
                  name='Distributor Place' rule='required'
                  data-bind="autocomplete: { source: '/places.json',
                                             value: 'tag',
-                                            bindId: $parent.distributor_place_id },
-                            value: tag, disable: readonly()" />
+                                            bindId: $parent.waybill.distributorPlaceId },
+                            value: tag, disable: $parent.readonly" />
         </span>
       </div>
     </div>
@@ -90,26 +89,26 @@
         <span class="form-cell-label">
           <label for="storekeeper_entity">Entity:</label>
         </span>
-        <span data-bind='with: storekeeper'>
+        <span data-bind='with: waybill.storekeeper'>
           <input type='text' id='storekeeper_entity'
                  name='Storekeeper Entity' rule='required'
                  data-bind="autocomplete: { source: '/entities.json',
                                             value: 'tag',
-                                            bindId: $parent.storekeeper_id },
-                            value: tag, disable: readonly()" />
+                                            bindId: $parent.waybill.storekeeperId },
+                            value: tag, disable: $parent.readonly" />
         </span>
       </div>
       <div>
         <span class="form-cell-label">
           <label for="storekeeper_place">Place:</label>
         </span>
-        <span data-bind='with: storekeeper_place'>
+        <span data-bind='with: waybill.storekeeperPlace'>
           <input type='text' id='storekeeper_place'
                  name='Storekeeper Place' rule='required'
                  data-bind="autocomplete: { source: '/places.json',
                                             value: 'tag',
-                                            bindId: $parent.storekeeper_place_id },
-                            value: tag, disable: readonly()" />
+                                            bindId: $parent.waybill.storekeeperPlaceId },
+                            value: tag, disable: $parent.readonly" />
         </span>
       </div>
     </div>
@@ -118,7 +117,7 @@
   <fieldset class="with-legend">
     <legend>Waybill Entry</legend>
     <input type="button" value="Add"
-           data-bind="click: waybill_entry_add, disable: readonly()"/>
+           data-bind="click: addResource, disable: readonly"/>
     <table id="estimate_boms">
       <thead>
       <tr>
@@ -126,42 +125,46 @@
         <th class="waybill-entry-mu">Measure</th>
         <th class="waybill-entry-count">Count</th>
         <th class="waybill-entry-price">Price</th>
+        <!-- ko ifnot: readonly -->
         <th class="estimate-boms-actions"></th>
+        <!-- /ko -->
       </tr>
       </thead>
-      <tbody data-bind="foreach: waybill_entries, elementValidate: waybill_entries">
-      <tr data-bind="attr: { idx: waybill_entries.indexOf($data) }">
+      <tbody data-bind="foreach: resources, elementValidate: resources">
+      <tr data-bind="attr: { idx: $parent.resources.indexOf($data) }">
         <td>
           <input type="text" rule="required"
-                 data-bind="value: tag, disable: readonly(),
-                            attr: { id: 'tag_' + waybill_entries.indexOf($data),
-                                    name: 'Item#' + waybill_entries.indexOf($data) + ' Tag'}" />
+                 data-bind="value: tag, disable: $parent.readonly,
+                            attr: { id: 'tag_' + $parent.resources.indexOf($data),
+                                    name: 'Item#' + $parent.resources.indexOf($data) + ' Tag'}" />
         </td>
         <td>
           <input type="text" rule="required"
-                 data-bind="value: mu, disable: readonly(),
-                            attr: { id: 'mu_' + waybill_entries.indexOf($data),
-                                    name: 'Item#' + waybill_entries.indexOf($data) + ' MU'}" />
+                 data-bind="value: mu, disable: $parent.readonly,
+                            attr: { id: 'mu_' + $parent.resources.indexOf($data),
+                                    name: 'Item#' + $parent.resources.indexOf($data) + ' MU'}" />
         </td>
         <td>
           <input type="text" rule="required_num"
-                 data-bind="value: count, disable: readonly(),
-                            attr: { id: 'count_' + waybill_entries.indexOf($data),
-                                    name: 'Item#' + waybill_entries.indexOf($data) + ' Count'}"/>
+                 data-bind="value: amount, disable: $parent.readonly,
+                            attr: { id: 'count_' + $parent.resources.indexOf($data),
+                                    name: 'Item#' + $parent.resources.indexOf($data) + ' Count'}"/>
         </td>
         <td>
           <input type="text" rule="required_num"
-                 data-bind="value: price, disable: readonly(),
-                            attr: { id: 'price_' + waybill_entries.indexOf($data),
-                                    name: 'Item#' + waybill_entries.indexOf($data) + ' Price'}" />
+                 data-bind="value: price, disable: $parent.readonly,
+                            attr: { id: 'price_' + $parent.resources.indexOf($data),
+                                    name: 'Item#' + $parent.resources.indexOf($data) + ' Price'}" />
         </td>
+        <!-- ko ifnot: $parent.readonly -->
         <td class="estimate-boms-actions">
-          <label data-bind="click: waybill_entry_remove, visible: !readonly()"></label>
+          <label data-bind="click: $parent.removeResource"></label>
         </td>
+        <!-- /ko -->
       </tr>
       </tbody>
     </table>
     <input type="button" value="Add"
-           data-bind="click: waybill_entry_add, disable: readonly()"/>
+           data-bind="click: addResource, disable: readonly"/>
   </fieldset>
 </form>

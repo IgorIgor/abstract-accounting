@@ -8,46 +8,23 @@
 # Please see ./COPYING for details
 
 object @waybill
-node :object do |waybill|
-  {
-    id: waybill.id,
-    document_id: waybill.document_id,
-    distributor_id: waybill.distributor_id,
-    distributor_place_id: waybill.distributor_place_id,
-    storekeeper_id: waybill.storekeeper_id,
-    storekeeper_place_id: waybill.storekeeper_place_id,
-    created: waybill.created.strftime("%m/%d/%Y")
-  }
-end
-node :distributor do |waybill|
+attributes :document_id, :distributor_id, :distributor_place_id, :storekeeper_id,
+           :storekeeper_place_id
+
+node(:created) { |waybill| waybill.created.strftime("%m/%d/%Y") }
+node(:distributor) { |waybill|
   {
     name: waybill.distributor.name,
     identifier_name: waybill.distributor.identifier_name,
     identifier_value: waybill.distributor.identifier_value
   }
-end
-node :distributor_place do |waybill|
-  {
-    tag: waybill.distributor_place.tag
+}
+node(:distributor_place) { |waybill| { tag: waybill.distributor_place.tag }}
+node(:storekeeper) { |waybill| { tag: waybill.storekeeper.tag }}
+node(:storekeeper_place) { |waybill| { tag: waybill.storekeeper_place.tag }}
+
+node(:items) { |waybill|
+  waybill.items.map { |i|
+    { tag: i.resource.tag, mu: i.resource.mu, amount: i.amount, price: i.price }
   }
-end
-node :storekeeper do |waybill|
-  {
-    tag: waybill.storekeeper.tag
-  }
-end
-node :storekeeper_place do |waybill|
-  {
-    tag: waybill.storekeeper_place.tag
-  }
-end
-node :items do |waybill|
-  waybill.items.map do |i|
-    {
-      :tag => i.resource.tag,
-      :mu => i.resource.mu,
-      :amount => i.amount,
-      :price => i.price
-    }
-  end
-end
+}

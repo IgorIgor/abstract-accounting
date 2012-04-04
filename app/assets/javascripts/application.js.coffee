@@ -17,117 +17,6 @@
 #= require_tree .
 
 $ ->
-  distributionViewModel = (type, data, resources, readonly = false) ->
-    resource = (data = { tag: null, mu: null, amount: null }) ->
-      tag: ko.observable(data.tag)
-      mu: ko.observable(data.mu)
-      amount: ko.observable(data.amount)
-
-    self.readonly = ko.observable(readonly)
-    self.object = ko.observable(if readonly then data.object else data)
-    self.object().created = ko.observable(object().created)
-    self.object().storekeeper_id = ko.observable(object().storekeeper_id)
-    self.object().storekeeper_place_id = ko.observable(object().storekeeper_place_id)
-    self.object().foreman_id = ko.observable(object().foreman_id)
-    self.object().foreman_place_id = ko.observable(object().foreman_place_id)
-
-    self.foreman_place =
-      tag: ko.observable(if readonly then data.foreman_place.tag else "")
-    self.foreman =
-      tag: ko.observable(if readonly then data.foreman.tag else "")
-    self.storekeeper_place =
-      tag: ko.observable(if readonly then data.storekeeper_place.tag else "")
-    self.storekeeper =
-      tag: ko.observable(if readonly then data.storekeeper.tag else "")
-    self.resources = ko.observableArray([])
-
-    if readonly
-      unless data.items == undefined
-        for item in data.items
-          self.resources.push(resource(item))
-
-    self.availableResources = ko.observableArray(resources)
-    self.selectedResources = ko.observableArray([])
-    if readonly
-      for item in data.items
-        self.selectedResources.push(item)
-
-    self.selectResource = (resource) ->
-      resource['amount'] = resource['exp_amount']
-      self.selectedResources.push(resource)
-      self.availableResources.remove(resource)
-    self.unselectResource = (resource) ->
-      self.availableResources.push(resource)
-      self.selectedResources.remove(resource)
-    self.distribution_save = ->
-      items =[]
-      for id, item of self.selectedResources()
-        items.push({tag: item.tag, mu: item.mu, amount: item.amount})
-      params =
-        object:
-          created: self.object().created
-          storekeeper_id: self.object().storekeeper_id
-          storekeeper_place_id: self.object().storekeeper_place_id
-          foreman_id: self.object().foreman_id
-          foreman_place_id: self.object().foreman_place_id
-        items: items
-      params["storekeeper"] = self.storekeeper unless self.object().storekeeper_id()
-      params["storekeeper_place"] = self.storekeeper_place unless self.object().storekeeper_place_id()
-      params["foreman"] = self.foreman unless self.object().foreman_id()
-      params["foreman_place"] = self.foreman_place unless self.object().foreman_place_id()
-      $.ajax({
-        type: if self.object().id then "PUT" else "POST",
-        url: "/distributions" + if self.object().id then "/#{self.object().id}" else "",
-        data: params,
-        complete: (data) ->
-          if data.responseText == "success"
-            location.hash = "inbox"
-          else
-            $("#container_notification").css("display", "block")
-            $("#container_notification ul").css("display", "block")
-            for key, value of JSON.parse(data.responseText)
-              $("#container_notification ul")
-              .append($("<li class='server-message'>#{key}: #{value}</li>"))
-      })
-    self.getState = (state) ->
-      switch state
-        when 0 then 'Unknown'
-        when 1 then 'Inwork'
-        when 2 then 'Canceled'
-        when 3 then 'Applied'
-
-    $.sammy( ->
-      this.get("#documents/:type/:id/apply", ->
-        $.ajax({
-        type: "GET",
-        url: "/distributions/#{self.object().id}/apply",
-        complete: (data) ->
-          if data.responseText == "success"
-            location.hash = "inbox"
-          else
-            $("#container_notification").css("display", "block")
-            $("#container_notification ul").css("display", "block")
-            $("#container_notification ul")
-            .append($("<li class='server-message'>Apply failed.</li>"))
-        })
-      )
-      this.get("#documents/:type/:id/cancel", ->
-        $.ajax({
-        type: "GET",
-        url: "/distributions/#{self.object().id}/cancel",
-        complete: (data) ->
-          if data.responseText == "success"
-            location.hash = "inbox"
-          else
-            $("#container_notification").css("display", "block")
-            $("#container_notification ul").css("display", "block")
-            $("#container_notification ul")
-            .append($("<li class='server-message'>Cancel failed.</li>"))
-        })
-      )
-    )
-    self
-
   documentViewModel = (type, data, readonly = false) ->
     estimateBoM = (data = { id: null, tag: "", tab: "", count: null, sum: null }) ->
       id: ko.observable(data.id)
@@ -161,7 +50,6 @@ $ ->
       ko.observable(waybill_object().storekeeper_id)
     self.waybill_object().storekeeper_place_id =
       ko.observable(waybill_object().storekeeper_place_id)
-
 
     if(data.legal_entity)
       self.legal_entity =
@@ -323,7 +211,7 @@ $ ->
         $.get("/" + document_type + "/preview", {}, (form) ->
           $.getJSON("/" + document_type + "/" + document_id + ".json", {}, (data) ->
             $(".actions").html(button("Back", -> location.hash = "inbox"))
-            if document_type == "distributions" && data.object.state == 1
+            if document_type == "distributions" && data.state == 1
               $(".actions").append("<div class='buttons-separator'></div>")
               $(".actions").append(button("Apply", -> location.hash =
                 "#documents/#{document_type}/#{document_id}/apply"))
@@ -334,7 +222,7 @@ $ ->
                 "#documents/#{document_type}/#{document_id}/edit"))
             $("#container_documents").html(form)
             if document_type == 'distributions'
-              viewModel = new distributionViewModel(document_type, data, null, true)
+              viewModel = new DistributionViewModel(data, null, true)
             else
               viewModel = new documentViewModel(document_type, data, true)
             ko.applyBindings(viewModel, $("#container_documents").get(0))
@@ -370,7 +258,7 @@ $ ->
             $("#inbox").removeClass("sidebar-selected")
             if document_type == "distributions"
               $.getJSON("warehouses/data.json", {}, (items) ->
-                self.documentVM = new distributionViewModel(document_type, data, items)
+                self.documentVM = new DistributionViewModel(data, items)
                 ko.applyBindings(self.documentVM, $("#container_documents").get(0))
               )
             else
@@ -413,3 +301,19 @@ $ ->
 
   document.onclick = ->
     menuClose()
+
+  window.ajaxRequest = (type, url, params = {}) ->
+    $.ajax({
+      type: type,
+      url: url,
+      data: params,
+      complete: (data) ->
+        if data.responseText == "success"
+          location.hash = "inbox"
+        else
+          $("#container_notification").css("display", "block")
+          $("#container_notification ul").css("display", "block")
+          for key, value of JSON.parse(data.responseText)
+            $("#container_notification ul")
+            .append($("<li class='server-message'>#{key}: #{value}</li>"))
+    })

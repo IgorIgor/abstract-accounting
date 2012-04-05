@@ -91,22 +91,6 @@ input[type=text] {
     height: 25px;
     clear: left;
 
-    .actions {
-      input {
-        height: 25px;
-        min-width: 60px;
-        margin: 0 1px 0 3px;
-      }
-
-      .buttons-separator{
-        height: 25px;
-        width: 10px;
-        background: none;
-        vertical-align: top;
-        display: inline-block;
-      }
-    }
-
     .paginate {
       float: right;
 
@@ -129,6 +113,25 @@ input[type=text] {
     margin-left: 160px;
     border-left: $table_border;
     min-height: 189px;
+
+    .actions {
+      position: absolute;
+      top: 83px;
+
+      input {
+        height: 25px;
+        min-width: 60px;
+        margin: 0;
+      }
+
+      .buttons-separator{
+        height: 25px;
+        width: 10px;
+        background: none;
+        vertical-align: top;
+        display: inline-block;
+      }
+    }
 
     table {
       margin-left: 160px;

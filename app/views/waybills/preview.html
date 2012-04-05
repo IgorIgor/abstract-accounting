@@ -1,4 +1,12 @@
 <form data-bind="validate: { success: save }">
+  <div class='actions'>
+    <input type='submit' value='Save' data-bind='visible: !readonly()'/>
+    <input type='button' value='Cancel' data-bind='click: back, visible: !readonly()'/>
+    <input type='button' value='Draft' data-bind='visible: !readonly()'/>
+
+    <input type='button' value='Back' data-bind='click: back, visible: readonly'/>
+  </div>
+
   <fieldset id="container_notification">
     <legend>Errors</legend>
     <ul></ul>

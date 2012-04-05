@@ -8,7 +8,7 @@
 # Please see ./COPYING for details
 
 object @distribution
-attributes :foreman_id, :foreman_place_id, :storekeeper_id,
+attributes :id, :foreman_id, :foreman_place_id, :storekeeper_id,
            :storekeeper_place_id, :state
 
 node(:created) { |distribution| distribution.created.strftime("%m/%d/%Y") }

@@ -64,3 +64,10 @@ $ ->
         when 1 then 'Inwork'
         when 2 then 'Canceled'
         when 3 then 'Applied'
+
+    back: ->
+      location.hash = 'inbox'
+    apply: =>
+      location.hash = "#documents/distributions/#{@distribution().id}/apply"
+    cancel: =>
+      location.hash = "#documents/distributions/#{@distribution().id}/cancel"

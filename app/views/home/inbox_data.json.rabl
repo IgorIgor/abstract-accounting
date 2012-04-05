@@ -9,7 +9,8 @@
 
 collection @data
 attributes :id
-node(:type) { |item| item.class.name }
+node(:type) { |item| item.class.name.pluralize.downcase }
+node(:name) { |item| item.class.name }
 node(:sum) { 0.0 }
 node(:content) { |item| item.storekeeper.tag }
 node(:created_at) { |item| item.versions.first.created_at.strftime('%Y-%m-%d') }

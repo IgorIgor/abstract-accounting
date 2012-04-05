@@ -1,0 +1,10 @@
+en:
+  views:
+    user_sessions:
+      login: "Log in"
+      reset_password: "Can't access your account?"
+      password: "Password"
+      email: "Email"
+      remember_me: "Remember me"
+      notice:
+        invalid_data: "Email or password was invalid."

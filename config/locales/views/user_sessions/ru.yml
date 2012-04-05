@@ -1,0 +1,10 @@
+ru:
+  views:
+    user_sessions:
+      login: "Войти"
+      reset_password: "Не можете войти в ваш профиль?"
+      password: "Пароль"
+      email: "Email"
+      remember_me: "Запомнить меня"
+      notice:
+        invalid_data: "Неверные пароль или Email."

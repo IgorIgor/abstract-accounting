@@ -16,7 +16,8 @@ class PasswordResetsController < ApplicationController
   def create
     user = User.find_by_email(params[:email])
     user.deliver_reset_password_instructions! if user
-    redirect_to login_path, :notice => "Instructions have been sent."
+    redirect_to login_path,
+                notice: t('views.password_resets.notice.instructions_sent')
   end
 
   def edit
@@ -31,7 +32,8 @@ class PasswordResetsController < ApplicationController
     not_authenticated unless @user
     @user.password_confirmation = params[:user][:password_confirmation]
     if @user.change_password!(params[:user][:password])
-      redirect_to login_path, :notice => 'Password was updated.'
+      redirect_to login_path,
+                  notice: t('views.password_resets.notice.password_updated')
     else
       render :action => "edit"
     end

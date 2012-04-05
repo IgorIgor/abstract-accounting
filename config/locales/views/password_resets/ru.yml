@@ -1,0 +1,13 @@
+ru:
+  views:
+    password_resets:
+      update_password: "Изменить пароль"
+      enter_error: "Данные введены с ошибкой."
+      email: "Email"
+      password: "Пароль"
+      password_confirmation: "Подтверждение пароля"
+      password_reset: "Сброс пароля"
+      back: "Назад"
+      notice:
+        instructions_sent: "Инструкции высланы."
+        password_updated: "Пароль обновлен."

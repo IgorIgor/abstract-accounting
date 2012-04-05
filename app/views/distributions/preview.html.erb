@@ -1,16 +1,17 @@
 <form data-bind="validate: { success: save }">
   <div class='actions'>
-    <input type='submit' value='Save' data-bind='visible: !readonly()'/>
-    <input type='button' value='Cancel' data-bind='click: back, visible: !readonly()'/>
-    <input type='button' value='Draft' data-bind='visible: !readonly()'/>
-
-    <input type='button' value='Back' data-bind='click: back, visible: readonly'/>
+    <input type='submit' value="<%= t('views.distributions.save') %>"
+           data-bind='visible: !readonly()'/>
+    <input type='button' value="<%= t('views.distributions.draft') %>"
+           data-bind='visible: !readonly()'/>
+    <input type='button' value="<%= t('views.distributions.back') %>" data-bind='click: back'/>
     <div class='buttons-separator' data-bind='visible: readonly'></div>
-    <input type='button' value='Apply'
+    <input type='button' value="<%= t('views.distributions.apply') %>"
            data-bind='click: apply, visible: readonly && distribution().state == 1'/>
-    <input type='button' value='Cancel'
+    <input type='button' value="<%= t('views.distributions.cancel') %>"
            data-bind='click: cancel, visible: readonly && distribution().state == 1'/>
-    <input type='button' value='Print' data-bind='click: print, visible: readonly'/>
+    <input type='button' value="<%= t('views.distributions.print') %>"
+           data-bind='click: print, visible: readonly'/>
   </div>
 
   <fieldset id="container_notification">
@@ -22,7 +23,7 @@
     <div>
       <div>
         <span class="form-cell-label">
-          <label for="created">Created at:</label>
+          <label for="created"><%= t 'views.distributions.created_at' %>:</label>
         </span>
         <span>
           <input type="text" id="created" rule="required" name="Created"
@@ -32,7 +33,7 @@
       <!-- ko if: readonly -->
       <div>
         <span class="form-cell-label">
-          <label for="state">State:</label>
+          <label for="state"><%= t 'views.distributions.state' %>:</label>
         </span>
         <span>
           <input type="text" id="state" disabled="disabled"
@@ -44,11 +45,11 @@
   </fieldset>
 
   <fieldset>
-    <legend>Storekeeper</legend>
+    <legend><%= t 'views.distributions.storekeeper' %></legend>
     <div>
       <div>
         <span class="form-cell-label">
-          <label for="storekeeper_entity">Entity:</label>
+          <label for="storekeeper_entity"><%= t 'views.distributions.entity' %>:</label>
         </span>
         <span data-bind='with: distribution.storekeeper'>
           <input type='text' id='storekeeper_entity'
@@ -61,7 +62,7 @@
       </div>
       <div>
         <span class="form-cell-label">
-          <label for="storekeeper_place">Place:</label>
+          <label for="storekeeper_place"><%= t 'views.distributions.place' %>:</label>
         </span>
         <span data-bind='with: distribution.storekeeperPlace'>
           <input type='text' id='storekeeper_place'
@@ -76,11 +77,11 @@
   </fieldset>
 
   <fieldset>
-    <legend>Foreman</legend>
+    <legend><%= t 'views.distributions.foreman' %></legend>
     <div>
       <div>
         <span class="form-cell-label">
-          <label for="foreman_entity">Entity:</label>
+          <label for="foreman_entity"><%= t 'views.distributions.entity' %>:</label>
         </span>
         <span data-bind='with: distribution.foreman'>
           <input type='text' id='foreman_entity'
@@ -93,7 +94,7 @@
       </div>
       <div>
         <span class="form-cell-label">
-          <label for="foreman_place">Place:</label>
+          <label for="foreman_place"><%= t 'views.distributions.place' %>:</label>
         </span>
         <span data-bind='with: distribution.foremanPlace'>
           <input type='text' id='foreman_place'
@@ -110,13 +111,13 @@
   <div id="resources-tables">
     <!-- ko ifnot: readonly -->
     <table id="available-resources">
-      <caption>Available resources</caption>
+      <caption><%= t 'views.distributions.available_resources' %></caption>
       <thead>
       <tr>
         <th class="distribution-actions"></th>
-        <th class="available-resources-tag">Tag</th>
-        <th class="available-resources-mu">MU</th>
-        <th class="available-resources-exp-amount">Exp. Amount</th>
+        <th class="available-resources-tag"><%= t 'views.distributions.tag' %></th>
+        <th class="available-resources-mu"><%= t 'views.distributions.mu' %></th>
+        <th class="available-resources-exp-amount"><%= t 'views.distributions.expectation_amount' %></th>
       </tr>
       </thead>
       <tbody data-bind="foreach: availableResources">
@@ -133,18 +134,18 @@
     <!-- /ko -->
 
     <table id="selected-resources">
-      <caption>Selected resources</caption>
+      <caption><%= t 'views.distributions.selected_resources' %></caption>
       <thead>
       <tr>
         <!-- ko ifnot: readonly -->
         <th class="distribution-actions"></th>
         <!-- /ko -->
-        <th class="selected-resources-tag">Tag</th>
-        <th class="selected-resources-mu">MU</th>
+        <th class="selected-resources-tag"><%= t 'views.distributions.tag' %></th>
+        <th class="selected-resources-mu"><%= t 'views.distributions.mu' %></th>
         <!-- ko ifnot: readonly -->
-        <th class="selected-resources-exp-amount">Exp. Amount</th>
+        <th class="selected-resources-exp-amount"><%= t 'views.distributions.expectation_amount' %></th>
         <!-- /ko -->
-        <th class="selected-resources-count">Amount</th>
+        <th class="selected-resources-count"><%= t 'views.distributions.amount' %></th>
       </tr>
       </thead>
       <tbody data-bind="foreach: selectedResources">

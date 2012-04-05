@@ -1,0 +1,8 @@
+ru:
+  views:
+    warehouses:
+      place: "Место"
+      tag: "Название"
+      real_amount: "Количество на складе"
+      expectation_amount: "Ожидаемое количество"
+      mu: "ед. изм."

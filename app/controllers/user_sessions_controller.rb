@@ -18,7 +18,7 @@ class UserSessionsController < ApplicationController
     if user
       redirect_to root_path
     else
-      redirect_to login_path, :alert => "Email or password was invalid."
+      redirect_to login_path, alert: t('views.user_sessions.notice.invalid_data')
     end
   end
 

@@ -1,0 +1,8 @@
+en:
+  views:
+    warehouses:
+      place: "Place"
+      tag: "Tag"
+      real_amount: "Real Amount"
+      expectation_amount: "Expectation Amount"
+      mu: "MU"

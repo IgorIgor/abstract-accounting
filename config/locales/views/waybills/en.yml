@@ -1,0 +1,20 @@
+en:
+  views:
+    waybills:
+      created_at: "Created at"
+      document_id: "Document id"
+      distributor: "Distributor"
+      entity: "Entity"
+      ident_name: "Ident. name"
+      ident_value: "Ident. value"
+      place: "Place"
+      storekeeper: "Storekeeper"
+      waybill_entry: "Resources"
+      entry_name: "Entry name"
+      measure: "Measure"
+      count: "Count"
+      price: "Price"
+      save: "Save"
+      back: "Back"
+      draft: "Draft"
+      add: "Add"

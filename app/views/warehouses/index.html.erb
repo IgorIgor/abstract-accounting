@@ -1,0 +1,20 @@
+<table>
+  <thead>
+    <tr>
+      <th class="warehouse-place"><%=t 'views.warehouses.place' %></th>
+      <th class="warehouse-tag"><%=t 'views.warehouses.tag' %></th>
+      <th class="warehouse-rel-amount"><%=t 'views.warehouses.real_amount' %></th>
+      <th class="warehouse-exp-amount"><%=t 'views.warehouses.expectation_amount' %></th>
+      <th class="warehouse-mu"><%=t 'views.warehouses.mu' %></th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr>
+      <td data-bind="text: place"></td>
+      <td data-bind="text: tag"></td>
+      <td data-bind="text: real_amount"></td>
+      <td data-bind="text: exp_amount"></td>
+      <td data-bind="text: mu"></td>
+    </tr>
+  </tbody>
+</table>

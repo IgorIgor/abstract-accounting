@@ -1,0 +1,17 @@
+ru:
+  views:
+    estimates:
+      entity: "Лицо"
+      ident_name: "Название идентификатора"
+      ident_value: "Идентификатор"
+      catalog: "Каталог"
+      name: "Название"
+      date: "Дата"
+      boms: "Ресурсы"
+      tab: "№ по каталогу"
+      bom: "Список материалов"
+      count: "Количество"
+      sum: "Сумма"
+      resource: "Материал"
+      rate: "Количество"
+      cost: "Цена"

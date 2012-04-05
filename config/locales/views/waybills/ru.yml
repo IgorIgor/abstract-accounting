@@ -1,0 +1,20 @@
+ru:
+  views:
+    waybills:
+      created_at: "Дата создания"
+      document_id: "№ документа"
+      distributor: "Поставщик"
+      entity: "Лицо"
+      ident_name: "Название идентификатора"
+      ident_value: "Идентификатор"
+      place: "Место"
+      storekeeper: "Кладовщик"
+      waybill_entry: "Материалы"
+      entry_name: "Название"
+      measure: "Ед. изм."
+      count: "Количество"
+      price: "Цена"
+      save: "Сохранить"
+      back: "Назад"
+      draft: "Черновик"
+      add: "Добавить"

@@ -1,0 +1,13 @@
+en:
+  views:
+    password_resets:
+      update_password: "Update password"
+      enter_error: "Data is entered with error."
+      email: "Email"
+      password: "Password"
+      password_confirmation: "Password confirmation"
+      password_reset: "Password reset"
+      back: "Back"
+      notice:
+        instructions_sent: "Instructions have been sent."
+        password_updated: "Password was updated."

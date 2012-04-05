@@ -29,11 +29,11 @@ feature 'warehouses', %q{
 
     within('#container_documents table') do
       within('thead tr') do
-        page.should have_content('Place')
-        page.should have_content('Tag')
-        page.should have_content('Real Amount')
-        page.should have_content('Expiration Amount')
-        page.should have_content('MU')
+        page.should have_content(I18n.t('views.warehouses.place'))
+        page.should have_content(I18n.t('views.warehouses.tag'))
+        page.should have_content(I18n.t('views.warehouses.real_amount'))
+        page.should have_content(I18n.t('views.warehouses.expectation_amount'))
+        page.should have_content(I18n.t('views.warehouses.mu'))
       end
       page.should have_selector("tbody[@data-bind='foreach: documents']")
       page.should have_selector('tbody tr', count: 2)

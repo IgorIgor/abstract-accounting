@@ -1,5 +1,5 @@
 <div id="header">
-  <div class="div-logout"><%= link_to "Logout", :logout %></div>
+  <div class="div-logout"><%= link_to t('views.home.logout'), :logout %></div>
   <div>
     <span>
       <%= current_user.kind_of?(RootUser) ? current_user.email : current_user.entity.tag %>
@@ -10,14 +10,14 @@
 <div id="nav">
   <div class="filter">
     <input type="text" value=""/>
-    <input type="button" value="Search"/>
+    <input type="button" value="<%=t 'views.home.search' %>"/>
   </div>
 </div>
 
 <div id="main">
   <div class="operations">
     <div class="paginate">
-      <span>0-0</span> of <span>0</span>
+      <span>0-0</span> <%= t('views.home.of') %> <span>0</span>
       <input type="button" value="<" disabled="disabled"/>
       <input type="button" class="paginate-right" value=">" disabled="disabled"/>
     </div>
@@ -28,7 +28,7 @@
 
   <div class="operations">
     <div class="paginate">
-      <span>0-0</span> of <span>0</span>
+      <span>0-0</span> <%= t('views.home.of') %> <span>0</span>
       <input type="button" value="<" disabled="disabled"/>
       <input type="button" class="paginate-right" value=">" disabled="disabled"/>
     </div>
@@ -37,25 +37,25 @@
 
 <div id="sidebar">
   <div class="button_drop_down_list" data-bind="slidemenu: 'btn_create'">
-    <a href="#" id="btn_create">Create
+    <a href="#" id="btn_create"><%=t 'views.home.create' %>
       <div class="arrow_down"></div>
     </a>
     <ul id="documents_list">
-      <!--<li><%#=link_to("Estimate", "#documents#{new_estimate_path}") %></li>-->
-      <li><%=link_to("Distribution", "#documents#{new_distribution_path}") %></li>
-      <li><%=link_to("Waybill", "#documents#{new_waybill_path}") %></li>
+      <!--<li><%#=link_to(t('views.home.estimate'), "#documents#{new_estimate_path}") %></li>-->
+      <li><%=link_to(t('views.home.waybill'), "#documents#{new_waybill_path}") %></li>
+      <li><%=link_to(t('views.home.distribution'), "#documents#{new_distribution_path}") %></li>
     </ul>
   </div>
   <br />
 
   <ul>
-    <li id="inbox"><a href="#inbox">Inbox</a></li>
-    <li><a href="#">Starred</a></li>
-    <li><a href="#">Drafts</a></li>
-    <li><a href="#">Sent</a></li>
-    <li><a href="#">Trash</a></li>
-    <li><a href="#">Archive</a></li>
+    <li id="inbox"><a href="#inbox"><%=t 'views.home.inbox' %></a></li>
+    <li><a href="#"><%=t 'views.home.starred' %></a></li>
+    <li><a href="#"><%=t 'views.home.drafts' %></a></li>
+    <li><a href="#"><%=t 'views.home.sent' %></a></li>
+    <li><a href="#"><%=t 'views.home.trash' %></a></li>
+    <li><a href="#"><%=t 'views.home.archive' %></a></li>
     <hr>
-    <li id="warehouses"><a href="#warehouses">Warehouses</a></li>
+    <li id="warehouses"><a href="#warehouses"><%=t 'views.home.warehouses' %></a></li>
   </ul>
 </div>

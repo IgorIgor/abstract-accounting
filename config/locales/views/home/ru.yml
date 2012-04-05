@@ -1,0 +1,17 @@
+ru:
+  views:
+    home:
+      create: "Создать"
+      inbox: "Новые"
+      starred: "Помеченные"
+      drafts: "Черновики"
+      sent: "Отправленные"
+      trash: "Удаленные"
+      archive: "Архив"
+      warehouses: "Склад"
+      search: "Поиск"
+      logout: "Выйти"
+      estimate: "Смета"
+      waybill: "Накладная"
+      distribution: "Поставка"
+      of: "из"

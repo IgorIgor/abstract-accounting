@@ -15,7 +15,7 @@ describe User do
     should validate_presence_of :email
     should validate_presence_of :entity_id
     should validate_uniqueness_of(:email).scoped_to(:entity_id)
-    should validate_format_of(:email).not_with("test@test").with_message(/invalid/)
+    should validate_format_of(:email).not_with("test@test")
     should ensure_length_of(:password).is_at_least(6)
     should allow_mass_assignment_of(:email)
     should allow_mass_assignment_of(:password)

@@ -12,10 +12,11 @@ module ControllerMacros
                  password = Settings.root.password,
                  remember = false
     visit login_path
-    fill_in("Email", :with => email)
-    fill_in("Password", :with => password)
+    fill_in("email", :with => email)
+    fill_in("password", :with => password)
+
     check('remember_me') if remember
-    click_on "Log in"
+    click_on I18n.t('views.user_sessions.login')
   end
 
   def current_hash

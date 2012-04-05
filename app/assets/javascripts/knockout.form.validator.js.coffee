@@ -3,7 +3,7 @@ init_rules = ->
     $(this).rules('add', {
       required: true
       messages: {
-        required: "#{$(this).attr('name')} field is required."
+        required: "#{$(this).attr('name')} : field is required."
       }
     })
   $("input[rule='required_num']").each ->

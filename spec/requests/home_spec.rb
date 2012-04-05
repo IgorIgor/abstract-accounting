@@ -43,18 +43,18 @@ feature "single page application", %q{
     visit home_index_path
     current_path.should eq(home_index_path)
     page.should have_content("root@localhost")
-    click_on "Logout"
+    click_link I18n.t('views.home.logout')
 
     user = Factory(:user, :password => "somepass")
     page_login(user.email, "somepass")
     page.should have_content(user.entity.tag)
-    page.should have_content("Logout")
-    page.should have_content("Inbox")
-    page.should have_content("Starred")
-    page.should have_content("Drafts")
-    page.should have_content("Sent")
-    page.should have_content("Trash")
-    page.should have_content("Archive")
+    page.should have_content(I18n.t 'views.home.logout')
+    page.should have_content(I18n.t 'views.home.inbox')
+    page.should have_content(I18n.t 'views.home.starred')
+    page.should have_content(I18n.t 'views.home.drafts')
+    page.should have_content(I18n.t 'views.home.sent')
+    page.should have_content(I18n.t 'views.home.trash')
+    page.should have_content(I18n.t 'views.home.archive')
 
     current_hash.should eq("inbox")
     page.should have_selector("div[@id='container_documents'] table")

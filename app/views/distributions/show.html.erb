@@ -7,20 +7,20 @@
   <div id='pdf-wrapper'>
     <ul id='person-list'>
       <li>
-        <span class='name_element'>Storekeeper:</span>
+        <span class='name_element'><%= t 'views.distributions.storekeeper' %>:</span>
         <span class='description_element'><%= @distribution.storekeeper.tag %></span>
       </li>
       <li>
-        <span class='name_element'>Foreman:</span>
+        <span class='name_element'><%= t 'views.distributions.foreman' %>:</span>
         <span class='description_element'><%= @distribution.foreman.tag %></span>
       </li>
     </ul>
     <table class='distributions'>
       <thead>
         <tr>
-          <th>Tag</th>
-          <th>Mu</th>
-          <th>Amount</th>
+          <th><%= t 'views.distributions.tag' %></th>
+          <th><%= t 'views.distributions.mu' %></th>
+          <th><%= t 'views.distributions.amount' %></th>
         </tr>
       </thead>
       <tbody>

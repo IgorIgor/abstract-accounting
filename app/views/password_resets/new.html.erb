@@ -1,16 +1,16 @@
 <div class="div-send-psw">
 
-  <span>Reset password</span>
+  <span><%= t 'views.password_resets.password_reset' %></span>
 
   <%= form_tag password_resets_path, :method => :post do %>
     <div class="field">
-      <%= label_tag :email %><br/>
+      <%= label_tag :email, t('views.password_resets.email') %><br/>
       <%= text_field_tag :email %>
     </div>
     <div class="login_actions">
-      <%= submit_tag "Reset Password" %>
+      <%= submit_tag t('views.password_resets.password_reset') %>
       <br/>
-      <%= link_to "Back", login_path %>
+      <%= link_to t('views.password_resets.back'), login_path %>
     </div>
   <% end %>
 

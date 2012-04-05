@@ -1,0 +1,17 @@
+en:
+  views:
+    home:
+      create: "Create"
+      inbox: "Inbox"
+      starred: "Starred"
+      drafts: "Drafts"
+      sent: "Sent"
+      trash: "Trash"
+      archive: "Archive"
+      warehouses: "Warehouse"
+      search: "Search"
+      logout: "Logout"
+      estimate: "Estimate"
+      waybill: "Waybill"
+      distribution: "Distribution"
+      of: "of"

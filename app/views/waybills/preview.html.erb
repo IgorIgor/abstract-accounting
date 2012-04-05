@@ -1,10 +1,11 @@
 <form data-bind="validate: { success: save }">
   <div class='actions'>
-    <input type='submit' value='Save' data-bind='visible: !readonly()'/>
-    <input type='button' value='Cancel' data-bind='click: back, visible: !readonly()'/>
-    <input type='button' value='Draft' data-bind='visible: !readonly()'/>
-
-    <input type='button' value='Back' data-bind='click: back, visible: readonly'/>
+    <input type='submit' value="<%= t 'views.waybills.save' %>"
+           data-bind='visible: !readonly()'/>
+    <input type='button' value="<%= t 'views.waybills.back' %>"
+           data-bind='click: back'/>
+    <input type='button' value="<%= t 'views.waybills.draft' %>"
+           data-bind='visible: !readonly()'/>
   </div>
 
   <fieldset id="container_notification">
@@ -16,7 +17,7 @@
     <div>
       <div>
         <span class="form-cell-label">
-          <label for="created">Created at:</label>
+          <label for="created"><%= t 'views.waybills.created_at' %>:</label>
         </span>
         <span>
           <input type="text" id="created" name="Created" rule="required"
@@ -25,7 +26,7 @@
       </div>
       <div>
         <span class="form-cell-label">
-          <label for="waybill_document_id">Document id:</label>
+          <label for="waybill_document_id"><%= t 'views.waybills.document_id' %>:</label>
         </span>
         <span>
           <input type="text" id="waybill_document_id" name="Document Id"
@@ -36,11 +37,11 @@
   </fieldset>
 
   <fieldset>
-    <legend>Distributor</legend>
+    <legend><%= t 'views.waybills.distributor' %></legend>
     <div>
       <div>
         <span class="form-cell-label">
-          <label for="waybill_entity">Entity:</label>
+          <label for="waybill_entity"><%= t 'views.waybills.entity' %>:</label>
         </span>
         <span data-bind='with: waybill.distributor'>
           <input type='text' id='waybill_entity'
@@ -53,7 +54,7 @@
       </div>
       <div>
         <span class="form-cell-label">
-          <label for="waybill_ident_name">Ident. name:</label>
+          <label for="waybill_ident_name"><%= t 'views.waybills.ident_name' %>:</label>
         </span>
         <span>
           <input type='text' id='waybill_ident_name'
@@ -64,7 +65,7 @@
       </div>
       <div>
         <span class="form-cell-label">
-          <label for="waybill_ident_value">Ident. value:</label>
+          <label for="waybill_ident_value"><%=t 'views.waybills.ident_value' %>:</label>
         </span>
         <span>
           <input id="waybill_ident_value" type="text"
@@ -76,7 +77,7 @@
       </div>
       <div>
         <span class="form-cell-label">
-          <label for="distributor_place">Place:</label>
+          <label for="distributor_place"><%= t 'views.waybills.place' %>:</label>
         </span>
         <span data-bind="with: waybill.distributorPlace">
           <input type='text' id='distributor_place'
@@ -91,11 +92,11 @@
   </fieldset>
 
   <fieldset>
-    <legend>Storekeeper</legend>
+    <legend><%= t 'views.waybills.storekeeper' %></legend>
     <div>
       <div>
         <span class="form-cell-label">
-          <label for="storekeeper_entity">Entity:</label>
+          <label for="storekeeper_entity"><%=t 'views.waybills.entity' %>:</label>
         </span>
         <span data-bind='with: waybill.storekeeper'>
           <input type='text' id='storekeeper_entity'
@@ -108,7 +109,7 @@
       </div>
       <div>
         <span class="form-cell-label">
-          <label for="storekeeper_place">Place:</label>
+          <label for="storekeeper_place"><%=t 'views.waybills.place' %>:</label>
         </span>
         <span data-bind='with: waybill.storekeeperPlace'>
           <input type='text' id='storekeeper_place'
@@ -123,16 +124,16 @@
   </fieldset>
 
   <fieldset class="with-legend">
-    <legend>Waybill Entry</legend>
-    <input type="button" value="Add"
+    <legend><%=t 'views.waybills.waybill_entry' %></legend>
+    <input type="button" value="<%= t('views.waybills.add') %>"
            data-bind="click: addResource, disable: readonly"/>
     <table id="estimate_boms">
       <thead>
       <tr>
-        <th class="waybill-entry-tag">Entry name</th>
-        <th class="waybill-entry-mu">Measure</th>
-        <th class="waybill-entry-count">Count</th>
-        <th class="waybill-entry-price">Price</th>
+        <th class="waybill-entry-tag"><%=t 'views.waybills.entry_name' %></th>
+        <th class="waybill-entry-mu"><%=t 'views.waybills.measure' %></th>
+        <th class="waybill-entry-count"><%=t 'views.waybills.count' %></th>
+        <th class="waybill-entry-price"><%=t 'views.waybills.price' %></th>
         <!-- ko ifnot: readonly -->
         <th class="estimate-boms-actions"></th>
         <!-- /ko -->
@@ -172,7 +173,7 @@
       </tr>
       </tbody>
     </table>
-    <input type="button" value="Add"
+    <input type="button" value="<%= t('views.waybills.add') %>"
            data-bind="click: addResource, disable: readonly"/>
   </fieldset>
 </form>

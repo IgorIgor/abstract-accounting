@@ -9,7 +9,11 @@
 
 class ApplicationController < ActionController::Base
   protect_from_forgery
-  before_filter :require_login
+  before_filter :set_locale, :require_login
+
+  def set_locale
+    I18n.locale = params[:locale] || I18n.default_locale
+  end
 
   alias_method :sorcery_auto_login, :auto_login
   def auto_login(user)
@@ -34,6 +38,6 @@ class ApplicationController < ActionController::Base
 
   private
   def not_authenticated
-    redirect_to login_path, :alert => "Unauthorized access."
+    redirect_to login_path, alert: t('alert.unauthorized_access')
   end
 end

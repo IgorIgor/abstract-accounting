@@ -17,23 +17,23 @@ feature "Login", %q{
   scenario "login" do
     visit home_index_path
     current_path.should eq(login_path)
-    page.should have_content("Email")
-    page.should have_content("Password")
+    page.should have_content(I18n.t 'views.user_sessions.email')
+    page.should have_content(I18n.t 'views.user_sessions.password')
 
     User.delete_all
     page_login
     current_path.should eq(root_path)
-    click_on "Logout"
+    click_on I18n.t('views.home.logout')
     current_path.should eq(login_path)
 
     user = Factory(:user, :password => "somepass")
     page_login user.email ,"somepass_fail"
-    page.should have_content("Email or password was invalid.")
+    page.should have_content(I18n.t 'views.user_sessions.notice.invalid_data')
     current_path.should eq(login_path)
 
     page_login user.email ,"somepass"
     current_path.should eq(root_path)
-    click_on "Logout"
+    click_on I18n.t('views.home.logout')
   end
 
   scenario "remember user" do
@@ -48,7 +48,7 @@ feature "Login", %q{
     RackTestBrowser.new.restart
     visit home_index_path
     current_path.should eq(home_index_path)
-    click_on "Logout"
+    click_on I18n.t('views.home.logout')
 
     page_login("root@localhost", Settings.root.password, true)
     RackTestBrowser.new.restart

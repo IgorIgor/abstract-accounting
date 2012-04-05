@@ -1,0 +1,21 @@
+ru:
+  views:
+    distributions:
+      created_at: "Дата создания"
+      state: "Состояние"
+      storekeeper: "Кладовщик"
+      entity: "Лицо"
+      place: "Место"
+      foreman: "Прораб"
+      available_resources: "Доступные материалы"
+      tag: "Название"
+      expectation_amount: "Ожидаемое количество"
+      amount: "Количество"
+      mu: "ед. изм."
+      selected_resources: "Выбранные материалы"
+      save: "Сохранить"
+      back: "Назад"
+      draft: "Черновик"
+      apply: "Применить"
+      cancel: "Отменить"
+      print: "Печать"

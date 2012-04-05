@@ -18,11 +18,11 @@ feature "Reset password", %q{
     user = Factory(:user)
 
     visit login_path
-    click_link "Can't access your account?"
-    page.should have_content("Email")
+    click_link I18n.t 'views.user_sessions.reset_password'
+    page.should have_content(I18n.t 'views.password_resets.email')
     fill_in("email", :with => user.email)
-    click_button "Reset Password"
-    page.should have_content("Instructions have been sent.")
+    click_button I18n.t 'views.password_resets.password_reset'
+    page.should have_content(I18n.t 'views.password_resets.notice.instructions_sent')
     current_path.should eq(login_path)
 
     visit edit_password_reset_path("fail_token")
@@ -34,25 +34,25 @@ feature "Reset password", %q{
                             :password => "somepass",
                             :password_confirmation => "somepass"
     visit edit_password_reset_path(user.reset_password_token)
-    page.should have_content("Email")
+    page.should have_content(I18n.t 'views.password_resets.email')
     find_field('email').value.should eq(user.email)
-    page.should have_content("Password")
-    page.should have_content("Password confirmation")
+    page.should have_content(I18n.t 'views.password_resets.password')
+    page.should have_content(I18n.t 'views.password_resets.password_confirmation')
     fill_in("user_password", :with => "changed_pass")
     fill_in("user_password_confirmation", :with => "changed_pass")
-    click_button "Update Password"
-    page.should have_content("Password was updated.")
+    click_button I18n.t 'views.password_resets.update_password'
+    page.should have_content(I18n.t 'views.password_resets.notice.password_updated')
     current_path.should eq(login_path)
 
     visit new_password_reset_path
-    click_link "Back"
+    click_link I18n.t 'views.password_resets.back'
     current_path.should eq(login_path)
 
     visit edit_password_reset_path(Factory(:user).reset_password_token)
     fill_in("user_password", :with => "changed_pass")
     fill_in("user_password_confirmation", :with => "fail_pass")
-    click_button "Update Password"
-    page.should have_content("Data is entered with error.")
+    click_button I18n.t 'views.password_resets.update_password'
+    page.should have_content(I18n.t 'views.password_resets.enter_error')
   end
 
 end

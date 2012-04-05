@@ -1,5 +1,5 @@
 $ ->
-  class window.DistributionViewModel
+  class self.DistributionViewModel extends ObjectViewModel
     constructor: (object, items, readonly = false) ->
       @readonly = ko.observable(readonly)
 
@@ -65,8 +65,6 @@ $ ->
         when 2 then 'Canceled'
         when 3 then 'Applied'
 
-    back: ->
-      location.hash = 'inbox'
     apply: =>
       location.hash = "#documents/distributions/#{@distribution().id}/apply"
     cancel: =>

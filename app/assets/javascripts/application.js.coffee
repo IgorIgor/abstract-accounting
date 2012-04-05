@@ -16,6 +16,25 @@
 #= require_tree .
 
 $ ->
+  self.ajaxRequest = (type, url, params = {}) ->
+    $.ajax(
+      type: type
+      url: url
+      data: params
+      complete: (data) ->
+        if data.responseText == 'success'
+          location.hash = 'inbox'
+        else
+          $('#container_notification').css('display', 'block')
+          $('#container_notification ul').css('display', 'block')
+          for key, value of JSON.parse(data.responseText)
+            $('#container_notification ul')
+            .append($("<li class='server-message'>#{key}: #{value}</li>"))
+    )
+
+  class self.ObjectViewModel
+    back: -> location.hash = 'inbox'
+
   class FolderViewModel
     constructor: (objects) ->
       @documents = ko.observableArray(objects)
@@ -90,19 +109,3 @@ $ ->
     location.hash = "inbox" if $("#main").length
 
   ko.applyBindings(new homeViewModel())
-
-  window.ajaxRequest = (type, url, params = {}) ->
-    $.ajax({
-      type: type,
-      url: url,
-      data: params,
-      complete: (data) ->
-        if data.responseText == "success"
-          location.hash = "inbox"
-        else
-          $("#container_notification").css("display", "block")
-          $("#container_notification ul").css("display", "block")
-          for key, value of JSON.parse(data.responseText)
-            $("#container_notification ul")
-            .append($("<li class='server-message'>#{key}: #{value}</li>"))
-    })

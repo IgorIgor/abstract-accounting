@@ -1,5 +1,5 @@
 $ ->
-  class window.WaybillViewModel
+  class self.WaybillViewModel extends ObjectViewModel
     constructor: (object, readonly = false) ->
       @readonly = ko.observable(readonly)
 
@@ -50,6 +50,3 @@ $ ->
         storekeeper_place: @waybill.storekeeperPlace unless @waybill.storekeeperPlaceId()
 
       ajaxRequest('POST', '/waybills', params)
-
-    back: ->
-      location.hash = 'inbox'

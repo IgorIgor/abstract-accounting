@@ -59,7 +59,6 @@ $ ->
         )
       )
       this.get("#documents/:type/new", ->
-        menuClose()
         document_type = this.params.type
         $.get("/" + document_type + "/preview", {}, (form) ->
           $.getJSON("/" + document_type + "/new.json", {}, (data) ->
@@ -91,17 +90,6 @@ $ ->
     location.hash = "inbox" if $("#main").length
 
   ko.applyBindings(new homeViewModel())
-
-  window.menuClose = ->
-    $('#documents_list').slideUp('fast') unless $("#documents_list").css("display") == "none"
-
-  $('#btn_create').click( ->
-    $('#documents_list').slideToggle('fast')
-    false
-  )
-
-  document.onclick = ->
-    menuClose()
 
   window.ajaxRequest = (type, url, params = {}) ->
     $.ajax({

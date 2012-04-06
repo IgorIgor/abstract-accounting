@@ -32,6 +32,11 @@ $ ->
             .append($("<li class='server-message'>#{key}: #{value}</li>"))
     )
 
+  self.toggleSelect = (id = null) ->
+    $('.sidebar-selected').removeClass('sidebar-selected')
+    $("##{id}").addClass('sidebar-selected') if id
+
+
   class self.ObjectViewModel
     back: -> location.hash = 'inbox'
 
@@ -62,50 +67,46 @@ $ ->
       location.hash = "documents/#{object.type}/#{object.id}"
 
 
-  homeViewModel = ->
-    self.documentVM = null
-    self.folderVM = null
-    $.sammy( ->
-      this.get("#inbox", ->
-        $.get("/inbox", {}, (form) ->
-          $.getJSON("/inbox_data.json", {}, (data) ->
-            $("#container_documents").html(form)
-            $(".sidebar-selected").removeClass("sidebar-selected")
-            $("#inbox").addClass("sidebar-selected")
-            self.folderVM = new FolderViewModel(data)
-            ko.applyBindings(self.folderVM, $("#container_documents").get(0))
+  class HomeViewModel
+    constructor: ->
+      $.sammy( ->
+        this.get('#inbox', ->
+          $.get('/inbox', {}, (form) ->
+            $.getJSON('/inbox_data.json', {}, (objects) ->
+              toggleSelect('inbox')
+              $('#container_documents').html(form)
+              ko.applyBindings(new FolderViewModel(objects), $('#container_documents').get(0))
+            )
           )
         )
-      )
-      this.get("#documents/:type/new", ->
-        document_type = this.params.type
-        $.get("/" + document_type + "/preview", {}, (form) ->
-          $.getJSON("/" + document_type + "/new.json", {}, (data) ->
-            $("#container_documents").html(form)
-            $("#inbox").removeClass("sidebar-selected")
-            if document_type == "distributions"
-              $.getJSON("warehouses/data.json", {}, (items) ->
-                self.documentVM = new DistributionViewModel(data, items)
-                ko.applyBindings(self.documentVM, $("#container_documents").get(0))
-              )
-            else
-              self.documentVM = new WaybillViewModel(data)
-              ko.applyBindings(self.documentVM, $("#container_documents").get(0))
-          )
-        )
-      )
-      this.get("#warehouses", ->
-        $.get("/warehouses", {}, (form) ->
-          $.getJSON("/warehouses/data.json", {}, (data) ->
-            $("#container_documents").html(form)
-            $(".sidebar-selected").removeClass("sidebar-selected")
-            $("#warehouses").addClass("sidebar-selected")
-            self.folderVM = new FolderViewModel(data)
-            ko.applyBindings(self.folderVM, $("#container_documents").get(0))
-          )
-        )
-      )
-    ).run()
-    location.hash = "inbox" if $("#main").length
+        this.get('#documents/:type/new', ->
+          type = this.params.type
+          $.get("/#{type}/preview", {}, (form) ->
+            $.getJSON("/#{type}/new.json", {}, (object) ->
+              toggleSelect()
+              $('#container_documents').html(form)
 
-  ko.applyBindings(new homeViewModel())
+              switch type
+                when 'distributions'
+                  $.getJSON('warehouses/data.json', {}, (items) ->
+                    ko.applyBindings(new DistributionViewModel(object, items), $('#container_documents').get(0))
+                  )
+                when 'waybills'
+                  ko.applyBindings(new WaybillViewModel(object), $('#container_documents').get(0))
+            )
+          )
+        )
+        this.get('#warehouses', ->
+          $.get('/warehouses', {}, (form) ->
+            $.getJSON('/warehouses/data.json', {}, (objects) ->
+              toggleSelect('warehouses')
+              $('#container_documents').html(form)
+              ko.applyBindings(new FolderViewModel(objects), $('#container_documents').get(0))
+            )
+          )
+        )
+      ).run()
+
+      location.hash = 'inbox' if $('#main').length
+
+  ko.applyBindings(new HomeViewModel())

@@ -1,7 +1,7 @@
 ko.bindingHandlers.datepicker =
-  init: (element, valueAccessor, allBindingsAccessor) ->
-    options = allBindingsAccessor().datepickerOptions || {}
-    $(element).datepicker(options)
+  init: (element, valueAccessor) ->
+    $(element).datepicker($.datepicker.
+    regional["<%= I18n.locale.to_s unless I18n.locale == :en %>"])
 
     ko.utils.registerEventHandler(element, "change", ->
       observable = valueAccessor()

@@ -10,6 +10,7 @@
 #= require jquery-ui
 #= require jquery_ujs
 #= require jquery.validate
+#= require jquery.datepick-ru
 #= require sammy
 #= require knockout
 #= require_self

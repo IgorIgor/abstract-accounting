@@ -26,7 +26,7 @@
           <label for="created"><%= t 'views.distributions.created_at' %>:</label>
         </span>
         <span>
-          <input type="text" id="created" rule="required" name="Created"
+          <input type="text" id="created" rule="required" name="<%= t 'views.distributions.created_at' %>"
                  data-bind="datepicker: distribution.created, disable: readonly">
         </span>
       </div>
@@ -53,7 +53,7 @@
         </span>
         <span data-bind='with: distribution.storekeeper'>
           <input type='text' id='storekeeper_entity'
-                 name='Storekeeper Entity' rule='required'
+                 name='<%= t 'views.distributions.storekeeper' %>' rule='required'
                  data-bind="autocomplete: { source: '/entities.json',
                                             value: 'tag',
                                             bindId: $parent.distribution.storekeeperId },
@@ -66,7 +66,7 @@
         </span>
         <span data-bind='with: distribution.storekeeperPlace'>
           <input type='text' id='storekeeper_place'
-                 name='Storekeeper Place' rule='required'
+                 name='<%= t 'views.distributions.storekeeper_place' %>' rule='required'
                  data-bind="autocomplete: { source: '/places.json',
                                             value: 'tag',
                                             bindId: $parent.distribution.storekeeperPlaceId },
@@ -85,7 +85,7 @@
         </span>
         <span data-bind='with: distribution.foreman'>
           <input type='text' id='foreman_entity'
-                 name='Foreman Entity' rule='required'
+                 name='<%= t 'views.distributions.foreman' %>' rule='required'
                  data-bind="autocomplete: { source: '/entities.json',
                                             value: 'tag',
                                             bindId: $parent.distribution.foremanId },
@@ -98,7 +98,7 @@
         </span>
         <span data-bind='with: distribution.foremanPlace'>
           <input type='text' id='foreman_place'
-                 name='Foreman Place' rule='required'
+                 name='<%= t 'views.distributions.foreman_place' %>' rule='required'
                  data-bind="autocomplete: { source: '/places.json',
                                             value: 'tag',
                                             bindId: $parent.distribution.foremanPlaceId },

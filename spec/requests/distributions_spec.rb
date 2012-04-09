@@ -122,12 +122,11 @@ feature 'distributions', %q{
     within("#container_documents form") do
       find("#container_notification").visible?.should be_true
       within("#container_notification") do
-        #TODO check errors with localization
-        #page.should have_content("Created field is required.")
-        #page.should have_content("Storekeeper Entity field is required.")
-        #page.should have_content("Storekeeper Place field is required.")
-        #page.should have_content("Foreman Entity field is required.")
-        #page.should have_content("Foreman Place field is required.")
+        page.should have_content("#{I18n.t('views.distributions.created_at')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t('views.distributions.storekeeper')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t('views.distributions.storekeeper_place')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t('views.distributions.foreman')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t('views.distributions.foreman_place')} : #{I18n.t('errors.messages.blank')}")
       end
     end
 

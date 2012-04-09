@@ -34,15 +34,14 @@ feature "waybill", %q{
     within("#container_documents form") do
       find("#container_notification").visible?.should be_true
       within("#container_notification") do
-        #TODO check errors with localization
-        #page.should have_content("Created field is required.")
-        #page.should have_content("Document Id field is required.")
-        #page.should have_content("Distributor Entity field is required.")
-        #page.should have_content("Distributor Ident. Name field is required.")
-        #page.should have_content("Distributor Ident. Value field is required.")
-        #page.should have_content("Distributor Place field is required.")
-        #page.should have_content("Storekeeper Entity field is required.")
-        #page.should have_content("Storekeeper Place field is required.")
+        page.should have_content("#{I18n.t('views.waybills.created_at')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t('views.waybills.document_id')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t('views.waybills.distributor')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t('views.waybills.ident_name')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t('views.waybills.ident_value')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t('views.waybills.distributor_place')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t('views.waybills.storekeeper')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t('views.waybills.storekeeper_place')} : #{I18n.t('errors.messages.blank')}")
       end
     end
 

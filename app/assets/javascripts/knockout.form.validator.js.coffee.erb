@@ -3,7 +3,7 @@ init_rules = ->
     $(this).rules('add', {
       required: true
       messages: {
-        required: "#{$(this).attr('name')} : field is required."
+        required: "#{$(this).attr('name')} : <%= I18n.t('errors.messages.blank') %>"
       }
     })
   $("input[rule='required_num']").each ->
@@ -11,8 +11,8 @@ init_rules = ->
       required: true
       min: 1
       messages: {
-        required: "#{$(this).attr('name')} field is required."
-        min: "#{$(this).attr('name')} should be greater than or equal to 1."
+        required: "#{$(this).attr('name')} : <%= I18n.t('errors.messages.blank') %>"
+        min: "#{$(this).attr('name')} : <%= I18n.t('errors.messages.greater_than_or_equal_to', count: 1) %>"
       }
     })
 

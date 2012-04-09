@@ -163,5 +163,12 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
         (w.real_amount == 300) && (w.exp_amount == 300) &&
         (w.mu == 'kg') } .empty?.should be_true
+
+    per_page = Warehouse.all.count - 1
+    wh = Warehouse.all(page: 1, per_page: per_page)
+    wh.count.should eq(per_page)
+
+    wh = Warehouse.all(page: 2, per_page: per_page)
+    wh.count.should eq(1)
   end
 end

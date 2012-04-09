@@ -24,6 +24,14 @@ class Warehouse
       where = "AND waybills.storekeeper_id = '#{attrs[:storekeeper_id]}'
                AND waybills.storekeeper_place_id = '#{attrs[:place_id]}'"
     end
+
+    limit = ''
+    if !attrs.nil? && attrs.has_key?(:page)
+      per_page = attrs.has_key?(:per_page) ? attrs[:per_page] : Settings.root.per_page
+      offset = (attrs[:page].to_i - 1) * per_page.to_i
+      limit = "LIMIT #{per_page} OFFSET #{offset}"
+    end
+
     sql = "
       SELECT warehouse.* FROM (
         SELECT place, tag, SUM(real_amount) as real_amount,
@@ -53,7 +61,7 @@ class Warehouse
         )
         GROUP BY place, tag, mu
       ) as warehouse
-    WHERE warehouse.real_amount > 0.0 AND warehouse.exp_amount > 0.0"
+    WHERE warehouse.real_amount > 0.0 AND warehouse.exp_amount > 0.0 #{limit}"
 
     warehouse = []
     ActiveRecord::Base.connection.execute(sql).each { |entry|

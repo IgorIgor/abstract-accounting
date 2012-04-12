@@ -7,5 +7,7 @@
 #
 # Please see ./COPYING for details
 
-collection @data
-attributes :place, :tag, :real_amount, :exp_amount, :mu
+object false
+child(@warehouses) { attributes :place, :tag, :real_amount, :exp_amount, :mu }
+node(:count) { @count }
+node(:per_page) { Settings.root.per_page }

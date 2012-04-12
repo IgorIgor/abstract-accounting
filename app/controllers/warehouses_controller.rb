@@ -13,7 +13,10 @@ class WarehousesController < ApplicationController
    end
 
   def data
-    attrs = {}
+    params[:page] ||= 1
+    params[:per_page] ||= Settings.root.per_page
+
+    attrs = { page: params[:page], per_page: params[:per_page] }
 
     if params.has_key?(:like) || params.has_key?(:equal)
       [:like, :equal].each { |type|
@@ -27,6 +30,7 @@ class WarehousesController < ApplicationController
       }
     end
 
-    @data = Warehouse.all(attrs)
+    @warehouses = Warehouse.all(attrs)
+    @count = Warehouse.count(attrs)
   end
 end

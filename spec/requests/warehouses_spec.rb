@@ -15,9 +15,11 @@ feature 'warehouses', %q{
 } do
 
   scenario 'view warehouses', js: true do
+    per_page = Settings.root.per_page
+
     Factory(:chart)
     wb = Factory.build(:waybill)
-    [0,1].each { |i|
+    (0..per_page).each { |i|
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
     }
     wb.save!
@@ -36,13 +38,7 @@ feature 'warehouses', %q{
         page.should have_content(I18n.t('views.warehouses.mu'))
       end
       page.should have_selector("tbody[@data-bind='foreach: documents']")
-      page.should have_selector('tbody tr', count: 2)
-      page.all('tbody tr').each_with_index { |tr, i|
-        tr.should have_content(wb.storekeeper_place.tag)
-        tr.should have_content("resource##{i}")
-        tr.should have_content("mu#{i}")
-        tr.should have_content(100+i)
-      }
+      page.all('tbody tr').count.should eq(per_page)
     end
 
     page.find("#show-filter").click
@@ -69,6 +65,84 @@ feature 'warehouses', %q{
       page.should have_content("resource#0")
       page.should have_content("mu0")
       page.should have_content(100)
+    end
+
+    page.all("div[@class='paginate']").each { |control|
+      within("span[@data-bind='text: range']") do
+        control.should have_content("1-1")
+      end
+
+      within("span[@data-bind='text: count']") do
+        control.should have_content("1")
+      end
+
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('true')
+    }
+
+    page.find("#show-filter").click
+
+    within('#filter-area') do
+      fill_in('filter-place', with: '')
+      fill_in('filter-tag', with: '')
+      fill_in('filter-real-amount', with: '')
+      fill_in('filter-exp-amount', with: '')
+      fill_in('filter-mu', with: '')
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    page.all("div[@class='paginate']").each { |control|
+      within("span[@data-bind='text: range']") do
+        control.should have_content("1-#{per_page}")
+      end
+
+      within("span[@data-bind='text: count']") do
+        control.should have_content(Warehouse.count.to_s)
+      end
+
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
+    }
+
+    within("#container_documents table tbody") do
+      page.should have_selector('tr', count: per_page)
+    end
+
+    wh = Warehouse.all
+    count = Warehouse.count
+    (0..(count/per_page).ceil).each { |p|
+      wh[p*per_page...p*per_page+per_page].each_with_index { |w, i|
+        tr = page.all('#container_documents table tbody tr')[i]
+        tr.should have_content(w.tag)
+        tr.should have_content(w.place)
+        tr.should have_content(w.real_amount.to_i)
+        tr.should have_content(w.exp_amount.to_i)
+        tr.should have_content(w.mu)
+      }
+
+      click_button('>')
+    }
+
+    within("div[@class='paginate']") do
+      find_button('>')[:disabled].should eq('true')
+    end
+
+    (count/per_page).ceil.downto(0).each { |p|
+      wh[p*per_page...p*per_page+per_page].each_with_index { |w, i|
+        tr = page.all('#container_documents table tbody tr')[i]
+        tr.should have_content(w.tag)
+        tr.should have_content(w.place)
+        tr.should have_content(w.real_amount.to_i)
+        tr.should have_content(w.exp_amount.to_i)
+        tr.should have_content(w.mu)
+      }
+
+      click_button('<')
+    }
+
+    within("div[@class='paginate']") do
+      find_button('<')[:disabled].should eq('true')
     end
   end
 end

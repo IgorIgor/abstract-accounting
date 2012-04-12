@@ -99,10 +99,11 @@ $ ->
         )
         this.get('#warehouses', ->
           $.get('/warehouses', {}, (form) ->
-            $.getJSON('/warehouses/data.json', {}, (objects) ->
+            $.getJSON('/warehouses/data.json', {}, (data) ->
               toggleSelect('warehouses')
               $('#container_documents').html(form)
-              ko.applyBindings(new WarehouseViewModel(objects), $('#container_documents').get(0))
+              ko.cleanNode($('#main').get(0))
+              ko.applyBindings(new WarehouseViewModel(data), $('#main').get(0))
             )
           )
         )
@@ -110,4 +111,4 @@ $ ->
 
       location.hash = 'inbox' if $('#main').length
 
-  ko.applyBindings(new HomeViewModel())
+  ko.applyBindings(new HomeViewModel(), $('#body').get(0))

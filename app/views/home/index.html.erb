@@ -7,63 +7,50 @@
   </div>
 </div>
 
-<div id='nav'>
-  <div class='filter'>
-    <div class='filter-bar'>
-      <input type='text' value=''/>
-      <div id='show-filter'
-           data-bind="slidemenu: { control: 'show-filter', list: 'filter-area',
-                                   stuck: true }">
-        <div class='arrow_down'></div>
+<div id="body">
+  <div id='nav'>
+    <div class='filter'>
+      <div class='filter-bar'>
+        <input type='text' value=''/>
+        <div id='show-filter'
+             data-bind="slidemenu: { control: 'show-filter', list: 'filter-area',
+                                     stuck: true }">
+          <div class='arrow_down'></div>
+        </div>
       </div>
+      <input type='button' value="<%=t 'views.home.search' %>"/>
     </div>
-    <input type='button' value="<%=t 'views.home.search' %>"/>
+  </div>
+
+  <div id="sidebar">
+    <div class="button_drop_down_list"
+         data-bind="slidemenu: { control: 'btn_create', list: 'documents_list' } ">
+      <a id="btn_create"><%=t 'views.home.create' %>
+        <div class="arrow_down"></div>
+      </a>
+      <ul id="documents_list">
+        <!--<li><%#=link_to(t('views.home.estimate'), "#documents#{new_estimate_path}") %></li>-->
+        <li><%=link_to(t('views.home.waybill'), "#documents#{new_waybill_path}") %></li>
+        <li><%=link_to(t('views.home.distribution'), "#documents#{new_distribution_path}") %></li>
+      </ul>
+    </div>
+    <br />
+
+    <ul>
+      <li id="inbox"><a href="#inbox"><%=t 'views.home.inbox' %></a></li>
+      <li><a><%=t 'views.home.starred' %></a></li>
+      <li><a><%=t 'views.home.drafts' %></a></li>
+      <li><a><%=t 'views.home.sent' %></a></li>
+      <li><a><%=t 'views.home.trash' %></a></li>
+      <li><a><%=t 'views.home.archive' %></a></li>
+      <hr>
+      <li id="warehouses"><a href="#warehouses"><%=t 'views.home.warehouses' %></a></li>
+    </ul>
   </div>
 </div>
 
 <div id="main">
-  <div class="operations">
-    <div class="paginate">
-      <span>0-0</span> <%= t('views.home.of') %> <span>0</span>
-      <input type="button" value="<" disabled="disabled"/>
-      <input type="button" class="paginate-right" value=">" disabled="disabled"/>
-    </div>
-  </div>
-
-  <div id="container_documents">
-  </div>
-
-  <div class="operations">
-    <div class="paginate">
-      <span>0-0</span> <%= t('views.home.of') %> <span>0</span>
-      <input type="button" value="<" disabled="disabled"/>
-      <input type="button" class="paginate-right" value=">" disabled="disabled"/>
-    </div>
-  </div>
-</div>
-
-<div id="sidebar">
-  <div class="button_drop_down_list"
-       data-bind="slidemenu: { control: 'btn_create', list: 'documents_list' } ">
-    <a id="btn_create"><%=t 'views.home.create' %>
-      <div class="arrow_down"></div>
-    </a>
-    <ul id="documents_list">
-      <!--<li><%#=link_to(t('views.home.estimate'), "#documents#{new_estimate_path}") %></li>-->
-      <li><%=link_to(t('views.home.waybill'), "#documents#{new_waybill_path}") %></li>
-      <li><%=link_to(t('views.home.distribution'), "#documents#{new_distribution_path}") %></li>
-    </ul>
-  </div>
-  <br />
-
-  <ul>
-    <li id="inbox"><a href="#inbox"><%=t 'views.home.inbox' %></a></li>
-    <li><a><%=t 'views.home.starred' %></a></li>
-    <li><a><%=t 'views.home.drafts' %></a></li>
-    <li><a><%=t 'views.home.sent' %></a></li>
-    <li><a><%=t 'views.home.trash' %></a></li>
-    <li><a><%=t 'views.home.archive' %></a></li>
-    <hr>
-    <li id="warehouses"><a href="#warehouses"><%=t 'views.home.warehouses' %></a></li>
-  </ul>
+  <%= render 'operations_bar' %>
+  <div id="container_documents"></div>
+  <%= render 'operations_bar' %>
 </div>

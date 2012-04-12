@@ -21,3 +21,5 @@ ru:
       apply: "Применить"
       cancel: "Отменить"
       print: "Печать"
+      page_title_new: "Новая выдача"
+      page_title_show: "Просмотр выдачи"

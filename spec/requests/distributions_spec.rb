@@ -35,6 +35,11 @@ feature 'distributions', %q{
     page.should have_selector("input[@value='#{I18n.t('views.distributions.draft')}']")
     page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
 
+    page.should have_selector("span[@id='page-title']")
+    within('#page-title') do
+      page.should have_content("#{I18n.t('views.distributions.page_title_new')}")
+    end
+
     page.should have_xpath("//div[@id='ui-datepicker-div']")
     page.find("#created").click
     page.should have_xpath("//div[@id='ui-datepicker-div' and contains(@style, 'display: block')]")
@@ -192,6 +197,12 @@ feature 'distributions', %q{
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Distribution - #{wb.storekeeper.tag}')]").click
     current_hash.should eq("documents/distributions/#{ds.id}")
+
+    page.should have_selector("span[@id='page-title']")
+    within('#page-title') do
+      page.should have_content(
+        "#{I18n.t('views.distributions.page_title_show')}")
+    end
 
     within("#container_documents form") do
       #find("#created")[:value].should eq(ds.created.strftime("%m/%d/%Y"))

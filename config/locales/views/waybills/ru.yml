@@ -21,3 +21,5 @@ ru:
       draft: "Черновик"
       add: "Добавить"
       item: "Запись"
+      page_title_new: "Новая накладная"
+      page_title_show: "Просмотр накладной"

@@ -30,6 +30,11 @@ feature "waybill", %q{
     page.should have_selector("input[@value='#{I18n.t('views.waybills.draft')}']")
     page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
 
+    page.should have_selector("span[@id='page-title']")
+    within('#page-title') do
+      page.should have_content("#{I18n.t('views.waybills.page_title_new')}")
+    end
+
     click_button(I18n.t('views.waybills.save'))
     within("#container_documents form") do
       find("#container_notification").visible?.should be_true
@@ -113,6 +118,11 @@ feature "waybill", %q{
 
     page.find("td[@class='cell-entity']").click
     current_hash.should eq("documents/waybills/" + Waybill.first.id.to_s)
+
+    page.should have_selector("span[@id='page-title']")
+    within('#page-title') do
+      page.should have_content("#{I18n.t('views.waybills.page_title_show')}")
+    end
 
     within("#container_documents form") do
       #TODO

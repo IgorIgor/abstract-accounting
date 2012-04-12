@@ -8,6 +8,15 @@
            data-bind='visible: !readonly()'/>
   </div>
 
+  <span id="page-title">
+  <!-- ko if: readonly -->
+    <%= t('views.waybills.page_title_show') %>
+    <!-- /ko -->
+  <!-- ko ifnot: readonly -->
+    <%= t('views.waybills.page_title_new') %>
+    <!-- /ko -->
+  </span>
+
   <fieldset id="container_notification">
     <legend>Errors</legend>
     <ul></ul>

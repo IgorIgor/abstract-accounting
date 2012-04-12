@@ -21,3 +21,5 @@ en:
       draft: "Draft"
       add: "Add"
       item: "Item"
+      page_title_new: "Create new waybill"
+      page_title_show: "Show waybill"

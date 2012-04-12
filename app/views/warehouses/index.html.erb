@@ -1,3 +1,18 @@
+<div id="filter-area" class="filter-area">
+  <label><%=t 'views.warehouses.place' %></label>
+  <input type="text" id="filter-place" data-bind="value: filter.place"/>
+  <label><%=t 'views.warehouses.tag' %></label>
+  <input type="text" id="filter-tag" data-bind="value: filter.tag"/>
+  <label><%=t 'views.warehouses.real_amount' %></label>
+  <input type="text" id="filter-real-amount" data-bind="value: filter.real_amount"/>
+  <label><%=t 'views.warehouses.expectation_amount' %></label>
+  <input type="text" id="filter-exp-amount" data-bind="value: filter.exp_amount"/>
+  <label><%=t 'views.warehouses.mu' %></label>
+  <input type="text" id="filter-mu" data-bind="value: filter.mu"/>
+  <input type="button" value="<%=t 'views.home.search' %>"
+         data-bind="click: filterData"/>
+</div>
+
 <table>
   <thead>
     <tr>

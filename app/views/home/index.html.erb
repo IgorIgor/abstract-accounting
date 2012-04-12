@@ -7,10 +7,17 @@
   </div>
 </div>
 
-<div id="nav">
-  <div class="filter">
-    <input type="text" value=""/>
-    <input type="button" value="<%=t 'views.home.search' %>"/>
+<div id='nav'>
+  <div class='filter'>
+    <div class='filter-bar'>
+      <input type='text' value=''/>
+      <div id='show-filter'
+           data-bind="slidemenu: { control: 'show-filter', list: 'filter-area',
+                                   stuck: true }">
+        <div class='arrow_down'></div>
+      </div>
+    </div>
+    <input type='button' value="<%=t 'views.home.search' %>"/>
   </div>
 </div>
 
@@ -36,8 +43,9 @@
 </div>
 
 <div id="sidebar">
-  <div class="button_drop_down_list" data-bind="slidemenu: 'btn_create'">
-    <a href="#" id="btn_create"><%=t 'views.home.create' %>
+  <div class="button_drop_down_list"
+       data-bind="slidemenu: { control: 'btn_create', list: 'documents_list' } ">
+    <a id="btn_create"><%=t 'views.home.create' %>
       <div class="arrow_down"></div>
     </a>
     <ul id="documents_list">
@@ -50,11 +58,11 @@
 
   <ul>
     <li id="inbox"><a href="#inbox"><%=t 'views.home.inbox' %></a></li>
-    <li><a href="#"><%=t 'views.home.starred' %></a></li>
-    <li><a href="#"><%=t 'views.home.drafts' %></a></li>
-    <li><a href="#"><%=t 'views.home.sent' %></a></li>
-    <li><a href="#"><%=t 'views.home.trash' %></a></li>
-    <li><a href="#"><%=t 'views.home.archive' %></a></li>
+    <li><a><%=t 'views.home.starred' %></a></li>
+    <li><a><%=t 'views.home.drafts' %></a></li>
+    <li><a><%=t 'views.home.sent' %></a></li>
+    <li><a><%=t 'views.home.trash' %></a></li>
+    <li><a><%=t 'views.home.archive' %></a></li>
     <hr>
     <li id="warehouses"><a href="#warehouses"><%=t 'views.home.warehouses' %></a></li>
   </ul>

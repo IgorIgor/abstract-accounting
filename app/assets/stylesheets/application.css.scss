@@ -19,7 +19,7 @@
 @import "login.css.scss";
 @import "sessions.css.scss";
 @import "password_resets.css.scss";
-@import "drop_down_list_button.css.scss";
+@import "slide_area.css.scss";
 
 $table_border: 1px solid #d8d8d8;
 $table_head_background: #ededed;
@@ -33,6 +33,8 @@ body, html {
   background: white;
   font-size: 14px;
 }
+
+a { cursor: pointer; }
 
 input[type=button] {
   height: 25px;
@@ -67,15 +69,31 @@ input[type=text] {
   .filter {
     margin-left: 160px;
 
-    input[type=text] {
-      margin: 0;
-      padding-left: 4px;
-      height: 20px;
+    div.filter-bar {
+      display: inline-block;
+      text-decoration: none;
+      border: 1px solid #cccccc;
+      color: #000000;
+      white-space: nowrap;
+      border-radius: 3px;
+      -webkit-border-radius: 3px;
+      -moz-border-radius: 3px;
+      height: 23px;
       width: 300px;
-    }
 
-    input[type=button] {
-      margin: 0 0 7px 0;
+      input[type=text] {
+        margin: 0;
+        height: 21px;
+        width: 280px;
+        border: none;
+      }
+
+      #show-filter {
+        display: inline-block;
+        height: 100%;
+        width: 16px;
+        cursor: pointer;
+      }
     }
   }
 }
@@ -116,7 +134,7 @@ input[type=text] {
 
     .actions {
       position: absolute;
-      top: 83px;
+      top: 77px;
 
       input {
         height: 25px;

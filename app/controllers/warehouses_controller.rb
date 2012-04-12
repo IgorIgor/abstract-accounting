@@ -13,6 +13,16 @@ class WarehousesController < ApplicationController
    end
 
   def data
-    @data = Warehouse.all
+    attrs = {}
+    if params.has_key?(:filter)
+      params[:filter].each { |key, value|
+        unless value.empty?
+          attrs[:where] ||= {}
+          attrs[:where][key] = { like: value }
+        end
+      }
+    end
+
+    @data = Warehouse.all(attrs)
   end
 end

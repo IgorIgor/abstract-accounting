@@ -44,5 +44,31 @@ feature 'warehouses', %q{
         tr.should have_content(100+i)
       }
     end
+
+    page.find("#show-filter").click
+
+    within('#filter-area') do
+      page.should have_content(I18n.t('views.warehouses.place'))
+      page.should have_content(I18n.t('views.warehouses.tag'))
+      page.should have_content(I18n.t('views.warehouses.real_amount'))
+      page.should have_content(I18n.t('views.warehouses.expectation_amount'))
+      page.should have_content(I18n.t('views.warehouses.mu'))
+
+      fill_in('filter-place', with: wb.storekeeper_place.tag)
+      fill_in('filter-tag', with: 'resource#0')
+      fill_in('filter-real-amount', with: 100)
+      fill_in('filter-exp-amount', with: 100)
+      fill_in('filter-mu', with: 'mu0')
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    within('#container_documents table') do
+      page.should have_selector('tbody tr', count: 1)
+      page.should have_content(wb.storekeeper_place.tag)
+      page.should have_content("resource#0")
+      page.should have_content("mu0")
+      page.should have_content(100)
+    end
   end
 end

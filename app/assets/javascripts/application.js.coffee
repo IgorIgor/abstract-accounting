@@ -102,7 +102,7 @@ $ ->
             $.getJSON('/warehouses/data.json', {}, (objects) ->
               toggleSelect('warehouses')
               $('#container_documents').html(form)
-              ko.applyBindings(new FolderViewModel(objects), $('#container_documents').get(0))
+              ko.applyBindings(new WarehouseViewModel(objects), $('#container_documents').get(0))
             )
           )
         )

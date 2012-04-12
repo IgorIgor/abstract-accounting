@@ -19,14 +19,22 @@ class Warehouse
   end
 
   def self.all(attrs = nil)
-    where = ''
-    unless attrs.nil? || attrs[:storekeeper_id].nil? || attrs[:place_id].nil?
-      where = "AND waybills.storekeeper_id = '#{attrs[:storekeeper_id]}'
-               AND waybills.storekeeper_place_id = '#{attrs[:place_id]}'"
+    condition = ''
+    condition_storekeeper = ''
+    unless attrs.nil? || attrs[:where].nil?
+      attrs[:where].each { |attr, value|
+        if value.kind_of?(Hash)
+          if value.has_key?(:equal)
+            condition_storekeeper += " AND waybills.#{attr} = '#{value[:equal]}'"
+          elsif value.has_key?(:like)
+            condition += " AND lower(warehouse.#{attr}) LIKE '%#{value[:like]}%'"
+          end
+        end
+      }
     end
 
     limit = ''
-    if !attrs.nil? && attrs.has_key?(:page)
+    unless attrs.nil? || attrs[:page].nil?
       per_page = attrs.has_key?(:per_page) ? attrs[:per_page] : Settings.root.per_page
       offset = (attrs[:page].to_i - 1) * per_page.to_i
       limit = "LIMIT #{per_page} OFFSET #{offset}"
@@ -45,7 +53,7 @@ class Warehouse
             INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
             INNER JOIN assets ON assets.id = terms.resource_id
             INNER JOIN places ON places.id = terms.place_id
-          WHERE states.paid is NULL #{where}
+          WHERE states.paid is NULL #{condition_storekeeper}
           GROUP BY places.id, terms.resource_id
           UNION
           SELECT places.tag as place, assets.tag as tag, 0.0 as amount,
@@ -61,7 +69,8 @@ class Warehouse
         )
         GROUP BY place, tag, mu
       ) as warehouse
-    WHERE warehouse.real_amount > 0.0 AND warehouse.exp_amount > 0.0 #{limit}"
+    WHERE warehouse.real_amount > 0.0 AND warehouse.exp_amount > 0.0 #{condition}
+    #{limit}"
 
     warehouse = []
     ActiveRecord::Base.connection.execute(sql).each { |entry|

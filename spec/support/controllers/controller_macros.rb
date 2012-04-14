@@ -46,6 +46,14 @@ module ControllerMacros
       all(:xpath, ".//li//a")[1].click
     end
   end
+
+  def fill_in_autocomplete(element_id, value)
+    fill_in(element_id, with: value)
+    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and
+                         contains(@style, 'display: block')]") do
+      all(:xpath, './/li//a')[0].click
+    end
+  end
 end
 
 RSpec.configure do |config|

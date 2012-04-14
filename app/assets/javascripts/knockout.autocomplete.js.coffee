@@ -28,3 +28,7 @@ ko.bindingHandlers.autocomplete =
       $(element).data('autocomplete')._resizeMenu = () ->
         ul = this.menu.element
         ul.outerWidth(this.element.outerWidth())
+
+      $(element).bind('autocompletechange', (e, ui) ->
+        $(e.target).val('') if config.onlySelect && !ui.item
+      )

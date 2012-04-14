@@ -45,6 +45,12 @@ feature 'distributions', %q{
     page.find("#ui-datepicker-div table[@class='ui-datepicker-calendar'] tbody tr td a").click
 
     within("#container_documents form") do
+      fill_in('storekeeper_entity', with: 'fail')
+      fill_in('storekeeper_place', with: 'fail')
+      page.has_css?("#storekeeper_entity", value: '').should be_true
+      fill_in('storekeeper_entity', with: 'fail')
+      page.has_css?("#storekeeper_place", value: '').should be_true
+
       6.times.collect { Factory(:place) }
       items = Place.find(:all, order: :tag, limit: 5)
       check_autocomplete("storekeeper_place", items, :tag)
@@ -134,8 +140,8 @@ feature 'distributions', %q{
     page.find("#ui-datepicker-div table[@class='ui-datepicker-calendar'] tbody tr td a").click
 
     within("#container_documents form") do
-      fill_in("storekeeper_entity", :with => @waybill.storekeeper.tag)
-      fill_in("storekeeper_place", :with => @waybill.storekeeper_place.tag)
+      fill_in_autocomplete('storekeeper_entity', @waybill.storekeeper.tag)
+      fill_in_autocomplete('storekeeper_place', @waybill.storekeeper_place.tag)
       fill_in("foreman_entity", :with =>"entity")
       fill_in("foreman_place", :with => "place")
     end

@@ -56,7 +56,8 @@
                  name='<%= t 'views.distributions.storekeeper' %>' rule='required'
                  data-bind="autocomplete: { source: '/entities.json',
                                             value: 'tag',
-                                            bindId: $parent.distribution.storekeeperId },
+                                            bindId: $parent.distribution.storekeeperId,
+                                            onlySelect: true },
                             value: tag, disable: $parent.readonly" />
         </span>
       </div>
@@ -69,7 +70,8 @@
                  name='<%= t 'views.distributions.storekeeper_place' %>' rule='required'
                  data-bind="autocomplete: { source: '/places.json',
                                             value: 'tag',
-                                            bindId: $parent.distribution.storekeeperPlaceId },
+                                            bindId: $parent.distribution.storekeeperPlaceId,
+                                            onlySelect: true },
                             value: tag, disable: $parent.readonly" />
         </span>
       </div>

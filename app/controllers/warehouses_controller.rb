@@ -14,12 +14,16 @@ class WarehousesController < ApplicationController
 
   def data
     attrs = {}
-    if params.has_key?(:filter)
-      params[:filter].each { |key, value|
-        unless value.empty?
-          attrs[:where] ||= {}
-          attrs[:where][key] = { like: value }
-        end
+
+    if params.has_key?(:like) || params.has_key?(:equal)
+      [:like, :equal].each { |type|
+        params[type].each { |key, value|
+          unless value.empty?
+            attrs[:where] ||= {}
+            attrs[:where][key] = {}
+            attrs[:where][key][type] = value
+          end
+        } if params[type]
       }
     end
 

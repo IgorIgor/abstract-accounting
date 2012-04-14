@@ -10,6 +10,6 @@ $ ->
         mu: ko.observable('')
 
     filterData: =>
-      $.getJSON('/warehouses/data.json', filter: @filter, (objects) =>
+      $.getJSON('/warehouses/data.json', like: @filter, (objects) =>
         @documents(objects)
       )

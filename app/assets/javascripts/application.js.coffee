@@ -53,7 +53,7 @@ $ ->
             $.getJSON("#{type}/#{id}.json", {}, (object) ->
               viewModel = switch type
                 when 'distributions'
-                  new DistributionViewModel(object, null, true)
+                  new DistributionViewModel(object, true)
                 when 'waybills'
                   new WaybillViewModel(object, true)
 
@@ -85,15 +85,15 @@ $ ->
           $.get("/#{type}/preview", {}, (form) ->
             $.getJSON("/#{type}/new.json", {}, (object) ->
               toggleSelect()
-              $('#container_documents').html(form)
 
-              switch type
+              viewModel = switch type
                 when 'distributions'
-                  $.getJSON('warehouses/data.json', {}, (items) ->
-                    ko.applyBindings(new DistributionViewModel(object, items), $('#container_documents').get(0))
-                  )
+                  new DistributionViewModel(object)
                 when 'waybills'
-                  ko.applyBindings(new WaybillViewModel(object), $('#container_documents').get(0))
+                  new WaybillViewModel(object)
+
+              $('#container_documents').html(form)
+              ko.applyBindings(viewModel, $('#container_documents').get(0))
             )
           )
         )

@@ -57,7 +57,8 @@
                  data-bind="autocomplete: { source: '/entities.json',
                                             value: 'tag',
                                             bindId: $parent.distribution.storekeeperId,
-                                            onlySelect: true },
+                                            onlySelect: true,
+                                            afterChange: $parent.loadAvailableResources },
                             value: tag, disable: $parent.readonly" />
         </span>
       </div>
@@ -71,7 +72,8 @@
                  data-bind="autocomplete: { source: '/places.json',
                                             value: 'tag',
                                             bindId: $parent.distribution.storekeeperPlaceId,
-                                            onlySelect: true },
+                                            onlySelect: true,
+                                            afterChange: $parent.loadAvailableResources },
                             value: tag, disable: $parent.readonly" />
         </span>
       </div>

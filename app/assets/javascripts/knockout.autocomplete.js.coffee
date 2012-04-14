@@ -23,6 +23,8 @@ ko.bindingHandlers.autocomplete =
         config.bindId(ui.item.data.id)
         for key, value of ui.item.data
           viewModel[key](value) if (viewModel.hasOwnProperty(key))
+
+        config.afterChange() if config.afterChange
       )
 
       $(element).data('autocomplete')._resizeMenu = () ->
@@ -30,5 +32,8 @@ ko.bindingHandlers.autocomplete =
         ul.outerWidth(this.element.outerWidth())
 
       $(element).bind('autocompletechange', (e, ui) ->
-        $(e.target).val('') if config.onlySelect && !ui.item
+        if config.onlySelect && !ui.item
+          allBindings().value('')
+          config.bindId('')
+          config.afterChange() if config.afterChange
       )

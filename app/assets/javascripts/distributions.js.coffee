@@ -1,6 +1,6 @@
 $ ->
   class self.DistributionViewModel extends ObjectViewModel
-    constructor: (object, items, readonly = false) ->
+    constructor: (object, readonly = false) ->
       @readonly = ko.observable(readonly)
 
       @distribution = ko.observable(object)
@@ -19,8 +19,10 @@ $ ->
       @distribution.storekeeperPlace =
         tag: ko.observable(object.storekeeper_place.tag if readonly)
 
-      @availableResources = ko.observableArray(items)
+      @availableResources = ko.observableArray([])
       @selectedResources = ko.observableArray(if readonly then object.items else [])
+
+      @loadAvailableResources() unless readonly
 
       $.sammy( ->
         this.get("#documents/distributions/:id/apply", ->
@@ -64,6 +66,18 @@ $ ->
         when 1 then 'Inwork'
         when 2 then 'Canceled'
         when 3 then 'Applied'
+
+    loadAvailableResources: =>
+      @selectedResources([])
+      if @distribution.storekeeperId() && @distribution.storekeeperPlaceId()
+        condition =
+          storekeeper_id: @distribution.storekeeperId
+          storekeeper_place_id: @distribution.storekeeperPlaceId
+        $.getJSON('/warehouses/data.json', equal: condition, (objects) =>
+          @availableResources(objects)
+        )
+      else
+        @availableResources([])
 
     apply: =>
       location.hash = "#documents/distributions/#{@distribution().id}/apply"

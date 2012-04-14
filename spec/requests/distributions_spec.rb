@@ -45,11 +45,16 @@ feature 'distributions', %q{
     page.find("#ui-datepicker-div table[@class='ui-datepicker-calendar'] tbody tr td a").click
 
     within("#container_documents form") do
+      page.should have_no_selector('#available-resources tbody tr')
+
       fill_in('storekeeper_entity', with: 'fail')
       fill_in('storekeeper_place', with: 'fail')
       page.has_css?("#storekeeper_entity", value: '').should be_true
+      page.should have_no_selector('#available-resources tbody tr')
+
       fill_in('storekeeper_entity', with: 'fail')
       page.has_css?("#storekeeper_place", value: '').should be_true
+      page.should have_no_selector('#available-resources tbody tr')
 
       6.times.collect { Factory(:place) }
       items = Place.find(:all, order: :tag, limit: 5)
@@ -63,6 +68,13 @@ feature 'distributions', %q{
     end
 
     within("#container_documents") do
+      unless page.find("#storekeeper_entity").value == wb.storekeeper.tag
+        fill_in_autocomplete('storekeeper_entity', wb.storekeeper.tag)
+      end
+      unless page.find("#storekeeper_place").value == wb.storekeeper_place.tag
+        fill_in_autocomplete('storekeeper_place', wb.storekeeper_place.tag)
+      end
+
       page.should have_selector("div[@id='resources-tables']")
       within("#resources-tables") do
         page.should have_selector("#available-resources tbody tr")

@@ -18,20 +18,8 @@ class Warehouse
     @mu = attrs['mu']
   end
 
-  def self.all(attrs = nil)
-    condition = ''
-    condition_storekeeper = ''
-    unless attrs.nil? || attrs[:where].nil?
-      attrs[:where].each { |attr, value|
-        if value.kind_of?(Hash)
-          if value.has_key?(:equal)
-            condition_storekeeper += " AND waybills.#{attr} = '#{value[:equal]}'"
-          elsif value.has_key?(:like)
-            condition += " AND lower(warehouse.#{attr}) LIKE '%#{value[:like]}%'"
-          end
-        end
-      }
-    end
+  def self.all(attrs = {})
+    attrs[:select] = 'warehouse'
 
     limit = ''
     unless attrs.nil? || attrs[:page].nil?
@@ -40,8 +28,44 @@ class Warehouse
       limit = "LIMIT #{per_page} OFFSET #{offset}"
     end
 
-    sql = "
-      SELECT warehouse.* FROM (
+    warehouse = []
+    ActiveRecord::Base.connection.execute("#{script(attrs)} #{limit}").each { |entry|
+      warehouse << Warehouse.new(entry)
+    }
+    warehouse
+  end
+
+  def self.count(attrs = {})
+    attrs[:select] = 'count'
+    ActiveRecord::Base.connection.execute(script(attrs))[0][0]
+  end
+
+  private
+  def self.script(attrs)
+    unless attrs.nil? || attrs[:select].nil?
+      select =
+        if attrs[:select] == 'count'
+          'COUNT(*) as count'
+        elsif attrs[:select] == 'warehouse'
+          'warehouse.*'
+        end
+
+      condition = ''
+      condition_storekeeper = ''
+      if attrs.has_key?(:where)
+        attrs[:where].each { |attr, value|
+          if value.kind_of?(Hash)
+            if value.has_key?(:equal)
+              condition_storekeeper += " AND waybills.#{attr} = '#{value[:equal]}'"
+            elsif value.has_key?(:like)
+              condition += " AND lower(warehouse.#{attr}) LIKE '%#{value[:like]}%'"
+            end
+          end
+        }
+      end
+
+      "
+      SELECT #{select} FROM (
         SELECT place, tag, SUM(real_amount) as real_amount,
                ROUND(SUM(real_amount - exp_amount), 2) as exp_amount, mu
         FROM (
@@ -69,13 +93,7 @@ class Warehouse
         )
         GROUP BY place, tag, mu
       ) as warehouse
-    WHERE warehouse.real_amount > 0.0 AND warehouse.exp_amount > 0.0 #{condition}
-    #{limit}"
-
-    warehouse = []
-    ActiveRecord::Base.connection.execute(sql).each { |entry|
-      warehouse << Warehouse.new(entry)
-    }
-    warehouse
+      WHERE warehouse.real_amount > 0.0 AND warehouse.exp_amount > 0.0 #{condition}"
+    end
   end
 end

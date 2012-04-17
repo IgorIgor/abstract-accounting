@@ -49,6 +49,7 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
                    (w.real_amount == 300) && (w.exp_amount == 300) &&
                    (w.mu == 'kg') } .empty?.should be_false
+    Warehouse.count.should eq(wh.count)
 
     ds_moscow = Factory.build(:distribution, storekeeper: ivanov,
                                              storekeeper_place: moscow)
@@ -76,6 +77,7 @@ describe Warehouse do
                    (w.mu == 'kg') } .empty?.should be_false
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'roof') && (w.mu == 'rm') &&
                    (w.real_amount == 500) } .empty?.should be_true
+    Warehouse.count.should eq(wh.count)
 
     ds_minsk.cancel
     wh = Warehouse.all
@@ -94,6 +96,7 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'roof') &&
                    (w.real_amount == 500) && (w.exp_amount == 500) &&
                    (w.mu == 'rm') } .empty?.should be_false
+    Warehouse.count.should eq(wh.count)
 
     ds_moscow.apply
     wh = Warehouse.all
@@ -112,6 +115,7 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'roof') &&
                    (w.real_amount == 500) && (w.exp_amount == 500) &&
                    (w.mu == 'rm') } .empty?.should be_false
+    Warehouse.count.should eq(wh.count)
 
     wh = Warehouse.all(where: { storekeeper_id: { equal: ivanov.id },
                                 storekeeper_place_id: { equal: moscow.id }})
@@ -130,6 +134,9 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
         (w.real_amount == 300) && (w.exp_amount == 300) &&
         (w.mu == 'kg') } .empty?.should be_true
+    Warehouse.count(where: { storekeeper_id: { equal: ivanov.id },
+                             storekeeper_place_id: { equal: moscow.id }})
+      .should eq(wh.count)
 
     wh = Warehouse.all(where: { storekeeper_id: { equal: petrov.id },
                                 storekeeper_place_id: { equal: minsk.id }})
@@ -148,6 +155,9 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
         (w.real_amount == 300) && (w.exp_amount == 300) &&
         (w.mu == 'kg') } .empty?.should be_false
+    Warehouse.count(where: { storekeeper_id: { equal: petrov.id },
+                             storekeeper_place_id: { equal: minsk.id }})
+      .should eq(wh.count)
 
     wh = Warehouse.all(where: { storekeeper_id: { equal: petrov.id },
                                 storekeeper_place_id: { equal: moscow.id }})
@@ -166,6 +176,9 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
         (w.real_amount == 300) && (w.exp_amount == 300) &&
         (w.mu == 'kg') } .empty?.should be_true
+    Warehouse.count(where: { storekeeper_id: { equal: petrov.id },
+                             storekeeper_place_id: { equal: moscow.id }})
+      .should eq(wh.count)
 
     per_page = Warehouse.all.count - 1
     wh = Warehouse.all(page: 1, per_page: per_page)
@@ -190,6 +203,7 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
         (w.real_amount == 300) && (w.exp_amount == 300) &&
         (w.mu == 'kg') } .empty?.should be_true
+    Warehouse.count(where: { place: { like: 'mo' }}).should eq(wh.count)
 
     wh = Warehouse.all(where: { place: { like: 'mo' },
                                 tag: { like: 'ai' }})
@@ -208,6 +222,8 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
         (w.real_amount == 300) && (w.exp_amount == 300) &&
         (w.mu == 'kg') } .empty?.should be_true
+    Warehouse.count(where: { place: { like: 'mo' },
+                             tag: { like: 'ai' }}).should eq(wh.count)
 
     wh = Warehouse.all(where: { place: { like: 'mo' },
                                 tag: { like: 'ai' },
@@ -227,6 +243,9 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
         (w.real_amount == 300) && (w.exp_amount == 300) &&
         (w.mu == 'kg') } .empty?.should be_true
+    Warehouse.count(where: { place: { like: 'mo' },
+                             tag: { like: 'ai' },
+                             real_amount: { like: '13' }}).should eq(wh.count)
 
     wh = Warehouse.all(where: { place: { like: 'mo' },
                                 tag: { like: 'ai' },
@@ -246,6 +265,9 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
         (w.real_amount == 300) && (w.exp_amount == 300) &&
         (w.mu == 'kg') } .empty?.should be_true
+    Warehouse.count(where: { place: { like: 'mo' },
+                             tag: { like: 'ai' },
+                             exp_amount: { like: '10' }}).should eq(wh.count)
 
     wh = Warehouse.all(where: { place: { like: 'mo' },
                                 tag: { like: 'ai' },
@@ -265,5 +287,8 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
         (w.real_amount == 300) && (w.exp_amount == 300) &&
         (w.mu == 'kg') } .empty?.should be_true
+    Warehouse.count(where: { place: { like: 'mo' },
+                             tag: { like: 'ai' },
+                             mu: { like: 'k' }}).should eq(wh.count)
   end
 end

@@ -41,32 +41,36 @@ $ ->
   class self.ObjectViewModel
     back: -> location.hash = 'inbox'
 
-  class FolderViewModel
-    constructor: (objects) ->
-      @documents = ko.observableArray(objects)
+  class self.FolderViewModel
+    constructor: (data) ->
+      @documents = ko.observableArray(data.objects)
 
-      $.sammy( ->
-        this.get('#documents/:type/:id', ->
-          id = this.params.id
-          type = this.params.type
-          $.get("#{type}/preview", {}, (form) ->
-            $.getJSON("#{type}/#{id}.json", {}, (object) ->
-              viewModel = switch type
-                when 'distributions'
-                  new DistributionViewModel(object, true)
-                when 'waybills'
-                  new WaybillViewModel(object, true)
+      @page = ko.observable(data.page || 1)
+      @per_page = ko.observable(data.per_page)
+      @count = ko.observable(data.count)
+      @range = ko.observable(@rangeGenerate())
 
-              $('#container_documents').html(form)
-              ko.applyBindings(viewModel, $('#container_documents').get(0))
-            )
-          )
-        )
+    prev: =>
+      @page(@page() - 1)
+      $.getJSON(@url, @params, (data) =>
+        @documents(data.objects)
+        @count(data.count)
+        @range(@rangeGenerate())
       )
 
-    showDocument: (object) ->
-      location.hash = "documents/#{object.type}/#{object.id}"
+    next: =>
+      @page(@page() + 1)
+      $.getJSON(@url, @params, (data) =>
+        @documents(data.objects)
+        @count(data.count)
+        @range(@rangeGenerate())
+      )
 
+    rangeGenerate: =>
+      startRange = if @count() then (@page() - 1)*@per_page() + 1 else 0
+      endRange = (@page() - 1)*@per_page() + @per_page()
+      endRange = @count() if endRange > @count()
+      "#{startRange}-#{endRange}"
 
   class HomeViewModel
     constructor: ->
@@ -76,7 +80,8 @@ $ ->
             $.getJSON('/inbox_data.json', {}, (objects) ->
               toggleSelect('inbox')
               $('#container_documents').html(form)
-              ko.applyBindings(new FolderViewModel(objects), $('#container_documents').get(0))
+              ko.cleanNode($('#main').get(0))
+              ko.applyBindings(new InboxViewModel(objects), $('#main').get(0))
             )
           )
         )

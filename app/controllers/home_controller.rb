@@ -1,3 +1,12 @@
+# Copyright (C) 2011 Sergey Yanovich <ynvich@gmail.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 3 of the
+# License, or (at your option) any later version.
+#
+# Please see ./COPYING for details
+
 class HomeController < ApplicationController
   def index
   end
@@ -7,11 +16,11 @@ class HomeController < ApplicationController
   end
 
   def inbox_data
-    @data = Version.joins("INNER JOIN (SELECT item_id, MAX(created_at) as last_create
-                          FROM versions GROUP BY item_id, item_type) grouped
-                            ON versions.item_id = grouped.item_id AND
-                            versions.created_at = grouped.last_create").
-        where("item_type='Waybill' OR item_type='Distribution'").
-        all(include: [item: [:versions, :storekeeper]])
+    types = [ Waybill.name, Distribution.name ]
+
+    @versions = VersionEx.lasts.by_type(types).
+      paginate(page: params[:page], per_page: params[:per_page]).
+      all(include: [item: [:versions, :storekeeper]])
+    @count = VersionEx.lasts.by_type(types).count
   end
 end

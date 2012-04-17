@@ -30,7 +30,7 @@ class WarehousesController < ApplicationController
       }
     end
 
-    @warehouses = Warehouse.all(attrs)
+    @warehouse = Warehouse.all(attrs)
     @count = Warehouse.count(attrs)
   end
 end

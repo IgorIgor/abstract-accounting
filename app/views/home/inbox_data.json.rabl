@@ -7,11 +7,15 @@
 #
 # Please see ./COPYING for details
 
-collection @data
-node(:id) { |version| version.item.id }
-node(:type) { |version| version.item.class.name.pluralize.downcase }
-node(:name) { |version| version.item.class.name }
-node(:sum) { 0.0 }
-node(:content) { |version| version.item.storekeeper.tag }
-node(:created_at) { |version| version.item.versions.first.created_at.strftime('%Y-%m-%d') }
-node(:update_at) { |version| version.item.versions.last.created_at.strftime('%Y-%m-%d') }
+object false
+child(@versions => :objects) do
+  node(:id) { |version| version.item.id }
+  node(:type) { |version| version.item.class.name.pluralize.downcase }
+  node(:name) { |version| version.item.class.name }
+  node(:sum) { 0.0 }
+  node(:content) { |version| version.item.storekeeper.tag }
+  node(:created_at) { |version| version.item.versions.first.created_at.strftime('%Y-%m-%d') }
+  node(:update_at) { |version| version.item.versions.last.created_at.strftime('%Y-%m-%d') }
+end
+node (:per_page) { params[:per_page] || Settings.root.per_page }
+node (:count) { @count }

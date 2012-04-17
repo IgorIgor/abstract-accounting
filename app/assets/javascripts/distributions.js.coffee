@@ -74,7 +74,7 @@ $ ->
           storekeeper_id: @distribution.storekeeperId
           storekeeper_place_id: @distribution.storekeeperPlaceId
         $.getJSON('/warehouses/data.json', equal: condition, (data) =>
-          @availableResources(data.warehouses)
+          @availableResources(data.objects)
         )
       else
         @availableResources([])

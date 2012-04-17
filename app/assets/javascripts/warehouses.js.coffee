@@ -1,12 +1,9 @@
 $ ->
-  class self.WarehouseViewModel
+  class self.WarehouseViewModel extends FolderViewModel
     constructor: (data) ->
-      @documents = ko.observableArray(data.warehouses)
+      @url = '/warehouses/data.json'
 
-      @page = ko.observable(data.page || 1)
-      @per_page = ko.observable(data.per_page)
-      @count = ko.observable(data.count)
-      @range = ko.observable(@rangeGenerate())
+      super(data)
 
       @filter =
         place: ko.observable('')
@@ -22,30 +19,8 @@ $ ->
 
     filterData: =>
       @page(1)
-      $.getJSON('/warehouses/data.json', @params, (data) =>
-        @documents(data.warehouses)
+      $.getJSON(@url, @params, (data) =>
+        @documents(data.objects)
         @count(data.count)
         @range(@rangeGenerate())
       )
-
-    prev: =>
-      @page(@page() - 1)
-      $.getJSON('/warehouses/data.json', @params, (data) =>
-        @documents(data.warehouses)
-        @count(data.count)
-        @range(@rangeGenerate())
-      )
-
-    next: =>
-      @page(@page() + 1)
-      $.getJSON('/warehouses/data.json', @params, (data) =>
-        @documents(data.warehouses)
-        @count(data.count)
-        @range(@rangeGenerate())
-      )
-
-    rangeGenerate: =>
-      startRange = (@page() - 1)*@per_page() + 1
-      endRange = (@page() - 1)*@per_page() + @per_page()
-      endRange = @count() if endRange > @count()
-      "#{startRange}-#{endRange}"

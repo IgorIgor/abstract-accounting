@@ -14,12 +14,13 @@ feature "single page application", %q{
   I want to work with single page
 } do
 
-  before {
+  before do
     PaperTrail.enabled = true
     Factory(:chart)
     @waybills = []
     @distributions = []
-    (0..2).each {
+    @per_page = Settings.root.per_page
+    (0..(@per_page/2).floor).each do
       wb = Factory.build(:waybill)
       wb.add_item('roof', 'm2', 2, 10.0)
       wb.save!
@@ -30,15 +31,12 @@ feature "single page application", %q{
       ds.add_item('roof', 'm2', 1)
       ds.save!
       @distributions << ds
-    }
-    @data = @waybills + @distributions
-  }
+    end
+  end
 
-  after {
-    PaperTrail.enabled = false
-  }
+  after { PaperTrail.enabled = false }
 
-  scenario "visit home page", :js => true do
+  scenario 'visit home page', js: true do
     page_login
     visit home_index_path
     current_path.should eq(home_index_path)
@@ -71,14 +69,75 @@ feature "single page application", %q{
     page.find("#container_documents").click
     page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
 
+    versions = VersionEx.lasts.by_type([ Waybill.name, Distribution.name ]).
+      paginate(page: 1, per_page: @per_page).
+      all(include: [item: [:versions, :storekeeper]])
+
     within('#container_documents table tbody') do
-      @data.each do |item|
-        page.should have_content(item.class.name)
-        page.should have_content(item.storekeeper.tag)
-        page.should have_content(
-                        item.versions.first.created_at.strftime('%Y-%m-%d'))
-        page.should have_content(
-                        item.versions.last.created_at.strftime('%Y-%m-%d'))
+      versions.each do |version|
+        page.should have_content(version.item.class.name)
+        page.should have_content(version.item.storekeeper.tag)
+        page.should have_content(version.item.versions.first.created_at.
+                                     strftime('%Y-%m-%d'))
+        page.should have_content(version.item.versions.last.created_at.
+                                     strftime('%Y-%m-%d'))
+      end
+    end
+
+    items_count = @waybills.count + @distributions.count
+
+    page.all("div[@class='paginate']").each do |control|
+      within("span[@data-bind='text: range']") do
+        control.should have_content("1-#{@per_page}")
+      end
+
+      within("span[@data-bind='text: count']") do
+        control.should have_content(items_count)
+      end
+
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
+    end
+
+    within("#container_documents table tbody") do
+      page.should have_selector('tr', count: @per_page)
+    end
+
+    click_button('>')
+
+    versions = VersionEx.lasts.by_type([ Waybill.name, Distribution.name ]).
+      paginate(page: 2, per_page: @per_page).
+      all(include: [item: [:versions, :storekeeper]])
+
+    within("#container_documents table tbody") do
+      page.should have_selector('tr', count: items_count / @per_page >= 2 ?
+        @per_page : items_count - @per_page)
+
+      versions.each do |version|
+        page.should have_content(version.item.class.name)
+        page.should have_content(version.item.storekeeper.tag)
+        page.should have_content(version.item.versions.first.created_at.
+                                   strftime('%Y-%m-%d'))
+        page.should have_content(version.item.versions.last.created_at.
+                                   strftime('%Y-%m-%d'))
+      end
+    end
+
+    page.all("div[@class='paginate']").each do |control|
+      within("span[@data-bind='text: range']") do
+        control.should have_content("#{@per_page+1}-#{
+          items_count / @per_page >= 2 ? 2 * @per_page : items_count}")
+      end
+
+      within("span[@data-bind='text: count']") do
+        control.should have_content(items_count)
+      end
+
+      find_button('<')[:disabled].should eq('false')
+      if items_count / @per_page > 2
+        find_button('>')[:disabled].should eq('false')
+      else
+        find_button('>')[:disabled].should eq('true')
       end
     end
   end

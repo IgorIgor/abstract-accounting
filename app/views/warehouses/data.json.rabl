@@ -8,6 +8,7 @@
 # Please see ./COPYING for details
 
 object false
-child(@warehouses) { attributes :place, :tag, :real_amount, :exp_amount, :mu }
-node(:count) { @count }
+child(@warehouse => :objects) { attributes :place, :tag, :real_amount,
+                                           :exp_amount, :mu }
 node(:per_page) { Settings.root.per_page }
+node(:count) { @count }

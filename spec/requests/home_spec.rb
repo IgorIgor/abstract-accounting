@@ -72,12 +72,14 @@ feature "single page application", %q{
     page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
 
     within('#container_documents table tbody') do
-      all(:xpath, './/tr').each_with_index {|tr, idx|
-        tr.should have_content(@data[idx].class.name)
-        tr.should have_content(@data[idx].storekeeper.tag)
-        tr.should have_content(@data[idx].versions.first.created_at.strftime('%Y-%m-%d'))
-        tr.should have_content(@data[idx].versions.last.created_at.strftime('%Y-%m-%d'))
-      }
+      @data.each do |item|
+        page.should have_content(item.class.name)
+        page.should have_content(item.storekeeper.tag)
+        page.should have_content(
+                        item.versions.first.created_at.strftime('%Y-%m-%d'))
+        page.should have_content(
+                        item.versions.last.created_at.strftime('%Y-%m-%d'))
+      end
     end
   end
 end

@@ -8,10 +8,10 @@
 # Please see ./COPYING for details
 
 collection @data
-attributes :id
-node(:type) { |item| item.class.name.pluralize.downcase }
-node(:name) { |item| item.class.name }
+node(:id) { |version| version.item.id }
+node(:type) { |version| version.item.class.name.pluralize.downcase }
+node(:name) { |version| version.item.class.name }
 node(:sum) { 0.0 }
-node(:content) { |item| item.storekeeper.tag }
-node(:created_at) { |item| item.versions.first.created_at.strftime('%Y-%m-%d') }
-node(:update_at) { |item| item.versions.last.created_at.strftime('%Y-%m-%d') }
+node(:content) { |version| version.item.storekeeper.tag }
+node(:created_at) { |version| version.item.versions.first.created_at.strftime('%Y-%m-%d') }
+node(:update_at) { |version| version.item.versions.last.created_at.strftime('%Y-%m-%d') }

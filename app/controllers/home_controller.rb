@@ -7,7 +7,11 @@ class HomeController < ApplicationController
   end
 
   def inbox_data
-    @data = Waybill.find(:all, include: [:versions, :storekeeper]) +
-            Distribution.find(:all, include: [:versions, :storekeeper])
+    @data = Version.joins("INNER JOIN (SELECT item_id, MAX(created_at) as last_create
+                          FROM versions GROUP BY item_id, item_type) grouped
+                            ON versions.item_id = grouped.item_id AND
+                            versions.created_at = grouped.last_create").
+        where("item_type='Waybill' OR item_type='Distribution'").
+        all(include: [item: [:versions, :storekeeper]])
   end
 end

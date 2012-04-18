@@ -15,3 +15,4 @@ ru:
       waybill: "Накладная"
       distribution: "Выдача"
       of: "из"
+      errors: 'Ошибки'

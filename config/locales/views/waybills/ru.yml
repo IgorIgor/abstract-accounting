@@ -23,3 +23,5 @@ ru:
       item: "Запись"
       page_title_new: "Новая накладная"
       page_title_show: "Просмотр накладной"
+      ident_name_MSRN: "ОГРН"
+      ident_name_VATIN: "ИНН"

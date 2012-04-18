@@ -63,10 +63,12 @@
           <label for="waybill_ident_name"><%= t 'views.waybills.ident_name' %>:</label>
         </span>
         <span>
-          <input type='text' id='waybill_ident_name'
-                 name='<%= t 'views.waybills.ident_name' %>' rule='required'
-                 data-bind="value: waybill.distributor.identifier_name,
-                            disable: readonly"/>
+          <select id="waybill_ident_name" name="Distributor Ident. Name"
+                  data-bind="value: waybill.distributor.identifier_name,
+                             disable: readonly">
+            <option value="MSRN"><%=t 'views.waybills.ident_name_MSRN' %></option>
+            <option value="VATIN"><%=t 'views.waybills.ident_name_VATIN' %></option>
+          </select>
         </span>
       </div>
       <div>

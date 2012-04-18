@@ -23,3 +23,5 @@ en:
       item: "Item"
       page_title_new: "Create new waybill"
       page_title_show: "Show waybill"
+      ident_name_MSRN: "MSRN"
+      ident_name_VATIN: "VATIN"

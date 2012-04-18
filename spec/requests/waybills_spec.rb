@@ -30,6 +30,13 @@ feature "waybill", %q{
     page.should have_selector("input[@value='#{I18n.t('views.waybills.draft')}']")
     page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
 
+    within("select[@id='waybill_ident_name']") do
+      find("option[@value='MSRN']")
+      page.should have_content("#{I18n.t('views.waybills.ident_name_MSRN')}")
+      find("option[@value='VATIN']")
+      page.should have_content("#{I18n.t('views.waybills.ident_name_VATIN')}")
+    end
+
     page.should have_selector("span[@id='page-title']")
     within('#page-title') do
       page.should have_content("#{I18n.t('views.waybills.page_title_new')}")
@@ -42,7 +49,6 @@ feature "waybill", %q{
         page.should have_content("#{I18n.t('views.waybills.created_at')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content("#{I18n.t('views.waybills.document_id')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content("#{I18n.t('views.waybills.distributor')} : #{I18n.t('errors.messages.blank')}")
-        page.should have_content("#{I18n.t('views.waybills.ident_name')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content("#{I18n.t('views.waybills.ident_value')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content("#{I18n.t('views.waybills.distributor_place')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content("#{I18n.t('views.waybills.storekeeper')} : #{I18n.t('errors.messages.blank')}")
@@ -62,12 +68,19 @@ feature "waybill", %q{
     page.should have_selector("input[@id='waybill_document_id']")
     fill_in("waybill_document_id", :with => "1233321")
 
-    within("#container_documents form") do
+    within('#container_documents form') do
       items = 6.times.collect { Factory(:legal_entity) } .sort
-      check_autocomplete("waybill_entity", items, :name) do |entity|
-        find("#waybill_ident_name")["value"].should eq(entity.identifier_name)
-        find("#waybill_ident_value")["value"].should eq(entity.identifier_value)
+      check_autocomplete('waybill_entity', items, :name) do |entity|
+        find('#waybill_ident_name')['value'].should eq(entity.identifier_name)
+        find('#waybill_ident_value')['value'].should eq(entity.identifier_value)
       end
+
+      items[0].update_attributes!(identifier_name: 'MSRN')
+      fill_in('waybill_entity', :with => items[0].send(:name)[0..1])
+      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
+        all(:xpath, ".//li//a")[0].click
+      end
+      find('#waybill_ident_name')['value'].should eq(items[0].identifier_name)
 
       items = 6.times.collect { Factory(:place) } .sort
       check_autocomplete("distributor_place", items, :tag)

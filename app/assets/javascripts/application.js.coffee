@@ -39,6 +39,9 @@ $ ->
 
 
   class self.ObjectViewModel
+    constructor: ->
+      $('.paginate').hide()
+
     back: -> location.hash = 'inbox'
 
   class self.FolderViewModel
@@ -49,6 +52,8 @@ $ ->
       @per_page = ko.observable(data.per_page)
       @count = ko.observable(data.count)
       @range = ko.observable(@rangeGenerate())
+
+      $('.paginate').show()
 
     prev: =>
       @page(@page() - 1)

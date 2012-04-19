@@ -33,6 +33,7 @@ feature 'distributions', %q{
     page.should have_selector("input[@value='#{I18n.t('views.distributions.save')}']")
     page.should have_selector("input[@value='#{I18n.t('views.distributions.back')}']")
     page.should have_selector("input[@value='#{I18n.t('views.distributions.draft')}']")
+    page.should have_xpath("//div[@class='paginate' and contains(@style, 'display: none')]")
     page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
 
     page.should have_selector("span[@id='page-title']")

@@ -24,6 +24,8 @@ $ ->
 
       @resources = ko.observableArray(if readonly then object.items else [])
 
+      super
+
     addResource: (resource) =>
       @resources.push(tag: null, mu: null, amount: null, price: null)
 

@@ -28,6 +28,7 @@ feature "waybill", %q{
     page.should have_selector("input[@value='#{I18n.t('views.waybills.save')}']")
     page.should have_selector("input[@value='#{I18n.t('views.waybills.back')}']")
     page.should have_selector("input[@value='#{I18n.t('views.waybills.draft')}']")
+    page.should have_xpath("//div[@class='paginate' and contains(@style, 'display: none')]")
     page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
 
     within("select[@id='waybill_ident_name']") do

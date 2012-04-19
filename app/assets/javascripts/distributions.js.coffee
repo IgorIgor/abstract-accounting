@@ -31,6 +31,8 @@ $ ->
           ajaxRequest('GET', "/distributions/#{this.params.id}/cancel"))
       )
 
+      super
+
     selectResource: (resource) =>
       @availableResources.remove(resource)
       resource['amount'] = resource.exp_amount

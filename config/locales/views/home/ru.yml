@@ -9,6 +9,7 @@ ru:
       trash: "Удаленные"
       archive: "Архив"
       warehouses: "Склад"
+      general_ledger: "Главная книга"
       search: "Поиск"
       logout: "Выйти"
       estimate: "Смета"

@@ -1,0 +1,11 @@
+ru:
+  views:
+    general_ledger:
+      date: "Дата"
+      resource: "Ресурс"
+      amount: "Количество"
+      type: "Д/К"
+      debit: "Дебет"
+      credit: "Кредит"
+      account: "Счет"
+      price: "Цена"

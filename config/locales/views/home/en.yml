@@ -9,6 +9,7 @@ en:
       trash: "Trash"
       archive: "Archive"
       warehouses: "Warehouse"
+      general_ledger: "General ledger"
       search: "Search"
       logout: "Logout"
       estimate: "Estimate"

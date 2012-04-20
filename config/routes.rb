@@ -52,6 +52,11 @@ Abstract::Application.routes.draw do
       get 'cancel'
     end
   end
+  resources :general_ledger, only: [:index] do
+    collection do
+      get 'data'
+    end
+  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

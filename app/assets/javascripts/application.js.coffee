@@ -141,6 +141,17 @@ $ ->
             )
           )
         )
+        this.get('#general_ledger', ->
+          $.get('/general_ledger', {}, (form) ->
+            $.getJSON('/general_ledger/data.json', {}, (data) ->
+              toggleSelect('general_ledger')
+              $('#container_documents').html(form)
+              ko.cleanNode($('#main').get(0))
+              ko.applyBindings(new GeneralLedgerViewModel(data),
+                $('#main').get(0))
+            )
+          )
+        )
       ).run()
 
       location.hash = 'inbox' if $('#main').length

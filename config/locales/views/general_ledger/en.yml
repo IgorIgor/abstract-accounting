@@ -1,0 +1,11 @@
+en:
+  views:
+    general_ledger:
+      date: "Date"
+      resource: "Resource"
+      amount: "Amount"
+      type: "D/C"
+      debit: "Debit"
+      credit: "Credit"
+      account: "Account"
+      price: "Archive"

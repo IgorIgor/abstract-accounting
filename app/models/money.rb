@@ -24,6 +24,8 @@ class Money < ActiveRecord::Base
   has_many :balances_gives, :class_name => "Balance", :through => :deal_gives, :source => :balances
   has_many :balances_takes, :class_name => "Balance", :through => :deal_takes, :source => :balances
 
+  alias_attribute :tag, :alpha_code
+
   def quote
     self.quotes.where(:day => self.quotes.maximum(:day)).first
   end

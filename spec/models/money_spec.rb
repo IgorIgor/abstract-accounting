@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe Money do
   it "should have next behaviour" do
-    Factory(:money)
+    m = Factory(:money)
     should validate_presence_of :num_code
     should validate_presence_of :alpha_code
     should validate_uniqueness_of :num_code
@@ -25,5 +25,6 @@ describe Money do
     should have_many Money.versions_association_name
     should have_many(:balances_gives).through(:deal_gives)
     should have_many(:balances_takes).through(:deal_takes)
+    m.alpha_code.should eq(m.tag)
   end
 end

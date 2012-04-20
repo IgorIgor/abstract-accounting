@@ -32,4 +32,45 @@ class VersionEx < Version
 
     limit(per_page).offset((page - 1) * per_page)
   end
+
+  def self.filter(attrs = nil)
+    return scoped if attrs.nil?
+
+    filtered = []
+
+    attrs.each do |model, fields|
+      if fields.kind_of?(Hash)
+        table = model.to_s.pluralize
+
+        join_model =
+          "INNER JOIN #{table} ON versions.item_type = '#{model.to_s.capitalize}'
+                               AND versions.item_id = #{table}.id "
+        join_fields = ''
+
+        fields.each do |field, value|
+          if value.kind_of?(Hash)
+            value.each do |rel_model, rel_fields|
+              rel_table = rel_model.to_s.pluralize
+              rel_alias = "#{model}_#{field}"
+
+              join_fields <<
+                "INNER JOIN #{rel_table} AS #{rel_alias}
+                   ON #{rel_alias}.id = #{table}.#{field}_id "
+
+              rel_fields.each do |rel_field, rel_value|
+                join_fields <<
+                  "AND lower(#{rel_alias}.#{rel_field}) LIKE '%#{rel_value}%' "
+              end
+            end
+          else
+            join_model << "AND lower(#{table}.#{field}) LIKE '%#{value}%' "
+          end
+        end
+
+        filtered << joins("#{join_model} #{join_fields}")
+      end
+    end
+
+    filtered.flatten
+  end
 end

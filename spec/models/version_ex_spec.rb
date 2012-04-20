@@ -87,4 +87,118 @@ describe VersionEx do
       (ver2 & ver1).empty?.should eq(true)
     end
   end
+
+  describe '#filter' do
+    it 'should filtered records' do
+      Factory(:chart)
+      items = []
+      (0..2).each do |i|
+        st = Factory(:entity, tag: "storekeeper#{i}")
+        stp = Factory(:place, tag: "sk_place#{i}")
+        ds = Factory(:legal_entity, name: "ds_name#{i}",
+               identifier_name: "ds_id_name#{i}",
+               identifier_value: "ds_id_value#{i}")
+        dsp = Factory(:place, tag: "ds_place#{i}")
+
+        wb = Factory.build(:waybill, document_id: "test_document_id#{i}",
+               storekeeper: st, storekeeper_place: stp, distributor: ds,
+               distributor_place: dsp)
+        wb.add_item('roof', 'm2', 2, 1.0)
+        wb.save!
+        items << wb
+
+        fr = Factory(:entity, tag: "foreman#{i}")
+        frp = Factory(:place, tag: "fr_place#{i}")
+        dsn = Factory.build(:distribution, storekeeper: st,
+                storekeeper_place: stp, foreman: fr, foreman_place: frp)
+        dsn.add_item('roof', 'm2', 1)
+        dsn.save!
+        items << dsn
+      end
+
+      st = Entity.find_by_tag('storekeeper1')
+      stp = Place.find_by_tag('sk_place1')
+      ds = LegalEntity.find_by_name_and_identifier_name_and_identifier_value(
+             'ds_name1', 'ds_id_name1', 'ds_id_value1')
+      dsp = Place.find_by_tag('ds_place1')
+      fr = Entity.find_by_tag('foreman1')
+      frp = Place.find_by_tag('fr_place1')
+
+      VersionEx.filter().should eq(VersionEx.all)
+
+      filtered = items.select { |i| i.kind_of?(Waybill) }
+      VersionEx.filter(waybill: { created: Date.today.to_s[0,2] })
+        .map { |v| v.item } .eql?(filtered).should be_true
+
+      filtered = items.select { |i| i.kind_of?(Waybill) &&
+                                    i.document_id == 'test_document_id1'}
+      VersionEx.filter(waybill: { document_id: 'test_document_id1' })
+        .map { |v| v.item } .eql?(filtered).should be_true
+
+      filtered = items.select { |i| i.kind_of?(Waybill) && i.storekeeper == st}
+      VersionEx.filter(waybill: {
+                        storekeeper: {
+                          entity: { tag: 'storekeeper1'}}}).map { |v| v.item }
+        .eql?(filtered).should be_true
+
+      filtered = items.select { |i| i.kind_of?(Waybill) &&
+                                    i.storekeeper_place == stp}
+      VersionEx.filter(waybill: {
+                        storekeeper_place: {
+                          place: { tag: 'sk_place1'}}}).map { |v| v.item }
+        .eql?(filtered).should be_true
+
+      filtered = items.select { |i| i.kind_of?(Waybill) && i.distributor == ds}
+      VersionEx.filter(waybill: {
+                        distributor: {
+                          legal_entity: {
+                            identifier_name: 'ds_id_name1',
+                            identifier_value: 'ds_id_value1',
+                            name: 'ds_name1'}}}).map { |v| v.item }
+        .eql?(filtered).should be_true
+
+      filtered = items.select { |i| i.kind_of?(Waybill) &&
+                                    i.distributor_place == dsp}
+      VersionEx.filter(waybill: {
+                        distributor_place: {
+                          place: { tag: 'ds_place1'}}}).map { |v| v.item }
+        .eql?(filtered).should be_true
+
+      VersionEx.filter(waybill: { created: Date.today.to_s[0,2] },
+                       distribution: { created: Date.today.to_s[0,2] })
+        .count.should eq(items.count)
+
+      filtered = items.select { |i| i.kind_of?(Distribution) && i.state == 1}
+      VersionEx.filter(distribution: { state: 1 })
+        .map { |v| v.item } .eql?(filtered).should be_true
+
+      filtered = items.select { |i| i.kind_of?(Distribution) &&
+                                    i.storekeeper == st}
+      VersionEx.filter(distribution: {
+                        storekeeper: {
+                          entity: { tag: 'storekeeper1'}}}).map { |v| v.item }
+        .eql?(filtered).should be_true
+
+      filtered = items.select { |i| i.kind_of?(Distribution) &&
+                                    i.storekeeper_place == stp}
+      VersionEx.filter(distribution: {
+                        storekeeper_place: {
+                          place: { tag: 'sk_place1'}}}).map { |v| v.item }
+        .eql?(filtered).should be_true
+
+      filtered = items.select { |i| i.kind_of?(Distribution) &&
+                                    i.foreman == fr}
+      VersionEx.filter(distribution: {
+                        foreman: {
+                          entity: { tag: 'foreman1'}}}).map { |v| v.item }
+        .eql?(filtered).should be_true
+
+      filtered = items.select { |i| i.kind_of?(Distribution) &&
+                                    i.foreman_place == frp}
+      VersionEx.filter(distribution: {
+                        foreman_place: {
+                          place: { tag: 'fr_place1'}}}).map { |v| v.item }
+        .eql?(filtered).should be_true
+    end
+  end
 end

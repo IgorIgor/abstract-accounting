@@ -13,6 +13,9 @@ class GeneralLedgerController < ApplicationController
   end
 
   def data
-    @gl = GeneralLedger.all(include: [fact: [:resource]])
+    @gl = GeneralLedger.all(page: params[:page].nil? ? 1 : params[:page],
+                            per_page: params[:per_page],
+                            include: [fact: [:resource]])
+    @count = GeneralLedger.count
   end
 end

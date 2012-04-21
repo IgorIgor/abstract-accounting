@@ -7,39 +7,16 @@ feature "GeneralLedger", %q{
 } do
 
   scenario 'visit general ledger page', js: true do
+    per_page = Settings.root.per_page
+    Factory(:chart)
+    wb = Factory.build(:waybill)
+    per_page.times do |i|
+      wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
+    end
+    wb.save!
 
-    rub = Factory(:chart).currency
-    aasii = Factory(:asset)
-    share2 = Factory(:deal,
-                      :give => Factory.build(:deal_give, :resource => aasii),
-                      :take => Factory.build(:deal_take, :resource => rub),
-                      :rate => 10000.0)
-    share1 = Factory(:deal,
-                      :give => Factory.build(:deal_give, :resource => aasii),
-                      :take => Factory.build(:deal_take, :resource => rub),
-                      :rate => 10000.0)
-    bank = Factory(:deal,
-                    :give => Factory.build(:deal_give, :resource => rub),
-                    :take => Factory.build(:deal_take, :resource => rub),
-                    :rate => 1.0)
-    purchase = Factory(:deal,
-                        :give => Factory.build(:deal_give, :resource => rub),
-                        :rate => 0.0000142857143)
-    fact1 = Factory(:fact, :day => DateTime.civil(2011, 11, 22, 12, 0, 0), :from => share2,
-                   :to => bank, :resource => rub, :amount => 100000.0)
-    fact2 = Factory(:fact, :day => DateTime.civil(2011, 11, 22, 12, 0, 0), :from => share1,
-                   :to => bank, :resource => rub, :amount => 142000.0)
-    fact3 = Factory(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :from => bank,
-                   :to => purchase, :resource => rub, :amount => 70000.0)
-    fact4 = Factory(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :from => nil,
-                   :to => Factory(:deal, isOffBalance: true),
-                   :amount => 1.0)
-    Txn.create!(:fact => fact1)
-    Txn.create!(:fact => fact2)
-    Txn.create!(:fact => fact3)
-    Txn.create!(:fact => fact4)
-
-    general_ledger = GeneralLedger.all
+    gl = GeneralLedger.all(page: 1)
+    gl_count = GeneralLedger.count
 
     page_login
 
@@ -61,18 +38,20 @@ feature "GeneralLedger", %q{
       end
 
       within('tbody') do
-        general_ledger.each do |txn|
+        gl.each do |txn|
           page.should have_content(txn.fact.day.strftime('%Y-%m-%d'))
           page.should have_content(txn.fact.amount.to_s)
           page.should have_content(txn.fact.resource.tag)
+          page.should have_content(txn.fact.from.tag)
+          page.should have_content(txn.fact.to.tag)
           page.should have_content(txn.value)
           page.should have_content(txn.earnings)
         end
 
-        general_ledger.count.times do |ind|
+        gl.count.times do |ind|
           find(:xpath, ".//tr[#{(ind * 2) + 1}]/td[7]").should have_content('')
           find(:xpath, ".//tr[#{(ind * 2) + 2}]/td[6]").should have_content('')
-          if general_ledger[ind].fact.from.nil?
+          if gl[ind].fact.from.nil?
             within(:xpath, ".//tr[#{(ind * 2) + 2}]") do
               7.times do |i|
                 find(:xpath, ".//td[#{i + 1}]").should have_content('')
@@ -81,6 +60,39 @@ feature "GeneralLedger", %q{
           end
         end
       end
+    end
+
+    within("div[@class='paginate']") do
+      find("span[@data-bind='text: range']").should have_content("1-#{per_page}")
+      find("span[@data-bind='text: count']").should have_content(gl_count.to_s)
+
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
+    end
+
+    within("#container_documents table tbody") do
+      page.should have_selector('tr', count: per_page * 2)
+    end
+
+    within("div[@class='paginate']") do
+      click_button('>')
+      to_range = gl_count > (per_page * 2) ? per_page * 2 : gl_count
+
+      find("span[@data-bind='text: range']").
+          should have_content("#{per_page + 1}-#{to_range}")
+
+      find("span[@data-bind='text: count']").
+          should have_content(gl_count.to_s)
+
+      find_button('<')[:disabled].should eq('false')
+
+      click_button('<')
+
+      find("span[@data-bind='text: range']").
+          should have_content("1-#{per_page}")
+
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
     end
   end
 end

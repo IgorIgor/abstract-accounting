@@ -10,6 +10,10 @@
 $ ->
   class self.GeneralLedgerViewModel extends FolderViewModel
     constructor: (data) ->
-      @facts = ko.observableArray(data)
+      @url = '/general_ledger/data.json'
 
       super(data)
+
+      @params =
+        page: @page
+        per_page: @per_page

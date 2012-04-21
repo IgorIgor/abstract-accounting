@@ -93,8 +93,10 @@ class Waybill < ActiveRecord::Base
           change_side: true, rate: item.amount).nil?
       }
 
-      return false if Fact.create(amount: 1.0, resource: self.deal.give.resource,
-        day: DateTime.current.change(hour: 12), to: self.deal).nil?
+      f = Fact.create(amount: 1.0, resource: self.deal.give.resource,
+                      day: DateTime.current.change(hour: 12), to: self.deal)
+      return false if f.nil?
+      return false if Txn.create(fact: f).nil?
     else
       return false
     end
@@ -126,7 +128,7 @@ class WaybillItem
                   give_r, place, self.resource, place, entity, entity.class.name, rate]
     ).first
     if deal.nil? && !self.resource.nil?
-      deal = Deal.new(entity: entity, rate: rate, isOffBalance: true,
+      deal = Deal.new(entity: entity, rate: rate,
         tag: "storehouse resource: #{self.resource.tag}[#{self.resource.mu}]; rate: #{rate}")
       return nil if deal.build_give(place: place, resource: give_r).nil?
       return nil if deal.build_take(place: place, resource: self.resource).nil?

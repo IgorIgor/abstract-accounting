@@ -66,12 +66,12 @@ describe Distribution do
     deal = db.items.first.warehouse_deal(nil, db.storekeeper_place, db.storekeeper)
     deal.should_not be_nil
     deal.rate.should eq(1.0)
-    deal.isOffBalance.should be_true
+    deal.isOffBalance.should be_false
 
     deal = db.items.first.warehouse_deal(nil, db.foreman_place, db.foreman)
     deal.should_not be_nil
     deal.rate.should eq(1.0)
-    deal.isOffBalance.should be_true
+    deal.isOffBalance.should be_false
 
     wb = Factory.build(:waybill, distributor: @wb.distributor,
                                  distributor_place: @wb.distributor_place,
@@ -96,12 +96,12 @@ describe Distribution do
       deal = i.warehouse_deal(nil, db.storekeeper_place, db.storekeeper)
       deal.should_not be_nil
       deal.rate.should eq(1.0)
-      deal.isOffBalance.should be_true
+      deal.isOffBalance.should be_false
 
       deal = i.warehouse_deal(nil, db.foreman_place, db.foreman)
       deal.should_not be_nil
       deal.rate.should eq(1.0)
-      deal.isOffBalance.should be_true
+      deal.isOffBalance.should be_false
     }
   end
 

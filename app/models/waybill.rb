@@ -53,7 +53,8 @@ class Waybill < ActiveRecord::Base
   def items
     if @items.empty? and !self.deal.nil?
       self.deal.rules.each { |rule|
-        @items << WaybillItem.new(rule.from.take.resource, rule.rate, rule.from.rate)
+        @items << WaybillItem.new(rule.from.take.resource, rule.rate,
+                                  (1.0 / rule.from.rate).accounting_norm)
       }
     end
     @items
@@ -82,6 +83,7 @@ class Waybill < ActiveRecord::Base
         distributor_item = item.warehouse_deal(Chart.first.currency,
                                                self.distributor_place, self.distributor)
         return false if distributor_item.nil?
+
         storekeeper_item = item.warehouse_deal(nil, self.storekeeper_place,
                                                self.storekeeper)
         return false if storekeeper_item.nil?
@@ -110,7 +112,7 @@ class WaybillItem
   end
 
   def warehouse_deal(give_r, place, entity)
-    rate = give_r.nil? ? 1.0 : self.price
+    rate = give_r.nil? ? 1.0 : 1.0 / self.price
     give_r ||= self.resource
 
     deal = Deal.all(

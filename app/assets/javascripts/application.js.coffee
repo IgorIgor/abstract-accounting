@@ -152,6 +152,17 @@ $ ->
             )
           )
         )
+        this.get('#balance_sheet', ->
+          $.get('/balance_sheet', {}, (form) ->
+            $.getJSON('/balance_sheet/data.json', {}, (data) ->
+              toggleSelect('balance_sheet')
+              $('#container_documents').html(form)
+              ko.cleanNode($('#main').get(0))
+              ko.applyBindings(new BalanceSheetViewModel(data),
+                $('#main').get(0))
+            )
+          )
+        )
       ).run()
 
       location.hash = 'inbox' if $('#main').length

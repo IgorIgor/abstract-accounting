@@ -1,0 +1,8 @@
+ru:
+  views:
+    balance_sheet:
+      deal: "Сделка"
+      entity: "Лицо"
+      resource: "Ресурс"
+      debit: "Дебет"
+      credit: "Кредит"

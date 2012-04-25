@@ -1,0 +1,8 @@
+en:
+  views:
+    balance_sheet:
+      deal: "Deal"
+      entity: "Entity"
+      resource: "Resource"
+      debit: "Debit"
+      credit: "Credit"

@@ -10,6 +10,7 @@ ru:
       archive: "Архив"
       warehouses: "Склад"
       general_ledger: "Главная книга"
+      balance_sheet: "Счета"
       search: "Поиск"
       logout: "Выйти"
       estimate: "Смета"

@@ -211,7 +211,7 @@ feature 'distributions', %q{
       find("#storekeeper_place")[:value].should eq(ds.storekeeper_place.tag)
       find("#foreman_entity")[:value].should eq(ds.foreman.tag)
       find("#foreman_place")[:value].should eq(ds.foreman_place.tag)
-      find("#state")[:value].should eq('Inwork')
+      find("#state")[:value].should eq(I18n.t('views.distributions.inwork'))
 
       find("#created")[:disabled].should be_true
       find("#storekeeper_entity")[:disabled].should be_true

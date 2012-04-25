@@ -23,3 +23,7 @@ ru:
       print: "Печать"
       page_title_new: "Новая выдача"
       page_title_show: "Просмотр выдачи"
+      unknown: Неизвестно
+      inwork: В работе
+      canceled: Отменён
+      applied: Применён

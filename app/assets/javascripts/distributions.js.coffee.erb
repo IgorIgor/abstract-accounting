@@ -64,10 +64,10 @@ $ ->
 
     getState: (state) ->
       switch state
-        when 0 then 'Unknown'
-        when 1 then 'Inwork'
-        when 2 then 'Canceled'
-        when 3 then 'Applied'
+        when 0 then "<%= I18n.t 'views.distributions.unknown' %>"
+        when 1 then "<%= I18n.t 'views.distributions.inwork' %>"
+        when 2 then "<%= I18n.t 'views.distributions.canceled' %>"
+        when 3 then "<%= I18n.t 'views.distributions.applied' %>"
 
     loadAvailableResources: =>
       @selectedResources([])

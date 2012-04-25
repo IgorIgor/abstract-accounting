@@ -23,3 +23,7 @@ en:
       print: "Print"
       page_title_new: "Create new distribution"
       page_title_show: "Show distribution"
+      unknown: Unknown
+      inwork: Inwork
+      canceled: Canceled
+      applied: Applied

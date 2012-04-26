@@ -13,6 +13,7 @@ class BalanceSheetController < ActionController::Base
   end
 
   def data
-    @balances = BalanceSheet.all(include: [deal: [:entity, give: [:resource]]])
+    @balances = BalanceSheet.all(date: params[:date].nil? ? nil : Date.parse(params[:date]),
+                                 include: [deal: [:entity, give: [:resource]]])
   end
 end

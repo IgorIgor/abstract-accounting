@@ -6,3 +6,4 @@ en:
       resource: "Resource"
       debit: "Debit"
       credit: "Credit"
+      date: "Date"

@@ -11,4 +11,11 @@ $ ->
   class self.BalanceSheetViewModel extends FolderViewModel
     constructor: (data) ->
       data.objects = data
+      @balances_date = ko.observable(new Date())
       super(data)
+
+    filter: =>
+      $.getJSON('/balance_sheet/data.json', {date: @balances_date().toString()},
+      (data) =>
+        @documents(data)
+      )

@@ -52,5 +52,36 @@ feature "BalanceSheet", %q{
         end
       end
     end
+
+    page.should have_xpath("//div[@id='ui-datepicker-div']")
+    page.find("#balance_date_start").click
+    page.should have_xpath("//div[@id='ui-datepicker-div'" +
+                               " and contains(@style, 'display: block')]")
+    page.find("#container_documents").click
+    page.should have_xpath("//div[@id='ui-datepicker-div'" +
+                               " and contains(@style, 'display: none')]")
+
+    page.find("#balance_date_start").click
+    page.find(:xpath, "//div[@id='ui-datepicker-div']" +
+        "/table[@class='ui-datepicker-calendar']/tbody/tr[2]/td[2]/a").click
+    date = Date.parse(page.find("#balance_date_start")[:value])
+    5.times do |i|
+      bs[i].update_attributes(start: date)
+    end
+    date = date + 2
+    (5..9).each do |i|
+      bs[i].update_attributes(start: date)
+    end
+    page.find("#balance_date_start").click
+    page.find(:xpath, "//div[@id='ui-datepicker-div']" +
+        "/table[@class='ui-datepicker-calendar']/tbody/tr[2]/td[2]/a").click
+    within("div[@id='main'] div[@id='container_documents'] table tbody") do
+      5.times do |i|
+        page.should have_content(bs[i].deal.tag)
+      end
+      (5..9).each do |i|
+        page.should_not have_content(bs[i].deal.tag)
+      end
+    end
   end
 end

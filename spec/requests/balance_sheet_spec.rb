@@ -17,7 +17,7 @@ feature "BalanceSheet", %q{
 
   scenario 'visit balance sheet page', js: true do
     10.times do |i|
-      Factory(:balance, side: i % 2 == 0 ? Balance::ACTIVE : Balance::PASSIVE)
+      Factory(:balance, side: i % 2 == 0 ? Balance::ACTIVE : Balance::PASSIVE, amount: 3.0)
     end
 
     bs = BalanceSheet.all
@@ -47,7 +47,7 @@ feature "BalanceSheet", %q{
             else
               find(:xpath, ".//td[4]").should have_content('')
             end
-            page.should have_content(balance.value)
+            page.should have_content(balance.amount)
           end
         end
       end
@@ -81,6 +81,26 @@ feature "BalanceSheet", %q{
       end
       (5..9).each do |i|
         page.should_not have_content(bs[i].deal.tag)
+      end
+    end
+
+    within("div[@id='container_documents'] div fieldset")  do
+      choose('natural_mu')
+    end
+
+    within("div[@id='main'] div[@id='container_documents'] table tbody") do
+      5.times do |i|
+        page.should have_content(bs[i].amount)
+      end
+    end
+
+    within("div[@id='container_documents'] div fieldset")  do
+      choose('currency_mu')
+    end
+
+    within("div[@id='main'] div[@id='container_documents'] table tbody") do
+      5.times do |i|
+        page.should have_content(bs[i].value)
       end
     end
   end

@@ -3,6 +3,17 @@
   <input type="text" id="balance_date_start"
          data-bind="datepicker: balances_date, event: {change: filter}">
 </div>
+<div>
+  <fieldset>
+    <legend><%= t 'views.balance_sheet.mu' %>:</legend>
+    <input type="radio" id="natural_mu" name="mu" value="natural"
+           data-bind="checked: select_mu"><label for="natural_mu">
+    <%= t 'views.balance_sheet.natural' %></label>
+    <input type="radio" id="currency_mu" name="mu" value="currency"
+           data-bind="checked: select_mu"><label for="currency_mu">
+    <%= t 'views.balance_sheet.currency' %></label>
+  </fieldset>
+</div>
 <table>
   <thead>
     <tr>

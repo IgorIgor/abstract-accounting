@@ -12,8 +12,24 @@ node(:tag) { |balance| balance.deal.tag }
 node(:entity) { |balance| balance.deal.entity.name }
 node(:resource) { |balance| balance.deal.give.resource.tag }
 node(:debit) do |balance|
-  balance.side == Balance::PASSIVE ? balance.value.to_s : nil
+  if balance.side == Balance::PASSIVE
+    if @mu == 'natural'
+      balance.amount.to_s
+    else
+      balance.value.to_s
+    end
+  else
+    nil
+  end
 end
 node(:credit) do |balance|
-  balance.side == Balance::ACTIVE ? balance.value.to_s : nil
+  if balance.side == Balance::ACTIVE
+    if @mu == 'natural'
+      balance.amount.to_s
+    else
+      balance.value.to_s
+    end
+  else
+    nil
+  end
 end

@@ -7,3 +7,6 @@ en:
       debit: "Debit"
       credit: "Credit"
       date: "Date"
+      natural: "naturals"
+      currency: "currency"
+      mu: "Unit of measurement"

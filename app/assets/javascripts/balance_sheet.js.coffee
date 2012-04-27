@@ -12,10 +12,14 @@ $ ->
     constructor: (data) ->
       data.objects = data
       @balances_date = ko.observable(new Date())
+      @select_mu = ko.observable('natural')
+      @select_mu.subscribe(@filter)
       super(data)
 
     filter: =>
-      $.getJSON('/balance_sheet/data.json', {date: @balances_date().toString()},
-      (data) =>
+      params =
+        date: @balances_date().toString()
+        mu: @select_mu()
+      $.getJSON('/balance_sheet/data.json', params, (data) =>
         @documents(data)
       )

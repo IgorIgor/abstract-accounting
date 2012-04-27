@@ -36,41 +36,48 @@ class VersionEx < Version
   def self.filter(attrs = nil)
     return scoped if attrs.nil?
 
-    filtered = []
+    join = ''
+    condition = ''
 
     attrs.each do |model, fields|
       if fields.kind_of?(Hash)
         table = model.to_s.pluralize
 
-        join_model =
-          "INNER JOIN #{table} ON versions.item_type = '#{model.to_s.capitalize}'
-                               AND versions.item_id = #{table}.id "
-        join_fields = ''
+        join <<
+          "LEFT JOIN #{table} ON versions.item_type = '#{model.to_s.capitalize}'
+                              AND versions.item_id = #{table}.id "
 
-        fields.each do |field, value|
+        fields.each_with_index do |(field, value), index|
           if value.kind_of?(Hash)
             value.each do |rel_model, rel_fields|
               rel_table = rel_model.to_s.pluralize
               rel_alias = "#{model}_#{field}"
 
-              join_fields <<
-                "INNER JOIN #{rel_table} AS #{rel_alias}
-                   ON #{rel_alias}.id = #{table}.#{field}_id "
+              join << "LEFT JOIN #{rel_table} AS #{rel_alias}
+                        ON #{rel_alias}.id = #{table}.#{field}_id "
 
-              rel_fields.each do |rel_field, rel_value|
-                join_fields <<
-                  "AND lower(#{rel_alias}.#{rel_field}) LIKE '%#{rel_value}%' "
+              rel_fields.each_with_index do |(rel_field, rel_value), rel_index|
+                condition << if index.zero? && rel_index.zero?
+                  "#{condition.empty? ? '(' : ') OR ('}"
+                else
+                  ' AND '
+                end
+                condition << "lower(#{rel_alias}.#{rel_field}) LIKE '%#{rel_value}%'"
               end
             end
           else
-            join_model << "AND lower(#{table}.#{field}) LIKE '%#{value}%' "
+            condition << if index.zero?
+              "#{condition.empty? ? '(' : ') OR ('}"
+            else
+              ' AND '
+            end
+            condition << "lower(#{table}.#{field}) LIKE '%#{value}%'"
           end
         end
-
-        filtered << joins("#{join_model} #{join_fields}")
       end
     end
+    condition << ')' unless condition.empty?
 
-    filtered.flatten
+    joins(join).where(condition)
   end
 end

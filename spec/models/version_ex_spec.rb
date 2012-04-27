@@ -169,7 +169,7 @@ describe VersionEx do
         .count.should eq(items.count)
 
       filtered = items.select { |i| i.kind_of?(Distribution) && i.state == 1}
-      VersionEx.filter(distribution: { state: 1 })
+      VersionEx.filter(distribution: { state: '1' })
         .map { |v| v.item } .eql?(filtered).should be_true
 
       filtered = items.select { |i| i.kind_of?(Distribution) &&
@@ -199,6 +199,8 @@ describe VersionEx do
                         foreman_place: {
                           place: { tag: 'fr_place1'}}}).map { |v| v.item }
         .eql?(filtered).should be_true
+
+      VersionEx.filter.class.name.should eq('ActiveRecord::Relation')
     end
   end
 end

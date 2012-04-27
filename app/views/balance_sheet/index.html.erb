@@ -24,6 +24,13 @@
       <th class=""><%=t 'views.balance_sheet.credit'%></th>
     </tr>
   </thead>
+  <tfoot>
+    <tr>
+      <td colspan="3"><%=t 'views.balance_sheet.total'%>:</td>
+      <td data-bind="text: total_debit"></td>
+      <td data-bind="text: total_credit"></td>
+    </tr>
+  </tfoot>
   <tbody data-bind="foreach: documents">
     <tr>
       <td data-bind="text: tag"></td>

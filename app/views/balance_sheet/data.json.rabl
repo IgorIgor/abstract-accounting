@@ -7,29 +7,33 @@
 #
 # Please see ./COPYING for details
 
-collection @balances
-node(:tag) { |balance| balance.deal.tag }
-node(:entity) { |balance| balance.deal.entity.name }
-node(:resource) { |balance| balance.deal.give.resource.tag }
-node(:debit) do |balance|
-  if balance.side == Balance::PASSIVE
-    if @mu == 'natural'
-      balance.amount.to_s
+object false
+child(@balances => :objects) {
+  node(:tag) { |balance| balance.deal.tag }
+  node(:entity) { |balance| balance.deal.entity.name }
+  node(:resource) { |balance| balance.deal.give.resource.tag }
+  node(:debit) do |balance|
+    if balance.side == Balance::PASSIVE
+      if @mu == 'natural'
+        balance.amount.to_s
+      else
+        balance.value.to_s
+      end
     else
-      balance.value.to_s
+      nil
     end
-  else
-    nil
   end
-end
-node(:credit) do |balance|
-  if balance.side == Balance::ACTIVE
-    if @mu == 'natural'
-      balance.amount.to_s
+  node(:credit) do |balance|
+    if balance.side == Balance::ACTIVE
+      if @mu == 'natural'
+        balance.amount.to_s
+      else
+        balance.value.to_s
+      end
     else
-      balance.value.to_s
+      nil
     end
-  else
-    nil
   end
-end
+}
+node(:total_debit) { @balances.liabilities.to_s }
+node(:total_credit) { @balances.assets.to_s }

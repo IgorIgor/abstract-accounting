@@ -20,7 +20,7 @@ feature "BalanceSheet", %q{
       Factory(:balance, side: i % 2 == 0 ? Balance::ACTIVE : Balance::PASSIVE, amount: 3.0)
     end
 
-    bs = BalanceSheet.all
+    bs = BalanceSheet.all(date: DateTime.now)
 
     page_login
     click_link I18n.t('views.home.balance_sheet')
@@ -53,6 +53,11 @@ feature "BalanceSheet", %q{
       end
     end
 
+    within("div[@id='main'] div[@id='container_documents'] table tfoot tr") do
+      page.should have_content(bs.liabilities.to_s)
+      page.should have_content(bs.assets.to_s)
+    end
+
     page.should have_xpath("//div[@id='ui-datepicker-div']")
     page.find("#balance_date_start").click
     page.should have_xpath("//div[@id='ui-datepicker-div'" +
@@ -68,19 +73,17 @@ feature "BalanceSheet", %q{
     5.times do |i|
       bs[i].update_attributes(start: date)
     end
-    date = date + 2
     (5..9).each do |i|
-      bs[i].update_attributes(start: date)
+      bs[i].update_attributes(start: date + 2)
     end
     page.find("#balance_date_start").click
     page.find(:xpath, "//div[@id='ui-datepicker-div']" +
         "/table[@class='ui-datepicker-calendar']/tbody/tr[2]/td[2]/a").click
-    within("div[@id='main'] div[@id='container_documents'] table tbody") do
-      5.times do |i|
-        page.should have_content(bs[i].deal.tag)
-      end
-      (5..9).each do |i|
-        page.should_not have_content(bs[i].deal.tag)
+
+    bs = BalanceSheet.all(date: date)
+    within("#container_documents table tbody") do
+      bs.each do |item|
+        page.should have_content(item.deal.tag)
       end
     end
 
@@ -99,9 +102,14 @@ feature "BalanceSheet", %q{
     end
 
     within("div[@id='main'] div[@id='container_documents'] table tbody") do
-      5.times do |i|
-        page.should have_content(bs[i].value)
+      bs.each do |item|
+        page.should have_content(item.value)
       end
+    end
+
+    within("div[@id='main'] div[@id='container_documents'] table tfoot tr") do
+      page.should have_content(bs.liabilities.to_s)
+      page.should have_content(bs.assets.to_s)
     end
   end
 end

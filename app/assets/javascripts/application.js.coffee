@@ -13,6 +13,7 @@
 #= require jquery.datepick-ru
 #= require sammy
 #= require knockout
+#= require knockout.mapping
 #= require_self
 #= require_tree .
 
@@ -37,6 +38,16 @@ $ ->
     $('.sidebar-selected').removeClass('sidebar-selected')
     $("##{id}").addClass('sidebar-selected') if id
 
+  self.normalizeHash = (hash) ->
+    normalize = (hash) ->
+      for key, value of hash
+        if (typeof value == 'object') && !$.isEmptyObject(value)
+          normalize(value)
+        else
+          delete hash[key] unless value.length || (typeof hash[key] == 'number')
+
+    null until $.map(normalize(hash), (c) -> c).toString().indexOf(true) == -1
+    hash
 
   class self.ObjectViewModel
     constructor: ->
@@ -53,11 +64,16 @@ $ ->
       @count = ko.observable(data.count)
       @range = ko.observable(@rangeGenerate())
 
+      @params =
+        like: @filter
+        page: @page
+        per_page: @per_page
+
       $('.paginate').show()
 
     prev: =>
       @page(@page() - 1)
-      $.getJSON(@url, @params, (data) =>
+      $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
         @documents(data.objects)
         @count(data.count)
         @range(@rangeGenerate())
@@ -65,7 +81,7 @@ $ ->
 
     next: =>
       @page(@page() + 1)
-      $.getJSON(@url, @params, (data) =>
+      $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
         @documents(data.objects)
         @count(data.count)
         @range(@rangeGenerate())
@@ -76,6 +92,14 @@ $ ->
       endRange = (@page() - 1)*@per_page() + @per_page()
       endRange = @count() if endRange > @count()
       "#{startRange}-#{endRange}"
+
+    filterData: =>
+      @page(1)
+      $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
+        @documents(data.objects)
+        @count(data.count)
+        @range(@rangeGenerate())
+      )
 
   class HomeViewModel
     constructor: ->

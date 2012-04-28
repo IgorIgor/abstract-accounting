@@ -1,0 +1,106 @@
+<div id="filter-area" class="filter-area">
+  <div class="tabs" data-bind="tabs: { current: 0 }">
+  	<ul>
+      <li><a><%=t 'views.home.waybill' %></a></li>
+      <li><a><%=t 'views.home.distribution' %></a></li>
+  	</ul>
+  	<div class="tab">
+      <label><%=t 'views.waybills.created_at' %></label>
+      <input type="text" id="filter-w-created"
+             data-bind="value: filter.waybill.created"/>
+
+      <label><%=t 'views.waybills.document_id' %></label>
+      <input type="text" id="filter-w-document"
+             data-bind="value: filter.waybill.document_id"/>
+
+      <label><%=t 'views.waybills.distributor' %></label>
+      <input type="text" id="filter-w-distributor"
+             data-bind="value: filter.waybill.distributor.legal_entity.name"/>
+
+      <label><%=t 'views.waybills.ident_name' %></label>
+      <select id="filter-w-ident-name"
+              data-bind="value: filter.waybill.distributor.legal_entity.identifier_name">
+        <option value=""></option>
+        <option value="MSRN"><%=t 'views.waybills.ident_name_MSRN' %></option>
+        <option value="VATIN"><%=t 'views.waybills.ident_name_VATIN' %></option>
+      </select>
+
+      <label><%=t 'views.waybills.ident_value' %></label>
+      <input type="text" id="filter-w-ident-value"
+             data-bind="value: filter.waybill.distributor.legal_entity.identifier_value"/>
+
+      <label><%=t 'views.waybills.distributor_place' %></label>
+      <input type="text" id="filter-w-distributor-place"
+             data-bind="value: filter.waybill.distributor_place.place.tag"/>
+
+      <label><%=t 'views.waybills.storekeeper' %></label>
+      <input type="text" id="filter-w-storekeeper"
+             data-bind="value: filter.waybill.storekeeper.entity.tag"/>
+
+      <label><%=t 'views.waybills.storekeeper_place' %></label>
+      <input type="text" id="filter-w-storekeeper-place"
+             data-bind="value: filter.waybill.storekeeper_place.place.tag"/>
+  	</div>
+  	<div class="tab">
+      <label><%=t 'views.distributions.created_at' %></label>
+      <input type="text" id="filter-d-created"
+             data-bind="value: filter.distribution.created"/>
+
+      <label><%=t 'views.distributions.state' %></label>
+      <select id="filter-d-state" data-bind="value: filter.distribution.state">
+        <option value=""></option>
+        <option value="0"><%=t 'views.distributions.unknown' %></option>
+        <option value="1"><%=t 'views.distributions.inwork' %></option>
+        <option value="2"><%=t 'views.distributions.canceled' %></option>
+        <option value="3"><%=t 'views.distributions.applied' %></option>
+      </select>
+
+      <label><%=t 'views.distributions.storekeeper' %></label>
+      <input type="text" id="filter-d-storekeeper"
+             data-bind="value: filter.distribution.storekeeper.entity.tag"/>
+
+      <label><%=t 'views.distributions.storekeeper_place' %></label>
+      <input type="text" id="filter-d-storekeeper-place"
+             data-bind="value: filter.distribution.storekeeper_place.place.tag"/>
+
+      <label><%=t 'views.distributions.foreman' %></label>
+      <input type="text" id="filter-d-foreman"
+             data-bind="value: filter.distribution.foreman.entity.tag"/>
+
+      <label><%=t 'views.distributions.foreman_place' %></label>
+      <input type="text" id="filter-d-foreman-place"
+             data-bind="value: filter.distribution.foreman_place.place.tag"/>
+  	</div>
+  </div>
+  <input type="button" value="<%=t 'views.home.search' %>"
+         data-bind="click: filterData"/>
+</div>
+
+<table>
+  <tbody data-bind="foreach: documents">
+    <tr>
+      <td class="cell-checkbox">
+        <input type="checkbox"/>
+      </td>
+      <td class="cell-star">
+        <p>
+          <input type="checkbox" class="checkbox-old" data-bind="attr: {id: 'star_' + id}"/>
+          <label class="star" data-bind="attr: {for: 'star_' + id}"></label>
+        </p>
+      </td>
+      <td class="cell-entity" data-bind="click: $parent.showDocument">
+        root@localhost
+      </td>
+      <td class="cell-date-document" data-bind="text: created_at, click: $parent.showDocument">
+      </td>
+      <td class="cell-amount" data-bind="text: sum, click: $parent.showDocument">
+      </td>
+      <td class="cell-title" data-bind="text: name + ' - ' + content, click: $parent.showDocument">
+      </td>
+      <td class="cell-comment" data-bind="click: $parent.showDocument">
+      </td>
+      <td class="cell-date-update" data-bind="text: update_at, click: $parent.showDocument">
+      </td>
+    </tr>
+  </tbody>
+</table>

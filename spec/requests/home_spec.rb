@@ -140,5 +140,79 @@ feature "single page application", %q{
         find_button('>')[:disabled].should eq('true')
       end
     end
+
+    page.find("#show-filter").click
+
+    within('#filter-area') do
+      page.should have_content(I18n.t('views.waybills.created_at'))
+      page.should have_content(I18n.t('views.waybills.document_id'))
+      page.should have_content(I18n.t('views.waybills.distributor'))
+      page.should have_content(I18n.t('views.waybills.ident_name'))
+      page.should have_content(I18n.t('views.waybills.ident_value'))
+      page.should have_content(I18n.t('views.waybills.distributor_place'))
+      page.should have_content(I18n.t('views.waybills.storekeeper'))
+      page.should have_content(I18n.t('views.waybills.storekeeper_place'))
+
+      fill_in('filter-w-created', with: '2')
+      fill_in('filter-w-document', with: @waybills[0].document_id)
+      fill_in('filter-w-distributor', with: @waybills[0].distributor.name)
+      select(I18n.t('views.waybills.ident_name_' +
+        @waybills[0].distributor.identifier_name), from: 'filter-w-ident-name')
+      fill_in('filter-w-ident-value', with: @waybills[0].distributor.
+                                              identifier_value)
+      fill_in('filter-w-distributor-place', with: @waybills[0].
+                                                    distributor_place.tag)
+      fill_in('filter-w-storekeeper', with: @waybills[0].storekeeper.tag)
+      fill_in('filter-w-storekeeper-place', with: @waybills[0].
+                                                    storekeeper_place.tag)
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    within('#container_documents table') do
+      page.should have_selector('tbody tr', count: 1)
+      page.should have_content(@waybills[0].class.name)
+      page.should have_content(@waybills[0].storekeeper.tag)
+      page.should have_content(@waybills[0].versions.first.created_at.
+                                 strftime('%Y-%m-%d'))
+      page.should have_content(@waybills[0].versions.last.created_at.
+                                 strftime('%Y-%m-%d'))
+    end
+
+    page.find("#show-filter").click
+
+    within('#filter-area') do
+      page.find(:xpath, "//div[@class='tabs']//ul//li//a[contains(.//text(),
+            '#{I18n.t('views.home.distribution')}')]").click
+
+      page.should have_content(I18n.t('views.distributions.created_at'))
+      page.should have_content(I18n.t('views.distributions.state'))
+      page.should have_content(I18n.t('views.distributions.storekeeper'))
+      page.should have_content(I18n.t('views.distributions.storekeeper_place'))
+      page.should have_content(I18n.t('views.distributions.foreman'))
+      page.should have_content(I18n.t('views.distributions.foreman_place'))
+
+      fill_in('filter-d-created', with: '2')
+      select(I18n.t('views.distributions.inwork'), from: 'filter-d-state')
+
+      fill_in('filter-d-storekeeper', with: @distributions[0].storekeeper.tag)
+      fill_in('filter-d-storekeeper-place', with: @distributions[0].
+                                                    storekeeper_place.tag)
+      fill_in('filter-d-foreman', with: @distributions[0].foreman.tag)
+      fill_in('filter-d-foreman-place', with: @distributions[0].
+                                                foreman_place.tag)
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    within('#container_documents table') do
+      page.should have_selector('tbody tr', count: 2)
+      page.should have_content(@distributions[0].class.name)
+      page.should have_content(@distributions[0].storekeeper.tag)
+      page.should have_content(@distributions[0].versions.first.created_at.
+                                 strftime('%Y-%m-%d'))
+      page.should have_content(@distributions[0].versions.last.created_at.
+                                 strftime('%Y-%m-%d'))
+    end
   end
 end

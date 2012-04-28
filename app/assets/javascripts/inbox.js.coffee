@@ -3,11 +3,41 @@ $ ->
     constructor: (data) ->
       @url = '/inbox_data.json'
 
-      super(data)
+      @filter =
+        waybill:
+          created: ko.observable('')
+          document_id: ko.observable('')
+          distributor:
+            legal_entity:
+              name: ko.observable('')
+              identifier_name: ko.observable('')
+              identifier_value: ko.observable('')
+          distributor_place:
+            place:
+              tag: ko.observable('')
+          storekeeper:
+            entity:
+              tag: ko.observable('')
+          storekeeper_place:
+            place:
+              tag: ko.observable('')
+        distribution:
+          created: ko.observable('')
+          state: ko.observable('')
+          storekeeper:
+            entity:
+              tag: ko.observable('')
+          storekeeper_place:
+            place:
+              tag: ko.observable('')
+          foreman:
+            entity:
+              tag: ko.observable('')
+          foreman_place:
+            place:
+              tag: ko.observable('')
 
-      @params =
-        page: @page
-        per_page: @per_page
+      super(data)
 
       $.sammy( ->
         this.get('#documents/:type/:id', ->

@@ -18,9 +18,9 @@ class HomeController < ApplicationController
   def inbox_data
     types = [ Waybill.name, Distribution.name ]
 
-    @versions = VersionEx.lasts.by_type(types).
+    @versions = VersionEx.lasts.by_type(types).filter(params[:like]).
       paginate(page: params[:page], per_page: params[:per_page]).
       all(include: [item: [:versions, :storekeeper]])
-    @count = VersionEx.lasts.by_type(types).count
+    @count = VersionEx.lasts.by_type(types).filter(params[:like]).count
   end
 end

@@ -82,13 +82,14 @@ div.filter-area {
   box-shadow: 0 4px 8px #8b8b8b;
   -webkit-box-shadow: 0 4px 8px #8b8b8b;
   -moz-box-shadow: 0 4px 8px #8b8b8b;
+  z-index: 1;
 
   label {
     display: block;
     color: #555;
   }
 
-  input[type='text'] {
+  input[type='text'], select {
     display: block;
     margin: 1px 0 10px 0;
     width: 100%;

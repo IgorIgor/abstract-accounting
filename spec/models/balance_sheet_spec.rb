@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe BalanceSheet do
   before(:all) do
-    3.times { Factory(:balance) }
+    4.times { Factory(:balance) }
   end
   describe "#all" do
     it "pass options to find method" do
@@ -22,6 +22,17 @@ describe BalanceSheet do
     it "should accept options without date" do
       bs = BalanceSheet.all(include: [:deal])
       bs.each { |balance| balance.association(:deal).loaded?.should be_true }
+    end
+
+    it "should select with limit and offset" do
+      date = DateTime.now
+      BalanceSheet.count(date).should eq(4)
+      per_page = 3
+      balance_sheet = BalanceSheet.all({date: date, per_page: per_page, page: 1})
+      balance_sheet.count.should eq(per_page)
+      balance_sheet = BalanceSheet.all({date: date, per_page: per_page, page: 2})
+      balance_sheet.count.should eq(1)
+      BalanceSheet.all.count.should eq(BalanceSheet.count)
     end
   end
 end

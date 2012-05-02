@@ -10,6 +10,7 @@
 $ ->
   class self.BalanceSheetViewModel extends FolderViewModel
     constructor: (data) ->
+      @url = '/balance_sheet/data.json'
       @balances_date = ko.observable(new Date())
       @select_mu = ko.observable('natural')
       @select_mu.subscribe(@filter)
@@ -17,12 +18,23 @@ $ ->
       @total_credit = ko.observable(data.total_credit)
       super(data)
 
-    filter: =>
-      params =
+      @params =
         date: @balances_date().toString()
         mu: @select_mu()
-      $.getJSON('/balance_sheet/data.json', params, (data) =>
+        page: @page
+        per_page: @per_page
+
+    filter: =>
+      @params =
+        date: @balances_date().toString()
+        mu: @select_mu()
+        page: @page
+        per_page: @per_page
+      $.getJSON(@url, @params, (data) =>
         @documents(data.objects)
+        @page(1)
+        @count(data.count)
+        @range(@rangeGenerate())
         @total_debit(data.total_debit)
         @total_credit(data.total_credit)
       )

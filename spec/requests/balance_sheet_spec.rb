@@ -16,11 +16,13 @@ feature "BalanceSheet", %q{
 } do
 
   scenario 'visit balance sheet page', js: true do
-    10.times do |i|
+    per_page = Settings.root.per_page
+    (per_page + 1).times do |i|
       Factory(:balance, side: i % 2 == 0 ? Balance::ACTIVE : Balance::PASSIVE, amount: 3.0)
     end
 
-    bs = BalanceSheet.all(date: DateTime.now)
+    bs = BalanceSheet.all(date: DateTime.now, page: 1)
+    bs_count = BalanceSheet.count
 
     page_login
     click_link I18n.t('views.home.balance_sheet')
@@ -58,6 +60,42 @@ feature "BalanceSheet", %q{
       page.should have_content(bs.assets.to_s)
     end
 
+    within("div[@class='paginate']") do
+      find("span[@data-bind='text: range']").
+          should have_content("1-#{per_page}")
+
+      find("span[@data-bind='text: count']").
+          should have_content(bs_count.to_s)
+
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
+    end
+
+    within("#container_documents table tbody") do
+      page.should have_selector('tr', count: per_page)
+    end
+
+    within("div[@class='paginate']") do
+      click_button('>')
+
+      to_range = (bs_count > per_page * 2) ? per_page * 2 : bs_count
+
+      find("span[@data-bind='text: range']").
+          should have_content("#{per_page + 1}-#{to_range}")
+
+      find("span[@data-bind='text: count']").
+          should have_content(bs_count.to_s)
+
+      find_button('<')[:disabled].should eq('false')
+      click_button('<')
+
+      find("span[@data-bind='text: range']").
+          should have_content("1-#{per_page}")
+
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
+    end
+
     page.should have_xpath("//div[@id='ui-datepicker-div']")
     page.find("#balance_date_start").click
     page.should have_xpath("//div[@id='ui-datepicker-div'" +
@@ -70,10 +108,11 @@ feature "BalanceSheet", %q{
     page.find(:xpath, "//div[@id='ui-datepicker-div']" +
         "/table[@class='ui-datepicker-calendar']/tbody/tr[2]/td[2]/a").click
     date = Date.parse(page.find("#balance_date_start")[:value])
-    5.times do |i|
+    half = (per_page / 2).round
+    half.times do |i|
       bs[i].update_attributes(start: date)
     end
-    (5..9).each do |i|
+    (half..per_page - 1).each do |i|
       bs[i].update_attributes(start: date + 2)
     end
     page.find("#balance_date_start").click
@@ -81,10 +120,31 @@ feature "BalanceSheet", %q{
         "/table[@class='ui-datepicker-calendar']/tbody/tr[2]/td[2]/a").click
 
     bs = BalanceSheet.all(date: date)
+    bs_count = BalanceSheet.count(date)
+    to_range = (bs_count > per_page) ? per_page : bs_count
     within("#container_documents table tbody") do
       bs.each do |item|
         page.should have_content(item.deal.tag)
       end
+    end
+
+    within("div[@class='paginate']") do
+      find("span[@data-bind='text: range']").
+          should have_content("1-#{to_range}")
+
+      find("span[@data-bind='text: count']").
+          should have_content(bs_count.to_s)
+
+      find_button('<')[:disabled].should eq('true')
+      if bs_count > per_page
+        find_button('>')[:disabled].should eq('false')
+      else
+        find_button('>')[:disabled].should eq('true')
+      end
+    end
+
+    within("#container_documents table tbody") do
+      page.should have_selector('tr', count: to_range)
     end
 
     within("div[@id='container_documents'] div fieldset")  do

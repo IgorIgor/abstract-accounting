@@ -13,8 +13,12 @@ class BalanceSheetController < ActionController::Base
   end
 
   def data
+    @date = params[:date].nil? ? nil : Date.parse(params[:date])
     @mu = params[:mu].nil? ? 'natural' : params[:mu]
-    @balances = BalanceSheet.all(date: params[:date].nil? ? nil : Date.parse(params[:date]),
-                                 include: [deal: [:entity, give: [:resource]]])
+    @balances = BalanceSheet.all(date: @date,
+                                 include: [deal: [:entity, give: [:resource]]],
+                                 page: params[:page] || 1,
+                                 per_page: params[:per_page])
+    @count = BalanceSheet.count(@date || DateTime.now)
   end
 end

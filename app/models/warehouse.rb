@@ -21,15 +21,9 @@ class Warehouse
   def self.all(attrs = {})
     attrs[:select] = 'warehouse'
 
-    limit = ''
-    unless attrs.nil? || attrs[:page].nil?
-      per_page = attrs.has_key?(:per_page) ? attrs[:per_page] : Settings.root.per_page
-      offset = (attrs[:page].to_i - 1) * per_page.to_i
-      limit = "LIMIT #{per_page} OFFSET #{offset}"
-    end
-
     warehouse = []
-    ActiveRecord::Base.connection.execute("#{script(attrs)} #{limit}").each { |entry|
+    ActiveRecord::Base.connection.
+        execute("#{script(attrs)} #{SqlBuilder.paginate(attrs)}").each { |entry|
       warehouse << Warehouse.new(entry)
     }
     warehouse

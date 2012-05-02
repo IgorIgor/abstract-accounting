@@ -1,35 +1,4 @@
-$table-border: solid 1px #6e6e6e;
-
-@mixin common-properties {
-  float: left;
-  border-right: $table-border;
-  border-left: $table-border;
-  border-bottom: $table-border;
-
-  caption{
-    font-size: 120%;
-    color: white;
-    background-color: gray;
-    background-image: linear-gradient(bottom, rgb(110,110,110) 5%, rgb(128,128,128) 50%, rgb(110,110,110) 95%);
-    background-image: -o-linear-gradient(bottom, rgb(110,110,110) 5%, rgb(128,128,128) 50%, rgb(110,110,110) 95%);
-    background-image: -moz-linear-gradient(bottom, rgb(110,110,110) 5%, rgb(128,128,128) 50%, rgb(110,110,110) 95%);
-    background-image: -webkit-linear-gradient(bottom, rgb(110,110,110) 5%, rgb(128,128,128) 50%, rgb(110,110,110) 95%);
-    background-image: -ms-linear-gradient(bottom, rgb(110,110,110) 5%, rgb(128,128,128) 50%, rgb(110,110,110) 95%);
-  }
-
-  tr{
-    cursor: default;
-
-    td{
-      height: 26px;
-      padding: 1px;
-    }
-
-    td.distribution-actions{
-      cursor: pointer;
-    }
-  }
-}
+$table-border: solid 1px #d8d8d8;
 
 .mini-icon{
   display: inline-block;
@@ -58,16 +27,35 @@ $table-border: solid 1px #6e6e6e;
 }
 
 #main #container_documents{
+  #available-resources, #selected-resources {
+    border-left: $table-border;
+    margin: 0 0 2px 2px;
+    width: 722px;
 
-  #resources-tables{
-    margin: 2px;
-    min-width: 740px;
-  }
+    caption {
+      background-color: #ededed;
+      border: $table-border;
+      height: 30px;
+      color: dimGray;
+      font-size: 100%;
+      font-weight: bold;
+      text-align: center;
+      line-height: 30px;
+      margin-top: 7px;
+    }
 
-  #available-resources{
-    @include common-properties;
-    width: 45%;
-    margin-right: 2px;
+    tr{
+      cursor: default;
+
+      td{
+        height: 26px;
+        padding: 1px;
+      }
+
+      td.distribution-actions{
+        cursor: pointer;
+      }
+    }
   }
 
   .available-resources-tag{
@@ -80,11 +68,6 @@ $table-border: solid 1px #6e6e6e;
 
   .available-resources-exp-amount{
     width: 21%;
-  }
-
-  #selected-resources{
-    @include common-properties;
-    width: 54%;
   }
 
   .selected-resources-tag{

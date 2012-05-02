@@ -75,46 +75,43 @@ feature 'distributions', %q{
         fill_in_autocomplete('storekeeper_place', wb.storekeeper_place.tag)
       end
 
-      page.should have_selector("div[@id='resources-tables']")
-      within("#resources-tables") do
-        page.should have_selector("#available-resources tbody tr")
-        within("#available-resources") do
-          page.should have_selector('tbody tr', count: 5)
-          page.all('tbody tr').each_with_index { |tr, i|
-            tr.should have_content("resource##{i}")
-            tr.should have_content("mu#{i}")
-            tr.should have_content(100+i)
-          }
-        end
+      page.should have_selector("#available-resources tbody tr")
+      within("#available-resources") do
+        page.should have_selector('tbody tr', count: 5)
+        page.all('tbody tr').each_with_index { |tr, i|
+          tr.should have_content("resource##{i}")
+          tr.should have_content("mu#{i}")
+          tr.should have_content(100+i)
+        }
+      end
 
-        within("#selected-resources") do
-          page.should_not have_selector('tbody tr')
-        end
+      within("#selected-resources") do
+        page.should_not have_selector('tbody tr')
+      end
 
-        (0..4).each do |i|
-          page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
-          if i < 4 then
-            page.should have_selector('#available-resources tbody tr', count: 4-i)
-            page.should have_selector('#selected-resources tbody tr', count: 1+i)
-          else
-            page.should_not have_selector('#available-resources tbody tr')
-          end
+      (0..4).each do |i|
+        page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
+        if i < 4 then
+          page.should have_selector('#available-resources tbody tr', count: 4-i)
+          page.should have_selector('#selected-resources tbody tr', count: 1+i)
+        else
+          page.should_not have_selector('#available-resources tbody tr')
         end
+      end
 
-        within("#available-resources") do
-          page.all('tbody tr').each_with_index { |tr, i|
-            tr.find("td input[@type='text']")[:value].should eq("#{100+i}")
-          }
-        end
+      within("#available-resources") do
+        page.all('tbody tr').each_with_index { |tr, i|
+          tr.find("td input[@type='text']")[:value].should eq("#{100+i}")
+        }
+      end
 
-        (0..4).each do |i|
-          page.find("#selected-resources tbody tr td[@class='distribution-actions'] span").click
-          if i < 4 then
-            page.should have_selector('#selected-resources tbody tr', count: 4-i)
-            page.should have_selector('#available-resources tbody tr', count: 1+i)
-          else
-            page.should_not have_selector('#selected-resources tbody tr')
-          end
+      (0..4).each do |i|
+        page.find("#selected-resources tbody tr td[@class='distribution-actions'] span").click
+        if i < 4 then
+          page.should have_selector('#selected-resources tbody tr', count: 4-i)
+          page.should have_selector('#available-resources tbody tr', count: 1+i)
+        else
+          page.should_not have_selector('#selected-resources tbody tr')
         end
       end
     end
@@ -157,7 +154,7 @@ feature 'distributions', %q{
       fill_in("foreman_place", :with => "place")
     end
 
-    within("#container_documents #resources-tables") do
+    within("#container_documents") do
       page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
       page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
     end

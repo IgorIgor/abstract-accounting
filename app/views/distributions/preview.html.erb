@@ -118,67 +118,65 @@
     </div>
   </fieldset>
 
-  <div id="resources-tables">
-    <!-- ko ifnot: readonly -->
-    <table id="available-resources">
-      <caption><%= t 'views.distributions.available_resources' %></caption>
-      <thead>
-      <tr>
-        <th class="distribution-actions"></th>
-        <th class="available-resources-tag"><%= t 'views.distributions.tag' %></th>
-        <th class="available-resources-mu"><%= t 'views.distributions.mu' %></th>
-        <th class="available-resources-exp-amount"><%= t 'views.distributions.expectation_amount' %></th>
-      </tr>
-      </thead>
-      <tbody data-bind="foreach: availableResources">
-      <tr>
-        <td class="distribution-actions">
-          <span class="mini-icon add" data-bind="click: $parent.selectResource"></span>
-        </td>
-        <td data-bind="text: tag"></td>
-        <td data-bind="text: mu"></td>
-        <td data-bind="text: exp_amount"></td>
-      </tr>
-      </tbody>
-    </table>
-    <!-- /ko -->
+  <!-- ko ifnot: readonly -->
+  <table id="available-resources">
+    <caption><%= t 'views.distributions.available_resources' %></caption>
+    <thead>
+    <tr>
+      <th class="distribution-actions"></th>
+      <th class="available-resources-tag"><%= t 'views.distributions.tag' %></th>
+      <th class="available-resources-mu"><%= t 'views.distributions.mu' %></th>
+      <th class="available-resources-exp-amount"><%= t 'views.distributions.expectation_amount' %></th>
+    </tr>
+    </thead>
+    <tbody data-bind="foreach: availableResources">
+    <tr>
+      <td class="distribution-actions">
+        <span class="mini-icon add" data-bind="click: $parent.selectResource"></span>
+      </td>
+      <td data-bind="text: tag"></td>
+      <td data-bind="text: mu"></td>
+      <td data-bind="text: exp_amount"></td>
+    </tr>
+    </tbody>
+  </table>
+  <!-- /ko -->
 
-    <table id="selected-resources">
-      <caption><%= t 'views.distributions.selected_resources' %></caption>
-      <thead>
-      <tr>
-        <!-- ko ifnot: readonly -->
-        <th class="distribution-actions"></th>
-        <!-- /ko -->
-        <th class="selected-resources-tag"><%= t 'views.distributions.tag' %></th>
-        <th class="selected-resources-mu"><%= t 'views.distributions.mu' %></th>
-        <!-- ko ifnot: readonly -->
-        <th class="selected-resources-exp-amount"><%= t 'views.distributions.expectation_amount' %></th>
-        <!-- /ko -->
-        <th class="selected-resources-count"><%= t 'views.distributions.amount' %></th>
-      </tr>
-      </thead>
-      <tbody data-bind="foreach: selectedResources">
-      <tr>
-        <!-- ko ifnot: $parent.readonly -->
-        <td class="distribution-actions">
-          <span class="mini-icon delete" data-bind="click: $parent.unselectResource"></span>
-        </td>
-        <!-- /ko -->
-        <td data-bind="text: tag"></td>
-        <td data-bind="text: mu"></td>
-        <!-- ko ifnot: $parent.readonly -->
-        <td data-bind="text: exp_amount"></td>
-        <!-- /ko -->
-        <td>
-          <input type="text" size="8"
-                 data-bind="value: amount, disable: $parent.readonly" />
-        </td>
-      </tr>
-      </tbody>
-    </table>
-    <div class="clear-div"></div>
-  </div>
+  <table id="selected-resources">
+    <caption><%= t 'views.distributions.selected_resources' %></caption>
+    <thead>
+    <tr>
+      <!-- ko ifnot: readonly -->
+      <th class="distribution-actions"></th>
+      <!-- /ko -->
+      <th class="selected-resources-tag"><%= t 'views.distributions.tag' %></th>
+      <th class="selected-resources-mu"><%= t 'views.distributions.mu' %></th>
+      <!-- ko ifnot: readonly -->
+      <th class="selected-resources-exp-amount"><%= t 'views.distributions.expectation_amount' %></th>
+      <!-- /ko -->
+      <th class="selected-resources-count"><%= t 'views.distributions.amount' %></th>
+    </tr>
+    </thead>
+    <tbody data-bind="foreach: selectedResources">
+    <tr>
+      <!-- ko ifnot: $parent.readonly -->
+      <td class="distribution-actions">
+        <span class="mini-icon delete" data-bind="click: $parent.unselectResource"></span>
+      </td>
+      <!-- /ko -->
+      <td data-bind="text: tag"></td>
+      <td data-bind="text: mu"></td>
+      <!-- ko ifnot: $parent.readonly -->
+      <td data-bind="text: exp_amount"></td>
+      <!-- /ko -->
+      <td>
+        <input type="text" size="8"
+               data-bind="value: amount, disable: $parent.readonly" />
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <div class="clear-div"></div>
 
 </form>
 

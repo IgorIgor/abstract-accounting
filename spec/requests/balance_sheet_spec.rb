@@ -147,7 +147,7 @@ feature "BalanceSheet", %q{
       page.should have_selector('tr', count: to_range)
     end
 
-    within("div[@id='container_documents'] div fieldset")  do
+    within("div[@id='container_documents']")  do
       choose('natural_mu')
     end
 
@@ -157,7 +157,7 @@ feature "BalanceSheet", %q{
       end
     end
 
-    within("div[@id='container_documents'] div fieldset")  do
+    within("div[@id='container_documents']")  do
       choose('currency_mu')
     end
 

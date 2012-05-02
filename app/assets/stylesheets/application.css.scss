@@ -132,6 +132,11 @@ input[type=text] {
     border-left: $table_border;
     min-height: 189px;
 
+    .left {
+      float: left;
+      padding: 2px 6px;
+    }
+
     .actions {
       position: absolute;
       top: 77px;

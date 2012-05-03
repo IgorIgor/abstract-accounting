@@ -9,8 +9,8 @@
 
 class GeneralLedger
   class << self
-    def all
-      Txn.all
+    def all(args = {})
+      Txn.all(args)
     end
   end
 end

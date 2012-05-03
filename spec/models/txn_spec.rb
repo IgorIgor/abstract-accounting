@@ -770,5 +770,6 @@ describe Txn do
     Txn.all.count.should eq(20)
     GeneralLedger.all.count.should eq(20)
     GeneralLedger.all.should =~ Txn.all
+    GeneralLedger.all(limit: 1).count.should eq(1)
   end
 end

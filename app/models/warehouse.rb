@@ -8,10 +8,11 @@
 # Please see ./COPYING for details
 
 class Warehouse
-  attr_reader :place, :tag, :real_amount, :exp_amount, :mu
+  attr_reader :place, :id, :tag, :real_amount, :exp_amount, :mu
 
   def initialize(attrs)
     @place = attrs['place']
+    @id = attrs['id']
     @tag = attrs['tag']
     @real_amount = attrs['real_amount']
     @exp_amount = attrs['exp_amount']
@@ -58,12 +59,16 @@ class Warehouse
         }
       end
 
+      if attrs.has_key?(:without)
+        condition << " AND warehouse.id NOT IN (#{attrs[:without].join(', ')})"
+      end
+
       "
       SELECT #{select} FROM (
-        SELECT place, tag, SUM(real_amount) as real_amount,
+        SELECT place, id, tag, SUM(real_amount) as real_amount,
                ROUND(SUM(real_amount - exp_amount), 2) as exp_amount, mu
         FROM (
-          SELECT places.tag as place, assets.tag as tag,
+          SELECT places.tag as place, assets.id as id, assets.tag as tag,
                  states.amount as real_amount, 0.0 as exp_amount, assets.mu as mu
           FROM rules
             INNER JOIN waybills ON waybills.deal_id = rules.deal_id
@@ -74,8 +79,8 @@ class Warehouse
           WHERE states.paid is NULL #{condition_storekeeper}
           GROUP BY places.id, terms.resource_id
           UNION
-          SELECT places.tag as place, assets.tag as tag, 0.0 as amount,
-                 SUM(rules.rate) as exp_amount, assets.mu as mu
+          SELECT places.tag as place, assets.id as id, assets.tag as tag,
+                 0.0 as amount, SUM(rules.rate) as exp_amount, assets.mu as mu
           FROM rules
             INNER JOIN distributions ON distributions.deal_id = rules.deal_id
             INNER JOIN states ON states.deal_id = rules.from_id

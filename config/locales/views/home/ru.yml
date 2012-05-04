@@ -11,6 +11,7 @@ ru:
       warehouses: "Склад"
       general_ledger: "Главная книга"
       balance_sheet: "Счета"
+      transcripts: "Сделки"
       search: "Поиск"
       logout: "Выйти"
       estimate: "Смета"

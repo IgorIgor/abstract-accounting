@@ -1,0 +1,10 @@
+ru:
+  views:
+    transcripts:
+      date: "Дата"
+      account: "Счет"
+      debit: "Дебет"
+      credit: "Кредит"
+      deal: "Сделка"
+      from: "с"
+      to: "по"

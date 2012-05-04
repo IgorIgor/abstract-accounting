@@ -11,6 +11,7 @@ en:
       warehouses: "Warehouse"
       general_ledger: "General ledger"
       balance_sheet: "Balance sheet"
+      transcripts: "Transcripts"
       search: "Search"
       logout: "Logout"
       estimate: "Estimate"

@@ -1,0 +1,10 @@
+en:
+  views:
+    transcripts:
+      date: "Date"
+      account: "Account"
+      debit: "Debit"
+      credit: "Credit"
+      deal: "Deal"
+      from: "from"
+      to: "to"

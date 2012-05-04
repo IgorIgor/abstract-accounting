@@ -163,6 +163,16 @@ $ ->
             )
           )
         )
+        this.get('#transcripts', ->
+          $.get('/transcripts', {}, (form) ->
+            $.getJSON('/transcripts/data.json', {}, (data) ->
+              toggleSelect('transcripts')
+              $('#container_documents').html(form)
+              ko.cleanNode($('#main').get(0))
+              ko.applyBindings(new TranscriptViewModel(data), $('#main').get(0))
+            )
+          )
+        )
       ).run()
 
       location.hash = 'inbox' if $('#main').length

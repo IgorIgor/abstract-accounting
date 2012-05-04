@@ -1,0 +1,35 @@
+<div class="left">
+  <label for="deal_tag"><%=t 'views.transcripts.deal' %>:</label>
+  <input type="text" id="deal_tag" size="50"
+         data-bind="autocomplete: { source: '/deals.json',
+                                    value: 'tag',
+                                    bindId: deal }">
+</div>
+<div class="left">
+  <label for="transcript_date_from"><%=t 'views.transcripts.from' %></label>
+  <input type="text" id="transcript_date_from"
+         data-bind="datepicker: date_from">
+</div>
+<div class="left">
+  <label for="transcript_date_to"><%=t 'views.transcripts.to' %></label>
+  <input type="text" id="transcript_date_to"
+         data-bind="datepicker: date_to">
+</div>
+<table>
+  <thead>
+  <tr>
+    <th class=""><%=t 'views.transcripts.date' %></th>
+    <th class=""><%=t 'views.transcripts.account' %></th>
+    <th class=""><%=t 'views.transcripts.debit' %></th>
+    <th class=""><%=t 'views.transcripts.credit' %></th>
+  </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+  <tr>
+    <td data-bind="text: date"></td>
+    <td data-bind="text: account"></td>
+    <td data-bind="text: debit"></td>
+    <td data-bind="text: credit"></td>
+  </tr>
+  </tbody>
+</table>

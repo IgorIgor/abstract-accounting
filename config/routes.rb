@@ -62,6 +62,12 @@ Abstract::Application.routes.draw do
       get 'data'
     end
   end
+  resources :transcripts, only: [:index] do
+    collection do
+      get 'data'
+    end
+  end
+  resources :deals
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

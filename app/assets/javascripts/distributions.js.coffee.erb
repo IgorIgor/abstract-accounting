@@ -22,6 +22,21 @@ $ ->
       @availableResources = ko.observableArray([])
       @selectedResources = ko.observableArray(if readonly then object.items else [])
 
+
+      @url = '/warehouses/data.json'
+
+      @page = ko.observable()
+      @per_page = ko.observable()
+      @count = ko.observable()
+      @range = ko.observable()
+
+      @params =
+        equal:
+          storekeeper_id: @distribution.storekeeperId
+          storekeeper_place_id: @distribution.storekeeperPlaceId
+        page: @page
+        per_page: @per_page
+
       @loadAvailableResources() unless readonly
 
       $.sammy( ->
@@ -34,13 +49,13 @@ $ ->
       super
 
     selectResource: (resource) =>
-      @availableResources.remove(resource)
       resource['amount'] = resource.exp_amount
       @selectedResources.push(resource)
+      @getPaginateData()
 
     unselectResource: (resource) =>
       @selectedResources.remove(resource)
-      @availableResources.push(resource)
+      @getPaginateData()
 
     save: =>
       items =[]
@@ -71,15 +86,15 @@ $ ->
 
     loadAvailableResources: =>
       @selectedResources([])
+      @availableResources([])
       if @distribution.storekeeperId() && @distribution.storekeeperPlaceId()
-        condition =
-          storekeeper_id: @distribution.storekeeperId
-          storekeeper_place_id: @distribution.storekeeperPlaceId
-        $.getJSON('/warehouses/data.json', equal: condition, (data) =>
-          @availableResources(data.objects)
-        )
+        @page(1)
+        @getPaginateData()
       else
-        @availableResources([])
+        @page('')
+        @per_page('')
+        @count(0)
+        @range(@rangeGenerate())
 
     apply: =>
       location.hash = "#documents/distributions/#{@distribution().id}/apply"
@@ -87,3 +102,31 @@ $ ->
       location.hash = "#documents/distributions/#{@distribution().id}/cancel"
     print: =>
       location.href = "distributions/#{@distribution().id}.pdf"
+
+    prev: =>
+      @page(@page() - 1)
+      @getPaginateData()
+
+    next: =>
+      @page(@page() + 1)
+      @getPaginateData()
+
+    getPaginateData: =>
+      @params['without'] = $.map(@selectedResources(), (r) -> r.id)
+
+      $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
+        @availableResources(data.objects)
+        @per_page(data.per_page)
+        @count(data.count)
+        @range(@rangeGenerate())
+
+        if data.objects.length == 0 && @page() > 1
+          @page(@page() - 1)
+          @getPaginateData()
+      )
+
+    rangeGenerate: =>
+      startRange = if @count() then (@page() - 1)*@per_page() + 1 else 0
+      endRange = (@page() - 1)*@per_page() + @per_page()
+      endRange = @count() if endRange > @count()
+      "#{startRange}-#{endRange}"

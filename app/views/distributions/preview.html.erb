@@ -118,30 +118,6 @@
     </div>
   </fieldset>
 
-  <!-- ko ifnot: readonly -->
-  <table id="available-resources">
-    <caption><%= t 'views.distributions.available_resources' %></caption>
-    <thead>
-    <tr>
-      <th class="distribution-actions"></th>
-      <th class="available-resources-tag"><%= t 'views.distributions.tag' %></th>
-      <th class="available-resources-mu"><%= t 'views.distributions.mu' %></th>
-      <th class="available-resources-exp-amount"><%= t 'views.distributions.expectation_amount' %></th>
-    </tr>
-    </thead>
-    <tbody data-bind="foreach: availableResources">
-    <tr>
-      <td class="distribution-actions">
-        <span class="mini-icon add" data-bind="click: $parent.selectResource"></span>
-      </td>
-      <td data-bind="text: tag"></td>
-      <td data-bind="text: mu"></td>
-      <td data-bind="text: exp_amount"></td>
-    </tr>
-    </tbody>
-  </table>
-  <!-- /ko -->
-
   <table id="selected-resources">
     <caption><%= t 'views.distributions.selected_resources' %></caption>
     <thead>
@@ -176,6 +152,33 @@
     </tr>
     </tbody>
   </table>
+
+  <!-- ko ifnot: readonly -->
+  <table id="available-resources">
+    <caption>
+      <%= t 'views.distributions.available_resources' %>
+      <%= render 'home/paginate' %>
+    </caption>
+    <thead>
+    <tr>
+      <th class="distribution-actions"></th>
+      <th class="available-resources-tag"><%= t 'views.distributions.tag' %></th>
+      <th class="available-resources-mu"><%= t 'views.distributions.mu' %></th>
+      <th class="available-resources-exp-amount"><%= t 'views.distributions.expectation_amount' %></th>
+    </tr>
+    </thead>
+    <tbody data-bind="foreach: availableResources">
+    <tr>
+      <td class="distribution-actions">
+        <span class="mini-icon add" data-bind="click: $parent.selectResource"></span>
+      </td>
+      <td data-bind="text: tag"></td>
+      <td data-bind="text: mu"></td>
+      <td data-bind="text: exp_amount"></td>
+    </tr>
+    </tbody>
+  </table>
+  <!-- /ko -->
   <div class="clear-div"></div>
 
 </form>

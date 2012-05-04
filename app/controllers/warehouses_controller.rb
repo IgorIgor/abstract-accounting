@@ -30,6 +30,8 @@ class WarehousesController < ApplicationController
       }
     end
 
+    attrs[:without] = params[:without] if params.has_key?(:without)
+
     @warehouse = Warehouse.all(attrs)
     @count = Warehouse.count(attrs)
   end

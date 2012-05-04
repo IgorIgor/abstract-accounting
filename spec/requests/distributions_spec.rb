@@ -15,12 +15,12 @@ feature 'distributions', %q{
 } do
 
   scenario 'view distributions', js: true do
+    per_page = Settings.root.per_page
     create(:chart)
-    @waybills = nil
     wb = build(:waybill)
-    (0..4).each { |i|
+    (per_page + 1).times do |i|
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
-    }
+    end
     wb.save!
 
     page_login
@@ -75,28 +75,55 @@ feature 'distributions', %q{
         fill_in_autocomplete('storekeeper_place', wb.storekeeper_place.tag)
       end
 
-      page.should have_selector("#available-resources tbody tr")
-      within("#available-resources") do
-        page.should have_selector('tbody tr', count: 5)
-        page.all('tbody tr').each_with_index { |tr, i|
-          tr.should have_content("resource##{i}")
-          tr.should have_content("mu#{i}")
-          tr.should have_content(100+i)
-        }
+
+      wh = Warehouse.all(where: { storekeeper_id: {
+                                    equal: wb.storekeeper.id },
+                                  storekeeper_place_id: {
+                                    equal: wb.storekeeper_place.id }})
+      count = Warehouse.count(where: { storekeeper_id: {
+                                         equal: wb.storekeeper.id },
+                                      storekeeper_place_id: {
+                                         equal: wb.storekeeper_place.id }})
+      (0..(count/per_page).ceil).each do |p|
+        wh[p*per_page...p*per_page+per_page].each_with_index do |w, i|
+          tr = page.all('#available-resources tbody tr')[i]
+          tr.should have_content(w.tag)
+          tr.should have_content(w.mu)
+          tr.should have_content(w.real_amount.to_i)
+        end
+        click_button('>')
+      end
+
+      within("div[@class='paginate']") do
+        find_button('>')[:disabled].should eq('true')
+      end
+
+      (count/per_page).ceil.downto(0).each do |p|
+        wh[p*per_page...p*per_page+per_page].each_with_index do |w, i|
+          tr = page.all('#available-resources tbody tr')[i]
+          tr.should have_content(w.tag)
+          tr.should have_content(w.mu)
+          tr.should have_content(w.real_amount.to_i)
+        end
+        click_button('<')
       end
 
       within("#selected-resources") do
         page.should_not have_selector('tbody tr')
       end
 
-      (0..4).each do |i|
+      (0..count-1).each do |i|
         page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
-        if i < 4 then
-          page.should have_selector('#available-resources tbody tr', count: 4-i)
-          page.should have_selector('#selected-resources tbody tr', count: 1+i)
+        if i < count - 1
+          if i < count - per_page
+            page.should have_selector('#available-resources tbody tr', count: per_page)
+          else
+            page.should have_selector('#available-resources tbody tr', count: count-i-1)
+          end
         else
           page.should_not have_selector('#available-resources tbody tr')
         end
+        page.should have_selector('#selected-resources tbody tr', count: 1+i)
       end
 
       within("#available-resources") do
@@ -105,10 +132,10 @@ feature 'distributions', %q{
         }
       end
 
-      (0..4).each do |i|
+      (0..count-1).each do |i|
         page.find("#selected-resources tbody tr td[@class='distribution-actions'] span").click
-        if i < 4 then
-          page.should have_selector('#selected-resources tbody tr', count: 4-i)
+        if i < count-1
+          page.should have_selector('#selected-resources tbody tr', count: count-i-1)
           page.should have_selector('#available-resources tbody tr', count: 1+i)
         else
           page.should_not have_selector('#selected-resources tbody tr')
@@ -318,5 +345,4 @@ feature 'distributions', %q{
 
     PaperTrail.enabled = false
   end
-
 end

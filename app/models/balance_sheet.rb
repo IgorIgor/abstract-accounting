@@ -27,15 +27,23 @@ class BalanceSheet < Array
     @liabilities
   end
 
-  def self.all(date = DateTime.now)
+  def self.all(options = {})
+    if options[:date].nil?
+      options[:date] = DateTime.now
+    end
     sql = "SELECT id, 'Balance' as type FROM balances
-           WHERE balances.start < '#{(date + 1).to_s(:db)}' AND (balances.paid > '#{date.change(:hour => 13).to_s(:db)}' OR balances.paid IS NULL)
+           WHERE balances.start < '#{(options[:date] + 1).to_s(:db)}' AND
+                 (balances.paid > '#{options[:date].change(hour: 13).to_s(:db)}' OR
+                  balances.paid IS NULL)
            UNION
            SELECT id, 'Income' as type FROM incomes
-           WHERE incomes.start < '#{(date + 1).to_s(:db)}' AND (incomes.paid > '#{date.change(:hour => 13).to_s(:db)}' OR incomes.paid IS NULL)"
-    bs = BalanceSheet.new(date)
+           WHERE incomes.start < '#{(options[:date] + 1).to_s(:db)}' AND
+                 (incomes.paid > '#{options[:date].change(hour: 13).to_s(:db)}' OR
+                  incomes.paid IS NULL)"
+    bs = BalanceSheet.new(options[:date])
+    options.delete(:date)
     ActiveRecord::Base.connection.execute(sql).each do |item|
-      bs << item["type"].constantize.find(item["id"])
+      bs << item["type"].constantize.find(item["id"], options)
     end
     bs
   end

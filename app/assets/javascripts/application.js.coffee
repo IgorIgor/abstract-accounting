@@ -73,14 +73,13 @@ $ ->
 
     prev: =>
       @page(@page() - 1)
-      $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
-        @documents(data.objects)
-        @count(data.count)
-        @range(@rangeGenerate())
-      )
+      @getPaginateData()
 
     next: =>
       @page(@page() + 1)
+      @getPaginateData()
+
+    getPaginateData: =>
       $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
         @documents(data.objects)
         @count(data.count)

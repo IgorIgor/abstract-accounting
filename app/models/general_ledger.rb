@@ -10,7 +10,19 @@
 class GeneralLedger
   class << self
     def all(attrs = {})
-      Txn.all(attrs)
+      scope = Txn
+      unless attrs[:page].nil?
+        per_page = (!attrs[:per_page].nil? and attrs[:per_page].to_i) ||
+            Settings.root.per_page.to_i
+        scope = scope.limit(per_page).offset((attrs[:page].to_i - 1) * per_page)
+        attrs.delete(:page)
+        attrs.delete(:per_page)
+      end
+      scope.all(attrs)
+    end
+
+    def count
+      Txn.count
     end
   end
 end

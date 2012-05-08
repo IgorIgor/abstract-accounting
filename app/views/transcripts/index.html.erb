@@ -15,7 +15,7 @@
   <input type="text" id="transcript_date_to"
          data-bind="datepicker: date_to">
 </div>
-<div class="left">
+<div class="left clear">
   <span><%= t 'views.transcripts.mu' %>:</span>
   <input type="radio" id="natural_mu" name="mu" value="natural"
          data-bind="checked: select_mu"><label for="natural_mu">
@@ -24,7 +24,7 @@
          data-bind="checked: select_mu"><label for="currency_mu">
   <%= t 'views.transcripts.currency' %></label>
 </div>
-<table>
+<table class="left">
   <thead>
     <tr class="without-border">
       <td colspan="2" data-bind="text:parse_date_from"></td>

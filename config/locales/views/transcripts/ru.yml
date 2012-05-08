@@ -8,3 +8,5 @@ ru:
       deal: "Сделка"
       from: "с"
       to: "по"
+      total_circulation: "Итого обороты"
+      rate_differences: "Курсовые разницы"

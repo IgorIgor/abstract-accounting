@@ -43,7 +43,7 @@ feature "Transcripts", %q{
     page.should have_datepicker("transcript_date_from")
     page.should have_datepicker("transcript_date_to")
 
-    page.datepicker("transcript_date_from").prev_month.day(1)
+    page.datepicker("transcript_date_from").prev_month.day(10)
 
     5.times { Factory(:deal) }
     items = Deal.limit(6).all.sort
@@ -54,17 +54,71 @@ feature "Transcripts", %q{
       all(:xpath, ".//li//a")[0].click
     end
 
-    transcript = Transcript.new(share, DateTime.now.change(day: 1, month: DateTime.now.month),
-                                DateTime.now + 1)
+    transcript = Transcript.new(share, DateTime.now.change(day: 10, month:
+                                                           DateTime.now.prev_month.month),
+                                DateTime.now)
     txns = transcript.all
     txns_count = transcript.count
 
     within('#container_documents table') do
-      within('thead tr') do
+      within(:xpath, './/thead//tr[1]') do
+        page.find(:xpath, './/td[1]').
+            should have_content(transcript.start.strftime('%Y-%m-%d'))
+        if transcript.opening.nil? ||
+            transcript.opening.side != Balance::PASSIVE
+          debit_from = 0.0
+        else
+          debit_from = transcript.opening.amount
+        end
+        page.find(:xpath, './/td[2]').should have_content(debit_from)
+        if transcript.opening.nil? ||
+            transcript.opening.side != Balance::ACTIVE
+          credit_from = 0.0
+        else
+          credit_from = transcript.opening.amount
+        end
+        page.find(:xpath, './/td[3]').should have_content(credit_from)
+      end
+      within(:xpath, './/thead//tr[2]') do
         page.should have_content(I18n.t('views.transcripts.date'))
         page.should have_content(I18n.t('views.transcripts.account'))
         page.should have_content(I18n.t('views.transcripts.debit'))
         page.should have_content(I18n.t('views.transcripts.credit'))
+      end
+
+      within(:xpath, './/tfoot//tr[1]') do
+        page.should have_content(I18n.t('views.transcripts.total_circulation'))
+       page.find(:xpath, './/td[2]').should have_content(
+                                                 transcript.total_debits_value)
+        page.find(:xpath, './/td[3]').should have_content(
+                                                 transcript.total_credits_value)
+      end
+
+      within(:xpath, './/tfoot//tr[2]') do
+        page.should have_content(I18n.t('views.transcripts.rate_differences'))
+        page.find(:xpath, './/td[2]').should have_content(
+                                                 transcript.total_debits_diff)
+        page.find(:xpath, './/td[3]').should have_content(
+                                                 transcript.total_credits_diff)
+      end
+
+      within(:xpath, './/tfoot//tr[3]') do
+        page.find(:xpath, './/td[1]').
+            should have_content(transcript.stop.strftime('%Y-%m-%d'))
+        if transcript.closing.nil? ||
+            transcript.closing.side != Balance::PASSIVE
+          debit_to = 0.0
+        else
+          debit_to = transcript.closing.amount
+        end
+        page.find(:xpath, './/td[2]').should have_content(debit_to)
+        if transcript.closing.nil? ||
+            transcript.closing.side != Balance::ACTIVE
+          credit_to = 0.0
+        else
+          credit_to = transcript.closing.amount
+        end
+        page.find(:xpath, './/td[3]').should have_content(credit_to)
       end
 
       within('tbody') do

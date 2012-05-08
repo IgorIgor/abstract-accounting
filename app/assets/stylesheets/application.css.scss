@@ -162,6 +162,13 @@ input[type=text] {
       border-spacing: 0;
       width: 100%;
 
+
+      .without-border{
+        td{
+          border: none;
+        }
+      }
+
       th {
         border-right: $table_border;
         border-bottom: $table_border;

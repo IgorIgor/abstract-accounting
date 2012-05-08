@@ -8,3 +8,5 @@ en:
       deal: "Deal"
       from: "from"
       to: "to"
+      total_circulation: "Total circulation"
+      rate_differences: "Rate differences"

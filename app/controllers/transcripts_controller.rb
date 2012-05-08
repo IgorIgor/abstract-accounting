@@ -13,16 +13,14 @@ class TranscriptsController < ApplicationController
   end
 
   def data
+    @transcript = nil
     @transcripts = []
-    @count = 0
     unless params[:deal_id].nil? || params[:date_from].nil? ||
         params[:date_to].nil?
-      @deal = Deal.find(params[:deal_id])
-      transcript = Transcript.new(@deal, DateTime.parse(params[:date_from]),
+      @transcript = Transcript.new(Deal.find(params[:deal_id]), DateTime.parse(params[:date_from]),
                                          DateTime.parse(params[:date_to]))
-      @transcripts = transcript.all({per_page: params[:per_page], page: params[:page] || 1}).
+      @transcripts = @transcript.all({per_page: params[:per_page], page: params[:page] || 1}).
                                 includes(fact: [:from, :to])
-      @count = transcript.count
     end
   end
 end

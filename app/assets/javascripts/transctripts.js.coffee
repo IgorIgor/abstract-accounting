@@ -9,6 +9,14 @@ $ ->
       @date_to = ko.observable(new Date())
       @parse_date_to = ko.observable(
         $.datepicker.formatDate('yy-mm-dd', @date_to()))
+      @from_debit = ko.observable(data.from_debit)
+      @from_credit = ko.observable(data.from_credit)
+      @to_debit = ko.observable(data.to_debit)
+      @to_credit = ko.observable(data.to_credit)
+      @total_debits = ko.observable(data.total_debits)
+      @total_credits = ko.observable(data.total_credits)
+      @total_debits_diff = ko.observable(data.total_debits_diff)
+      @total_credits_diff = ko.observable(data.total_credits_diff)
 
       super(data)
 
@@ -37,4 +45,12 @@ $ ->
         @page(1)
         @count(data.count)
         @range(@rangeGenerate())
+        @from_debit(data.from_debit)
+        @from_credit(data.from_credit)
+        @to_debit(data.to_debit)
+        @to_credit(data.to_credit)
+        @total_debits(data.total_debits)
+        @total_credits(data.total_credits)
+        @total_debits_diff(data.total_debits_diff)
+        @total_credits_diff(data.total_credits_diff)
       )

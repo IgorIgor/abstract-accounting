@@ -10,3 +10,6 @@ en:
       to: "to"
       total_circulation: "Total circulation"
       rate_differences: "Rate differences"
+      natural: "naturals"
+      currency: "currency"
+      mu: "Unit of measurement"

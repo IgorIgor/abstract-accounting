@@ -17,6 +17,7 @@ $ ->
       @total_credits = ko.observable(data.total_credits)
       @total_debits_diff = ko.observable(data.total_debits_diff)
       @total_credits_diff = ko.observable(data.total_credits_diff)
+      @select_mu = ko.observable('natural')
 
       super(data)
 
@@ -26,10 +27,12 @@ $ ->
         deal_id: @deal()
         page: @page
         per_page: @per_page
+        mu: @select_mu()
 
       @deal.subscribe(@filter)
       @date_from.subscribe(@filter)
       @date_to.subscribe(@filter)
+      @select_mu.subscribe(@filter)
 
     filter: =>
       @parse_date_from($.datepicker.formatDate('yy-mm-dd', @date_from()))
@@ -40,6 +43,7 @@ $ ->
         deal_id: @deal()
         page: @page
         per_page: @per_page
+        mu: @select_mu()
       $.getJSON(@url, @params, (data) =>
         @documents(data.objects)
         @page(1)

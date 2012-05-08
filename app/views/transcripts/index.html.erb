@@ -15,6 +15,15 @@
   <input type="text" id="transcript_date_to"
          data-bind="datepicker: date_to">
 </div>
+<div class="left">
+  <span><%= t 'views.transcripts.mu' %>:</span>
+  <input type="radio" id="natural_mu" name="mu" value="natural"
+         data-bind="checked: select_mu"><label for="natural_mu">
+  <%= t 'views.transcripts.natural' %></label>
+  <input type="radio" id="currency_mu" name="mu" value="currency"
+         data-bind="checked: select_mu"><label for="currency_mu">
+  <%= t 'views.transcripts.currency' %></label>
+</div>
 <table>
   <thead>
     <tr class="without-border">

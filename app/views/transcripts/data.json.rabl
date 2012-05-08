@@ -21,14 +21,22 @@ child(@transcripts => :objects) do
   end
   node :debit do |txn|
     if @transcript.deal.id == txn.fact.to.id
-      txn.fact.amount.to_s
+      if @mu == 'natural'
+        txn.fact.amount.to_s
+      else
+        txn.value.to_s
+      end
     else
       nil
     end
   end
   node :credit do |txn|
     if @transcript.deal.id == txn.fact.from.id
-      txn.fact.amount.to_s
+      if @mu == 'natural'
+        txn.fact.amount.to_s
+      else
+        txn.value.to_s
+      end
     else
       nil
     end
@@ -41,7 +49,11 @@ node (:from_debit) do
       @transcript.opening.side != Balance::PASSIVE
     '0.0'
   else
-    @transcript.opening.amount.to_s
+    if @mu == 'natural'
+      @transcript.opening.amount.to_s
+    else
+      @transcript.opening.value.to_s
+    end
   end
 end
 node (:from_credit) do
@@ -49,7 +61,11 @@ node (:from_credit) do
       @transcript.opening.side != Balance::ACTIVE
     '0.0'
   else
-    @transcript.opening.amount.to_s
+    if @mu == 'natural'
+      @transcript.opening.amount.to_s
+    else
+      @transcript.opening.value.to_s
+    end
   end
 end
 node (:to_debit) do
@@ -57,7 +73,11 @@ node (:to_debit) do
       @transcript.closing.side != Balance::PASSIVE
     '0.0'
   else
-    @transcript.closing.amount.to_s
+    if @mu == 'natural'
+      @transcript.closing.amount.to_s
+    else
+      @transcript.closing.value.to_s
+    end
   end
 end
 node (:to_credit) do
@@ -65,18 +85,54 @@ node (:to_credit) do
       @transcript.closing.side != Balance::ACTIVE
     '0.0'
   else
-    @transcript.closing.amount.to_s
+    if @mu == 'natural'
+      @transcript.closing.amount.to_s
+    else
+      @transcript.closing.value.to_s
+    end
   end
 end
 node(:total_debits) do
-  @transcript.nil? ? '0.0' : @transcript.total_debits_value.to_s
+  if @transcript.nil?
+    '0.0'
+  else
+    if @mu == 'natural'
+      @transcript.total_debits.to_s
+    else
+      @transcript.total_debits_value.to_s
+    end
+  end
 end
 node(:total_credits) do
-  @transcript.nil? ? '0.0' : @transcript.total_credits_value.to_s
+  if @transcript.nil?
+    '0.0'
+  else
+    if @mu == 'natural'
+      @transcript.total_credits.to_s
+    else
+      @transcript.total_credits_value.to_s
+    end
+  end
 end
 node(:total_debits_diff) do
-  @transcript.nil? ? '0.0' : @transcript.total_debits_diff.to_s
+  if @mu == 'natural'
+    nil
+  else
+    if @transcript.nil?
+      '0.0'
+    else
+      @transcript.total_debits_diff.to_s
+    end
+  end
 end
 node(:total_credits_diff) do
-  @transcript.nil? ? '0.0' : @transcript.total_credits_diff.to_s
+  if @mu == 'natural'
+    nil
+  else
+    if @transcript.nil?
+      '0.0'
+    else
+      @transcript.total_credits_diff.to_s
+    end
+  end
 end

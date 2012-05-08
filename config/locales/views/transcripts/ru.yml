@@ -10,3 +10,6 @@ ru:
       to: "по"
       total_circulation: "Итого обороты"
       rate_differences: "Курсовые разницы"
+      natural: "натуральные"
+      currency: "в валюте учета"
+      mu: "Единица измерения"

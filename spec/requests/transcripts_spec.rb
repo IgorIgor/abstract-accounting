@@ -60,6 +60,10 @@ feature "Transcripts", %q{
     txns = transcript.all
     txns_count = transcript.count
 
+    within("div[@id='container_documents']")  do
+      choose('natural_mu')
+    end
+
     within('#container_documents table') do
       within(:xpath, './/thead//tr[1]') do
         page.find(:xpath, './/td[1]').
@@ -89,17 +93,15 @@ feature "Transcripts", %q{
       within(:xpath, './/tfoot//tr[1]') do
         page.should have_content(I18n.t('views.transcripts.total_circulation'))
        page.find(:xpath, './/td[2]').should have_content(
-                                                 transcript.total_debits_value)
+                                                 transcript.total_debits)
         page.find(:xpath, './/td[3]').should have_content(
-                                                 transcript.total_credits_value)
+                                                 transcript.total_credits)
       end
 
       within(:xpath, './/tfoot//tr[2]') do
         page.should have_content(I18n.t('views.transcripts.rate_differences'))
-        page.find(:xpath, './/td[2]').should have_content(
-                                                 transcript.total_debits_diff)
-        page.find(:xpath, './/td[3]').should have_content(
-                                                 transcript.total_credits_diff)
+        page.find(:xpath, './/td[2]').should have_content('')
+        page.find(:xpath, './/td[3]').should have_content('')
       end
 
       within(:xpath, './/tfoot//tr[3]') do
@@ -125,11 +127,82 @@ feature "Transcripts", %q{
         per_page.times do |i|
           page.should have_content(txns[i].fact.day.strftime('%Y-%m-%d'))
           if share.id == txns[i].fact.to.id
+            page.find(:xpath, ".//tr[#{i+1}]/td[3]").
+                should have_content(txns[i].fact.amount)
             page.should have_content(txns[i].fact.from.tag)
           else
+            page.find(:xpath, ".//tr[#{i+1}]/td[4]").
+                should have_content(txns[i].fact.amount)
             page.should have_content(txns[i].fact.to.tag)
           end
           page.should have_content(txns[i].fact.amount)
+        end
+      end
+    end
+
+    within("div[@id='container_documents']")  do
+      choose('currency_mu')
+    end
+
+    within('#container_documents table') do
+      within(:xpath, './/thead//tr[1]') do
+        if transcript.opening.nil? ||
+            transcript.opening.side != Balance::PASSIVE
+          debit_from = 0.0
+        else
+          debit_from = transcript.opening.value
+        end
+        page.find(:xpath, './/td[2]').should have_content(debit_from)
+        if transcript.opening.nil? ||
+            transcript.opening.side != Balance::ACTIVE
+          credit_from = 0.0
+        else
+          credit_from = transcript.opening.value
+        end
+        page.find(:xpath, './/td[3]').should have_content(credit_from)
+      end
+
+      within(:xpath, './/tfoot//tr[1]') do
+        page.find(:xpath, './/td[2]').should have_content(
+                                                 transcript.total_debits_value)
+        page.find(:xpath, './/td[3]').should have_content(
+                                                 transcript.total_credits_value)
+      end
+
+      within(:xpath, './/tfoot//tr[2]') do
+        page.find(:xpath, './/td[2]').should have_content(
+                                                 transcript.total_debits_diff)
+        page.find(:xpath, './/td[3]').should have_content(
+                                                 transcript.total_credits_diff)
+      end
+
+      within(:xpath, './/tfoot//tr[3]') do
+        if transcript.closing.nil? ||
+            transcript.closing.side != Balance::PASSIVE
+          debit_to = 0.0
+        else
+          debit_to = transcript.closing.value
+        end
+        page.find(:xpath, './/td[2]').should have_content(debit_to)
+        if transcript.closing.nil? ||
+            transcript.closing.side != Balance::ACTIVE
+          credit_to = 0.0
+        else
+          credit_to = transcript.closing.value
+        end
+        page.find(:xpath, './/td[3]').should have_content(credit_to)
+      end
+
+      within('tbody') do
+        per_page.times do |i|
+          if transcript.deal.id == txns[i].fact.to.id
+            page.find(:xpath, ".//tr[#{i+1}]/td[3]").
+                should have_content(txns[i].value)
+          end
+          if transcript.deal.id == txns[i].fact.from.id
+            page.find(:xpath, ".//tr[#{i+1}]/td[4]").
+                should have_content(txns[i].value)
+          end
         end
       end
     end

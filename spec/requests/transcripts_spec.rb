@@ -26,9 +26,14 @@ feature "Transcripts", %q{
                    give: Factory.build(:deal_give, resource: rub),
                    take: Factory.build(:deal_take, resource: rub),
                    rate: 1)
-    fact = Factory(:fact, day: DateTime.now.change(day: 1),
-                          from: share, to: bank, resource: rub, amount: 100000)
-    Factory(:txn, fact: fact)
+    per_page = Settings.root.per_page
+    facts = []
+    (per_page + 1).times do |i|
+      f = Factory(:fact, from: share, to: bank, resource: rub,
+                  amount: 10000 + i)
+      facts << f
+      Factory(:txn, fact: f)
+    end
 
     page_login
     click_link I18n.t('views.home.transcripts')
@@ -40,19 +45,19 @@ feature "Transcripts", %q{
 
     page.datepicker("transcript_date_from").prev_month.day(1)
 
-    txns = Transcript.new(share, DateTime.now.change(day: 1, month: DateTime.now.month),
-                          DateTime.now + 1).all
-
     5.times { Factory(:deal) }
     items = Deal.limit(6).all.sort
     check_autocomplete("deal_tag", items, :tag)
     fill_in('deal_tag', with: share.tag)
-    page.should have_xpath("//ul[contains(@class, 'ui-autocomplete')"+
-                               " and contains(@style, 'display: block')]")
     within(:xpath, "//ul[contains(@class, 'ui-autocomplete')"+
         " and contains(@style, 'display: block')]") do
       all(:xpath, ".//li//a")[0].click
     end
+
+    transcript = Transcript.new(share, DateTime.now.change(day: 1, month: DateTime.now.month),
+                                DateTime.now + 1)
+    txns = transcript.all
+    txns_count = transcript.count
 
     within('#container_documents table') do
       within('thead tr') do
@@ -63,16 +68,52 @@ feature "Transcripts", %q{
       end
 
       within('tbody') do
-        txns.each do |txn|
-          page.should have_content(txn.fact.day.strftime('%Y-%m-%d'))
-          if share.id == txn.fact.to.id
-            page.should have_content(txn.fact.from.tag)
+        per_page.times do |i|
+          page.should have_content(txns[i].fact.day.strftime('%Y-%m-%d'))
+          if share.id == txns[i].fact.to.id
+            page.should have_content(txns[i].fact.from.tag)
           else
-            page.should have_content(txn.fact.to.tag)
+            page.should have_content(txns[i].fact.to.tag)
           end
-          page.should have_content(txn.fact.amount)
+          page.should have_content(txns[i].fact.amount)
         end
       end
+    end
+
+    within("#container_documents table tbody") do
+      page.should have_selector('tr', count: per_page)
+    end
+
+    to_range = (txns_count > per_page * 2) ? per_page * 2 : txns_count
+
+    within("div[@class='paginate']") do
+      find("span[@data-bind='text: range']").
+          should have_content("1-#{per_page}")
+
+      find("span[@data-bind='text: count']").
+          should have_content(txns_count.to_s)
+
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
+      click_button('>')
+      find_button('<')[:disabled].should eq('false')
+
+      find("span[@data-bind='text: range']").
+          should have_content("#{per_page + 1}-#{to_range}")
+    end
+
+    within("#container_documents table tbody") do
+      page.should have_selector('tr', count: to_range - per_page)
+    end
+
+    within("div[@class='paginate']") do
+      click_button('<')
+
+      find("span[@data-bind='text: range']").
+          should have_content("1-#{per_page}")
+
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
     end
   end
 end

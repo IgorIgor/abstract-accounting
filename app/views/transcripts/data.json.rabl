@@ -7,28 +7,32 @@
 #
 # Please see ./COPYING for details
 
-collection @transcripts
-node :date do |txn|
-  txn.fact.day
-end
-node :account do |txn|
-  if @deal.id == txn.fact.from.id
-    txn.fact.to.tag
-  else
-    txn.fact.from.tag
+object false
+child(@transcripts => :objects) do
+  node :date do |txn|
+    txn.fact.day
+  end
+  node :account do |txn|
+    if @deal.id == txn.fact.from.id
+      txn.fact.to.tag
+    else
+      txn.fact.from.tag
+    end
+  end
+  node :debit do |txn|
+    if @deal.id == txn.fact.to.id
+      txn.fact.amount.to_s
+    else
+      nil
+    end
+  end
+  node :credit do |txn|
+    if @deal.id == txn.fact.from.id
+      txn.fact.amount.to_s
+    else
+      nil
+    end
   end
 end
-node :debit do |txn|
-  if @deal.id == txn.fact.to.id
-    txn.fact.amount.to_s
-  else
-    nil
-  end
-end
-node :credit do |txn|
-  if @deal.id == txn.fact.from.id
-    txn.fact.amount.to_s
-  else
-    nil
-  end
-end
+node (:per_page) { params[:per_page] || Settings.root.per_page }
+node (:count) { @count }

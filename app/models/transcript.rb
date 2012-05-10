@@ -20,10 +20,23 @@ class Transcript
     @total_debits_diff = 0.0
     @total_credits_diff = 0.0
     @total_loaded = false
+    @txns = nil
   end
 
-  def all()
-    deal.txns(start, stop)
+  def all(attrs = nil)
+    load_txns unless @txns
+    unless attrs.nil?
+      per_page = attrs[:per_page].nil? ? Settings.root.per_page.to_i :
+          attrs[:per_page].to_i
+      page = attrs[:page].nil? ? 1 : attrs[:page].to_i
+      return @txns.limit(per_page).offset((page - 1) * per_page)
+    end
+    @txns
+  end
+
+  def count
+    load_txns unless @txns
+    @txns.count
   end
 
   def total_debits
@@ -67,6 +80,10 @@ class Transcript
   end
 
   private
+  def load_txns
+    @txns = deal.txns(start, stop)
+  end
+
   def load_total
     object = if @deal.income?
       @deal.txns(@start, @stop).

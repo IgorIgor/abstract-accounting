@@ -649,6 +649,7 @@ describe Txn do
     tr.closing.side.should eq(Balance::ACTIVE)
 
     tr.all.count.should eq(2)
+    tr.all.count.should eq(tr.count)
     tr.all.to_a.should =~ [TestData.t_share2_to_bank, TestData.t_share_to_bank]
 
 
@@ -664,6 +665,7 @@ describe Txn do
     tr.closing.side.should eq(Balance::ACTIVE)
 
     tr.all.count.should eq(6)
+    tr.all.count.should eq(tr.count)
     tr.all.to_a.should =~ [TestData.t_share2_to_bank, TestData.t_share_to_bank,
                            TestData.t_bank_to_forex,  TestData.t_bank_to_forex3,
                            TestData.t_bank_to_purchase, TestData.t_forex2_to_bank]
@@ -689,6 +691,7 @@ describe Txn do
     tr.closing.side.should eq(Balance::ACTIVE)
 
     tr.all.count.should eq(7)
+    tr.all.count.should eq(tr.count)
     tr.all.to_a.should =~ [TestData.t_bank_to_forex, TestData.t_bank_to_forex3,
                            TestData.t_bank_to_purchase, TestData.t_forex2_to_bank,
                            TestData.t_forex4_to_bank, TestData.t2_forex4_to_bank,
@@ -703,6 +706,7 @@ describe Txn do
     tr.opening.should be_nil
     tr.closing.should be_nil
     tr.all.should be_empty
+    tr.all.count.should eq(tr.count)
 
     tr = Transcript.new(@purchase, DateTime.civil(2011, 11, 22, 12, 0, 0),
                         DateTime.civil(2011, 11, 23, 12, 0, 0))
@@ -716,6 +720,7 @@ describe Txn do
     tr.closing.side.should eq(Balance::ACTIVE)
 
     tr.all.count.should eq(1)
+    tr.all.count.should eq(tr.count)
     tr.all.to_a.should =~ [TestData.t_bank_to_purchase]
   end
 
@@ -731,6 +736,7 @@ describe Txn do
     tr.closing.side.should eq(Income::PASSIVE)
 
     tr.all.count.should eq(8)
+    tr.all.count.should eq(tr.count)
     tr.all.first.fact.amount.should eq(1000.0)
     tr.all.first.value.should eq(1000.0 * 34.95)
     tr.all.first.earnings.should eq((1000.0 * (35.0 - 34.95)).accounting_norm)

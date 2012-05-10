@@ -57,14 +57,8 @@ feature "waybill", %q{
       end
     end
 
-    page.should have_xpath("//div[@id='ui-datepicker-div']")
-    page.find("#created").click
-    page.should have_xpath("//div[@id='ui-datepicker-div' and contains(@style, 'display: block')]")
-    page.find("#container_documents").click
-    page.should have_xpath("//div[@id='ui-datepicker-div' and contains(@style, 'display: none')]")
-
-    page.find("#created").click
-    page.find("#ui-datepicker-div table[@class='ui-datepicker-calendar'] tbody tr td a").click
+    page.should have_datepicker("created")
+    page.datepicker("created").prev_month.day(10)
 
     page.should have_selector("input[@id='waybill_document_id']")
     fill_in("waybill_document_id", :with => "1233321")

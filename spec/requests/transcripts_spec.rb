@@ -26,7 +26,8 @@ feature "Transcripts", %q{
                    give: Factory.build(:deal_give, resource: rub),
                    take: Factory.build(:deal_take, resource: rub),
                    rate: 1)
-    fact = Factory(:fact, from: share, to: bank, resource: rub, amount: 100000)
+    fact = Factory(:fact, day: DateTime.now.change(day: 1),
+                          from: share, to: bank, resource: rub, amount: 100000)
     Factory(:txn, fact: fact)
 
     page_login
@@ -34,28 +35,13 @@ feature "Transcripts", %q{
     current_hash.should eq('transcripts')
     page.should have_xpath("//li[@id='transcripts' and @class='sidebar-selected']")
 
-    page.find("#transcript_date_from").click
-    page.should have_xpath("//div[@id='ui-datepicker-div'" +
-                               " and contains(@style, 'display: block')]")
-    page.find("#container_documents").click
-    page.should have_xpath("//div[@id='ui-datepicker-div'" +
-                               " and contains(@style, 'display: none')]")
+    page.should have_datepicker("transcript_date_from")
+    page.should have_datepicker("transcript_date_to")
 
-    page.find("#transcript_date_from").click
-    page.find(:xpath, "//div[@id='ui-datepicker-div']" +
-        "/table[@class='ui-datepicker-calendar']/tbody/tr[2]/td[2]/a").click
-    date = Date.parse(page.find("#transcript_date_from")[:value])
+    page.datepicker("transcript_date_from").prev_month.day(1)
 
-    fact.update_attributes(day: DateTime.civil(date.year, date.month, date.day,
-                                               12, 0, 0))
-    txns = Transcript.new(share, date - 1, date + 1).all
-
-    page.find("#transcript_date_from").click
-    page.find(:xpath, "//div[@id='ui-datepicker-div']" +
-        "/table[@class='ui-datepicker-calendar']/tbody/tr[2]/td[1]/a").click
-    page.find("#transcript_date_to").click
-    page.find(:xpath, "//div[@id='ui-datepicker-div']" +
-        "/table[@class='ui-datepicker-calendar']/tbody/tr[2]/td[3]/a").click
+    txns = Transcript.new(share, DateTime.now.change(day: 1, month: DateTime.now.month),
+                          DateTime.now + 1).all
 
     5.times { Factory(:deal) }
     items = Deal.limit(6).all.sort

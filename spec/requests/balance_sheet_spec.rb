@@ -96,18 +96,7 @@ feature "BalanceSheet", %q{
       find_button('>')[:disabled].should eq('false')
     end
 
-    page.should have_xpath("//div[@id='ui-datepicker-div']")
-    page.find("#balance_date_start").click
-    page.should have_xpath("//div[@id='ui-datepicker-div'" +
-                               " and contains(@style, 'display: block')]")
-    page.find("#container_documents").click
-    page.should have_xpath("//div[@id='ui-datepicker-div'" +
-                               " and contains(@style, 'display: none')]")
-
-    page.find("#balance_date_start").click
-    page.find(:xpath, "//div[@id='ui-datepicker-div']" +
-        "/table[@class='ui-datepicker-calendar']/tbody/tr[2]/td[2]/a").click
-    date = Date.parse(page.find("#balance_date_start")[:value])
+    date = DateTime.now.change(day: 10).prev_month
     half = (per_page / 2).round
     half.times do |i|
       bs[i].update_attributes(start: date)
@@ -115,9 +104,8 @@ feature "BalanceSheet", %q{
     (half..per_page - 1).each do |i|
       bs[i].update_attributes(start: date + 2)
     end
-    page.find("#balance_date_start").click
-    page.find(:xpath, "//div[@id='ui-datepicker-div']" +
-        "/table[@class='ui-datepicker-calendar']/tbody/tr[2]/td[2]/a").click
+    page.should have_datepicker("balance_date_start")
+    page.datepicker("balance_date_start").prev_month.day(10)
 
     bs = BalanceSheet.all(date: date)
     bs_count = BalanceSheet.count(date)

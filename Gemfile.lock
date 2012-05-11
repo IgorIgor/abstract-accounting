@@ -196,7 +196,7 @@ DEPENDENCIES
   settingslogic
   shoulda-matchers
   sorcery
-  spork (~> 0.9.0.rc)
+  spork
   sqlite3-ruby
   therubyracer
   uglifier

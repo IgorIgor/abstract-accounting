@@ -20,7 +20,7 @@ end
 
 gem 'jquery-rails'
 gem 'therubyracer'
-gem 'rabl', '~> 0.5.5h'
+gem 'rabl'
 
 # Use unicorn as the web server
 # gem 'unicorn'

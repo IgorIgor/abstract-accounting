@@ -27,3 +27,10 @@ ru:
       inwork: В работе
       canceled: Отменён
       applied: Применён
+      by_resource: по ресурсам
+      by_waybills: по накладным
+      created_at: Дата создания
+      document_id: № документа
+      distributor: Поставщик
+      storekeeper: Кладовщик
+      storekeeper_place: Объект

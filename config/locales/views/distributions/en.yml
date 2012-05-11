@@ -27,3 +27,10 @@ en:
       inwork: Inwork
       canceled: Canceled
       applied: Applied
+      by_resource: by resources
+      by_waybills: by waybills
+      created_at: Created at
+      document_id: Document id
+      distributor: Distributor
+      storekeeper: Storekeeper
+      storekeeper_place: Place

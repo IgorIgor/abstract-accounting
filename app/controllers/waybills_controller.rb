@@ -65,4 +65,8 @@ class WaybillsController < ApplicationController
   def show
     @waybill = Waybill.find(params[:id])
   end
+
+  def data
+    @waybills = Waybill.all
+  end
 end

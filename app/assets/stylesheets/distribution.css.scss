@@ -27,7 +27,7 @@ $table-border: solid 1px #d8d8d8;
 }
 
 #main #container_documents{
-  #available-resources, #selected-resources {
+  #available-resources, #selected-resources, #available-resources-by-wb {
     border-left: $table-border;
     margin: 0 0 2px 2px;
     width: 722px;
@@ -59,7 +59,7 @@ $table-border: solid 1px #d8d8d8;
 
     .paginate {
       float: right;
-      margin-left: -140px;
+      margin-left: -90px;
 
       span {
         font-weight: bold;
@@ -73,6 +73,11 @@ $table-border: solid 1px #d8d8d8;
       .paginate-right {
         margin-left: -7px;
       }
+    }
+
+    .table-mode {
+      float: left;
+      margin-right: -200px;
     }
   }
 

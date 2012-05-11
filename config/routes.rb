@@ -31,9 +31,10 @@ Abstract::Application.routes.draw do
       get 'elements'
     end
   end
-  resources :waybills do
+  resources :waybills, only: [:new, :create, :show] do
     collection do
       get 'preview'
+      get 'data'
     end
   end
   resources :places

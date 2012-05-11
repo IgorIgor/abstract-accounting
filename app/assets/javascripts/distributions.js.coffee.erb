@@ -37,6 +37,11 @@ $ ->
         page: @page
         per_page: @per_page
 
+      @availableMode = ko.observable(0)
+      @availableMode.subscribe((val) =>
+        @url = "/#{if val == '0' then 'warehouses' else 'waybills'}/data.json"
+        @loadAvailableResources(false))
+
       @loadAvailableResources() unless readonly
 
       $.sammy( ->
@@ -84,8 +89,8 @@ $ ->
         when 2 then "<%= I18n.t 'views.distributions.canceled' %>"
         when 3 then "<%= I18n.t 'views.distributions.applied' %>"
 
-    loadAvailableResources: =>
-      @selectedResources([])
+    loadAvailableResources: (clearSelected = true) =>
+      @selectedResources([]) if clearSelected
       @availableResources([])
       if @distribution.storekeeperId() && @distribution.storekeeperPlaceId()
         @page(1)

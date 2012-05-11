@@ -132,6 +132,21 @@ feature 'distributions', %q{
         }
       end
 
+      page.find('#mode-waybills').click
+
+      page.should have_no_selector('#available-resources')
+      within('#available-resources-by-wb') do
+        tr = page.all('tbody tr')[0]
+        tr.should have_content(wb.document_id)
+        tr.should have_content(wb.created.strftime('%Y-%m-%d'))
+        tr.should have_content(wb.distributor.name)
+        tr.should have_content(wb.storekeeper.tag)
+        tr.should have_content(wb.storekeeper_place.tag)
+      end
+
+      page.find('#mode-resources-by-wb').click
+      page.should have_no_selector('#available-resources-by-wb')
+
       (0..count-1).each do |i|
         page.find("#selected-resources tbody tr td[@class='distribution-actions'] span").click
         if i < count-1

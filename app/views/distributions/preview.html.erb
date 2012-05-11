@@ -154,8 +154,22 @@
   </table>
 
   <!-- ko ifnot: readonly -->
+
+  <!-- ko if: availableMode() == '0' -->
   <table id="available-resources">
     <caption>
+      <div class="table-mode">
+        <input type="radio" id="mode-resources" name="mode" value="0"
+               data-bind="checked: availableMode"/>
+        <label for="mode-resources">
+          <%= t 'views.distributions.by_resource' %>
+        </label>
+        <input type="radio" id="mode-waybills" name="mode" value="1"
+               data-bind="checked: availableMode"/>
+        <label for="mode-waybills">
+          <%= t 'views.distributions.by_waybills' %>
+        </label>
+      </div>
       <%= t 'views.distributions.available_resources' %>
       <%= render 'home/paginate' %>
     </caption>
@@ -179,7 +193,47 @@
     </tbody>
   </table>
   <!-- /ko -->
+
+  <!-- ko if: availableMode() == '1' -->
+  <table id="available-resources-by-wb">
+    <caption>
+      <div class="table-mode">
+        <input type="radio" id="mode-resources-by-wb" name="mode-by-wb"
+               value="0" data-bind="checked: availableMode"/>
+        <label for="mode-resources-by-wb">
+          <%= t 'views.distributions.by_resource' %>
+        </label>
+        <input type="radio" id="mode-waybills-by-wb" name="mode-by-wb"
+               value="1" data-bind="checked: availableMode"/>
+        <label for="mode-waybills-by-wb">
+          <%= t 'views.distributions.by_waybills' %>
+        </label>
+      </div>
+      <%= t 'views.distributions.available_resources' %>
+    </caption>
+    <thead>
+    <tr>
+      <th><%= t 'views.distributions.document_id' %></th>
+      <th><%= t 'views.distributions.created_at' %></th>
+      <th><%= t 'views.distributions.distributor' %></th>
+      <th><%= t 'views.distributions.storekeeper' %></th>
+      <th><%= t 'views.distributions.storekeeper_place' %></th>
+    </tr>
+    </thead>
+    <tbody data-bind="foreach: availableResources">
+    <tr>
+      <td data-bind="text: document_id"></td>
+      <td data-bind="text: created"></td>
+      <td data-bind="text: distributor"></td>
+      <td data-bind="text: storekeeper"></td>
+      <td data-bind="text: storekeeper_place"></td>
+    </tr>
+    </tbody>
+  </table>
+  <!-- /ko -->
+
+  <!-- /ko -->
+
   <div class="clear-div"></div>
 
 </form>
-

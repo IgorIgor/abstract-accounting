@@ -69,5 +69,7 @@ Spork.prefork do
 
     User.sorcery_config.stretches = 0
     User.sorcery_config.encryption_algorithm = :none
+
+    config.include FactoryGirl::Syntax::Methods
   end
 end

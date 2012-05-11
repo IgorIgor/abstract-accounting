@@ -21,16 +21,16 @@ describe BoMElement do
 
   describe "#to_rule" do
     before(:all) do
-      @chart = Factory(:chart)
-      @bom_deal = Factory(:deal)
-      @auto = Factory(:asset, :tag => "Avtopogruzchik 5t")
-      @bom_element = Factory(:bo_m_element, :resource => @auto, :rate => 0.33)
+      @chart = create(:chart)
+      @bom_deal = create(:deal)
+      @auto = create(:asset, :tag => "Avtopogruzchik 5t")
+      @bom_element = create(:bo_m_element, :resource => @auto, :rate => 0.33)
     end
 
     it "should create rule" do
-      price = Factory(:price, :resource => @auto, :rate => (74.03 * 4.70))
+      price = create(:price, :resource => @auto, :rate => (74.03 * 4.70))
       lambda {
-        @bom_element.to_rule(@bom_deal, Factory(:place), price, 1)
+        @bom_element.to_rule(@bom_deal, create(:place), price, 1)
       }.should change(@bom_deal.rules, :count).by(1)
       rule = @bom_deal.rules.first
       rule.rate.should eq(0.33 * (74.03 * 4.70))
@@ -46,11 +46,11 @@ describe BoMElement do
     end
 
     it "should use same deal for money storage in rule" do
-      resource = Factory(:asset, :tag => "Rompressory peredvignie")
-      price = Factory(:price, :resource => resource, :rate => (59.76 * 4.70))
-      element = Factory(:bo_m_element, :resource => resource, :rate => 0.46)
+      resource = create(:asset, :tag => "Rompressory peredvignie")
+      price = create(:price, :resource => resource, :rate => (59.76 * 4.70))
+      element = create(:bo_m_element, :resource => resource, :rate => 0.46)
       lambda {
-        element.to_rule(@bom_deal, Factory(:place), price, 1)
+        element.to_rule(@bom_deal, create(:place), price, 1)
       }.should change(Deal, :count).by(1)
       rule = @bom_deal.rules.last
       rule.rate.should eq(0.46 * (59.76 * 4.70))
@@ -63,9 +63,9 @@ describe BoMElement do
     end
 
     it "should use same convertation deal" do
-      price = Factory(:price, :resource => @auto, :rate => (78.03 * 4.70))
+      price = create(:price, :resource => @auto, :rate => (78.03 * 4.70))
       lambda {
-        @bom_element.to_rule(@bom_deal, Factory(:place), price, 1)
+        @bom_element.to_rule(@bom_deal, create(:place), price, 1)
       }.should change(Deal, :count).by(0)
       rule = @bom_deal.rules.last
       rule.rate.should eq(0.33 * (78.03 * 4.70))
@@ -76,9 +76,9 @@ describe BoMElement do
 
     it "should multiple amount by physical volume" do
       physical_volume = 2
-      price = Factory(:price, :resource => @auto, :rate => (80.03 * 4.70))
+      price = create(:price, :resource => @auto, :rate => (80.03 * 4.70))
       lambda {
-        @bom_element.to_rule(@bom_deal, Factory(:place), price, physical_volume)
+        @bom_element.to_rule(@bom_deal, create(:place), price, physical_volume)
       }.should change(Deal, :count).by(0)
       rule = @bom_deal.rules.last
       rule.rate.should eq(0.33 * (80.03 * 4.70) * 2)

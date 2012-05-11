@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe Term do
   it "should have next behaviour" do
-    Factory(:term, :deal_id => 0)
+    create(:term, :deal_id => 0)
     should validate_presence_of :deal_id
     should validate_presence_of :place_id
     should validate_presence_of :resource_id

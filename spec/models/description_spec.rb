@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe Description do
   it "should have next behaviour" do
-    Description.create!(:description => "das", :item => Factory(:entity))
+    Description.create!(:description => "das", :item => create(:entity))
     should validate_presence_of :description
     should validate_presence_of :item_id
     should validate_uniqueness_of(:item_id).scoped_to(:item_type)

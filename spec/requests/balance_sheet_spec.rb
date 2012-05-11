@@ -18,7 +18,7 @@ feature "BalanceSheet", %q{
   scenario 'visit balance sheet page', js: true do
     per_page = Settings.root.per_page
     (per_page + 1).times do |i|
-      Factory(:balance, side: i % 2 == 0 ? Balance::ACTIVE : Balance::PASSIVE, amount: 3.0)
+      create(:balance, side: i % 2 == 0 ? Balance::ACTIVE : Balance::PASSIVE, amount: 3.0)
     end
 
     bs = BalanceSheet.all(date: DateTime.now, page: 1)

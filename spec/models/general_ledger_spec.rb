@@ -11,18 +11,18 @@ require 'spec_helper'
 
 describe GeneralLedger do
   before(:all) do
-    rub = Factory(:chart).currency
-    aasii = Factory(:asset)
-    share2 = Factory(:deal,
-                      give: Factory.build(:deal_give, resource: aasii),
-                      take: Factory.build(:deal_take, resource: rub),
-                      rate: 10000.0)
-    bank = Factory(:deal,
-                    give: Factory.build(:deal_give, resource: rub),
-                    take: Factory.build(:deal_take, resource: rub),
-                    rate: 1.0)
+    rub = create(:chart).currency
+    aasii = create(:asset)
+    share2 = create(:deal,
+                    give: build(:deal_give, resource: aasii),
+                    take: build(:deal_take, resource: rub),
+                    rate: 10000.0)
+    bank = create(:deal,
+                  give: build(:deal_give, resource: rub),
+                  take: build(:deal_take, resource: rub),
+                  rate: 1.0)
     3.times do |ind|
-      Factory(:txn, fact: Factory(:fact, from: share2,
+      create(:txn, fact: create(:fact, from: share2,
                          to: bank, resource: rub, amount: 100000.0))
     end
   end

@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe User do
   it "should have next behaviour" do
-    Factory(:user)
+    create(:user)
     should validate_presence_of :email
     should validate_presence_of :entity_id
     should validate_uniqueness_of(:email).scoped_to(:entity_id)
@@ -37,14 +37,14 @@ describe User do
   end
 
   it "should remember user" do
-    user = Factory(:user)
+    user = create(:user)
     expect { user.remember_me! }.to change{user.remember_me_token}.from(nil)
-    user = Factory(:user)
+    user = create(:user)
     expect { user.remember_me! }.to change{user.remember_me_token_expires_at}.from(nil)
   end
 
   it "should change password" do
-    user = Factory(:user)
+    user = create(:user)
     new_user = User.load_from_reset_password_token(user.reset_password_token)
     new_user.should eq(user)
     new_user.change_password!("changed")

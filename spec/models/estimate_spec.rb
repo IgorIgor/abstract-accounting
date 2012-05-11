@@ -23,13 +23,13 @@ describe Estimate do
 
   describe "#items" do
     before(:all) do
-      Factory(:chart)
-      @truck = Factory(:asset)
-      @compressor = Factory(:asset)
-      @compaction = Factory(:asset)
-      @covering = Factory(:asset)
+      create(:chart)
+      @truck = create(:asset)
+      @compressor = create(:asset)
+      @compaction = create(:asset)
+      @covering = create(:asset)
       catalog = Catalog.create!(:tag => "TUP of the Leningrad region")
-      @estimate = Estimate.create!(:legal_entity => Factory(:legal_entity),
+      @estimate = Estimate.create!(:legal_entity => create(:legal_entity),
                                    :catalog => catalog,
                                    :date => DateTime.civil(2011, 11, 01, 12, 0, 0))
     end

@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe DetailedService do
   it "should have next behaviour" do
-    DetailedService.create!(:tag => "service", :mu => Factory(:mu))
+    DetailedService.create!(:tag => "service", :mu => create(:mu))
     should validate_presence_of :tag
     should validate_presence_of :mu_id
     should validate_uniqueness_of(:tag).scoped_to(:mu_id)

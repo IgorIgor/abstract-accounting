@@ -15,9 +15,9 @@ feature 'distributions', %q{
 } do
 
   scenario 'view distributions', js: true do
-    Factory(:chart)
+    create(:chart)
     @waybills = nil
-    wb = Factory.build(:waybill)
+    wb = build(:waybill)
     (0..4).each { |i|
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
     }
@@ -56,12 +56,12 @@ feature 'distributions', %q{
       page.has_css?("#storekeeper_place", value: '').should be_true
       page.should have_no_selector('#available-resources tbody tr')
 
-      6.times.collect { Factory(:place) }
+      6.times.collect { create(:place) }
       items = Place.find(:all, order: :tag, limit: 5)
       check_autocomplete("storekeeper_place", items, :tag)
       check_autocomplete("foreman_place", items, :tag)
 
-      6.times.collect { Factory(:entity) }
+      6.times.collect { create(:entity) }
       items = Entity.find(:all, order: :tag, limit: 5)
       check_autocomplete("storekeeper_entity", items, :tag)
       check_autocomplete("foreman_entity", items, :tag)
@@ -123,9 +123,9 @@ feature 'distributions', %q{
   scenario 'test distributions save', js: true do
     PaperTrail.enabled = true
 
-    Factory(:chart)
+    create(:chart)
     @waybill = nil
-    wb = Factory.build(:waybill, created: DateTime.current.change(year: 2011))
+    wb = build(:waybill, created: DateTime.current.change(year: 2011))
     wb.add_item('roof', 'm2', 12, 100.0)
     wb.add_item('roof2', 'm2', 12, 100.0)
     wb.save!
@@ -173,13 +173,13 @@ feature 'distributions', %q{
   scenario 'show distributions', js: true do
     PaperTrail.enabled = true
 
-    Factory(:chart)
-    wb = Factory.build(:waybill)
+    create(:chart)
+    wb = build(:waybill)
     (0..4).each { |i|
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
     }
     wb.save!
-    ds = Factory.build(:distribution, storekeeper: wb.storekeeper,
+    ds = build(:distribution, storekeeper: wb.storekeeper,
                                       storekeeper_place: wb.storekeeper_place)
     (0..4).each { |i|
       ds.add_item("resource##{i}", "mu#{i}", 10+i)
@@ -229,12 +229,12 @@ feature 'distributions', %q{
   scenario 'applying distributions', js: true do
     PaperTrail.enabled = true
 
-    Factory(:chart)
-    wb = Factory.build(:waybill)
+    create(:chart)
+    wb = build(:waybill)
     wb.add_item("test resource", "test mu", 100, 10)
     wb.save!
 
-    ds = Factory.build(:distribution, storekeeper: wb.storekeeper,
+    ds = build(:distribution, storekeeper: wb.storekeeper,
                        storekeeper_place: wb.storekeeper_place)
     ds.add_item("test resource", "test mu", 10)
     ds.save!
@@ -255,12 +255,12 @@ feature 'distributions', %q{
   scenario 'canceling distributions', js: true do
     PaperTrail.enabled = true
 
-    Factory(:chart)
-    wb = Factory.build(:waybill)
+    create(:chart)
+    wb = build(:waybill)
     wb.add_item("test resource", "test mu", 100, 10)
     wb.save!
 
-    ds = Factory.build(:distribution, storekeeper: wb.storekeeper,
+    ds = build(:distribution, storekeeper: wb.storekeeper,
                        storekeeper_place: wb.storekeeper_place)
     ds.add_item("test resource", "test mu", 10)
     ds.save!
@@ -280,12 +280,12 @@ feature 'distributions', %q{
   scenario 'generate pdf', js: true do
     PaperTrail.enabled = true
 
-    Factory(:chart)
-    wb = Factory.build(:waybill)
+    create(:chart)
+    wb = build(:waybill)
     wb.add_item("test resource", "test mu", 100, 10)
     wb.save!
 
-    ds = Factory.build(:distribution, storekeeper: wb.storekeeper,
+    ds = build(:distribution, storekeeper: wb.storekeeper,
                        storekeeper_place: wb.storekeeper_place)
     ds.add_item("test resource", "test mu", 10)
     ds.save!

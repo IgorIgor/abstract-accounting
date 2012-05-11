@@ -17,8 +17,8 @@ feature 'warehouses', %q{
   scenario 'view warehouses', js: true do
     per_page = Settings.root.per_page
 
-    Factory(:chart)
-    wb = Factory.build(:waybill)
+    create(:chart)
+    wb = build(:waybill)
     (0..per_page).each { |i|
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
     }

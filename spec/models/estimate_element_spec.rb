@@ -22,9 +22,9 @@ describe EstimateElement do
 
   describe "#to_rule" do
     before(:all) do
-      Factory(:chart)
-      truck = Factory(:asset)
-      compaction = Factory(:asset)
+      create(:chart)
+      truck = create(:asset)
+      compaction = create(:asset)
       catalog = Catalog.create!(:tag => "TUP of the Leningrad region")
       @prices = catalog.price_lists.create!(
                         :resource => compaction,
@@ -33,19 +33,19 @@ describe EstimateElement do
       @prices.items.create!(:resource => truck, :rate => (74.03 * 4.70))
       @bom = catalog.boms.create!(:resource => compaction, :tab => "tab1")
       @bom.items.create!(:resource => truck, :rate => 0.33)
-      l_entity = Factory(:legal_entity)
+      l_entity = create(:legal_entity)
       @estimate = Estimate.create!(:legal_entity => l_entity,
                                    :catalog => catalog,
                                    :date => DateTime.civil(2011, 11, 01, 12, 0, 0),
-                                   :deal =>Factory(:deal, :entity => l_entity))
+                                   :deal =>create(:deal, :entity => l_entity))
     end
 
     it "should convert self to rule" do
-      deal = Factory(:deal)
+      deal = create(:deal)
       rule = nil
       lambda {
         rule = @estimate.items.create!(:bom => @bom, :amount => 10).to_rule(deal,
-                                                                            Factory(:place))
+                                                                            create(:place))
       }.should change(deal.rules, :count).by(1)
       rule.from.should be_nil
       rule.to.should_not be_nil
@@ -56,8 +56,8 @@ describe EstimateElement do
     end
 
     it "should multiple rules amount by self amount" do
-      deal = Factory(:deal)
-      rule = @estimate.items.first.to_rule(deal, Factory(:place))
+      deal = create(:deal)
+      rule = @estimate.items.first.to_rule(deal, create(:place))
       rule.to.rules.count.should eq(1)
       rule.to.rules.first.
           rate.accounting_norm.should eq((0.33 * 10 * (74.03 * 4.70)).accounting_norm)

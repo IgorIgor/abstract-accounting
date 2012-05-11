@@ -11,23 +11,23 @@ require 'spec_helper'
 
 describe Warehouse do
   it 'should show warehouse items' do
-    Factory(:chart)
-    moscow = Factory(:place, tag: 'Moscow')
-    minsk = Factory(:place, tag: 'Minsk')
-    ivanov = Factory(:entity, tag: 'Ivanov')
-    petrov = Factory(:entity, tag: 'Petrov')
-    wb = Factory.build(:waybill, storekeeper: ivanov,
+    create(:chart)
+    moscow = create(:place, tag: 'Moscow')
+    minsk = create(:place, tag: 'Minsk')
+    ivanov = create(:entity, tag: 'Ivanov')
+    petrov = create(:entity, tag: 'Petrov')
+    wb = build(:waybill, storekeeper: ivanov,
                                  storekeeper_place: moscow)
     wb.add_item('roof', 'rm', 100, 120.0)
     wb.add_item('nails', 'pcs', 700, 1.0)
     wb.save!
-    wb = Factory.build(:waybill, storekeeper: ivanov,
+    wb = build(:waybill, storekeeper: ivanov,
                                  storekeeper_place: moscow)
     wb.add_item('nails', 'pcs', 1200, 1.0)
     wb.add_item('nails', 'kg', 10, 150.0)
     wb.add_item('roof', 'rm', 50, 100.0)
     wb.save!
-    wb = Factory.build(:waybill, storekeeper: petrov,
+    wb = build(:waybill, storekeeper: petrov,
                                  storekeeper_place: minsk)
     wb.add_item('roof', 'rm', 500, 120.0)
     wb.add_item('nails', 'kg', 300, 150.0)
@@ -51,12 +51,12 @@ describe Warehouse do
                    (w.mu == 'kg') } .empty?.should be_false
     Warehouse.count.should eq(wh.count)
 
-    ds_moscow = Factory.build(:distribution, storekeeper: ivanov,
+    ds_moscow = build(:distribution, storekeeper: ivanov,
                                              storekeeper_place: moscow)
     ds_moscow.add_item('nails', 'pcs', 510)
     ds_moscow.add_item('roof', 'rm', 7)
     ds_moscow.save!
-    ds_minsk = Factory.build(:distribution, storekeeper: petrov,
+    ds_minsk = build(:distribution, storekeeper: petrov,
                                             storekeeper_place: minsk)
     ds_minsk.add_item('roof', 'rm', 500)
     ds_minsk.add_item('nails', 'kg', 85)

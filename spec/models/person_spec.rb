@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe Person do
   it "should have next behaviour" do
-    Factory(:person)
+    create(:person)
     should validate_presence_of :first_name
     should validate_presence_of :second_name
     should validate_presence_of :birthday

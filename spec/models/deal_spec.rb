@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe Deal do
   it "should have next behaviour" do
-    Factory(:deal)
+    create(:deal)
     should validate_presence_of :tag
     should validate_presence_of :rate
     should validate_presence_of :entity_id
@@ -33,14 +33,14 @@ describe Deal do
   end
 
   def deal_has_states
-    s = Factory(:state)
+    s = create(:state)
     s.should eq(s.deal.state(s.start)),
              "State from first deal is not equal saved state"
     s.deal.state(DateTime.now - 1).should be_nil, "State is not nil"
   end
 
   def deal_has_balances
-    b = Factory(:balance)
+    b = create(:balance)
     b.should eq(b.deal.balance),
              "Balance from first deal is not equal to saved balance"
   end

@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe Income do
   it "should have next behaviour" do
-    Factory(:income)
+    create(:income)
     should validate_presence_of :start
     should validate_presence_of :side
     should validate_presence_of :value

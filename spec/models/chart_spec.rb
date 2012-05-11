@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe Chart do
   it "should have next behaviour" do
-    Factory(:chart)
+    create(:chart)
     should belong_to :currency
     should validate_presence_of :currency_id
     should validate_uniqueness_of :currency_id

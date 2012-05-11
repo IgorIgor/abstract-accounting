@@ -15,7 +15,7 @@ feature "Reset password", %q{
 } do
 
   scenario "reset password" do
-    user = Factory(:user)
+    user = create(:user)
 
     visit login_path
     click_link I18n.t 'views.user_sessions.reset_password'
@@ -48,7 +48,7 @@ feature "Reset password", %q{
     click_link I18n.t 'views.password_resets.back'
     current_path.should eq(login_path)
 
-    visit edit_password_reset_path(Factory(:user).reset_password_token)
+    visit edit_password_reset_path(create(:user).reset_password_token)
     fill_in("user_password", :with => "changed_pass")
     fill_in("user_password_confirmation", :with => "fail_pass")
     click_button I18n.t 'views.password_resets.update_password'

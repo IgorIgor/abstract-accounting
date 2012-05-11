@@ -16,23 +16,23 @@ feature "Transcripts", %q{
 } do
 
   scenario 'visit transcripts page', js: true do
-    rub = Factory(:chart).currency
-    aasii = Factory(:asset)
-    share = Factory(:deal,
-                     give: Factory.build(:deal_give, resource: aasii),
-                     take: Factory.build(:deal_take, resource: rub),
+    rub = create(:chart).currency
+    aasii = create(:asset)
+    share = create(:deal,
+                     give: build(:deal_give, resource: aasii),
+                     take: build(:deal_take, resource: rub),
                      rate: 10000)
-    bank = Factory(:deal,
-                   give: Factory.build(:deal_give, resource: rub),
-                   take: Factory.build(:deal_take, resource: rub),
+    bank = create(:deal,
+                   give: build(:deal_give, resource: rub),
+                   take: build(:deal_take, resource: rub),
                    rate: 1)
     per_page = Settings.root.per_page
     facts = []
     (per_page + 1).times do |i|
-      f = Factory(:fact, from: share, to: bank, resource: rub,
+      f = create(:fact, from: share, to: bank, resource: rub,
                   amount: 10000 + i)
       facts << f
-      Factory(:txn, fact: f)
+      create(:txn, fact: f)
     end
 
     page_login
@@ -45,7 +45,7 @@ feature "Transcripts", %q{
 
     page.datepicker("transcript_date_from").prev_month.day(10)
 
-    5.times { Factory(:deal) }
+    5.times { create(:deal) }
     items = Deal.limit(6).all.sort
     check_autocomplete("deal_tag", items, :tag)
     fill_in('deal_tag', with: share.tag)

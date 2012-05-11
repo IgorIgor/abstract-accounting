@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe DetailedAsset do
   it "should have next behaviour" do
-    DetailedAsset.create!(:tag => "Some asset", :brand => "brand", :mu => Factory(:mu))
+    DetailedAsset.create!(:tag => "Some asset", :brand => "brand", :mu => create(:mu))
     should validate_presence_of :tag
     should validate_presence_of :brand
     should validate_presence_of :mu_id

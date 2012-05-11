@@ -12,7 +12,7 @@ require "cancan/matchers"
 
 describe Ability do
   it "should have next behaviour" do
-    user = Factory(:user)
+    user = create(:user)
     Ability.new(user).should_not be_able_to(:manage, :all)
     Ability.new(nil).should_not be_able_to(:manage, :all)
     Ability.new(RootUser.new).should be_able_to(:manage, :all)

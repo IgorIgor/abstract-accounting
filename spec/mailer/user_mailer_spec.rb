@@ -12,7 +12,7 @@ require "spec_helper"
 describe UserMailer do
 
   describe "password_reset" do
-    let(:user) { Factory(:user) }
+    let(:user) { create(:user) }
     let(:mail) { UserMailer.reset_password_email(user) }
 
     it "send user password reset url" do

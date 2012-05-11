@@ -19,7 +19,7 @@ describe VersionEx do
   end
 
   describe '#lasts' do
-    let(:entity) { Factory(:entity) }
+    let(:entity) { create(:entity) }
     it 'should return one version if object was created' do
       versions = VersionEx.lasts.where(
         "item_type='Entity' AND versions.item_id=#{entity.id}")
@@ -42,10 +42,10 @@ describe VersionEx do
   describe '#by_type' do
     it 'should return only objects with special types' do
       types = [Entity.name]
-      Factory(:entity)
+      create(:entity)
       versions = VersionEx.by_type(types)
       versions.each { |version| version.item_type.should eq(types[0]) }
-      Factory(:legal_entity)
+      create(:legal_entity)
       types << LegalEntity.name
       versions = VersionEx.by_type(types)
       versions.any?.should eq(true)
@@ -60,7 +60,7 @@ describe VersionEx do
     it 'should split records by pages' do
       per_page = Settings.root.per_page
 
-      per_page.times { Factory(:entity) }
+      per_page.times { create(:entity) }
 
       ver1 = VersionEx.paginate()
       ver1.count.should eq(per_page)
@@ -90,26 +90,26 @@ describe VersionEx do
 
   describe '#filter' do
     it 'should filtered records' do
-      Factory(:chart)
+      create(:chart)
       items = []
       (0..2).each do |i|
-        st = Factory(:entity, tag: "storekeeper#{i}")
-        stp = Factory(:place, tag: "sk_place#{i}")
-        ds = Factory(:legal_entity, name: "ds_name#{i}",
+        st = create(:entity, tag: "storekeeper#{i}")
+        stp = create(:place, tag: "sk_place#{i}")
+        ds = create(:legal_entity, name: "ds_name#{i}",
                identifier_name: "ds_id_name#{i}",
                identifier_value: "ds_id_value#{i}")
-        dsp = Factory(:place, tag: "ds_place#{i}")
+        dsp = create(:place, tag: "ds_place#{i}")
 
-        wb = Factory.build(:waybill, document_id: "test_document_id#{i}",
+        wb = build(:waybill, document_id: "test_document_id#{i}",
                storekeeper: st, storekeeper_place: stp, distributor: ds,
                distributor_place: dsp)
         wb.add_item('roof', 'm2', 2, 1.0)
         wb.save!
         items << wb
 
-        fr = Factory(:entity, tag: "foreman#{i}")
-        frp = Factory(:place, tag: "fr_place#{i}")
-        dsn = Factory.build(:distribution, storekeeper: st,
+        fr = create(:entity, tag: "foreman#{i}")
+        frp = create(:place, tag: "fr_place#{i}")
+        dsn = build(:distribution, storekeeper: st,
                 storekeeper_place: stp, foreman: fr, foreman_place: frp)
         dsn.add_item('roof', 'm2', 1)
         dsn.save!

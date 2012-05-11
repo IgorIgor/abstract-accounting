@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe Money do
   it "should have next behaviour" do
-    m = Factory(:money)
+    m = create(:money)
     should validate_presence_of :num_code
     should validate_presence_of :alpha_code
     should validate_uniqueness_of :num_code

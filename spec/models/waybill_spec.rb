@@ -11,11 +11,11 @@ require 'spec_helper'
 
 describe Waybill do
   before(:all) do
-    Factory(:chart)
+    create(:chart)
   end
 
   it 'should have next behaviour' do
-    wb = Factory.build(:waybill)
+    wb = build(:waybill)
     wb.add_item('roof', 'rm', 100, 120.0)
     wb.save
     should validate_presence_of :document_id
@@ -29,10 +29,11 @@ describe Waybill do
     should belong_to :storekeeper
     should belong_to(:distributor_place).class_name(Place)
     should belong_to(:storekeeper_place).class_name(Place)
+    should have_many(Waybill.versions_association_name)
   end
 
   it 'should create items' do
-    wb = Factory.build(:waybill)
+    wb = build(:waybill)
     wb.add_item('nails', 'pcs', 1200, 1.0)
     wb.add_item('nails', 'kg', 10, 150.0)
     lambda { wb.save } .should change(Asset, :count).by(2)
@@ -44,7 +45,7 @@ describe Waybill do
     wb.items[1].amount.should eq(10)
     wb.items[1].price.should eq(150.0)
 
-    asset = Factory(:asset)
+    asset = create(:asset)
     wb.add_item(asset.tag, asset.mu, 100, 12.0)
     lambda { wb.save } .should_not change(Asset, :count)
     wb.items.count.should eq(3)
@@ -63,7 +64,7 @@ describe Waybill do
   end
 
   it 'should create deals' do
-    wb = Factory.build(:waybill)
+    wb = build(:waybill)
     wb.add_item('roof', 'm2', 500, 10.0)
     lambda { wb.save } .should change(Deal, :count).by(3)
 
@@ -82,7 +83,7 @@ describe Waybill do
     deal.rate.should eq(1.0)
     deal.isOffBalance.should be_false
 
-    wb = Factory.build(:waybill, distributor: wb.distributor,
+    wb = build(:waybill, distributor: wb.distributor,
                                  distributor_place: wb.distributor_place,
                                  storekeeper: wb.storekeeper,
                                  storekeeper_place: wb.storekeeper_place)
@@ -106,7 +107,7 @@ describe Waybill do
       deal.isOffBalance.should be_false
     }
 
-    wb = Factory.build(:waybill, distributor: wb.distributor,
+    wb = build(:waybill, distributor: wb.distributor,
                                  distributor_place: wb.distributor_place,
                                  storekeeper: wb.storekeeper,
                                  storekeeper_place: wb.storekeeper_place)
@@ -117,7 +118,7 @@ describe Waybill do
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 
-    wb = Factory.build(:waybill, storekeeper: wb.storekeeper,
+    wb = build(:waybill, storekeeper: wb.storekeeper,
                                  storekeeper_place: wb.storekeeper_place)
     wb.add_item('hammer', 'th', 200, 100.0)
     lambda { wb.save } .should change(Deal, :count).by(2)
@@ -137,7 +138,7 @@ describe Waybill do
     deal.rate.should eq(1.0)
     deal.isOffBalance.should be_false
 
-    wb = Factory.build(:waybill, distributor: wb.distributor,
+    wb = build(:waybill, distributor: wb.distributor,
                                  distributor_place: wb.distributor_place,
                                  storekeeper: wb.storekeeper,
                                  storekeeper_place: wb.storekeeper_place)
@@ -163,7 +164,7 @@ describe Waybill do
   end
 
   it 'should create rules' do
-    wb = Factory.build(:waybill)
+    wb = build(:waybill)
     wb.add_item('roof', 'm2', 500, 10.0)
     lambda { wb.save } .should change(Rule, :count).by(1)
 
@@ -174,7 +175,7 @@ describe Waybill do
     wb.items.first.warehouse_deal(nil, wb.storekeeper_place,
       wb.storekeeper).should eq(rule.to)
 
-    wb = Factory.build(:waybill, distributor: wb.distributor,
+    wb = build(:waybill, distributor: wb.distributor,
                                  distributor_place: wb.distributor_place,
                                  storekeeper: wb.storekeeper,
                                  storekeeper_place: wb.storekeeper_place)
@@ -198,7 +199,7 @@ describe Waybill do
   end
 
   it 'should create fact' do
-    wb = Factory.build(:waybill)
+    wb = build(:waybill)
     wb.add_item('roof', 'm2', 500, 10.0)
     wb.save.should be_true
 
@@ -214,7 +215,7 @@ describe Waybill do
     state.amount.should eq(500.0)
     state.start.should eq(DateTime.current.change(hour: 12))
 
-    wb = Factory.build(:waybill, distributor: wb.distributor,
+    wb = build(:waybill, distributor: wb.distributor,
                                  distributor_place: wb.distributor_place,
                                  storekeeper: wb.storekeeper,
                                  storekeeper_place: wb.storekeeper_place)
@@ -248,7 +249,7 @@ describe Waybill do
   end
 
   it 'should create txn' do
-    wb = Factory.build(:waybill)
+    wb = build(:waybill)
     wb.add_item('roof', 'm2', 500, 10.0)
     wb.save.should be_true
 
@@ -264,7 +265,7 @@ describe Waybill do
     balance.amount.should eq(500.0)
     balance.start.should eq(DateTime.current.change(hour: 12))
 
-    wb = Factory.build(:waybill, distributor: wb.distributor,
+    wb = build(:waybill, distributor: wb.distributor,
                        distributor_place: wb.distributor_place,
                        storekeeper: wb.storekeeper,
                        storekeeper_place: wb.storekeeper_place)
@@ -300,7 +301,7 @@ end
 
 describe ItemsValidator do
   it 'should not validate' do
-    wb = Factory.build(:waybill)
+    wb = build(:waybill)
     wb.add_item('roof', 'm2', 1, 10.0)
     wb.add_item('roof', 'm2', 1, 10.0)
     wb.should be_invalid

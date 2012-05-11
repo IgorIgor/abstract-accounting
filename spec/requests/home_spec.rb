@@ -16,17 +16,17 @@ feature "single page application", %q{
 
   before do
     PaperTrail.enabled = true
-    Factory(:chart)
+    create(:chart)
     @waybills = []
     @distributions = []
     @per_page = Settings.root.per_page
     (0..(@per_page/2).floor).each do
-      wb = Factory.build(:waybill)
+      wb = build(:waybill)
       wb.add_item('roof', 'm2', 2, 10.0)
       wb.save!
       @waybills << wb
 
-      ds = Factory.build(:distribution, storekeeper: wb.storekeeper,
+      ds = build(:distribution, storekeeper: wb.storekeeper,
                                         storekeeper_place: wb.storekeeper_place)
       ds.add_item('roof', 'm2', 1)
       ds.save!
@@ -43,7 +43,7 @@ feature "single page application", %q{
     page.should have_content("root@localhost")
     click_link I18n.t('views.home.logout')
 
-    user = Factory(:user, :password => "somepass")
+    user = create(:user, :password => "somepass")
     page_login(user.email, "somepass")
     page.should have_content(user.entity.tag)
     page.should have_content(I18n.t 'views.home.logout')

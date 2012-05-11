@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe Mu do
   it "should have next behaviour" do
-    Factory(:mu)
+    create(:mu)
     should validate_presence_of :tag
     should validate_uniqueness_of :tag
     should have_many Mu.versions_association_name

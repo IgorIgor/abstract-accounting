@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe BalanceSheet do
   before(:all) do
-    4.times { Factory(:balance) }
+    4.times { create(:balance) }
   end
   describe "#all" do
     it "pass options to find method" do

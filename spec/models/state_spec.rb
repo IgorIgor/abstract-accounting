@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe State do
   it "should have next behaviour" do
-    Factory(:state)
+    create(:state)
     should validate_presence_of :amount
     should validate_presence_of :start
     should validate_presence_of :side

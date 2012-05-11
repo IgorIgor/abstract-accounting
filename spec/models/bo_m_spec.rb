@@ -21,17 +21,17 @@ describe BoM do
 
   describe "#to_deal" do
     before(:all) do
-      Factory(:chart)
-      @entity = Factory(:entity)
-      @truck = Factory(:asset)
-      @compressor = Factory(:asset)
-      @compaction = Factory(:asset)
-      @prices = Factory(:price_list,
-                        :resource => Factory(:asset,:tag => "TUP of the Leningrad region"),
+      create(:chart)
+      @entity = create(:entity)
+      @truck = create(:asset)
+      @compressor = create(:asset)
+      @compaction = create(:asset)
+      @prices = create(:price_list,
+                        :resource => create(:asset,:tag => "TUP of the Leningrad region"),
                         :date => DateTime.civil(2011, 11, 01, 12, 0, 0))
       @prices.items.create!(:resource => @truck, :rate => (74.03 * 4.70))
       @prices.items.create!(:resource => @compressor, :rate => (59.76 * 4.70))
-      @bom = Factory(:bo_m, :resource => @compaction)
+      @bom = create(:bo_m, :resource => @compaction)
       @bom.items.create!(:resource => @truck, :rate => 0.33)
       @bom.items.create!(:resource => @compressor,
                         :rate => 0.46)
@@ -40,7 +40,7 @@ describe BoM do
     it "should create deal with rules" do
       deal = nil
       lambda {
-        deal = @bom.to_deal(@entity, Factory(:place), @prices, 1)
+        deal = @bom.to_deal(@entity, create(:place), @prices, 1)
       }.should change(Deal, :count).by(4)
       deal.should_not be_nil
       deal.entity.should eq(@entity)
@@ -63,11 +63,11 @@ describe BoM do
     end
 
     it "should create different deal for same entity and bom" do
-      @bom.to_deal(@entity, Factory(:place), @prices, 1).should_not be_nil
+      @bom.to_deal(@entity, create(:place), @prices, 1).should_not be_nil
     end
 
     it "should resend physical volume to rule creation" do
-      deal = @bom.to_deal(@entity, Factory(:place), @prices, 2)
+      deal = @bom.to_deal(@entity, create(:place), @prices, 2)
       deal.rules.count.should eq(2)
       [deal.rules.first.from.give.resource,
        deal.rules.last.from.give.resource].should =~ [@compressor, @truck]
@@ -84,15 +84,15 @@ describe BoM do
   end
 
   it "should return sum by bom" do
-    truck = Factory(:asset)
-    compressor = Factory(:asset)
-    compaction = Factory(:asset)
-    prices = Factory(:price_list,
-                      :resource => Factory(:asset,:tag => "TUP of the Leningrad region"),
+    truck = create(:asset)
+    compressor = create(:asset)
+    compaction = create(:asset)
+    prices = create(:price_list,
+                      :resource => create(:asset,:tag => "TUP of the Leningrad region"),
                       :date => DateTime.civil(2011, 11, 01, 12, 0, 0))
     prices.items.create!(:resource => truck, :rate => (74.03 * 4.70))
     prices.items.create!(:resource => compressor, :rate => (59.76 * 4.70))
-    bom = Factory(:bo_m, :resource => compaction)
+    bom = create(:bo_m, :resource => compaction)
     bom.items.create!(:resource => truck, :rate => 0.33)
     bom.items.create!(:resource => compressor,
                       :rate => 0.46)

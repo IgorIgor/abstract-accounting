@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe Place do
   it "should have next behaviour" do
-    Factory(:place)
+    create(:place)
     should validate_presence_of :tag
     should validate_uniqueness_of :tag
     should have_many :terms

@@ -23,13 +23,13 @@ describe Catalog do
 
   it "should return price list" do
     catalog = Catalog.create!(tag: "some catalog")
-    price = catalog.price_lists.create!(resource: Factory(:asset),
+    price = catalog.price_lists.create!(resource: create(:asset),
                                 date: DateTime.civil(2011, 11, 01, 12, 0, 0),
                                 tab: "tab1")
-    catalog.price_lists.create!(resource: Factory(:asset),
+    catalog.price_lists.create!(resource: create(:asset),
                                 date: DateTime.civil(2011, 11, 01, 12, 0, 0),
                                 tab: "tab2")
-    catalog.price_lists.create!(resource: Factory(:asset),
+    catalog.price_lists.create!(resource: create(:asset),
                                 date: DateTime.civil(2011, 12, 01, 12, 0, 0),
                                 tab: "tab1")
     catalog.price_list(price.date, price.tab).should eq(price)

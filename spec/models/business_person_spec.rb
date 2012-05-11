@@ -11,8 +11,8 @@ require 'spec_helper'
 
 describe BusinessPerson do
   it "should have next behaviour" do
-    BusinessPerson.create!(:person => Factory(:person),
-                           :country => Factory(:country))
+    BusinessPerson.create!(:person => create(:person),
+                           :country => create(:country))
     should validate_presence_of :country_id
     should validate_presence_of :person_id
     should validate_uniqueness_of :person_id

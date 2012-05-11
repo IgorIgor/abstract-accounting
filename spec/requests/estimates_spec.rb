@@ -30,7 +30,7 @@ feature "estimates", %q{
     page.find("#inbox")[:class].should_not eq("sidebar-selected")
 
     within("#container_documents form") do
-      items = 6.times.collect { Factory(:legal_entity) } .sort
+      items = 6.times.collect { create(:legal_entity) } .sort
       check_autocomplete("estimate_entity", items, :name) do |entity|
         find("#estimate_ident_name")["value"].should eq(entity ? entity.identifier_name : "")
         find("#estimate_ident_value")["value"].should eq(entity ? entity.identifier_value : "")
@@ -97,8 +97,8 @@ feature "estimates", %q{
     find("#estimate_catalog_date")[:disabled].should eq("false")
 
     within("#container_documents form") do
-      items = 2.times.collect { Factory(:price_list) }
-      items += 5.times.collect { |i| Factory(:price_list, :date => DateTime.now + i) }
+      items = 2.times.collect { create(:price_list) }
+      items += 5.times.collect { |i| create(:price_list, :date => DateTime.now + i) }
       items = items.uniq_by{|i| i.date.strftime("%Y-%m-%d")}.sort_by{|i| i.date}
       catalog.price_lists << items
       fill_in("estimate_catalog_date",
@@ -138,7 +138,7 @@ feature "estimates", %q{
     end
     click_button("Add")
     within("#estimate_boms") do
-      items = 6.times.collect { Factory(:bo_m) } .sort_by{|i| i.resource.tag}
+      items = 6.times.collect { create(:bo_m) } .sort_by{|i| i.resource.tag}
       catalog.boms << items
       fill_in("bom_0", :with => items[0].resource.tag[0..1])
       page.should have_xpath(

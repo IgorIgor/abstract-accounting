@@ -8,8 +8,8 @@ feature "GeneralLedger", %q{
 
   scenario 'visit general ledger page', js: true do
     per_page = Settings.root.per_page
-    Factory(:chart)
-    wb = Factory.build(:waybill)
+    create(:chart)
+    wb = build(:waybill)
     per_page.times do |i|
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
     end

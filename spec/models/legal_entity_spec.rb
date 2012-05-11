@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe LegalEntity do
   it "should have next behaviour" do
-    LegalEntity.create!(:name => "Somename", :country => Factory(:country),
+    LegalEntity.create!(:name => "Somename", :country => create(:country),
                         :identifier_name => "VATIN",
                         :identifier_value => "1234567890")
     should validate_presence_of :name

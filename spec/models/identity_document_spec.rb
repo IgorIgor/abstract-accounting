@@ -11,9 +11,9 @@ require 'spec_helper'
 
 describe IdentityDocument do
   it "should have next behaviour" do
-    IdentityDocument.create!(:country => Factory(:country),
+    IdentityDocument.create!(:country => create(:country),
       :number => "DAS", :date_of_issue => Date.today,
-      :authority => "Minsk", :person => Factory(:person))
+      :authority => "Minsk", :person => create(:person))
     should validate_presence_of :country_id
     should validate_presence_of :number
     should validate_presence_of :date_of_issue

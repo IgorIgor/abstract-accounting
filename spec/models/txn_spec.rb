@@ -30,51 +30,51 @@ end
 
 describe Txn do
   before(:all) do
-    @rub = Factory(:chart).currency
-    @eur = Factory(:money)
-    @aasii = Factory(:asset)
-    @share2 = Factory(:deal,
-                      :give => Factory.build(:deal_give, :resource => @aasii),
-                      :take => Factory.build(:deal_take, :resource => @rub),
+    @rub = create(:chart).currency
+    @eur = create(:money)
+    @aasii = create(:asset)
+    @share2 = create(:deal,
+                      :give => build(:deal_give, :resource => @aasii),
+                      :take => build(:deal_take, :resource => @rub),
                       :rate => 10000.0)
-    @share1 = Factory(:deal,
-                      :give => Factory.build(:deal_give, :resource => @aasii),
-                      :take => Factory.build(:deal_take, :resource => @rub),
+    @share1 = create(:deal,
+                      :give => build(:deal_give, :resource => @aasii),
+                      :take => build(:deal_take, :resource => @rub),
                       :rate => 10000.0)
-    @bank = Factory(:deal,
-                    :give => Factory.build(:deal_give, :resource => @rub),
-                    :take => Factory.build(:deal_take, :resource => @rub),
+    @bank = create(:deal,
+                    :give => build(:deal_give, :resource => @rub),
+                    :take => build(:deal_take, :resource => @rub),
                     :rate => 1.0)
-    @purchase = Factory(:deal,
-                        :give => Factory.build(:deal_give, :resource => @rub),
+    @purchase = create(:deal,
+                        :give => build(:deal_give, :resource => @rub),
                         :rate => 0.0000142857143)
-    @bank2 = Factory(:deal,
-                     :give => Factory.build(:deal_give, :resource => @eur),
-                     :take => Factory.build(:deal_take, :resource => @eur),
+    @bank2 = create(:deal,
+                     :give => build(:deal_give, :resource => @eur),
+                     :take => build(:deal_take, :resource => @eur),
                      :rate => 1.0)
-    @forex1 = Factory(:deal,
-                      :give => Factory.build(:deal_give, :resource => @rub),
-                      :take => Factory.build(:deal_take, :resource => @eur),
+    @forex1 = create(:deal,
+                      :give => build(:deal_give, :resource => @rub),
+                      :take => build(:deal_take, :resource => @eur),
                       :rate => 0.028612303)
-    @forex2 = Factory(:deal,
-                      :give => Factory.build(:deal_give, :resource => @eur),
-                      :take => Factory.build(:deal_take, :resource => @rub),
+    @forex2 = create(:deal,
+                      :give => build(:deal_give, :resource => @eur),
+                      :take => build(:deal_take, :resource => @rub),
                       :rate => 35.0)
-    @forex3 = Factory(:deal,
-                      :give => Factory.build(:deal_give, :resource => @bank.give.resource),
-                      :take => Factory.build(:deal_take, :resource => @bank2.take.resource),
+    @forex3 = create(:deal,
+                      :give => build(:deal_give, :resource => @bank.give.resource),
+                      :take => build(:deal_take, :resource => @bank2.take.resource),
                       :rate => (1 / 34.2))
-    @forex4 = Factory(:deal,
-                      :give => Factory.build(:deal_give, :resource => @bank2.give.resource),
-                      :take => Factory.build(:deal_take, :resource => @bank.give.resource),
+    @forex4 = create(:deal,
+                      :give => build(:deal_give, :resource => @bank2.give.resource),
+                      :take => build(:deal_take, :resource => @bank.give.resource),
                       :rate => 34.95)
-    @office = Factory(:deal,
-                      :give => Factory.build(:deal_give, :resource => @bank.give.resource),
+    @office = create(:deal,
+                      :give => build(:deal_give, :resource => @bank.give.resource),
                       :rate => (1 / 2000.0))
   end
 
   it "should create states" do
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 22, 12, 0, 0), :from => @share2,
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 22, 12, 0, 0), :from => @share2,
                    :to => @bank, :resource => @rub, :amount => 100000.0)
     @share2.state(fact.day).resource.should eq(@aasii)
     @share2.state(fact.day).amount.should eq(10.0)
@@ -86,7 +86,7 @@ describe Txn do
   end
 
   it "should update states" do
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 22, 12, 0, 0), :from => @share1,
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 22, 12, 0, 0), :from => @share1,
                  :to => @bank, :resource => @rub, :amount => 142000.0)
     @share2.state(fact.day).resource.should eq(@aasii)
     @share2.state(fact.day).amount.should eq(10.0)
@@ -101,7 +101,7 @@ describe Txn do
   end
 
   it "should replace states" do
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :from => @bank,
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :from => @bank,
                    :to => @purchase, :resource => @rub, :amount => 70000.0)
     @share2.state(fact.day).resource.should eq(@aasii)
     @share2.state(fact.day).amount.should eq(10.0)
@@ -123,7 +123,7 @@ describe Txn do
   end
 
   it "should delete states" do
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :from => @forex1,
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :from => @forex1,
                    :to => @bank2, :resource => @eur, :amount => 1000.0)
     @share2.state(fact.day).resource.should eq(@aasii)
     @share2.state(fact.day).amount.should eq(10.0)
@@ -145,7 +145,7 @@ describe Txn do
     @forex1.state(fact.day).side.should eq(State::PASSIVE)
     State.all.count.should eq(7)
 
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :from => @bank,
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :from => @bank,
                    :to => @forex1, :resource => @rub, :amount => 34950.0)
     @share2.state(fact.day).resource.should eq(@aasii)
     @share2.state(fact.day).amount.should eq(10.0)
@@ -167,7 +167,7 @@ describe Txn do
   end
 
   it "should close state" do
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :from => @bank2,
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :from => @bank2,
                    :to => @forex2, :resource => @eur, :amount => 1000.0)
     @share2.state(fact.day).resource.should eq(@aasii)
     @share2.state(fact.day).amount.should eq(10.0)
@@ -363,10 +363,10 @@ describe Txn do
   end
 
   it "should process loss transaction" do
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0),
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0),
                           :from => @forex2, :to => @bank, :resource => @forex2.take.resource,
                           :amount => 1000.0 * @forex2.rate)
-    TestData.t_forex2_to_bank = Factory(:txn, :fact => fact)
+    TestData.t_forex2_to_bank = create(:txn, :fact => fact)
     Balance.not_paid.count.should eq(4)
     @share2.balance.side.should eq(Balance::PASSIVE)
     @share2.balance.amount.should eq(100000.0 / @share2.rate)
@@ -385,11 +385,11 @@ describe Txn do
     @bank2.balance.should be_nil
     @forex2.balance.should be_nil
 
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0),
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0),
                           :amount => (5000.0 / @forex3.rate).accounting_norm,
                           :from => @bank, :to => @forex3,
                           :resource => @forex3.give.resource)
-    TestData.t_bank_to_forex3 = Factory(:txn, :fact => fact)
+    TestData.t_bank_to_forex3 = create(:txn, :fact => fact)
     Balance.not_paid.count.should eq(5)
     @bank.balance.side.should eq(Balance::ACTIVE)
     TestData.bank_value -= (5000.0 / @forex3.rate).accounting_norm
@@ -399,17 +399,17 @@ describe Txn do
     @forex3.balance.amount.should eq(5000.0)
     @forex3.balance.value.should eq((5000.0 / @forex3.rate).accounting_norm)
 
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :amount => 5000.0,
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :amount => 5000.0,
                           :from => @forex3, :to => @bank2,
                           :resource => @forex3.take.resource)
-    Factory(:txn, :fact => fact)
+    create(:txn, :fact => fact)
     Balance.not_paid.count.should eq(5)
     @bank2.balance.side.should eq(Balance::ACTIVE)
     @bank2.balance.amount.should eq(5000.0)
     @bank2.balance.value.should eq((5000.0 / @forex3.rate).accounting_norm)
     @forex3.balance.should be_nil
 
-    f = Factory(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :from => @office,
+    f = create(:fact, :day => DateTime.civil(2011, 11, 23, 12, 0, 0), :from => @office,
                 :to => Deal.income, :resource => @office.take.resource)
     State.open.count.should eq(6)
     @office.state.amount.should eq((1 / @office.rate).accounting_norm)
@@ -428,10 +428,10 @@ describe Txn do
   end
 
   it "should process split transaction" do
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 24, 12, 0, 0),
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 24, 12, 0, 0),
                           :amount => 2000.0, :from => @bank2, :to => @forex4,
                           :resource => @forex4.give.resource)
-    t = Factory(:txn, :fact => fact)
+    t = create(:txn, :fact => fact)
     Balance.not_paid.count.should eq(7)
     TestData.bank2_value = 5000.0 - t.fact.amount
     @bank2.balance.amount.should eq(TestData.bank2_value)
@@ -452,11 +452,11 @@ describe Txn do
     TestData.profit += (34.95 - 34.2) * t.fact.amount
     Income.open.first.value.should eq(TestData.profit)
 
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 24, 12, 0, 0),
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 24, 12, 0, 0),
                           :amount => (2500.0 * 34.95),
                           :from => @forex4, :to => @bank,
                           :resource => @forex4.take.resource)
-    TestData.t_forex4_to_bank = Factory(:txn, :fact => fact)
+    TestData.t_forex4_to_bank = create(:txn, :fact => fact)
     State.open.count.should eq(7)
     @forex4.state.amount.should eq(2500.0 - 2000.0)
     @forex4.state.resource.should eq(@forex4.give.resource)
@@ -477,10 +477,10 @@ describe Txn do
     Income.open.count.should eq(1)
     Income.open.first.value.should eq(TestData.profit)
 
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 24, 12, 0, 0),
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 24, 12, 0, 0),
                           :amount => 600.0, :from => @bank2, :to => @forex4,
                           :resource => @forex4.give.resource)
-    t = Factory(:txn, :fact => fact)
+    t = create(:txn, :fact => fact)
     State.open.count.should eq(7)
     @forex4.state.amount.should eq((100.0 * 34.95).accounting_norm)
     @forex4.state.resource.should eq(@forex4.take.resource)
@@ -500,11 +500,11 @@ describe Txn do
   end
 
   it "should process gain transaction" do
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 24, 12, 0, 0),
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 24, 12, 0, 0),
                           :amount => (100.0 * 34.95),
                           :from => @forex4, :to => @bank,
                           :resource => @forex4.take.resource)
-    TestData.t2_forex4_to_bank = Factory(:txn, :fact => fact)
+    TestData.t2_forex4_to_bank = create(:txn, :fact => fact)
     Balance.not_paid.count.should eq(6)
     @forex4.balances(:force_update).should be_empty
 
@@ -513,11 +513,11 @@ describe Txn do
     @bank.balance.value.should eq(TestData.bank_value.accounting_norm)
     @bank.balance.side.should eq(Balance::ACTIVE)
 
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 24, 12, 0, 0),
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 24, 12, 0, 0),
                           :amount => (2 * 2000.0),
                           :from => @bank, :to => @office,
                           :resource => @office.give.resource)
-    TestData.t_bank_to_office = Factory(:txn, :fact => fact)
+    TestData.t_bank_to_office = create(:txn, :fact => fact)
     State.open.count.should eq(6)
     @office.state.amount.should eq(1.0)
     @office.state.resource.should eq(@office.take.resource)
@@ -532,11 +532,11 @@ describe Txn do
     @office.balance.side.should eq(Balance::ACTIVE)
     Income.open.should be_empty
 
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 25, 12, 0, 0),
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 25, 12, 0, 0),
                           :amount => 50.0,
                           :from => @bank, :to => Deal.income,
                           :resource => @bank.take.resource)
-    Factory(:txn, :fact => fact)
+    create(:txn, :fact => fact)
     Balance.not_paid.count.should eq(6)
     TestData.bank_value3 = TestData.bank_value
     TestData.bank_value -= 50.0
@@ -548,10 +548,10 @@ describe Txn do
     TestData.profit += (34.95 - 34.2) * 600.0 - 50.0
     Income.open.first.value.should eq(TestData.profit)
 
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 26, 12, 0, 0),
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 26, 12, 0, 0),
                                    :amount => 50.0, :from => Deal.income, :to => @bank,
                                    :resource => @bank.give.resource)
-    Factory(:txn, :fact => fact)
+    create(:txn, :fact => fact)
     Balance.not_paid.count.should eq(6)
     TestData.bank_value += 50.0
     @bank.balance.amount.should eq(TestData.bank_value.accounting_norm)
@@ -562,11 +562,11 @@ describe Txn do
 
   it "should process direct gains losses" do
     TestData.profit += 50.0
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 27, 12, 0, 0),
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 27, 12, 0, 0),
                           :amount => (400.0 * 34.95),
                           :from => @forex4, :to => @bank,
                           :resource => @bank.give.resource)
-    Factory(:txn, :fact => fact)
+    create(:txn, :fact => fact)
     Balance.not_paid.count.should eq(7)
     @forex4.balance.amount.should eq(400.0)
     @forex4.balance.value.should eq((400.0 * 34.95).accounting_norm)
@@ -576,11 +576,11 @@ describe Txn do
     @bank.balance.value.should eq(TestData.bank_value.accounting_norm)
     @bank.balance.side.should eq(Balance::ACTIVE)
 
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 27, 12, 0, 0),
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 27, 12, 0, 0),
                           :amount => 400.0,
                           :from => @bank2, :to => Deal.income,
                           :resource => @bank2.take.resource)
-    Factory(:txn, :fact => fact)
+    create(:txn, :fact => fact)
     Balance.not_paid.count.should eq(7)
     TestData.bank2_value -= 400.0
     @bank2.balance.amount.should eq(TestData.bank2_value.accounting_norm)
@@ -591,11 +591,11 @@ describe Txn do
     TestData.profit -= 400.0 * 34.2
     Income.open.first.value.should eq(TestData.profit.accounting_norm)
 
-    fact = Factory(:fact, :day => DateTime.civil(2011, 11, 27, 12, 0, 0),
+    fact = create(:fact, :day => DateTime.civil(2011, 11, 27, 12, 0, 0),
                           :amount => 400.0,
                           :from => Deal.income, :to => @forex4,
                           :resource => @forex4.give.resource)
-    Factory(:txn, :fact => fact)
+    create(:txn, :fact => fact)
     Balance.not_paid.count.should eq(6)
     @share2.balance.side.should eq(Balance::PASSIVE)
     @share2.balance.amount.should eq(100000.0 / @share2.rate)

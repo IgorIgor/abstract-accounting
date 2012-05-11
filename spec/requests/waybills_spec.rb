@@ -64,7 +64,7 @@ feature "waybill", %q{
     fill_in("waybill_document_id", :with => "1233321")
 
     within('#container_documents form') do
-      items = 6.times.collect { Factory(:legal_entity) } .sort
+      items = 6.times.collect { create(:legal_entity) } .sort
       check_autocomplete('waybill_entity', items, :name) do |entity|
         find('#waybill_ident_name')['value'].should eq(entity.identifier_name)
         find('#waybill_ident_value')['value'].should eq(entity.identifier_value)
@@ -77,12 +77,12 @@ feature "waybill", %q{
       end
       find('#waybill_ident_name')['value'].should eq(items[0].identifier_name)
 
-      items = 6.times.collect { Factory(:place) } .sort
+      items = 6.times.collect { create(:place) } .sort
       check_autocomplete("distributor_place", items, :tag)
 
       check_autocomplete("storekeeper_place", items, :tag)
 
-      items = 6.times.collect { Factory(:entity) } .sort
+      items = 6.times.collect { create(:entity) } .sort
       check_autocomplete("storekeeper_entity", items, :tag)
 
       page.should have_xpath("//table[@id='estimate_boms']")

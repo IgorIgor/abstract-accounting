@@ -11,7 +11,7 @@ require 'spec_helper'
 
 describe Asset do
   it "should have next behaviour" do
-    Factory(:asset)
+    create(:asset)
     should validate_presence_of :tag
     should validate_uniqueness_of(:tag).scoped_to(:mu)
     should have_many(:terms)

@@ -8,170 +8,174 @@
 # Please see ./COPYING for details
 
 FactoryGirl.define do
-  factory :entity do |e|
-    e.sequence(:tag) { |n| "entity#{n}" }
+  sequence :tag do |n|
+    "some tag ##{n}"
   end
 
-  factory :asset do |a|
-    a.sequence(:tag) { |n| "asset#{n}" }
-    a.sequence(:mu) { |n| "mu#{n}" }
+  factory :entity do
+    tag
   end
 
-  factory :money do |m|
-    m.sequence(:alpha_code) { |n| "MN#{n}" }
-    m.sequence(:num_code) { |n| n }
+  factory :asset do
+    tag
+    sequence(:mu) { |n| "mu#{n}" }
   end
 
-  factory :chart do |c|
-    c.currency { |chart| chart.association(:money) }
+  factory :money do
+    sequence(:alpha_code) { |n| "MN#{n}" }
+    sequence(:num_code) { |n| n }
   end
 
-  factory :deal do |d|
-    d.sequence(:tag) { |n| "deal#{n}" }
-    d.give { |deal| deal.association(:deal_give, :strategy => :build) }
-    d.take { |deal| deal.association(:deal_take, :strategy => :build) }
-    d.entity { |deal| deal.association(:entity) }
-    d.rate 1.0
+  factory :chart do
+    currency { |chart| chart.association(:money) }
   end
 
-  factory :state do |s|
-    s.start DateTime.now
-    s.amount 1.0
-    s.side StateAction::ACTIVE
-    s.deal { |state| state.association(:deal) }
+  factory :deal do
+    tag
+    give { |deal| deal.association(:deal_give, :strategy => :build) }
+    take { |deal| deal.association(:deal_take, :strategy => :build) }
+    entity #{ |deal| deal.association(:entity) }
+    rate 1.0
   end
 
-  factory :balance do |b|
-    b.start DateTime.now
-    b.amount 1.0
-    b.value 1.0
-    b.side Balance::ACTIVE
-    b.deal { |balance| balance.association(:deal) }
+  factory :state do
+    start DateTime.now
+    amount 1.0
+    side StateAction::ACTIVE
+    deal #{ |state| state.association(:deal) }
   end
 
-  factory :fact do |f|
-    f.day DateTime.civil(DateTime.now.year, DateTime.now.month, DateTime.now.day, 12, 0, 0)
-    f.amount 1.0
-    f.resource { |fact| fact.association(:money) }
-    f.from { |fact| fact.association(:deal,
-                                     :take => Factory.build(:deal_take,
+  factory :balance do
+    start DateTime.now
+    amount 1.0
+    value 1.0
+    side Balance::ACTIVE
+    deal #{ |balance| balance.association(:deal) }
+  end
+
+  factory :fact do
+    day DateTime.now.change(hour: 12)
+    amount 1.0
+    resource { |fact| fact.association(:money) }
+    from { |fact| fact.association(:deal,
+                                   :take => FactoryGirl.build(:deal_take,
+                                                              :resource => fact.resource)) }
+    to { |fact| fact.association(:deal,
+                                 :give => FactoryGirl.build(:deal_give,
                                                             :resource => fact.resource)) }
-    f.to { |fact| fact.association(:deal,
-                                   :give => Factory.build(:deal_give,
-                                                          :resource => fact.resource)) }
   end
 
-  factory :txn do |t|
-    t.fact { |txn| txn.association(:fact) }
+  factory :txn do
+    fact #{ |txn| txn.association(:fact) }
   end
 
-  factory :income do |i|
-    i.start DateTime.now
-    i.side Income::PASSIVE
-    i.value 1.0
+  factory :income do
+    start DateTime.now
+    side Income::PASSIVE
+    value 1.0
   end
 
-  factory :quote do |q|
-    q.money { |quote| quote.association(:money) }
-    q.rate 1.0
-    q.day DateTime.now
+  factory :quote do
+    money #{ |quote| quote.association(:money) }
+    rate 1.0
+    day DateTime.now
   end
 
-  factory :rule do |r|
-    r.sequence(:tag) { |n| "rule#{n}" }
-    r.deal { |rule| rule.association(:deal) }
-    r.from { |rule| rule.association(:deal) }
-    r.to { |rule| rule.association(:deal) }
-    r.fact_side false
-    r.change_side true
-    r.rate 1.0
+  factory :rule do
+    tag
+    deal #{ |rule| rule.association(:deal) }
+    from { |rule| rule.association(:deal) }
+    to { |rule| rule.association(:deal) }
+    fact_side false
+    change_side true
+    rate 1.0
   end
 
-  factory :price do |p|
-    p.resource { |price| price.association(:asset) }
-    p.rate 10.0
-    p.price_list_id 1
+  factory :price do
+    resource { |price| price.association(:asset) }
+    rate 10.0
+    price_list_id 1
   end
 
-  factory :price_list do |pl|
-    pl.resource { |plist| plist.association(:asset) }
-    pl.date Date.new(2012, 1, 1)
-    pl.tab "sometab"
+  factory :price_list do
+    resource { |plist| plist.association(:asset) }
+    date Date.new(2012, 1, 1)
+    tab "sometab"
   end
 
-  factory :bo_m do |bom|
-    bom.resource { |b| b.association(:asset) }
-    bom.tab "sometab"
+  factory :bo_m do
+    resource { |b| b.association(:asset) }
+    tab "sometab"
   end
 
-  factory :bo_m_element do |be|
-    be.resource { |element| element.association(:asset) }
-    be.rate 0.45
-    be.bom_id 1
+  factory :bo_m_element do
+    resource { |element| element.association(:asset) }
+    rate 0.45
+    bom_id 1
   end
 
-  factory :mu do |m|
-    m.sequence(:tag) { |n| "mu#{n}" }
+  factory :mu do
+    tag
   end
 
-  factory :country do |c|
-    c.sequence(:tag) { |n| "Country#{n}" }
+  factory :country do
+    tag
   end
 
-  factory :person do |p|
-    p.sequence(:first_name) { |n| "FirstName#{n}" }
-    p.sequence(:second_name) { |n| "SecondName#{n}" }
-    p.birthday Date.today
-    p.place_of_birth "Minsk"
+  factory :person do
+    sequence(:first_name) { |n| "FirstName#{n}" }
+    sequence(:second_name) { |n| "SecondName#{n}" }
+    birthday Date.today
+    place_of_birth "Minsk"
   end
 
-  factory :user do |u|
-    u.sequence(:email) { |n| "user#{n}@aasii.org" }
-    u.password "secret"
-    u.password_confirmation { |user| user.password }
-    u.entity { |user| user.association(:entity) }
-    u.sequence(:reset_password_token) { |n| "anything#{n}" }
+  factory :user do
+    sequence(:email) { |n| "user#{n}@aasii.org" }
+    password "secret"
+    password_confirmation { |user| user.password }
+    entity #{ |user| user.association(:entity) }
+    sequence(:reset_password_token) { |n| "anything#{n}" }
   end
 
-  factory :legal_entity do |le|
-    le.sequence(:name) { |n| "Some legal entity#{n}" }
-    le.country { |l| l.association(:country) }
-    le.identifier_name "VATIN"
-    le.identifier_value "500100732259"
+  factory :legal_entity do
+    sequence(:name) { |n| "Some legal entity#{n}" }
+    country #{ |l| l.association(:country) }
+    identifier_name "VATIN"
+    identifier_value "500100732259"
   end
 
-  factory :place do |p|
-    p.sequence(:tag) { |n| "place#{n}" }
+  factory :place do
+    tag
   end
 
-  factory :waybill do |w|
-    w.sequence(:document_id) { |n| "document#{n}" }
-    w.distributor { |waybill| waybill.association(:legal_entity) }
-    w.distributor_place { |waybill| waybill.association(:place) }
-    w.storekeeper { |waybill| waybill.association(:entity) }
-    w.storekeeper_place { |waybill| waybill.association(:place) }
-    w.created Date.today
+  factory :waybill do
+    sequence(:document_id) { |n| "document#{n}" }
+    distributor { |waybill| waybill.association(:legal_entity) }
+    distributor_place { |waybill| waybill.association(:place) }
+    storekeeper { |waybill| waybill.association(:entity) }
+    storekeeper_place { |waybill| waybill.association(:place) }
+    created Date.today
   end
 
-  factory :term do |t|
-    t.place { |term| term.association(:place) }
-    t.resource { |term| term.association(:asset) }
+  factory :term do
+    place #{ |term| term.association(:place) }
+    resource { |term| term.association(:asset) }
   end
 
-  factory :deal_give, :parent => :term do |t|
-    t.side false
+  factory :deal_give, :parent => :term do
+    side false
   end
 
-  factory :deal_take, :parent => :term do |t|
-    t.side true
+  factory :deal_take, :parent => :term do
+    side true
   end
 
-  factory :distribution do |d|
-    d.foreman { |distribution| distribution.association(:entity) }
-    d.foreman_place { |distribution| distribution.association(:place) }
-    d.storekeeper { |distribution| distribution.association(:entity) }
-    d.storekeeper_place { |distribution| distribution.association(:place) }
-    d.created Date.today
-    d.state 0
+  factory :distribution do
+    foreman { |distribution| distribution.association(:entity) }
+    foreman_place { |distribution| distribution.association(:place) }
+    storekeeper { |distribution| distribution.association(:entity) }
+    storekeeper_place { |distribution| distribution.association(:place) }
+    created Date.today
+    state 0
   end
 end

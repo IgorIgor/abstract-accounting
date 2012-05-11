@@ -26,7 +26,7 @@ feature "Login", %q{
     click_on I18n.t('views.home.logout')
     current_path.should eq(login_path)
 
-    user = Factory(:user, :password => "somepass")
+    user = create(:user, :password => "somepass")
     page_login user.email ,"somepass_fail"
     page.should have_content(I18n.t 'views.user_sessions.notice.invalid_data')
     current_path.should eq(login_path)

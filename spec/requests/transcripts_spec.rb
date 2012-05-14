@@ -46,7 +46,7 @@ feature "Transcripts", %q{
     page.datepicker("transcript_date_from").prev_month.day(10)
 
     5.times { create(:deal) }
-    items = Deal.limit(6).all.sort
+    items = Deal.limit(6).order("tag")
     check_autocomplete("deal_tag", items, :tag)
     fill_in('deal_tag', with: share.tag)
     within(:xpath, "//ul[contains(@class, 'ui-autocomplete')"+

@@ -14,7 +14,6 @@ class BalanceSheetController < ActionController::Base
 
   def data
     @date = params[:date].nil? ? nil : Date.parse(params[:date])
-    @mu = params[:mu].nil? ? 'natural' : params[:mu]
     @balances = BalanceSheet.all(date: @date,
                                  include: [deal: [:entity, give: [:resource]]],
                                  page: params[:page] || 1,

@@ -12,22 +12,19 @@ $ ->
     constructor: (data) ->
       @url = '/balance_sheet/data.json'
       @balances_date = ko.observable(new Date())
-      @select_mu = ko.observable('natural')
-      @select_mu.subscribe(@filter)
+      @mu = ko.observable('natural')
       @total_debit = ko.observable(data.total_debit)
       @total_credit = ko.observable(data.total_credit)
       super(data)
 
       @params =
         date: @balances_date().toString()
-        mu: @select_mu()
         page: @page
         per_page: @per_page
 
     filter: =>
       @params =
         date: @balances_date().toString()
-        mu: @select_mu()
         page: @page
         per_page: @per_page
       $.getJSON(@url, @params, (data) =>

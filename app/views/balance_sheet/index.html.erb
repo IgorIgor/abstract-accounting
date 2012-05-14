@@ -6,10 +6,10 @@
 <div class="left">
   <span><%= t 'views.balance_sheet.mu' %>:</span>
   <input type="radio" id="natural_mu" name="mu" value="natural"
-         data-bind="checked: select_mu"><label for="natural_mu">
+         data-bind="checked: mu"><label for="natural_mu">
   <%= t 'views.balance_sheet.natural' %></label>
   <input type="radio" id="currency_mu" name="mu" value="currency"
-         data-bind="checked: select_mu"><label for="currency_mu">
+         data-bind="checked: mu"><label for="currency_mu">
   <%= t 'views.balance_sheet.currency' %></label>
 </div>
 <table>
@@ -34,8 +34,10 @@
       <td data-bind="text: tag"></td>
       <td data-bind="text: entity"></td>
       <td data-bind="text: resource"></td>
-      <td data-bind="text: debit"></td>
-      <td data-bind="text: credit"></td>
+      <td data-bind=
+            "text: type == 'debit' ? ($parent.mu() == 'natural' ? amount : value) : ''"></td>
+      <td data-bind=
+            "text: type == 'credit' ? ($parent.mu() == 'natural' ? amount : value) : ''"></td>
     </tr>
   </tbody>
 </table>

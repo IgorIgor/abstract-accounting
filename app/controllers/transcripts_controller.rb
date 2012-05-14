@@ -15,7 +15,6 @@ class TranscriptsController < ApplicationController
   def data
     @transcript = nil
     @transcripts = []
-    @mu = params[:mu].nil? ? 'natural' : params[:mu]
     unless params[:deal_id].nil? || params[:date_from].nil? ||
         params[:date_to].nil?
       @transcript = Transcript.new(Deal.find(params[:deal_id]), DateTime.parse(params[:date_from]),

@@ -18,18 +18,22 @@
 <div class="left clear">
   <span><%= t 'views.transcripts.mu' %>:</span>
   <input type="radio" id="natural_mu" name="mu" value="natural"
-         data-bind="checked: select_mu"><label for="natural_mu">
+         data-bind="checked: mu"><label for="natural_mu">
   <%= t 'views.transcripts.natural' %></label>
   <input type="radio" id="currency_mu" name="mu" value="currency"
-         data-bind="checked: select_mu"><label for="currency_mu">
+         data-bind="checked: mu"><label for="currency_mu">
   <%= t 'views.transcripts.currency' %></label>
 </div>
 <table class="left">
   <thead>
-    <tr class="without-border">
-      <td colspan="2" data-bind="text:parse_date_from"></td>
-      <td data-bind="text:from_debit"></td>
-      <td data-bind="text:from_credit"></td>
+    <tr class="without-border" data-bind="with: from">
+      <td colspan="2" data-bind="text:$parent.parse_date_from"></td>
+      <td data-bind=
+            "text: type == 'debit' ? ($parent.mu() == 'natural' ? amount() : value()) : '0.0'">
+      </td>
+      <td data-bind=
+            "text: type == 'credit' ? ($parent.mu() == 'natural' ? amount() : value()) : '0.0'">
+      </td>
     </tr>
     <tr>
       <th class=""><%=t 'views.transcripts.date' %></th>
@@ -39,28 +43,38 @@
     </tr>
   </thead>
   <tfoot class="without-border">
-    <tr>
+    <tr data-bind="with:totals">
       <td colspan="2"><%=t 'views.transcripts.total_circulation' %></td>
-      <td data-bind="text:total_debits"></td>
-      <td data-bind="text:total_credits"></td>
+      <td data-bind=
+            "text: $parent.mu() == 'natural' ? debit.amount() : debit.value()"></td>
+      <td data-bind=
+            "text: $parent.mu() == 'natural' ? credit.amount() : credit.value()"></td>
     </tr>
-    <tr>
+    <tr data-bind="with:totals">
       <td colspan="2"><%=t 'views.transcripts.rate_differences' %></td>
-      <td data-bind="text:total_debits_diff"></td>
-      <td data-bind="text:total_credits_diff"></td>
+      <td data-bind=
+            "text: $parent.mu() == 'natural' ? '' : debit.diff()"></td>
+      <td data-bind=
+            "text: $parent.mu() == 'natural' ? '' : credit.diff()"></td>
     </tr>
-    <tr>
-      <td colspan="2" data-bind="text:parse_date_to"></td>
-      <td data-bind="text:to_debit"></td>
-      <td data-bind="text:to_credit"></td>
+    <tr data-bind="with: to">
+      <td colspan="2" data-bind="text:$parent.parse_date_to"></td>
+      <td data-bind=
+            "text: type() == 'debit' ? ($parent.mu() == 'natural' ? amount() : value()) : '0.0'">
+      </td>
+      <td data-bind=
+            "text: type() == 'credit' ? ($parent.mu() == 'natural' ? amount() : value()) : '0.0'">
+      </td>
     </tr>
   </tfoot>
   <tbody data-bind="foreach: documents">
   <tr>
     <td data-bind="text: date"></td>
     <td data-bind="text: account"></td>
-    <td data-bind="text: debit"></td>
-    <td data-bind="text: credit"></td>
+    <td data-bind=
+          "text: type == 'debit' ? ($parent.mu() == 'natural' ? amount : value) : ''"></td>
+    <td data-bind=
+          "text: type == 'credit' ? ($parent.mu() == 'natural' ? amount : value) : ''"></td>
   </tr>
   </tbody>
 </table>

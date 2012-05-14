@@ -19,120 +19,51 @@ child(@transcripts => :objects) do
       txn.fact.from.tag
     end
   end
-  node :debit do |txn|
-    if @transcript.deal.id == txn.fact.to.id
-      if @mu == 'natural'
-        txn.fact.amount.to_s
-      else
-        txn.value.to_s
-      end
-    else
-      nil
-    end
-  end
-  node :credit do |txn|
-    if @transcript.deal.id == txn.fact.from.id
-      if @mu == 'natural'
-        txn.fact.amount.to_s
-      else
-        txn.value.to_s
-      end
-    else
-      nil
-    end
-  end
+  node(:type) { |txn| @transcript.deal.id == txn.fact.to.id ? 'debit' : 'credit' }
+  node(:value) { |txn| txn.value.to_s }
+  node(:amount) { |txn| txn.fact.amount.to_s }
 end
 node (:per_page) { params[:per_page] || Settings.root.per_page }
 node (:count) { @transcript.nil? ? 0 : @transcript.count }
-node (:from_debit) do
-  if @transcript.nil? || @transcript.opening.nil? ||
-      @transcript.opening.side != Balance::PASSIVE
-    '0.0'
-  else
-    if @mu == 'natural'
-      @transcript.opening.amount.to_s
+child(true => :from) do
+  node(:type) do
+    if @transcript && @transcript.opening && @transcript.opening.side == Balance::PASSIVE
+      'debit'
     else
-      @transcript.opening.value.to_s
+      'credit'
     end
   end
-end
-node (:from_credit) do
-  if @transcript.nil? || @transcript.opening.nil? ||
-      @transcript.opening.side != Balance::ACTIVE
-    '0.0'
-  else
-    if @mu == 'natural'
-      @transcript.opening.amount.to_s
-    else
-      @transcript.opening.value.to_s
-    end
+  node(:value) do
+    (@transcript && @transcript.opening) ? @transcript.opening.value.to_s : '0.0'
+  end
+  node(:amount) do
+    (@transcript && @transcript.opening) ? @transcript.opening.amount.to_s : '0.0'
   end
 end
-node (:to_debit) do
-  if @transcript.nil? || @transcript.closing.nil? ||
-      @transcript.closing.side != Balance::PASSIVE
-    '0.0'
-  else
-    if @mu == 'natural'
-      @transcript.closing.amount.to_s
+child(true => :to) do
+  node(:type) do
+    if @transcript && @transcript.closing && @transcript.closing.side == Balance::PASSIVE
+      'debit'
     else
-      @transcript.closing.value.to_s
+      'credit'
     end
   end
-end
-node (:to_credit) do
-  if @transcript.nil? || @transcript.closing.nil? ||
-      @transcript.closing.side != Balance::ACTIVE
-    '0.0'
-  else
-    if @mu == 'natural'
-      @transcript.closing.amount.to_s
-    else
-      @transcript.closing.value.to_s
-    end
+  node(:value) do
+    (@transcript && @transcript.closing) ? @transcript.closing.value.to_s : '0.0'
+  end
+  node(:amount) do
+    (@transcript && @transcript.closing) ? @transcript.closing.amount.to_s : '0.0'
   end
 end
-node(:total_debits) do
-  if @transcript.nil?
-    '0.0'
-  else
-    if @mu == 'natural'
-      @transcript.total_debits.to_s
-    else
-      @transcript.total_debits_value.to_s
-    end
+child(true => :totals) do
+  child(true => :debit) do
+    node(:amount) { @transcript ? @transcript.total_debits.to_s : '0.0' }
+    node(:value) { @transcript ? @transcript.total_debits_value.to_s : '0.0' }
+    node(:diff) { @transcript ? @transcript.total_debits_diff.to_s : '0.0' }
   end
-end
-node(:total_credits) do
-  if @transcript.nil?
-    '0.0'
-  else
-    if @mu == 'natural'
-      @transcript.total_credits.to_s
-    else
-      @transcript.total_credits_value.to_s
-    end
-  end
-end
-node(:total_debits_diff) do
-  if @mu == 'natural'
-    nil
-  else
-    if @transcript.nil?
-      '0.0'
-    else
-      @transcript.total_debits_diff.to_s
-    end
-  end
-end
-node(:total_credits_diff) do
-  if @mu == 'natural'
-    nil
-  else
-    if @transcript.nil?
-      '0.0'
-    else
-      @transcript.total_credits_diff.to_s
-    end
+  child(true => :credit) do
+    node(:amount) { @transcript ? @transcript.total_credits.to_s : '0.0' }
+    node(:value) { @transcript ? @transcript.total_credits_value.to_s : '0.0' }
+    node(:diff) { @transcript ? @transcript.total_credits_diff.to_s : '0.0' }
   end
 end

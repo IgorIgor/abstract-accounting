@@ -9,15 +9,10 @@ $ ->
       @date_to = ko.observable(new Date())
       @parse_date_to = ko.observable(
         $.datepicker.formatDate('yy-mm-dd', @date_to()))
-      @from_debit = ko.observable(data.from_debit)
-      @from_credit = ko.observable(data.from_credit)
-      @to_debit = ko.observable(data.to_debit)
-      @to_credit = ko.observable(data.to_credit)
-      @total_debits = ko.observable(data.total_debits)
-      @total_credits = ko.observable(data.total_credits)
-      @total_debits_diff = ko.observable(data.total_debits_diff)
-      @total_credits_diff = ko.observable(data.total_credits_diff)
-      @select_mu = ko.observable('natural')
+      @from = ko.observable(ko.mapping.fromJS(data.from))
+      @to = ko.observable(ko.mapping.fromJS(data.to))
+      @totals = ko.observable(ko.mapping.fromJS(data.totals))
+      @mu = ko.observable('natural')
 
       super(data)
 
@@ -27,12 +22,10 @@ $ ->
         deal_id: @deal()
         page: @page
         per_page: @per_page
-        mu: @select_mu()
 
       @deal.subscribe(@filter)
       @date_from.subscribe(@filter)
       @date_to.subscribe(@filter)
-      @select_mu.subscribe(@filter)
 
     filter: =>
       @parse_date_from($.datepicker.formatDate('yy-mm-dd', @date_from()))
@@ -43,18 +36,12 @@ $ ->
         deal_id: @deal()
         page: @page
         per_page: @per_page
-        mu: @select_mu()
       $.getJSON(@url, @params, (data) =>
         @documents(data.objects)
         @page(1)
         @count(data.count)
         @range(@rangeGenerate())
-        @from_debit(data.from_debit)
-        @from_credit(data.from_credit)
-        @to_debit(data.to_debit)
-        @to_credit(data.to_credit)
-        @total_debits(data.total_debits)
-        @total_credits(data.total_credits)
-        @total_debits_diff(data.total_debits_diff)
-        @total_credits_diff(data.total_credits_diff)
+        @from(ko.mapping.fromJS(data.from))
+        @to(ko.mapping.fromJS(data.to))
+        @totals(ko.mapping.fromJS(data.totals))
       )

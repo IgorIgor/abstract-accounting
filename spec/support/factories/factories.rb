@@ -178,4 +178,10 @@ FactoryGirl.define do
     created Date.today
     state 0
   end
+
+  factory :credential do |c|
+    user
+    place
+    sequence(:document_type) { |n| "document_type#{n}" }
+  end
 end

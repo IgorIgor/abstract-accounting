@@ -18,6 +18,7 @@ class User < ActiveRecord::Base
   validates_length_of :password, :minimum => 6, :on => :create
   validates_confirmation_of :password
   belongs_to :entity
+  has_many :credentials
 
   def self.authenticate(email, password, *credentials)
     if "root@localhost" == email &&

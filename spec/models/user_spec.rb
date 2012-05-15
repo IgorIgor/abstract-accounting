@@ -26,6 +26,7 @@ describe User do
     should belong_to(:entity)
     should have_many User.versions_association_name
     User.new.root?.should be_false
+    should have_many(:credentials)
   end
 
   it "should authenticate from config" do

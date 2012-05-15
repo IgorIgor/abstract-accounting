@@ -219,6 +219,8 @@ feature "single page application", %q{
 
     page_login(user.email, password)
     page.should have_content(user.entity.tag)
+    page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
+    page.should_not have_xpath("//div[@id='container_documents']//table//tbody//tr")
     page.should_not have_xpath("//ul[@id='documents_list']//li")
     click_link I18n.t('views.home.logout')
 
@@ -231,6 +233,22 @@ feature "single page application", %q{
         page.should have_content(I18n.t("views.home.#{credential.document_type.underscore}"))
       end
     end
+    page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
+    versions = VersionEx.lasts.
+        by_type(user.credentials(:force_update).collect { |c| c.document_type }).
+        paginate(page: 1, per_page: @per_page).all
+
+    within('#container_documents table tbody') do
+      versions.each do |version|
+        page.should have_content(version.item.class.name)
+        page.should have_content(version.item.storekeeper.tag)
+        page.should have_content(version.item.versions.first.created_at.
+                                     strftime('%Y-%m-%d'))
+        page.should have_content(version.item.versions.last.created_at.
+                                     strftime('%Y-%m-%d'))
+      end
+      page.should_not have_content(Distribution.name)
+    end
     click_link I18n.t('views.home.logout')
 
     create(:credential, user: user, document_type: Distribution.name)
@@ -240,6 +258,21 @@ feature "single page application", %q{
       page.should have_selector("li", count: user.credentials(:force_update).count)
       user.credentials(:force_update).each do |credential|
         page.should have_content(I18n.t("views.home.#{credential.document_type.underscore}"))
+      end
+    end
+    page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
+    versions = VersionEx.lasts.
+        by_type(user.credentials(:force_update).collect { |c| c.document_type }).
+        paginate(page: 1, per_page: @per_page).all
+
+    within('#container_documents table tbody') do
+      versions.each do |version|
+        page.should have_content(version.item.class.name)
+        page.should have_content(version.item.storekeeper.tag)
+        page.should have_content(version.item.versions.first.created_at.
+                                     strftime('%Y-%m-%d'))
+        page.should have_content(version.item.versions.last.created_at.
+                                     strftime('%Y-%m-%d'))
       end
     end
     click_link I18n.t('views.home.logout')

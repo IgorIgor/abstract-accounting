@@ -28,7 +28,14 @@
       <a id="btn_create"><%=t 'views.home.create' %>
         <div class="arrow_down"></div>
       </a>
-      <%= documents_list('documents_list') %>
+      <ul id='documents_list'>
+        <% @types.each do |type| %>
+          <li>
+            <%= link_to(t("views.home.#{type.underscore}"),
+                       "#documents#{send("new_#{type.underscore}_path")}") %>
+          </li>
+        <% end %>
+      </ul>
     </div>
     <br />
 

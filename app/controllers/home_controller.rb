@@ -8,7 +8,16 @@
 # Please see ./COPYING for details
 
 class HomeController < ApplicationController
+  def user_documents
+    if current_user.root?
+      [Waybill.name, Distribution.name]
+    else
+      current_user.credentials(:force_update).collect{ |c| c.document_type }
+    end
+  end
+
   def index
+    @types = user_documents
   end
 
   def inbox
@@ -16,11 +25,14 @@ class HomeController < ApplicationController
   end
 
   def inbox_data
-    types = [ Waybill.name, Distribution.name ]
-
-    @versions = VersionEx.lasts.by_type(types).filter(params[:like]).
-      paginate(page: params[:page], per_page: params[:per_page]).
-      all(include: [item: [:versions, :storekeeper]])
-    @count = VersionEx.lasts.by_type(types).filter(params[:like]).count
+    types = user_documents
+    @versions = []
+    @count = 0
+    unless types.empty?
+      scoped_versions = VersionEx.lasts.by_type(user_documents).filter(params[:like])
+      @versions = scoped_versions.paginate(page: params[:page], per_page: params[:per_page]).
+          all(include: [item: [:versions, :storekeeper]])
+      @count = scoped_versions.count
+    end
   end
 end

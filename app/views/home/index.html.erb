@@ -28,11 +28,7 @@
       <a id="btn_create"><%=t 'views.home.create' %>
         <div class="arrow_down"></div>
       </a>
-      <ul id="documents_list">
-        <!--<li><%#=link_to(t('views.home.estimate'), "#documents#{new_estimate_path}") %></li>-->
-        <li><%=link_to(t('views.home.waybill'), "#documents#{new_waybill_path}") %></li>
-        <li><%=link_to(t('views.home.distribution'), "#documents#{new_distribution_path}") %></li>
-      </ul>
+      <%= documents_list('documents_list') %>
     </div>
     <br />
 

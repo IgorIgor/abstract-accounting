@@ -41,11 +41,6 @@ feature "single page application", %q{
     visit home_index_path
     current_path.should eq(home_index_path)
     page.should have_content("root@localhost")
-    click_link I18n.t('views.home.logout')
-
-    user = create(:user, :password => "somepass")
-    page_login(user.email, "somepass")
-    page.should have_content(user.entity.tag)
     page.should have_content(I18n.t 'views.home.logout')
     page.should have_content(I18n.t 'views.home.inbox')
     page.should have_content(I18n.t 'views.home.starred')
@@ -214,5 +209,39 @@ feature "single page application", %q{
       page.should have_content(@distributions[0].versions.last.created_at.
                                  strftime('%Y-%m-%d'))
     end
+
+    click_link I18n.t('views.home.logout')
+  end
+
+  scenario "non root user should see only information accessible by him", js: true do
+    password = "password"
+    user = create(:user, :password => password)
+
+    page_login(user.email, password)
+    page.should have_content(user.entity.tag)
+    page.should_not have_xpath("//ul[@id='documents_list']//li")
+    click_link I18n.t('views.home.logout')
+
+    create(:credential, user: user, document_type: Waybill.name)
+
+    page_login(user.email, password)
+    within(:xpath, "//ul[@id='documents_list']") do
+      page.should have_selector("li", count: user.credentials(:force_update).count)
+      user.credentials(:force_update).each do |credential|
+        page.should have_content(I18n.t("views.home.#{credential.document_type.underscore}"))
+      end
+    end
+    click_link I18n.t('views.home.logout')
+
+    create(:credential, user: user, document_type: Distribution.name)
+
+    page_login(user.email, password)
+    within(:xpath, "//ul[@id='documents_list']") do
+      page.should have_selector("li", count: user.credentials(:force_update).count)
+      user.credentials(:force_update).each do |credential|
+        page.should have_content(I18n.t("views.home.#{credential.document_type.underscore}"))
+      end
+    end
+    click_link I18n.t('views.home.logout')
   end
 end

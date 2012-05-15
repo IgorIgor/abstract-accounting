@@ -60,6 +60,36 @@ class Waybill < ActiveRecord::Base
     @items
   end
 
+  def self.in_warehouse
+    script = "
+      SELECT id FROM (
+        SELECT id, SUM(amount) as exp_amount FROM (
+          SELECT waybills.id as id, assets.id as asset_id,
+                 states.amount as amount FROM waybills
+          LEFT JOIN rules ON rules.deal_id = waybills.deal_id
+          INNER JOIN states ON states.deal_id = rules.to_id
+                            AND states.paid IS NULL
+          INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
+          INNER JOIN assets ON assets.id = terms.resource_id
+          GROUP BY waybills.id, rules.to_id
+          UNION
+          SELECT waybills.id as id, assets.id as asset_id,
+                 -SUM(ds_rule.rate) as amount FROM waybills
+          LEFT JOIN rules ON rules.deal_id = waybills.deal_id
+          INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
+          INNER JOIN assets ON assets.id = terms.resource_id
+          INNER JOIN rules AS ds_rule ON ds_rule.from_id = rules.to_id
+          INNER JOIN distributions ON distributions.deal_id = ds_rule.deal_id
+                                   AND distributions.state = 1
+          GROUP BY waybills.id, rules.to_id )
+        GROUP BY id, asset_id
+      ) WHERE exp_amount > 0
+      GROUP BY id"
+
+    Waybill.find(
+      ActiveRecord::Base.connection.execute(script).map { |wb| wb['id'] })
+  end
+
   private
   def do_after_initialize
     @items = Array.new

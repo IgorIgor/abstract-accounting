@@ -319,6 +319,59 @@ describe Waybill do
     balance.amount.should eq(500)
     balance.start.should eq(DateTime.current.change(hour: 12))
   end
+
+  it 'should show in warehouse' do
+    moscow = create(:place, tag: 'Moscow')
+    minsk = create(:place, tag: 'Minsk')
+    ivanov = create(:entity, tag: 'Ivanov')
+    petrov = create(:entity, tag: 'Petrov')
+
+    wb1 = build(:waybill, storekeeper: ivanov,
+                                  storekeeper_place: moscow)
+    wb1.add_item('roof', 'rm', 100, 120.0)
+    wb1.add_item('nails', 'pcs', 700, 1.0)
+    wb1.save!
+    wb2 = build(:waybill, storekeeper: ivanov,
+                                  storekeeper_place: moscow)
+    wb2.add_item('nails', 'pcs', 1200, 1.0)
+    wb2.add_item('nails', 'kg', 10, 150.0)
+    wb2.add_item('roof', 'rm', 50, 100.0)
+    wb2.save!
+    wb3 = build(:waybill, storekeeper: petrov,
+                                  storekeeper_place: minsk)
+    wb3.add_item('roof', 'rm', 500, 120.0)
+    wb3.add_item('nails', 'kg', 300, 150.0)
+    wb3.save!
+
+    Waybill.in_warehouse.include?(wb1).should be_true
+    Waybill.in_warehouse.include?(wb2).should be_true
+    Waybill.in_warehouse.include?(wb3).should be_true
+
+    ds_moscow = build(:distribution, storekeeper: ivanov,
+                                             storekeeper_place: moscow)
+    ds_moscow.add_item('nails', 'pcs', 10)
+    ds_moscow.add_item('roof', 'rm', 4)
+    ds_moscow.save!
+    ds_minsk = build(:distribution, storekeeper: petrov,
+                                            storekeeper_place: minsk)
+    ds_minsk.add_item('roof', 'rm', 400)
+    ds_minsk.add_item('nails', 'kg', 200)
+    ds_minsk.save!
+
+    Waybill.in_warehouse.include?(wb1).should be_true
+    Waybill.in_warehouse.include?(wb2).should be_true
+    Waybill.in_warehouse.include?(wb3).should be_true
+
+    ds_moscow = build(:distribution, storekeeper: ivanov,
+                                             storekeeper_place: moscow)
+    ds_moscow.add_item('roof', 'rm', 146)
+    ds_moscow.add_item('nails', 'pcs', 1890)
+    ds_moscow.save!
+
+    Waybill.in_warehouse.include?(wb1).should be_false
+    Waybill.in_warehouse.include?(wb2).should be_true
+    Waybill.in_warehouse.include?(wb3).should be_true
+  end
 end
 
 describe ItemsValidator do

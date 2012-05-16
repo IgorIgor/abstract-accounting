@@ -74,6 +74,18 @@ class WaybillsController < ApplicationController
   end
 
   def data
-    @waybills = Waybill.all
+    attrs = {}
+
+    if params.has_key?(:equal)
+      params[:equal].each do |key, value|
+        unless value.empty?
+          attrs[:where] ||= {}
+          attrs[:where][key] = {}
+          attrs[:where][key][:equal] = value
+        end
+      end
+    end
+
+    @waybills = Waybill.in_warehouse(attrs)
   end
 end

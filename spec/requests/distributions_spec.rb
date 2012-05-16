@@ -146,16 +146,26 @@ feature 'distributions', %q{
         }
       end
 
-      page.find('#mode-waybills').click
+      wb2 = build(:waybill)
+      wb2.add_item("resource_2", "mu_2", 100, 10)
+      wb2.save!
 
+      wbs = Waybill.in_warehouse(where: { storekeeper_id: {
+                                            equal: wb.storekeeper.id },
+                                          storekeeper_place_id: {
+                                            equal: wb.storekeeper_place.id }})
+
+      page.find('#mode-waybills').click
       page.should have_no_selector('#available-resources')
       within('#available-resources-by-wb') do
-        tr = page.all('tbody tr')[0]
-        tr.should have_content(wb.document_id)
-        tr.should have_content(wb.created.strftime('%Y-%m-%d'))
-        tr.should have_content(wb.distributor.name)
-        tr.should have_content(wb.storekeeper.tag)
-        tr.should have_content(wb.storekeeper_place.tag)
+        wbs.each_with_index do |w, idx|
+          tr = page.all('tbody tr')[idx]
+          tr.should have_content(w.document_id)
+          tr.should have_content(w.created.strftime('%Y-%m-%d'))
+          tr.should have_content(w.distributor.name)
+          tr.should have_content(w.storekeeper.tag)
+          tr.should have_content(w.storekeeper_place.tag)
+        end
       end
 
       page.find('#mode-resources-by-wb').click

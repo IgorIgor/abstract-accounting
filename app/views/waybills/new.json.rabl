@@ -7,10 +7,12 @@
 #
 # Please see ./COPYING for details
 
-object @waybill
-attributes :created, :document_id,
-           :distributor_id, :distributor_place_id,
-           :storekeeper_id, :storekeeper_place_id
+object true
+child(@waybill => :waybill) do
+  attributes :created, :document_id,
+             :distributor_id, :distributor_place_id,
+             :storekeeper_id, :storekeeper_place_id
+end
 child(LegalEntity.new => :distributor) do
   attributes :name, :identifier_name, :identifier_value
 end
@@ -23,3 +25,4 @@ unless place
   place = @waybill.build_storekeeper_place
 end
 child(place => :storekeeper_place) { attributes :tag }
+child([] => :items)

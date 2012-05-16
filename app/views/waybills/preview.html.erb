@@ -27,7 +27,8 @@
         </span>
         <span>
           <input type="text" id="created" name="<%= t 'views.waybills.created_at' %>"
-                 rule="required" data-bind="datepicker: waybill.created, disable: readonly">
+                 rule="required" data-bind="datepicker: object.waybill.created,
+                                            disable: readonly">
         </span>
       </div>
       <div>
@@ -37,7 +38,8 @@
         <span>
           <input type="text" id="waybill_document_id"
                  name="<%= t 'views.waybills.document_id' %>"
-                 rule="required" data-bind="value: waybill.document_id, disable: readonly">
+                 rule="required" data-bind="value: object.waybill.document_id,
+                                            disable: readonly">
         </span>
       </div>
     </div>
@@ -50,12 +52,12 @@
         <span class="form-cell-label">
           <label for="waybill_entity"><%= t 'views.waybills.entity' %>:</label>
         </span>
-        <span data-bind='with: waybill.distributor'>
+        <span data-bind='with: object.distributor'>
           <input type='text' id='waybill_entity'
                  name='<%= t 'views.waybills.distributor' %>' rule='required'
                  data-bind="autocomplete: { source: '/legal_entities.json',
                                             value: 'name',
-                                            bindId: $parent.waybill.distributor_id },
+                                            bindId: $parent.object.waybill.distributor_id },
                             value: name, disable: $parent.readonly" />
         </span>
       </div>
@@ -65,7 +67,7 @@
         </span>
         <span>
           <select id="waybill_ident_name" name="Distributor Ident. Name"
-                  data-bind="value: waybill.distributor.identifier_name,
+                  data-bind="value: object.distributor.identifier_name,
                              disable: readonly">
             <option value="MSRN"><%=t 'views.waybills.ident_name_MSRN' %></option>
             <option value="VATIN"><%=t 'views.waybills.ident_name_VATIN' %></option>
@@ -80,7 +82,7 @@
           <input id="waybill_ident_value" type="text"
                  data-field="identifier_value"
                  rule="required" name="<%=t 'views.waybills.ident_value' %>"
-                 data-bind="value: waybill.distributor.identifier_value,
+                 data-bind="value: object.distributor.identifier_value,
                             disable: readonly" />
         </span>
       </div>
@@ -88,13 +90,14 @@
         <span class="form-cell-label">
           <label for="distributor_place"><%= t 'views.waybills.place' %>:</label>
         </span>
-        <span data-bind="with: waybill.distributor_place">
+        <span data-bind="with: object.distributor_place">
           <input type='text' id='distributor_place'
                  name='<%= t 'views.waybills.distributor_place' %>' rule='required'
-                 data-bind="autocomplete: { source: '/places.json',
-                                            value: 'tag',
-                                            bindId: $parent.waybill.distributor_place_id },
-                            value: tag, disable: $parent.readonly" />
+                 data-bind="autocomplete: {
+                              source: '/places.json',
+                              value: 'tag',
+                              bindId: $parent.object.waybill.distributor_place_id
+                            }, value: tag, disable: $parent.readonly" />
         </span>
       </div>
     </div>
@@ -107,12 +110,12 @@
         <span class="form-cell-label">
           <label for="storekeeper_entity"><%=t 'views.waybills.entity' %>:</label>
         </span>
-        <span data-bind='with: waybill.storekeeper'>
+        <span data-bind='with: object.storekeeper'>
           <input type='text' id='storekeeper_entity'
                  name='<%= t 'views.waybills.storekeeper' %>' rule='required'
                  data-bind="autocomplete: { source: '/entities.json',
                                             value: 'tag',
-                                            bindId: $parent.waybill.storekeeper_id },
+                                            bindId: $parent.object.waybill.storekeeper_id },
                             value: tag, disable: $parent.disable_storekeeper" />
         </span>
       </div>
@@ -120,13 +123,14 @@
         <span class="form-cell-label">
           <label for="storekeeper_place"><%=t 'views.waybills.place' %>:</label>
         </span>
-        <span data-bind='with: waybill.storekeeper_place'>
+        <span data-bind='with: object.storekeeper_place'>
           <input type='text' id='storekeeper_place'
                  name='<%= t 'views.waybills.storekeeper_place' %>' rule='required'
-                 data-bind="autocomplete: { source: '/places.json',
-                                            value: 'tag',
-                                            bindId: $parent.waybill.storekeeper_place_id },
-                            value: tag, disable: $parent.disable_storekeeper" />
+                 data-bind="autocomplete: {
+                              source: '/places.json',
+                              value: 'tag',
+                              bindId: $parent.object.waybill.storekeeper_place_id
+                            }, value: tag, disable: $parent.disable_storekeeper" />
         </span>
       </div>
     </div>
@@ -148,31 +152,39 @@
         <!-- /ko -->
       </tr>
       </thead>
-      <tbody data-bind="foreach: resources, elementValidate: resources">
-      <tr data-bind="attr: { idx: $parent.resources.indexOf($data) }">
+      <tbody data-bind="foreach: object.items, elementValidate: object.items">
+      <tr data-bind="attr: { idx: $parent.object.items.indexOf($data) }">
         <td>
           <input type="text" rule="required"
                  data-bind="value: tag, disable: $parent.readonly,
-                            attr: { id: 'tag_' + $parent.resources.indexOf($data),
-                                    name: '<%=t 'views.waybills.item' %>#' + $parent.resources.indexOf($data) + ' <%=t 'views.waybills.entry_name' %>'}" />
+                            attr: { id: 'tag_' + $parent.object.items.indexOf($data),
+                                    name: '<%=t 'views.waybills.item' %>#' +
+                                          $parent.object.items.indexOf($data) +
+                                          ' <%=t 'views.waybills.entry_name' %>'}" />
         </td>
         <td>
           <input type="text" rule="required"
                  data-bind="value: mu, disable: $parent.readonly,
-                            attr: { id: 'mu_' + $parent.resources.indexOf($data),
-                                    name: '<%=t 'views.waybills.item' %>#' + $parent.resources.indexOf($data) + ' <%=t 'views.waybills.measure' %>'}" />
+                            attr: { id: 'mu_' + $parent.object.items.indexOf($data),
+                                    name: '<%=t 'views.waybills.item' %>#' +
+                                    $parent.object.items.indexOf($data) +
+                                    ' <%=t 'views.waybills.measure' %>'}" />
         </td>
         <td>
           <input type="text" rule="required_num"
                  data-bind="value: amount, disable: $parent.readonly,
-                            attr: { id: 'count_' + $parent.resources.indexOf($data),
-                                    name: '<%=t 'views.waybills.item' %>#' + $parent.resources.indexOf($data) + ' <%=t 'views.waybills.count' %>'}"/>
+                            attr: { id: 'count_' + $parent.object.items.indexOf($data),
+                                    name: '<%=t 'views.waybills.item' %>#' +
+                                    $parent.object.items.indexOf($data) +
+                                    ' <%=t 'views.waybills.count' %>'}"/>
         </td>
         <td>
           <input type="text" rule="required_num"
                  data-bind="value: price, disable: $parent.readonly,
-                            attr: { id: 'price_' + $parent.resources.indexOf($data),
-                                    name: '<%=t 'views.waybills.item' %>#' + $parent.resources.indexOf($data) + ' <%=t 'views.waybills.price' %>'}" />
+                            attr: { id: 'price_' + $parent.object.items.indexOf($data),
+                                    name: '<%=t 'views.waybills.item' %>#' +
+                                    $parent.object.items.indexOf($data) +
+                                    ' <%=t 'views.waybills.price' %>'}" />
         </td>
         <!-- ko ifnot: $parent.readonly -->
         <td class="estimate-boms-actions">

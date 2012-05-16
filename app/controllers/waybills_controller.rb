@@ -29,9 +29,9 @@ class WaybillsController < ApplicationController
       Waybill.transaction do
         Chart.create!(:currency => Money.create!(:alpha_code => "RUB",
                                                  :num_code => 222)) unless Chart.count > 0
-        params[:object][:distributor_type] = "LegalEntity"
-        params[:object][:storekeeper_type] = "Entity"
-        waybill = Waybill.new(params[:object])
+        params[:waybill][:distributor_type] = "LegalEntity"
+        params[:waybill][:storekeeper_type] = "Entity"
+        waybill = Waybill.new(params[:waybill])
         if waybill.distributor_id.zero?
           country = Country.find_or_create_by_tag(:tag => "Russian Federation")
           distributor = LegalEntity.find_all_by_name_and_country_id(

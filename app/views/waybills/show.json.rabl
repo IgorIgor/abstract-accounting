@@ -7,17 +7,20 @@
 #
 # Please see ./COPYING for details
 
-object @waybill
-attributes :document_id,
-           :distributor_id, :distributor_place_id,
-           :storekeeper_id, :storekeeper_place_id
-
-node(:created) { |waybill| waybill.created.strftime("%m/%d/%Y") }
-child(:distributor => :distributor) { attributes :name, :identifier_name, :identifier_value }
-child(:distributor_place => :distributor_place) { attributes :tag }
-child(:storekeeper => :storekeeper) { attributes :tag }
-child(:storekeeper_place => :storekeeper_place) { attributes :tag }
-child(:items => :items) do
+object true
+child(@waybill => :waybill) do
+  attributes :document_id,
+             :distributor_id, :distributor_place_id,
+             :storekeeper_id, :storekeeper_place_id
+  node(:created) { |waybill| waybill.created.strftime("%m/%d/%Y") }
+end
+child(@waybill.distributor => :distributor) do
+  attributes :name, :identifier_name, :identifier_value
+end
+child(@waybill.distributor_place => :distributor_place) { attributes :tag }
+child(@waybill.storekeeper => :storekeeper) { attributes :tag }
+child(@waybill.storekeeper_place => :storekeeper_place) { attributes :tag }
+child(@waybill.items => :items) do
   attributes :amount, :price
   glue :resource do
     attributes :tag, :mu

@@ -26,8 +26,8 @@
           <label for="created"><%= t 'views.waybills.created_at' %>:</label>
         </span>
         <span>
-          <input type="text" id="created" name="<%= t 'views.waybills.created_at' %>" rule="required"
-                 data-bind="datepicker: waybill.created, disable: readonly">
+          <input type="text" id="created" name="<%= t 'views.waybills.created_at' %>"
+                 rule="required" data-bind="datepicker: waybill.created, disable: readonly">
         </span>
       </div>
       <div>
@@ -35,8 +35,9 @@
           <label for="waybill_document_id"><%= t 'views.waybills.document_id' %>:</label>
         </span>
         <span>
-          <input type="text" id="waybill_document_id" name="<%= t 'views.waybills.document_id' %>"
-                 rule="required" data-bind="value: waybill.documentId, disable: readonly">
+          <input type="text" id="waybill_document_id"
+                 name="<%= t 'views.waybills.document_id' %>"
+                 rule="required" data-bind="value: waybill.document_id, disable: readonly">
         </span>
       </div>
     </div>
@@ -54,7 +55,7 @@
                  name='<%= t 'views.waybills.distributor' %>' rule='required'
                  data-bind="autocomplete: { source: '/legal_entities.json',
                                             value: 'name',
-                                            bindId: $parent.waybill.distributorId },
+                                            bindId: $parent.waybill.distributor_id },
                             value: name, disable: $parent.readonly" />
         </span>
       </div>
@@ -87,12 +88,12 @@
         <span class="form-cell-label">
           <label for="distributor_place"><%= t 'views.waybills.place' %>:</label>
         </span>
-        <span data-bind="with: waybill.distributorPlace">
+        <span data-bind="with: waybill.distributor_place">
           <input type='text' id='distributor_place'
                  name='<%= t 'views.waybills.distributor_place' %>' rule='required'
                  data-bind="autocomplete: { source: '/places.json',
                                             value: 'tag',
-                                            bindId: $parent.waybill.distributorPlaceId },
+                                            bindId: $parent.waybill.distributor_place_id },
                             value: tag, disable: $parent.readonly" />
         </span>
       </div>
@@ -111,21 +112,21 @@
                  name='<%= t 'views.waybills.storekeeper' %>' rule='required'
                  data-bind="autocomplete: { source: '/entities.json',
                                             value: 'tag',
-                                            bindId: $parent.waybill.storekeeperId },
-                            value: tag, disable: $parent.readonly" />
+                                            bindId: $parent.waybill.storekeeper_id },
+                            value: tag, disable: $parent.disable_storekeeper" />
         </span>
       </div>
       <div>
         <span class="form-cell-label">
           <label for="storekeeper_place"><%=t 'views.waybills.place' %>:</label>
         </span>
-        <span data-bind='with: waybill.storekeeperPlace'>
+        <span data-bind='with: waybill.storekeeper_place'>
           <input type='text' id='storekeeper_place'
                  name='<%= t 'views.waybills.storekeeper_place' %>' rule='required'
                  data-bind="autocomplete: { source: '/places.json',
                                             value: 'tag',
-                                            bindId: $parent.waybill.storekeeperPlaceId },
-                            value: tag, disable: $parent.readonly" />
+                                            bindId: $parent.waybill.storekeeper_place_id },
+                            value: tag, disable: $parent.disable_storekeeper" />
         </span>
       </div>
     </div>

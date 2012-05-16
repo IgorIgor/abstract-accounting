@@ -8,5 +8,18 @@
 # Please see ./COPYING for details
 
 object @waybill
-attributes :created, :document_id, :distributor_id, :distributor_place_id,
+attributes :created, :document_id,
+           :distributor_id, :distributor_place_id,
            :storekeeper_id, :storekeeper_place_id
+child(LegalEntity.new => :distributor) do
+  attributes :name, :identifier_name, :identifier_value
+end
+child(@waybill.build_distributor_place => :distributor_place) { attributes :tag }
+child((@waybill.storekeeper ? @waybill.storekeeper : Entity.new) => :storekeeper) do
+  attributes :tag
+end
+place = @waybill.storekeeper_place
+unless place
+  place = @waybill.build_storekeeper_place
+end
+child(place => :storekeeper_place) { attributes :tag }

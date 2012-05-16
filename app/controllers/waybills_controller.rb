@@ -14,6 +14,13 @@ class WaybillsController < ApplicationController
 
   def new
     @waybill = Waybill.new
+    unless current_user.root?
+      credential = current_user.credentials.where(document_type: Waybill.name).first
+      if credential
+        @waybill.storekeeper = current_user.entity
+        @waybill.storekeeper_place = credential.place
+      end
+    end
   end
 
   def create

@@ -2,28 +2,9 @@ $ ->
   class self.WaybillViewModel extends ObjectViewModel
     constructor: (object, readonly = false) ->
       @readonly = ko.observable(readonly)
-
-      @waybill = ko.observable(object)
-      @waybill.created = ko.observable(object.created)
-      @waybill.documentId = ko.observable(object.document_id)
-      @waybill.distributorId = ko.observable(object.distributor_id)
-      @waybill.distributorPlaceId = ko.observable(object.distributor_place_id)
-      @waybill.storekeeperId = ko.observable(object.storekeeper_id)
-      @waybill.storekeeperPlaceId = ko.observable(object.storekeeper_place_id)
-
-      @waybill.distributor =
-        name: ko.observable(object.distributor.name if readonly)
-        identifier_name: ko.observable(object.distributor.identifier_name if readonly)
-        identifier_value: ko.observable(object.distributor.identifier_value if readonly)
-      @waybill.distributorPlace =
-        tag: ko.observable(object.distributor_place.tag if readonly)
-      @waybill.storekeeper =
-        tag: ko.observable(object.storekeeper.tag if readonly)
-      @waybill.storekeeperPlace =
-        tag: ko.observable(object.storekeeper_place.tag if readonly)
-
+      @disable_storekeeper = if object.storekeeper_id then true else false
+      @waybill = ko.mapping.fromJS(object)
       @resources = ko.observableArray(if readonly then object.items else [])
-
       super
 
     addResource: (resource) =>
@@ -40,15 +21,15 @@ $ ->
       params =
         object:
           created: @waybill.created
-          document_id: @waybill.documentId
-          distributor_id: @waybill.distributorId
-          distributor_place_id: @waybill.distributorPlaceId
-          storekeeper_id: @waybill.storekeeperId
-          storekeeper_place_id: @waybill.storekeeperPlaceId
+          document_id: @waybill.document_id
+          distributor_id: @waybill.distributor_id
+          distributor_place_id: @waybill.distributor_place_id
+          storekeeper_id: @waybill.storekeeper_id
+          storekeeper_place_id: @waybill.storekeeper_place_id
         items: items
-        distributor: @waybill.distributor unless @waybill.distributorId()
-        distributor_place: @waybill.distributorPlace unless @waybill.distributorPlaceId()
-        storekeeper: @waybill.storekeeper unless @waybill.storekeeperId()
-        storekeeper_place: @waybill.storekeeperPlace unless @waybill.storekeeperPlaceId()
+        distributor: @waybill.distributor unless @waybill.distributor_id()
+        distributor_place: @waybill.distributor_place unless @waybill.distributor_place_id()
+        storekeeper: @waybill.storekeeper unless @waybill.storekeeper_id()
+        storekeeper_place: @waybill.storekeeper_place unless @waybill.storekeeper_place_id()
 
       ajaxRequest('POST', '/waybills', params)

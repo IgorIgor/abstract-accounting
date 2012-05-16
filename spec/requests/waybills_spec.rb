@@ -77,12 +77,14 @@ feature "waybill", %q{
       end
       find('#waybill_ident_name')['value'].should eq(items[0].identifier_name)
 
-      items = 6.times.collect { create(:place) } .sort
+      6.times { create(:place) }
+      items = Place.order(:tag).limit(6)
       check_autocomplete("distributor_place", items, :tag)
 
       check_autocomplete("storekeeper_place", items, :tag)
 
-      items = 6.times.collect { create(:entity) } .sort
+      6.times { create(:entity) }
+      items = Entity.order(:tag).limit(6)
       check_autocomplete("storekeeper_entity", items, :tag)
 
       page.should have_xpath("//table[@id='estimate_boms']")
@@ -143,14 +145,14 @@ feature "waybill", %q{
       find("#storekeeper_entity")[:value].should eq(Waybill.first.storekeeper.tag)
       find("#storekeeper_place")[:value].should eq(Waybill.first.storekeeper_place.tag)
 
-      find("#created")[:disabled].should be_true
-      find("#waybill_document_id")[:disabled].should be_true
-      find("#waybill_entity")[:disabled].should be_true
-      find("#waybill_ident_name")[:disabled].should be_true
-      find("#waybill_ident_value")[:disabled].should be_true
-      find("#distributor_place")[:disabled].should be_true
-      find("#storekeeper_entity")[:disabled].should be_true
-      find("#storekeeper_place")[:disabled].should be_true
+      find("#created")[:disabled].should eq("true")
+      find("#waybill_document_id")[:disabled].should eq("true")
+      find("#waybill_entity")[:disabled].should eq("true")
+      find("#waybill_ident_name")[:disabled].should eq("true")
+      find("#waybill_ident_value")[:disabled].should eq("true")
+      find("#distributor_place")[:disabled].should eq("true")
+      find("#storekeeper_entity")[:disabled].should eq("true")
+      find("#storekeeper_place")[:disabled].should eq("true")
 
       within("#estimate_boms tbody") do
         find("#tag_0")[:value].should eq(Waybill.first.items[0].resource.tag)
@@ -159,6 +161,59 @@ feature "waybill", %q{
         find("#price_0")[:value].should eq(Waybill.first.items[0].price.to_i.to_s)
       end
     end
+
+    PaperTrail.enabled = false
+  end
+
+  scenario "storekeeper should not input his entity and place", js: true do
+    PaperTrail.enabled = true
+
+    Waybill.delete_all
+    password = "password"
+    user = create(:user, password: password)
+    create(:credential, user: user, document_type: Waybill.name)
+    page_login user.email, password
+
+    page.find("#btn_create").click
+    page.find("a[@href='#documents/waybills/new']").click
+    page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
+
+    within('#container_documents form') do
+      page.datepicker("created").prev_month.day(10)
+      fill_in("waybill_document_id", :with => "1233321")
+      item = create(:legal_entity)
+      fill_in('waybill_entity', :with => item.name[0..1])
+      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
+                      "contains(@style, 'display: block')]") do
+        all(:xpath, ".//li//a")[0].click
+      end
+      item = create(:place)
+      fill_in('distributor_place', :with => item.tag[0..1])
+      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
+                      "contains(@style, 'display: block')]") do
+        all(:xpath, ".//li//a")[0].click
+      end
+
+      find("#storekeeper_entity")[:value].should eq(user.entity.tag)
+      find("#storekeeper_place")[:value].should eq(
+        user.credentials(:force_update).where(document_type: Waybill.name).first.place.tag)
+      find("#storekeeper_entity")[:disabled].should eq("true")
+      find("#storekeeper_place")[:disabled].should eq("true")
+
+      page.find(:xpath, "//fieldset[@class='with-legend']//input[@value='#{
+                          I18n.t('views.waybills.add')
+                        }']").click
+      fill_in("tag_0", :with => "tag_1")
+      fill_in("mu_0", :with => "RUB")
+      fill_in("count_0", :with => "10")
+      fill_in("price_0", :with => "100")
+    end
+    lambda {
+      page.find(:xpath, "//div[@class='actions']//input[@value='#{
+                          I18n.t('views.waybills.save')
+                        }']").click
+      page.should have_selector("#inbox[@class='sidebar-selected']")
+    }.should change(Waybill, :count).by(1)
 
     PaperTrail.enabled = false
   end

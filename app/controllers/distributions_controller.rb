@@ -6,6 +6,7 @@
 # License, or (at your option) any later version.
 #
 # Please see ./COPYING for details
+require "waybill"
 
 class DistributionsController < ApplicationController
   def preview
@@ -22,9 +23,10 @@ class DistributionsController < ApplicationController
       Distribution.transaction do
         Chart.create!(:currency => Money.create!(:alpha_code => "RUB",
                                                  :num_code => 222)) unless Chart.count > 0
-        params[:object][:storekeeper_type] = "Entity"
-        params[:object][:foreman_type] = "Entity"
-        distribution = Distribution.new(params[:object])
+        params[:distribution][:storekeeper_type] = "Entity"
+        params[:distribution][:foreman_type] = "Entity"
+        params[:distribution].delete(:state) if params[:distribution].has_key?(:state)
+        distribution = Distribution.new(params[:distribution])
         if distribution.storekeeper_id.zero?
           storekeeper = Entity.find_or_create_by_tag(params[:storekeeper])
           storekeeper.save!

@@ -2,26 +2,8 @@ $ ->
   class self.DistributionViewModel extends ObjectViewModel
     constructor: (object, readonly = false) ->
       @readonly = ko.observable(readonly)
-
-      @distribution = ko.observable(object)
-      @distribution.created = ko.observable(object.created)
-      @distribution.storekeeperId = ko.observable(object.storekeeper_id)
-      @distribution.storekeeperPlaceId = ko.observable(object.storekeeper_place_id)
-      @distribution.foremanId = ko.observable(object.foreman_id)
-      @distribution.foremanPlaceId = ko.observable(object.foreman_place_id)
-
-      @distribution.foreman =
-        tag: ko.observable(object.foreman.tag if readonly)
-      @distribution.foremanPlace =
-        tag: ko.observable(object.foreman_place.tag if readonly)
-      @distribution.storekeeper =
-        tag: ko.observable(object.storekeeper.tag if readonly)
-      @distribution.storekeeperPlace =
-        tag: ko.observable(object.storekeeper_place.tag if readonly)
-
+      @object = ko.mapping.fromJS(object)
       @availableResources = ko.observableArray([])
-      @selectedResources = ko.observableArray(if readonly then object.items else [])
-
 
       @url = '/warehouses/data.json'
 
@@ -32,15 +14,16 @@ $ ->
 
       @params =
         equal:
-          storekeeper_id: @distribution.storekeeperId
-          storekeeper_place_id: @distribution.storekeeperPlaceId
+          storekeeper_id: @object.distribution.storekeeper_id
+          storekeeper_place_id: @object.distribution.storekeeper_place_id
         page: @page
         per_page: @per_page
 
       @availableMode = ko.observable(0)
       @availableMode.subscribe((val) =>
         @url = "/#{if val == '0' then 'warehouses' else 'waybills'}/data.json"
-        @loadAvailableResources(false))
+        @loadAvailableResources(false)
+      )
 
       @loadAvailableResources() unless readonly
 
@@ -55,32 +38,15 @@ $ ->
 
     selectResource: (resource) =>
       resource['amount'] = resource.exp_amount
-      @selectedResources.push(resource)
+      @object.items.push(resource)
       @getPaginateData()
 
     unselectResource: (resource) =>
-      @selectedResources.remove(resource)
+      @object.items.remove(resource)
       @getPaginateData()
 
     save: =>
-      items =[]
-      for id, item of @selectedResources()
-        items.push(tag: item.tag, mu: item.mu, amount: item.amount)
-
-      params =
-        object:
-          created: @distribution.created
-          storekeeper_id: @distribution.storekeeperId
-          storekeeper_place_id: @distribution.storekeeperPlaceId
-          foreman_id: @distribution.foremanId
-          foreman_place_id: @distribution.foremanPlaceId
-        items: items
-        storekeeper: @distribution.storekeeper unless @distribution.storekeeperId()
-        storekeeper_place: @distribution.storekeeperPlace unless @distribution.storekeeperPlaceId()
-        foreman: @distribution.foreman unless @distribution.foremanId()
-        foreman_place: @distribution.foremanPlace unless @distribution.foremanPlaceId()
-
-      ajaxRequest('POST', '/distributions', params)
+      ajaxRequest('POST', '/distributions', ko.mapping.toJS(@object))
 
     getState: (state) ->
       switch state
@@ -90,9 +56,9 @@ $ ->
         when 3 then "<%= I18n.t 'views.distributions.applied' %>"
 
     loadAvailableResources: (clearSelected = true) =>
-      @selectedResources([]) if clearSelected
+      @object.items([]) if clearSelected
       @availableResources([])
-      if @distribution.storekeeperId() && @distribution.storekeeperPlaceId()
+      if @object.distribution.storekeeper_id() && @object.distribution.storekeeper_place_id()
         @page(1)
         @getPaginateData()
       else
@@ -102,11 +68,11 @@ $ ->
         @range(@rangeGenerate())
 
     apply: =>
-      location.hash = "#documents/distributions/#{@distribution().id}/apply"
+      location.hash = "#documents/distributions/#{@object.distribution.id()}/apply"
     cancel: =>
-      location.hash = "#documents/distributions/#{@distribution().id}/cancel"
+      location.hash = "#documents/distributions/#{@object.distribution.id()}/cancel"
     print: =>
-      location.href = "distributions/#{@distribution().id}.pdf"
+      location.href = "distributions/#{@object.distribution.id()}.pdf"
 
     prev: =>
       @page(@page() - 1)
@@ -117,7 +83,7 @@ $ ->
       @getPaginateData()
 
     getPaginateData: =>
-      @params['without'] = $.map(@selectedResources(), (r) -> r.id)
+      @params['without'] = $.map(@object.items(), (r) -> r.id)
 
       $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
         @availableResources(data.objects)

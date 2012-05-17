@@ -4,12 +4,13 @@
            data-bind='visible: !readonly()'/>
     <input type='button' value="<%= t('views.distributions.draft') %>"
            data-bind='visible: !readonly()'/>
-    <input type='button' value="<%= t('views.distributions.back') %>" data-bind='click: back'/>
+    <input type='button' value="<%= t('views.distributions.back') %>"
+           data-bind='click: back'/>
     <div class='buttons-separator' data-bind='visible: readonly'></div>
     <input type='button' value="<%= t('views.distributions.apply') %>"
-           data-bind='click: apply, visible: readonly && distribution().state == 1'/>
+           data-bind='click: apply, visible: readonly && object.distribution.state() == 1'/>
     <input type='button' value="<%= t('views.distributions.cancel') %>"
-           data-bind='click: cancel, visible: readonly && distribution().state == 1'/>
+           data-bind='click: cancel, visible: readonly && object.distribution.state() == 1'/>
     <input type='button' value="<%= t('views.distributions.print') %>"
            data-bind='click: print, visible: readonly'/>
   </div>
@@ -32,8 +33,9 @@
           <label for="created"><%= t 'views.distributions.created_at' %>:</label>
         </span>
         <span>
-          <input type="text" id="created" rule="required" name="<%= t 'views.distributions.created_at' %>"
-                 data-bind="datepicker: distribution.created, disable: readonly">
+          <input type="text" id="created" rule="required"
+                 name="<%= t 'views.distributions.created_at' %>"
+                 data-bind="datepicker: object.distribution.created, disable: readonly">
         </span>
       </div>
       <!-- ko if: readonly -->
@@ -43,7 +45,7 @@
         </span>
         <span>
           <input type="text" id="state" disabled="disabled"
-                 data-bind="value: getState(distribution().state)">
+                 data-bind="value: getState(object.distribution.state())">
         </span>
       </div>
       <!-- /ko -->
@@ -57,30 +59,32 @@
         <span class="form-cell-label">
           <label for="storekeeper_entity"><%= t 'views.distributions.entity' %>:</label>
         </span>
-        <span data-bind='with: distribution.storekeeper'>
+        <span data-bind='with: object.storekeeper'>
           <input type='text' id='storekeeper_entity'
                  name='<%= t 'views.distributions.storekeeper' %>' rule='required'
-                 data-bind="autocomplete: { source: '/entities.json',
-                                            value: 'tag',
-                                            bindId: $parent.distribution.storekeeperId,
-                                            onlySelect: true,
-                                            afterChange: $parent.loadAvailableResources },
-                            value: tag, disable: $parent.readonly" />
+                 data-bind="autocomplete: {
+                              source: '/entities.json',
+                              value: 'tag',
+                              bindId: $parent.object.distribution.storekeeper_id,
+                              onlySelect: true,
+                              afterChange: $parent.loadAvailableResources
+                            }, value: tag, disable: $parent.readonly" />
         </span>
       </div>
       <div>
         <span class="form-cell-label">
           <label for="storekeeper_place"><%= t 'views.distributions.place' %>:</label>
         </span>
-        <span data-bind='with: distribution.storekeeperPlace'>
+        <span data-bind='with: object.storekeeper_place'>
           <input type='text' id='storekeeper_place'
                  name='<%= t 'views.distributions.storekeeper_place' %>' rule='required'
-                 data-bind="autocomplete: { source: '/places.json',
-                                            value: 'tag',
-                                            bindId: $parent.distribution.storekeeperPlaceId,
-                                            onlySelect: true,
-                                            afterChange: $parent.loadAvailableResources },
-                            value: tag, disable: $parent.readonly" />
+                 data-bind="autocomplete: {
+                              source: '/places.json',
+                              value: 'tag',
+                              bindId: $parent.object.distribution.storekeeper_place_id,
+                              onlySelect: true,
+                              afterChange: $parent.loadAvailableResources
+                            }, value: tag, disable: $parent.readonly" />
         </span>
       </div>
     </div>
@@ -93,26 +97,28 @@
         <span class="form-cell-label">
           <label for="foreman_entity"><%= t 'views.distributions.entity' %>:</label>
         </span>
-        <span data-bind='with: distribution.foreman'>
+        <span data-bind='with: object.foreman'>
           <input type='text' id='foreman_entity'
                  name='<%= t 'views.distributions.foreman' %>' rule='required'
-                 data-bind="autocomplete: { source: '/entities.json',
-                                            value: 'tag',
-                                            bindId: $parent.distribution.foremanId },
-                            value: tag, disable: $parent.readonly" />
+                 data-bind="autocomplete: {
+                              source: '/entities.json',
+                              value: 'tag',
+                              bindId: $parent.object.distribution.foreman_id
+                            }, value: tag, disable: $parent.readonly" />
         </span>
       </div>
       <div>
         <span class="form-cell-label">
           <label for="foreman_place"><%= t 'views.distributions.place' %>:</label>
         </span>
-        <span data-bind='with: distribution.foremanPlace'>
+        <span data-bind='with: object.foreman_place'>
           <input type='text' id='foreman_place'
                  name='<%= t 'views.distributions.foreman_place' %>' rule='required'
-                 data-bind="autocomplete: { source: '/places.json',
-                                            value: 'tag',
-                                            bindId: $parent.distribution.foremanPlaceId },
-                            value: tag, disable: $parent.readonly" />
+                 data-bind="autocomplete: {
+                              source: '/places.json',
+                              value: 'tag',
+                              bindId: $parent.object.distribution.foreman_place_id
+                            }, value: tag, disable: $parent.readonly" />
         </span>
       </div>
     </div>
@@ -128,12 +134,14 @@
       <th class="selected-resources-tag"><%= t 'views.distributions.tag' %></th>
       <th class="selected-resources-mu"><%= t 'views.distributions.mu' %></th>
       <!-- ko ifnot: readonly -->
-      <th class="selected-resources-exp-amount"><%= t 'views.distributions.expectation_amount' %></th>
+      <th class="selected-resources-exp-amount">
+        <%= t 'views.distributions.expectation_amount' %>
+      </th>
       <!-- /ko -->
       <th class="selected-resources-count"><%= t 'views.distributions.amount' %></th>
     </tr>
     </thead>
-    <tbody data-bind="foreach: selectedResources">
+    <tbody data-bind="foreach: object.items">
     <tr>
       <!-- ko ifnot: $parent.readonly -->
       <td class="distribution-actions">
@@ -178,7 +186,9 @@
       <th class="distribution-actions"></th>
       <th class="available-resources-tag"><%= t 'views.distributions.tag' %></th>
       <th class="available-resources-mu"><%= t 'views.distributions.mu' %></th>
-      <th class="available-resources-exp-amount"><%= t 'views.distributions.expectation_amount' %></th>
+      <th class="available-resources-exp-amount">
+        <%= t 'views.distributions.expectation_amount' %>
+      </th>
     </tr>
     </thead>
     <tbody data-bind="foreach: availableResources">

@@ -7,6 +7,15 @@
 #
 # Please see ./COPYING for details
 
-object @distribution
-attributes :created, :foreman_id, :foreman_place_id, :storekeeper_id,
-           :storekeeper_place_id, :state
+object true
+child(@distribution => :distribution) do
+  attributes :created, :state,
+             :foreman_id, :foreman_place_id,
+             :storekeeper_id, :storekeeper_place_id
+end
+child(Entity.new => :foreman) { attributes :tag }
+child(@distribution.build_foreman_place => :foreman_place) { attributes :tag }
+child(Entity.new => :storekeeper) { attributes :tag }
+child(@distribution.build_storekeeper_place => :storekeeper_place) { attributes :tag }
+child([] => :items)
+

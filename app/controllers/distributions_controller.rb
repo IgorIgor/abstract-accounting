@@ -15,6 +15,13 @@ class DistributionsController < ApplicationController
 
   def new
     @distribution = Distribution.new
+    unless current_user.root?
+      credential = current_user.credentials.where(document_type: Distribution.name).first
+      if credential
+        @distribution.storekeeper = current_user.entity
+        @distribution.storekeeper_place = credential.place
+      end
+    end
   end
 
   def create

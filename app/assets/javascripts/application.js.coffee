@@ -44,7 +44,8 @@ $ ->
         if (typeof value == 'object') && !$.isEmptyObject(value)
           normalize(value)
         else
-          delete hash[key] unless value.length || (typeof hash[key] == 'number')
+          delete hash[key] unless hash[key] == undefined || value.length ||
+                                  (typeof hash[key] == 'number')
 
     null until $.map(normalize(hash), (c) -> c).toString().indexOf(true) == -1
     hash

@@ -15,7 +15,10 @@ child(@distribution => :distribution) do
 end
 child(Entity.new => :foreman) { attributes :tag }
 child(@distribution.build_foreman_place => :foreman_place) { attributes :tag }
-child(Entity.new => :storekeeper) { attributes :tag }
-child(@distribution.build_storekeeper_place => :storekeeper_place) { attributes :tag }
+storekeeper = @distribution.storekeeper
+child(storekeeper ? storekeeper : Entity.new => :storekeeper) { attributes :tag }
+place = @distribution.storekeeper_place
+place = @distribution.build_storekeeper_place unless place
+child(place => :storekeeper_place) { attributes :tag }
 child([] => :items)
 

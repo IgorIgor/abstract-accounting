@@ -209,6 +209,48 @@ feature 'distributions', %q{
     PaperTrail.enabled = false
   end
 
+  scenario 'save distibution by non root user', js: true do
+    PaperTrail.enabled = true
+
+    create(:chart)
+    wb = build(:waybill, created: DateTime.current.change(year: 2011))
+    wb.add_item('roof', 'm2', 12, 100.0)
+    wb.add_item('roof2', 'm2', 12, 100.0)
+    wb.save!
+
+    password = "password"
+    user = create(:user, password: password, entity: wb.storekeeper)
+    create(:credential, place: wb.storekeeper_place, user: user,
+                        document_type: Distribution.name)
+
+    page_login user.email, password
+
+    page.find("#btn_create").click
+    page.find("a[@href='#documents/distributions/new']").click
+
+    within("#container_documents form") do
+      page.datepicker("created").prev_month.day(10)
+      find("#storekeeper_entity")[:value].should eq(user.entity.tag)
+      find("#storekeeper_place")[:value].should eq(wb.storekeeper_place.tag)
+      find("#storekeeper_entity")[:disabled].should eq("true")
+      find("#storekeeper_place")[:disabled].should eq("true")
+      fill_in("foreman_entity", :with =>"entity")
+      fill_in("foreman_place", :with => "place")
+    end
+
+    within("#container_documents") do
+      page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
+      page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
+    end
+
+    lambda {
+      click_button(I18n.t('views.distributions.save'))
+      page.should have_selector("#inbox[@class='sidebar-selected']")
+    }.should change(Distribution, :count).by(1)
+
+    PaperTrail.enabled = false
+  end
+
   scenario 'show distributions', js: true do
     PaperTrail.enabled = true
 

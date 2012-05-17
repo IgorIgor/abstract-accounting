@@ -1,0 +1,14 @@
+<table>
+  <thead>
+    <tr>
+      <th><%=t 'views.users.user_name' %></th>
+      <th><%=t 'views.users.email' %></th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr>
+      <td data-bind="text: tag"></td>
+      <td data-bind="text: email"></td>
+    </tr>
+  </tbody>
+</table>

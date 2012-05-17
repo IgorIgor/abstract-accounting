@@ -8,9 +8,13 @@
 # Please see ./COPYING for details
 
 class UsersController < ApplicationController
+  def index
+    render "users/index", layout: false
+  end
+
   def preview
     @document_types = implemented_documents
-    render "users/preview", :layout => false
+    render "users/preview", layout: false
   end
 
   def new
@@ -34,9 +38,17 @@ class UsersController < ApplicationController
           end
         end
       end
-      render :text => "success"
+      render text: "success"
     rescue
       render json: user.errors.messages
     end
+  end
+
+  def data
+    page = params[:page].nil? ? 1 : params[:page].to_i
+    per_page = params[:per_page].nil? ?
+        Settings.root.per_page.to_i : params[:per_page].to_i
+    @users = User.limit(per_page).offset((page - 1) * per_page).all
+    @count = User.count
   end
  end

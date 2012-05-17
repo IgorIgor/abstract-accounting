@@ -171,4 +171,79 @@ feature "user", %q{
     end.should change(User, :count).by(1) && change(Credential, :count).by(2) &&
                    change(Place, :count).by(1)
   end
+
+  scenario "show all users", js: true do
+    per_page = Settings.root.per_page
+    (per_page + 1).times { create(:user) }
+    users = User.limit(per_page)
+    count = User.count
+    page_login
+    click_link I18n.t('views.home.users')
+    current_hash.should eq('users')
+    page.should have_xpath("//div[@id='sidebar']/ul/li[@id='users'" +
+                               " and @class='sidebar-selected']")
+
+    within('#container_documents table') do
+      within('thead tr') do
+        page.should have_content(I18n.t('views.users.email'))
+        page.should have_content(I18n.t('views.users.user_name'))
+      end
+
+      within('tbody') do
+        users.each do |user|
+          page.should have_content(user.entity.tag)
+          page.should have_content(user.email)
+        end
+      end
+    end
+
+    within("div[@class='paginate']") do
+      find("span[@data-bind='text: range']").
+          should have_content("1-#{per_page}")
+
+      find("span[@data-bind='text: count']").
+          should have_content(count.to_s)
+
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
+    end
+
+    within("#container_documents table tbody") do
+      page.should have_selector('tr', count: per_page)
+    end
+
+    within("div[@class='paginate']") do
+      click_button('>')
+
+      to_range = count > (per_page * 2) ? per_page * 2 : count
+
+      find("span[@data-bind='text: range']").
+          should have_content("#{per_page + 1}-#{to_range}")
+
+      find("span[@data-bind='text: count']").
+          should have_content(count.to_s)
+
+      find_button('<')[:disabled].should eq('false')
+    end
+
+    users = User.limit(per_page).offset(per_page)
+    within('#container_documents table tbody') do
+      count_on_page = count - per_page > per_page ? per_page : count - per_page
+      page.should have_selector('tr', count: count_on_page)
+      users.each do |user|
+        page.should have_content(user.entity.tag)
+        page.should have_content(user.email)
+      end
+    end
+
+    within("div[@class='paginate']") do
+      click_button('<')
+
+      find("span[@data-bind='text: range']").
+          should have_content("1-#{per_page}")
+
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
+    end
+  end
 end

@@ -70,9 +70,10 @@ Abstract::Application.routes.draw do
   end
   resources :deals
   resources :storekeepers, only: [:index]
-  resources :users, only: [:new, :create] do
+  resources :users, only: [:index, :new, :create] do
     collection do
       get 'preview'
+      get 'data'
     end
   end
 

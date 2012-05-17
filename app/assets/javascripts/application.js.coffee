@@ -139,45 +139,27 @@ $ ->
             )
           )
         )
-        this.get('#warehouses', ->
-          $.get('/warehouses', {}, (form) ->
-            $.getJSON('/warehouses/data.json', {}, (data) ->
-              toggleSelect('warehouses')
+        this.get('#:report', ->
+          report = this.params.report
+          $.get("/#{report}", {}, (form) ->
+            $.getJSON("/#{report}/data.json", {}, (data) ->
+              toggleSelect(report)
+
+              viewModel = switch report
+                when 'warehouses'
+                  new WarehouseViewModel(data)
+                when 'general_ledger'
+                  new GeneralLedgerViewModel(data)
+                when 'balance_sheet'
+                  new BalanceSheetViewModel(data)
+                when 'transcripts'
+                  new TranscriptViewModel(data)
+                when 'users'
+                  new UsersViewModel(data)
+
               $('#container_documents').html(form)
               ko.cleanNode($('#main').get(0))
-              ko.applyBindings(new WarehouseViewModel(data), $('#main').get(0))
-            )
-          )
-        )
-        this.get('#general_ledger', ->
-          $.get('/general_ledger', {}, (form) ->
-            $.getJSON('/general_ledger/data.json', {}, (data) ->
-              toggleSelect('general_ledger')
-              $('#container_documents').html(form)
-              ko.cleanNode($('#main').get(0))
-              ko.applyBindings(new GeneralLedgerViewModel(data),
-                $('#main').get(0))
-            )
-          )
-        )
-        this.get('#balance_sheet', ->
-          $.get('/balance_sheet', {}, (form) ->
-            $.getJSON('/balance_sheet/data.json', {}, (data) ->
-              toggleSelect('balance_sheet')
-              $('#container_documents').html(form)
-              ko.cleanNode($('#main').get(0))
-              ko.applyBindings(new BalanceSheetViewModel(data),
-                $('#main').get(0))
-            )
-          )
-        )
-        this.get('#transcripts', ->
-          $.get('/transcripts', {}, (form) ->
-            $.getJSON('/transcripts/data.json', {}, (data) ->
-              toggleSelect('transcripts')
-              $('#container_documents').html(form)
-              ko.cleanNode($('#main').get(0))
-              ko.applyBindings(new TranscriptViewModel(data), $('#main').get(0))
+              ko.applyBindings(viewModel, $('#main').get(0))
             )
           )
         )

@@ -65,7 +65,7 @@
                  data-bind="autocomplete: {
                               source: '/entities.json',
                               value: 'tag',
-                              bindId: $parent.object.distribution.storekeeper_id,
+                              bind: { id: $parent.object.distribution.storekeeper_id },
                               onlySelect: true,
                               afterChange: $parent.loadAvailableResources
                             }, value: tag, disable: $parent.disable_storekeeper" />
@@ -81,7 +81,7 @@
                  data-bind="autocomplete: {
                               source: '/places.json',
                               value: 'tag',
-                              bindId: $parent.object.distribution.storekeeper_place_id,
+                              bind: { id: $parent.object.distribution.storekeeper_place_id },
                               onlySelect: true,
                               afterChange: $parent.loadAvailableResources
                             }, value: tag, disable: $parent.disable_storekeeper" />
@@ -103,7 +103,7 @@
                  data-bind="autocomplete: {
                               source: '/entities.json',
                               value: 'tag',
-                              bindId: $parent.object.distribution.foreman_id
+                              bind: { id: $parent.object.distribution.foreman_id }
                             }, value: tag, disable: $parent.readonly" />
         </span>
       </div>
@@ -117,7 +117,7 @@
                  data-bind="autocomplete: {
                               source: '/places.json',
                               value: 'tag',
-                              bindId: $parent.object.distribution.foreman_place_id
+                              bind: { id: $parent.object.distribution.foreman_place_id }
                             }, value: tag, disable: $parent.readonly" />
         </span>
       </div>

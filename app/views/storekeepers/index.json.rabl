@@ -7,12 +7,8 @@
 #
 # Please see ./COPYING for details
 
-class Credential < ActiveRecord::Base
-  has_paper_trail
-
-  validates_presence_of :user_id
-  validates_uniqueness_of :document_type, :scope =>[ :user_id, :place_id ]
-  belongs_to :user
-  belongs_to :place
-  has_one :entity, through: :user
+collection @credentials
+glue :user do
+  glue(:entity) { attributes :id, :tag }
 end
+child(:place => :place) { attributes :id, :tag }

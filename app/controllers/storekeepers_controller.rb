@@ -7,12 +7,10 @@
 #
 # Please see ./COPYING for details
 
-class Credential < ActiveRecord::Base
-  has_paper_trail
-
-  validates_presence_of :user_id
-  validates_uniqueness_of :document_type, :scope =>[ :user_id, :place_id ]
-  belongs_to :user
-  belongs_to :place
-  has_one :entity, through: :user
+class StorekeepersController < ApplicationController
+  def index
+    @credentials = Credential.where(document_type: Waybill.name).
+        joins(:entity).where("entities.tag LIKE '%#{params[:term]}%'").
+            order("entities.tag").limit(5)
+  end
 end

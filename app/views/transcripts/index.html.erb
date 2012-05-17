@@ -3,7 +3,7 @@
   <input type="text" id="deal_tag" size="50"
          data-bind="autocomplete: { source: '/deals.json',
                                     value: 'tag',
-                                    bindId: deal }">
+                                    bind: { id: deal }}">
 </div>
 <div class="left">
   <label for="transcript_date_from"><%=t 'views.transcripts.from' %></label>

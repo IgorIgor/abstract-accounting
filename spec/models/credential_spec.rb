@@ -17,5 +17,6 @@ describe Credential do
     should belong_to :user
     should belong_to :place
     should have_many Credential.versions_association_name
+    should have_one(:entity).through(:user)
   end
 end

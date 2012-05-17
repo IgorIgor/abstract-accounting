@@ -47,13 +47,18 @@ feature "waybill", %q{
     within("#container_documents form") do
       find("#container_notification").visible?.should be_true
       within("#container_notification") do
-        page.should have_content("#{I18n.t('views.waybills.created_at')} : #{I18n.t('errors.messages.blank')}")
-        page.should have_content("#{I18n.t('views.waybills.document_id')} : #{I18n.t('errors.messages.blank')}")
-        page.should have_content("#{I18n.t('views.waybills.distributor')} : #{I18n.t('errors.messages.blank')}")
-        page.should have_content("#{I18n.t('views.waybills.ident_value')} : #{I18n.t('errors.messages.blank')}")
-        page.should have_content("#{I18n.t('views.waybills.distributor_place')} : #{I18n.t('errors.messages.blank')}")
-        page.should have_content("#{I18n.t('views.waybills.storekeeper')} : #{I18n.t('errors.messages.blank')}")
-        page.should have_content("#{I18n.t('views.waybills.storekeeper_place')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content(
+          "#{I18n.t('views.waybills.created_at')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content(
+          "#{I18n.t('views.waybills.document_id')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content(
+          "#{I18n.t('views.waybills.distributor')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content(
+          "#{I18n.t('views.waybills.ident_value')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content(
+          "#{I18n.t('views.waybills.distributor_place')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content(
+          "#{I18n.t('views.waybills.storekeeper')} : #{I18n.t('errors.messages.blank')}")
       end
     end
 
@@ -64,7 +69,8 @@ feature "waybill", %q{
     fill_in("waybill_document_id", :with => "1233321")
 
     within('#container_documents form') do
-      items = 6.times.collect { create(:legal_entity) } .sort
+      6.times { create(:legal_entity) }
+      items = LegalEntity.order("name").limit(6)
       check_autocomplete('waybill_entity', items, :name) do |entity|
         find('#waybill_ident_name')['value'].should eq(entity.identifier_name)
         find('#waybill_ident_value')['value'].should eq(entity.identifier_value)
@@ -81,11 +87,24 @@ feature "waybill", %q{
       items = Place.order(:tag).limit(6)
       check_autocomplete("distributor_place", items, :tag)
 
-      check_autocomplete("storekeeper_place", items, :tag)
+      find("#storekeeper_place")[:disabled].should eq("true")
 
-      6.times { create(:entity) }
-      items = Entity.order(:tag).limit(6)
+      3.times do
+        user = create(:user)
+        create(:credential, user: user, document_type: Waybill.name)
+      end
+      3.times { create(:user) }
+      items = Credential.where(document_type: Waybill.name).all.collect { |c| c.user.entity }
       check_autocomplete("storekeeper_entity", items, :tag)
+      fill_in('storekeeper_entity', :with => items[0].tag[0..1])
+      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
+                     "contains(@style, 'display: block')]") do
+        all(:xpath, ".//li//a")[0].click
+      end
+      find("#storekeeper_entity")[:value].should eq(items[0].tag)
+      find("#storekeeper_place")[:value].should eq(
+        User.where(entity_id: items[0].id).first.
+          credentials.where(document_type: Waybill.name).first.place.tag)
 
       page.should have_xpath("//table[@id='estimate_boms']")
       page.should_not have_selector(:xpath, "//table[@id='estimate_boms']//tbody//tr")

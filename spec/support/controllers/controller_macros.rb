@@ -29,11 +29,13 @@ module ControllerMacros
     find("##{element_id}")["value"].should eq("qqqqq")
     fill_in(element_id, :with => items[0].send(attr)[0..1])
     page.should have_xpath(
-                    "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]")
-    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
-      all(:xpath, ".//li").length.should eq(5)
-      (0..4).each do |idx|
-        page.should have_content(items[idx].send(attr))
+      "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]")
+    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
+                   "contains(@style, 'display: block')]") do
+      all(:xpath, ".//li").length.should eq(items.count > 5 ? 5 : items.count)
+      items.each_with_index do |item, idx|
+        page.should have_content(item.send(attr)) if idx < 5
+        page.should_not have_content(item.send(attr)) if idx >= 5
       end
       all(:xpath, ".//li//a")[1].click
     end

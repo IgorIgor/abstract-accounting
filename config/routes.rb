@@ -69,6 +69,7 @@ Abstract::Application.routes.draw do
     end
   end
   resources :deals
+  resources :storekeepers, only: [:index]
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

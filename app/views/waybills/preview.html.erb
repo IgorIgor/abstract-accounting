@@ -57,7 +57,9 @@
                  name='<%= t 'views.waybills.distributor' %>' rule='required'
                  data-bind="autocomplete: { source: '/legal_entities.json',
                                             value: 'name',
-                                            bindId: $parent.object.waybill.distributor_id },
+                                            bind: {
+                                              id: $parent.object.waybill.distributor_id
+                                            }},
                             value: name, disable: $parent.readonly" />
         </span>
       </div>
@@ -96,7 +98,7 @@
                  data-bind="autocomplete: {
                               source: '/places.json',
                               value: 'tag',
-                              bindId: $parent.object.waybill.distributor_place_id
+                              bind: { id: $parent.object.waybill.distributor_place_id }
                             }, value: tag, disable: $parent.readonly" />
         </span>
       </div>
@@ -113,10 +115,18 @@
         <span data-bind='with: object.storekeeper'>
           <input type='text' id='storekeeper_entity'
                  name='<%= t 'views.waybills.storekeeper' %>' rule='required'
-                 data-bind="autocomplete: { source: '/entities.json',
-                                            value: 'tag',
-                                            bindId: $parent.object.waybill.storekeeper_id },
-                            value: tag, disable: $parent.disable_storekeeper" />
+                 data-bind="autocomplete: {
+                   source: '/storekeepers.json',
+                   value: 'tag',
+                   onlySelect: true,
+                   bind: {
+                     id: $parent.object.waybill.storekeeper_id,
+                     place: {
+                       id: $parent.object.waybill.storekeeper_place_id,
+                       tag: $parent.object.storekeeper_place.tag
+                     }
+                   }
+                 }, value: tag, disable: $parent.disable_storekeeper" />
         </span>
       </div>
       <div>
@@ -126,11 +136,8 @@
         <span data-bind='with: object.storekeeper_place'>
           <input type='text' id='storekeeper_place'
                  name='<%= t 'views.waybills.storekeeper_place' %>' rule='required'
-                 data-bind="autocomplete: {
-                              source: '/places.json',
-                              value: 'tag',
-                              bindId: $parent.object.waybill.storekeeper_place_id
-                            }, value: tag, disable: $parent.disable_storekeeper" />
+                 data-bind="value: tag"
+                 disabled="disabled" />
         </span>
       </div>
     </div>

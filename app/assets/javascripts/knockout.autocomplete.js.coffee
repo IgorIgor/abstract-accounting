@@ -20,9 +20,17 @@ ko.bindingHandlers.autocomplete =
                .append("<a>#{item[config.value]}</a>").appendTo(ul)
 
       $(element).bind('autocompleteselect', (_, ui) ->
-        config.bindId(ui.item.data.id)
+        bind = null
+        bind = config.bind if config.hasOwnProperty("bind")
         for key, value of ui.item.data
-          viewModel[key](value) if (viewModel.hasOwnProperty(key))
+          if bind and bind.hasOwnProperty(key)
+            if typeof value == "object"
+              for key2, value2 of value
+                bind[key][key2](value2) if bind[key].hasOwnProperty(key2)
+            else
+              bind[key](value)
+          else if (viewModel.hasOwnProperty(key))
+            viewModel[key](value)
 
         config.afterChange() if config.afterChange
       )
@@ -34,6 +42,13 @@ ko.bindingHandlers.autocomplete =
       $(element).bind('autocompletechange', (e, ui) ->
         if config.onlySelect && !ui.item
           allBindings().value('')
-          config.bindId('')
+          if config.hasOwnProperty("bind")
+            bind = config.bind
+            for key, value of bind
+              if typeof value == "object"
+                for key2, value2 of value
+                  value2(null)
+              else
+                value(null)
           config.afterChange() if config.afterChange
       )

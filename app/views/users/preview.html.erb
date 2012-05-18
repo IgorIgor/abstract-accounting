@@ -1,12 +1,18 @@
 <form data-bind="validate: { success: save }">
   <div class='actions'>
-    <input type='submit' value="<%= t 'views.waybills.save' %>"/>
+    <input type='submit' value="<%= t 'views.waybills.save' %>"
+           data-bind='disable: readonly'/>
     <input type='button' value="<%= t 'views.waybills.back' %>"
            data-bind='click: back'/>
   </div>
 
   <span id="page-title">
-    <%= t('views.users.page_title_new') %>
+    <!-- ko if: readonly -->
+      <%= t('views.users.page_title_show') %>
+    <!-- /ko -->
+    <!-- ko ifnot: readonly -->
+      <%= t('views.users.page_title_new') %>
+    <!-- /ko -->
   </span>
 
   <%= render 'home/errors' %>
@@ -24,7 +30,7 @@
                  data-bind="autocomplete: { source: '/entities.json',
                                             value: 'tag',
                                             bind: { id: $parent.object.user.entity_id } },
-                            value: tag">
+                            value: tag, disable: $parent.readonly">
         </span>
       </div>
       <div>
@@ -35,9 +41,10 @@
           <input type="text" id="user_email" name="<%= t('views.users.email') %>"
                  rule="email"
                  error-message-email="<%=t('errors.messages.email') %>"
-                 data-bind="value: object.user.email">
+                 data-bind="value: object.user.email, disable: readonly">
         </span>
       </div>
+      <!-- ko ifnot: readonly -->
       <div>
         <span class="form-cell-label">
           <label for="user_password"><%= t('views.users.password') %>:</label>
@@ -47,7 +54,7 @@
                  rule="min_length"
                  min_length="6"
                  error-message-min-length="<%=t('errors.messages.too_short.few', count: 6) %>"
-                 data-bind="value: object.user.password">
+                 data-bind="value: object.user.password, disable: readonly">
         </span>
       </div>
       <div>
@@ -61,9 +68,10 @@
                  equal_to="user_password"
                  error-message-equal-to="<%= t('errors.messages.equal_to',
                                                value: t('views.users.password') ) %>"
-                 data-bind="value: object.user.password_confirmation">
+                 data-bind="value: object.user.password_confirmation, disable: readonly">
         </span>
       </div>
+      <!-- /ko -->
     </div>
   </fieldset>
 
@@ -88,10 +96,10 @@
                               attr: { name: '<%=t 'views.users.credential' %>#' +
                                             $parent.object.credentials.indexOf($data) +
                                             ' <%=t 'views.users.place' %>'},
-                              value: tag">
+                              value: tag, disable: $parent.readonly">
           </td>
           <td>
-            <select data-bind="value: doctype">
+            <select data-bind="value: document_type, disable: $parent.readonly">
               <% @document_types.each do |document| %>
                 <option value="<%= document %>">
                   <%=t "views.home.#{document.downcase}" %>
@@ -99,9 +107,11 @@
               <% end %>
             </select>
           </td>
+          <!-- ko ifnot: $parent.readonly -->
           <td class="table-actions">
             <label data-bind="click: $parent.deleteCredential"></label>
           </td>
+          <!-- /ko -->
         </tr>
       </tbody>
     </table>

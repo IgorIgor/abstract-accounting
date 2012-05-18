@@ -7,12 +7,16 @@
 #
 # Please see ./COPYING for details
 
-object false
-child(@users => :objects) do
-  attributes :id, :email
-  glue :entity do
-    attributes :tag
-  end
+object true
+child(@user => :user) do
+  attributes :email, :entity_id
+  node(:password) { "" }
+  node(:password_confirmation) { "" }
 end
-node(:per_page) { Settings.root.per_page }
-node(:count) { @count }
+child(@user.entity => :entity) do
+  attributes :tag
+end
+child(@user.credentials(:force_update) => :credentials) do
+  attributes :document_type
+  glue(:place) { attributes :tag }
+end

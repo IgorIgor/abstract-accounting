@@ -34,7 +34,7 @@ class UsersController < ApplicationController
           params[:credentials].values.each do |credential|
             user.credentials.create!(
                 place: Place.find_or_create_by_tag(credential[:tag]),
-                document_type: credential[:doctype])
+                document_type: credential[:document_type])
           end
         end
       end
@@ -42,6 +42,10 @@ class UsersController < ApplicationController
     rescue
       render json: user.errors.messages
     end
+  end
+
+  def show
+    @user = User.find(params[:id])
   end
 
   def data

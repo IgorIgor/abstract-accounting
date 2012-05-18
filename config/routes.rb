@@ -65,12 +65,13 @@ Abstract::Application.routes.draw do
   end
   resources :transcripts, only: [:index] do
     collection do
+      get 'preview'
       get 'data'
     end
   end
   resources :deals
   resources :storekeepers, only: [:index]
-  resources :users, only: [:index, :new, :create] do
+  resources :users, only: [:index, :new, :create, :show] do
     collection do
       get 'preview'
       get 'data'

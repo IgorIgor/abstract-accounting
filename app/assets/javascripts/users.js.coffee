@@ -7,3 +7,6 @@ $ ->
       @params =
         page: @page
         per_page: @per_page
+
+    showUser: (object) ->
+      location.hash = "documents/users/#{object.id}"

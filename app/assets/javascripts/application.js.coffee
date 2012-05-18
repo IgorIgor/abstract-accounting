@@ -139,6 +139,24 @@ $ ->
             )
           )
         )
+        this.get('#documents/:type/:id', ->
+          id = this.params.id
+          type = this.params.type
+          $.get("#{type}/preview", {}, (form) ->
+            $.getJSON("#{type}/#{id}.json", {}, (object) ->
+              viewModel = switch type
+                when 'distributions'
+                  new DistributionViewModel(object, true)
+                when 'waybills'
+                  new WaybillViewModel(object, true)
+                when 'users'
+                  new UserViewModel(object, true)
+
+              $('#container_documents').html(form)
+              ko.applyBindings(viewModel, $('#container_documents').get(0))
+            )
+          )
+        )
         this.get('#:report', ->
           report = this.params.report
           $.get("/#{report}", {}, (form) ->

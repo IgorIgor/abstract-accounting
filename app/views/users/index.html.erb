@@ -7,8 +7,8 @@
   </thead>
   <tbody data-bind="foreach: documents">
     <tr>
-      <td data-bind="text: tag"></td>
-      <td data-bind="text: email"></td>
+      <td data-bind="text: tag, click: $parent.showUser"></td>
+      <td data-bind="text: email, click: $parent.showUser"></td>
     </tr>
   </tbody>
 </table>

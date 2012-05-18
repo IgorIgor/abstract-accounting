@@ -246,4 +246,40 @@ feature "user", %q{
       find_button('>')[:disabled].should eq('false')
     end
   end
+
+  scenario "show user", js: true do
+    user = User.count > 0 ? User.first : create(:user)
+    if user.credentials(:force_update).empty?
+      user.credentials.create!(place: create(:place), document_type: Waybill.name)
+      user.credentials.create!(place: create(:place), document_type: Distribution.name)
+    end
+    page_login
+    click_link I18n.t('views.home.users')
+    current_hash.should eq('users')
+    page.should have_xpath("//div[@id='sidebar']/ul/li[@id='users'" +
+                               " and @class='sidebar-selected']")
+    within('#container_documents table') do
+      find(:xpath, ".//tbody//tr[1]//td[contains(.//text(), '#{user.entity.tag}')]").click
+    end
+    current_hash.should eq("documents/users/#{user.id}")
+    find("#user_entity")[:disabled].should eq("true")
+    find("#user_email")[:disabled].should eq("true")
+    find_button(I18n.t('views.users.add'))[:disabled].should eq("true")
+    find_button(I18n.t('views.users.save'))[:disabled].should eq("true")
+
+    find("#user_entity")[:value].should eq(user.entity.tag)
+    find("#user_email")[:value].should eq(user.email)
+
+
+    within("fieldset table tbody") do
+      user.credentials(:force_update).each_with_index do |c, i|
+        within(:xpath, ".//tr[#{i + 1}]") do
+          find(:xpath, ".//td//input[@type='text']")[:value].should eq(c.place.tag)
+          find(:xpath, ".//select")[:value].should eq(c.document_type)
+          find(:xpath, ".//td//input[@type='text']")[:disabled].should eq("true")
+          find(:xpath, ".//td//select")[:disabled].should eq("true")
+        end
+      end
+    end
+  end
 end

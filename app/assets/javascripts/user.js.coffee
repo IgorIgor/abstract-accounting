@@ -4,7 +4,7 @@ $ ->
       super(object, '/users', readonly)
 
     addCredential: =>
-      @object.credentials.push(tag: ko.observable(), doctype: null)
+      @object.credentials.push(tag: ko.observable(), document_type: null)
 
     deleteCredential: (credential) =>
       @object.credentials.remove(credential)

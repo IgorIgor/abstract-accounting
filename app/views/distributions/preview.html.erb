@@ -63,9 +63,15 @@
           <input type='text' id='storekeeper_entity'
                  name='<%= t 'views.distributions.storekeeper' %>' rule='required'
                  data-bind="autocomplete: {
-                              source: '/entities.json',
+                              source: '/storekeepers.json?document_type=<%= Distribution.name %>',
                               value: 'tag',
-                              bind: { id: $parent.object.distribution.storekeeper_id },
+                              bind: {
+                                id: $parent.object.distribution.storekeeper_id,
+                                place: {
+                                  id: $parent.object.distribution.storekeeper_place_id,
+                                  tag: $parent.object.storekeeper_place.tag,
+                                }
+                              },
                               onlySelect: true,
                               afterChange: $parent.loadAvailableResources
                             }, value: tag, disable: $parent.disable_storekeeper" />
@@ -78,13 +84,7 @@
         <span data-bind='with: object.storekeeper_place'>
           <input type='text' id='storekeeper_place'
                  name='<%= t 'views.distributions.storekeeper_place' %>' rule='required'
-                 data-bind="autocomplete: {
-                              source: '/places.json',
-                              value: 'tag',
-                              bind: { id: $parent.object.distribution.storekeeper_place_id },
-                              onlySelect: true,
-                              afterChange: $parent.loadAvailableResources
-                            }, value: tag, disable: $parent.disable_storekeeper" />
+                 data-bind="value: tag" disabled="disabled" />
         </span>
       </div>
     </div>

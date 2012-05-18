@@ -116,7 +116,7 @@
           <input type='text' id='storekeeper_entity'
                  name='<%= t 'views.waybills.storekeeper' %>' rule='required'
                  data-bind="autocomplete: {
-                   source: '/storekeepers.json',
+                   source: '/storekeepers.json?document_type=<%= Waybill.name %>',
                    value: 'tag',
                    onlySelect: true,
                    bind: {

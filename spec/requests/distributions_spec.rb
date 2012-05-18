@@ -17,7 +17,9 @@ feature 'distributions', %q{
   scenario 'view distributions', js: true do
     per_page = Settings.root.per_page
     create(:chart)
-    wb = build(:waybill)
+    user = create(:user)
+    credential = create(:credential, user: user, document_type: Distribution.name)
+    wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place)
     (per_page + 1).times do |i|
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
     end
@@ -47,8 +49,8 @@ feature 'distributions', %q{
     within("#container_documents form") do
       page.should have_no_selector('#available-resources tbody tr')
 
+      find('#storekeeper_place')[:disabled].should eq("true")
       fill_in('storekeeper_entity', with: 'fail')
-      fill_in('storekeeper_place', with: 'fail')
       page.has_css?("#storekeeper_entity", value: '').should be_true
       page.should have_no_selector('#available-resources tbody tr')
 
@@ -58,21 +60,33 @@ feature 'distributions', %q{
 
       6.times.collect { create(:place) }
       items = Place.find(:all, order: :tag, limit: 5)
-      check_autocomplete("storekeeper_place", items, :tag)
       check_autocomplete("foreman_place", items, :tag)
 
-      6.times.collect { create(:entity) }
-      items = Entity.find(:all, order: :tag, limit: 5)
-      check_autocomplete("storekeeper_entity", items, :tag)
+      3.times do
+        user = create(:user)
+        create(:credential, user: user, document_type: Distribution.name)
+      end
+      3.times { create(:user) }
+      items = Credential.where(document_type: Distribution.name).
+          all.collect { |c| c.user.entity }
+      check_autocomplete("storekeeper_entity", items, :tag, true)
+      fill_in('storekeeper_entity', :with => items[0].tag[0..1])
+      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
+                     "contains(@style, 'display: block')]") do
+        all(:xpath, ".//li//a")[0].click
+      end
+      find("#storekeeper_entity")[:value].should eq(items[0].tag)
+      find("#storekeeper_place")[:value].should eq(
+        User.where(entity_id: items[0].id).first.
+          credentials.where(document_type: Distribution.name).first.place.tag)
+
+      items = Entity.all(order: :tag, limit: 5)
       check_autocomplete("foreman_entity", items, :tag)
     end
 
     within("#container_documents") do
       unless page.find("#storekeeper_entity").value == wb.storekeeper.tag
         fill_in_autocomplete('storekeeper_entity', wb.storekeeper.tag)
-      end
-      unless page.find("#storekeeper_place").value == wb.storekeeper_place.tag
-        fill_in_autocomplete('storekeeper_place', wb.storekeeper_place.tag)
       end
 
 
@@ -163,12 +177,13 @@ feature 'distributions', %q{
     PaperTrail.enabled = true
 
     create(:chart)
-    @waybill = nil
-    wb = build(:waybill, created: DateTime.current.change(year: 2011))
+    user = create(:user)
+    credential = create(:credential, user: user, document_type: Distribution.name)
+    wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place,
+                         created: DateTime.current.change(year: 2011))
     wb.add_item('roof', 'm2', 12, 100.0)
     wb.add_item('roof2', 'm2', 12, 100.0)
     wb.save!
-    @waybill = wb
 
     page_login
 
@@ -179,19 +194,21 @@ feature 'distributions', %q{
     within("#container_documents form") do
       find("#container_notification").visible?.should be_true
       within("#container_notification") do
-        page.should have_content("#{I18n.t('views.distributions.created_at')} : #{I18n.t('errors.messages.blank')}")
-        page.should have_content("#{I18n.t('views.distributions.storekeeper')} : #{I18n.t('errors.messages.blank')}")
-        page.should have_content("#{I18n.t('views.distributions.storekeeper_place')} : #{I18n.t('errors.messages.blank')}")
-        page.should have_content("#{I18n.t('views.distributions.foreman')} : #{I18n.t('errors.messages.blank')}")
-        page.should have_content("#{I18n.t('views.distributions.foreman_place')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content(
+          "#{I18n.t('views.distributions.created_at')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content(
+          "#{I18n.t('views.distributions.storekeeper')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content(
+          "#{I18n.t('views.distributions.foreman')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content(
+          "#{I18n.t('views.distributions.foreman_place')} : #{I18n.t('errors.messages.blank')}")
       end
     end
 
     page.datepicker("created").prev_month.day(10)
 
     within("#container_documents form") do
-      fill_in_autocomplete('storekeeper_entity', @waybill.storekeeper.tag)
-      fill_in_autocomplete('storekeeper_place', @waybill.storekeeper_place.tag)
+      fill_in_autocomplete('storekeeper_entity', wb.storekeeper.tag)
       fill_in("foreman_entity", :with =>"entity")
       fill_in("foreman_place", :with => "place")
     end

@@ -23,10 +23,14 @@ module ControllerMacros
     current_url.split("#")[1]
   end
 
-  def check_autocomplete(element_id, items, attr)
+  def check_autocomplete(element_id, items, attr, clear = false)
     fill_in(element_id, :with => "qqqqq")
-    page.find("##{element_id}").find(:xpath, ".//..").click
-    find("##{element_id}")["value"].should eq("qqqqq")
+    if !clear
+      page.find("##{element_id}").find(:xpath, ".//..").click
+      find("##{element_id}")["value"].should eq("qqqqq")
+    else
+      page.has_css?("##{element_id}", value: '').should be_true
+    end
     fill_in(element_id, :with => items[0].send(attr)[0..1])
     page.should have_xpath(
       "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]")

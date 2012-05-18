@@ -9,7 +9,7 @@
 
 class StorekeepersController < ApplicationController
   def index
-    @credentials = Credential.where(document_type: Waybill.name).
+    @credentials = Credential.where(document_type: params[:document_type]).
         joins(:entity).where("entities.tag LIKE '%#{params[:term]}%'").
             order("entities.tag").limit(5)
   end

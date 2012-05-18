@@ -55,6 +55,12 @@ $table-border: solid 1px #d8d8d8;
       td.distribution-actions{
         cursor: pointer;
       }
+
+      td.distribution-tree-actions-by-wb {
+        width: 10px;
+        padding: 0 5px;
+        cursor: pointer;
+      }
     }
 
     .paginate {

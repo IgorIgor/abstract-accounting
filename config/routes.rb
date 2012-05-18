@@ -36,6 +36,9 @@ Abstract::Application.routes.draw do
       get 'preview'
       get 'data'
     end
+    member do
+      get 'resources'
+    end
   end
   resources :places
   resources :entities

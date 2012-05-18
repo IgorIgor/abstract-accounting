@@ -80,7 +80,13 @@ $ ->
     getPaginateData: =>
       @params['without'] = $.map(@object.items(), (r) -> r.id) if @object.items().length > 0
       $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
-        @availableResources(data.objects)
+        @availableResources([])
+        for obj in data.objects
+          obj.resources =
+            show: ko.observable(false)
+            items: ko.observableArray([]) if @availableMode()
+          @availableResources.push(obj)
+
         @per_page(data.per_page)
         @count(data.count)
         @range(@rangeGenerate())
@@ -95,3 +101,21 @@ $ ->
       endRange = (@page() - 1)*@per_page() + @per_page()
       endRange = @count() if endRange > @count()
       "#{startRange}-#{endRange}"
+
+    treeMapping: (data, event) =>
+      el = $(event.target).find('span')
+      el = $(event.target) unless el.length
+
+      el.toggleClass('ui-icon-circle-plus')
+      el.toggleClass('ui-icon-circle-minus')
+
+      data.resources.show(
+        if data.resources.show()
+          false
+        else
+          unless data.resources.items().length
+            $.getJSON("/waybills/#{data.id}/resources.json", null, (items) =>
+              data.resources.items(items)
+            )
+          true
+      )

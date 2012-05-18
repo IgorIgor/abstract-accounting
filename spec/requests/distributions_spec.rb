@@ -166,6 +166,16 @@ feature 'distributions', %q{
           tr.should have_content(w.storekeeper.tag)
           tr.should have_content(w.storekeeper_place.tag)
         end
+
+        page.find("td[@class='distribution-tree-actions-by-wb']").click
+        within('table') do
+          wbs[0].items.each_with_index do |item, idx|
+            tr = page.all('tbody tr')[idx]
+            tr.should have_content(item.resource.tag)
+            tr.should have_content(item.resource.mu)
+            tr.should have_content(item.amount.to_i)
+          end
+        end
       end
 
       page.find('#mode-resources-by-wb').click

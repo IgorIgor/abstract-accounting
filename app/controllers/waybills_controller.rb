@@ -88,4 +88,8 @@ class WaybillsController < ApplicationController
 
     @waybills = Waybill.in_warehouse(attrs)
   end
+
+  def resources
+    @resources = Waybill.find(params[:id]).items
+  end
 end

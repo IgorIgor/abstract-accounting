@@ -55,4 +55,28 @@ class UsersController < ApplicationController
     @users = User.limit(per_page).offset((page - 1) * per_page).all
     @count = User.count
   end
- end
+
+  def update
+    user = User.find(params[:id])
+    begin
+      User.transaction do
+        user.update_attributes(email: params[:user][:email])
+        unless user.entity.tag == params[:entity][:tag]
+          user.entity = Entity.find_or_create_by_tag(params[:entity][:tag])
+        end
+        user.credentials.delete_all
+        if params[:credentials]
+          params[:credentials].values.each do |credential|
+            user.credentials.create!(
+                place: Place.find_or_create_by_tag(credential[:tag]),
+                document_type: credential[:document_type])
+          end
+        end
+        user.save!
+      end
+      render text: "success"
+    rescue
+      render json: user.errors.messages
+    end
+  end
+end

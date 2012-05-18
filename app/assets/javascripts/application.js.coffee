@@ -56,11 +56,15 @@ $ ->
       @object = ko.mapping.fromJS(object)
       @save_url = save_url
       $('.paginate').hide()
+      @method = 'POST'
 
     back: -> location.hash = 'inbox'
 
     save: =>
-      ajaxRequest('POST', @save_url, ko.mapping.toJS(@object))
+      url = @save_url
+      if @method == 'PUT'
+        url = "#{@save_url}/#{@id()}"
+      ajaxRequest(@method, url, ko.mapping.toJS(@object))
 
   class self.FolderViewModel
     constructor: (data) ->

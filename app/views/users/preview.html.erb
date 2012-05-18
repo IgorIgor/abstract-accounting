@@ -2,6 +2,8 @@
   <div class='actions'>
     <input type='submit' value="<%= t 'views.waybills.save' %>"
            data-bind='disable: readonly'/>
+    <input type='button' value="<%= t 'views.users.edit' %>"
+           data-bind='click: edit, disable: !readonly()'/>
     <input type='button' value="<%= t 'views.waybills.back' %>"
            data-bind='click: back'/>
   </div>
@@ -11,7 +13,12 @@
       <%= t('views.users.page_title_show') %>
     <!-- /ko -->
     <!-- ko ifnot: readonly -->
-      <%= t('views.users.page_title_new') %>
+      <!-- ko if: id_presence -->
+        <%= t('views.users.page_title_edit') %>
+      <!-- /ko -->
+      <!-- ko ifnot: id_presence -->
+        <%= t('views.users.page_title_new') %>
+      <!-- /ko -->
     <!-- /ko -->
   </span>
 
@@ -45,6 +52,7 @@
         </span>
       </div>
       <!-- ko ifnot: readonly -->
+      <!-- ko ifnot: id_presence -->
       <div>
         <span class="form-cell-label">
           <label for="user_password"><%= t('views.users.password') %>:</label>
@@ -71,6 +79,7 @@
                  data-bind="value: object.user.password_confirmation, disable: readonly">
         </span>
       </div>
+      <!-- /ko -->
       <!-- /ko -->
     </div>
   </fieldset>

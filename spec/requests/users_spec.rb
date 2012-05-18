@@ -282,4 +282,64 @@ feature "user", %q{
       end
     end
   end
+
+  scenario "edit user", :js => true do
+    user = User.count > 0 ? User.first : create(:user)
+    if user.credentials(:force_update).empty?
+      user.credentials.create!(place: create(:place), document_type: Waybill.name)
+    end
+    page_login
+    click_link I18n.t('views.home.users')
+    current_hash.should eq('users')
+    page.should have_xpath("//div[@id='sidebar']/ul/li[@id='users'" +
+                               " and @class='sidebar-selected']")
+    within('#container_documents') do
+      within('table') do
+        find(:xpath, ".//tbody//tr[1]//td[contains(.//text(), '#{user.entity.tag}')]").click
+      end
+      current_hash.should eq("documents/users/#{user.id}")
+      find_button(I18n.t('views.users.edit'))[:disabled].should eq('false')
+
+      click_button(I18n.t('views.users.edit'))
+      find('#page-title').should have_content(
+                                     I18n.t('views.users.page_title_edit'))
+      find_button(I18n.t('views.users.edit'))[:disabled].should eq('true')
+
+      find('#user_entity')[:disabled].should eq('false')
+      find('#user_email')[:disabled].should eq('false')
+      find_button(I18n.t('views.users.add'))[:disabled].should eq('false')
+
+      fill_in('user_entity', with: 'some different entity')
+      fill_in('user_email', with: 'some.different@email.ee')
+
+      within("fieldset table tbody") do
+        page.should have_selector('tr', count: 1)
+        page.find(:xpath, ".//td[@class='table-actions']//label").click
+        page.should_not have_selector('tr')
+      end
+
+      click_button(I18n.t('views.users.add'))
+      within("fieldset table tbody") do
+        fill_in("#{I18n.t('views.users.credential')}#0 #{I18n.t(
+              'views.users.place')}", with: "Some cool place")
+      end
+    end
+
+    lambda do
+      click_button(I18n.t('views.users.save'))
+      page.should have_selector("#inbox[@class='sidebar-selected']")
+    end.should change(User, :count).by(0) && change(Entity, :count).by(1) &&
+        change(Credential, :count).by(1)
+
+    Credential.where{place_id == Place.find_by_tag("Some cool place")}.count.should eq(1)
+
+    click_link I18n.t('views.home.users')
+
+    within('#container_documents table tbody') do
+      within(:xpath, './/tr[1]') do
+        page.should have_content('some different entity')
+        page.should have_content('some.different@email.ee')
+      end
+    end
+  end
 end

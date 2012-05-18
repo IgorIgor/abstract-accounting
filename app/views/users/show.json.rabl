@@ -9,7 +9,7 @@
 
 object true
 child(@user => :user) do
-  attributes :email, :entity_id
+  attributes :id, :email, :entity_id
   node(:password) { "" }
   node(:password_confirmation) { "" }
 end

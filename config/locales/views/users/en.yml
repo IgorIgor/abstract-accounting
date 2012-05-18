@@ -10,6 +10,7 @@ en:
       edit: "Edit"
       page_title_new: "Create new user"
       page_title_show: "Show user"
+      page_title_edit: "Edit user"
       add: "Add"
       credentials: "Credentials"
       credential: "Credential"

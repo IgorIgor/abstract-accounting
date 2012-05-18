@@ -10,6 +10,7 @@ ru:
       edit: "Редактировать"
       page_title_new: "Новый пользователь"
       page_title_show: "Просмотр пользователя"
+      page_title_edit: "Редактирование пользователя"
       add: "Добавить"
       credentials: "Полномочия"
       credential: "Полномочие"

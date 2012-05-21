@@ -95,7 +95,7 @@ describe Waybill do
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 
-    wb.items.each {|i|
+    wb.items.each do |i|
       deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
       deal.should_not be_nil
       deal.rate.should eq(1 / i.price)
@@ -105,7 +105,7 @@ describe Waybill do
       deal.should_not be_nil
       deal.rate.should eq(1.0)
       deal.isOffBalance.should be_false
-    }
+    end
 
     wb = build(:waybill, distributor: wb.distributor,
                                  distributor_place: wb.distributor_place,
@@ -150,7 +150,7 @@ describe Waybill do
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 
-    wb.items.each {|i|
+    wb.items.each do |i|
       deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
       deal.should_not be_nil
       deal.rate.should eq(1 / i.price)
@@ -160,7 +160,29 @@ describe Waybill do
       deal.should_not be_nil
       deal.rate.should eq(1.0)
       deal.isOffBalance.should be_false
-    }
+    end
+
+    wb = build(:waybill, distributor: wb.distributor,
+                         distributor_place: wb.distributor_place,
+                         storekeeper: wb.storekeeper)
+    wb.add_item('roof', 'm2', 100, 10.0)
+    lambda { wb.save } .should change(Deal, :count).by(2)
+
+    deal = Deal.find(wb.deal)
+    deal.entity.should eq(wb.storekeeper)
+    deal.isOffBalance.should be_true
+
+    wb.items.each do |i|
+      deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
+      deal.should_not be_nil
+      deal.rate.should eq(1 / i.price)
+      deal.isOffBalance.should be_false
+
+      deal = i.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+      deal.should_not be_nil
+      deal.rate.should eq(1.0)
+      deal.isOffBalance.should be_false
+    end
   end
 
   it 'should create rules' do

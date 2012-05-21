@@ -114,22 +114,19 @@ class WaybillItem
   end
 
   def warehouse_deal(give_r, place, entity)
-    rate = give_r.nil? ? 1.0 : 1.0 / self.price
+    deal_rate = give_r.nil? ? 1.0 : 1.0 / self.price
     give_r ||= self.resource
+    take_r = self.resource
 
-    deal = Deal.all(
-      joins: ["INNER JOIN terms AS gives ON gives.deal_id = deals.id
-                 AND gives.side = 'f'",
-              "INNER JOIN terms AS takes ON takes.deal_id = deals.id
-                 AND takes.side = 't'"],
-      conditions: ["gives.resource_id = ? AND gives.place_id = ? AND
-                    takes.resource_id = ? AND takes.place_id = ? AND
-                    deals.entity_id = ? AND deals.entity_type = ? AND deals.rate = ?",
-                  give_r, place, self.resource, place, entity, entity.class.name, rate]
-    ).first
+    deal = Deal.joins(:give, :take).where do
+      (give.resource_id == give_r) & (give.place_id == place) &
+      (take.resource_id == take_r) & (give.place_id == place) &
+      (entity_id == entity) & (entity_type == entity.class.name) & (self.rate == deal_rate)
+    end.first
     if deal.nil? && !self.resource.nil?
-      deal = Deal.new(entity: entity, rate: rate,
-        tag: "storehouse resource: #{self.resource.tag}[#{self.resource.mu}]; rate: #{rate}")
+      deal = Deal.new(entity: entity, rate: deal_rate,
+        tag: "storehouse resource: #{self.resource.tag}[#{self.resource.mu}];" +
+          " warehouse: #{place.tag}; rate: #{deal_rate}")
       return nil if deal.build_give(place: place, resource: give_r).nil?
       return nil if deal.build_take(place: place, resource: self.resource).nil?
       return nil unless deal.save

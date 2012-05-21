@@ -36,48 +36,43 @@ class VersionEx < Version
   def self.filter(attrs = nil)
     return scoped if attrs.nil?
 
-    join = ''
-    condition = ''
-
-    attrs.each do |model, fields|
-      if fields.kind_of?(Hash)
-        table = model.to_s.pluralize
-
-        join <<
-          "LEFT JOIN #{table} ON versions.item_type = '#{model.to_s.capitalize}'
-                              AND versions.item_id = #{table}.id "
-
-        fields.each_with_index do |(field, value), index|
+    ids = []
+    attrs.each do |klass, expressions|
+      expr_scope = scoped
+      expressions.each do |field, value|
+        expr_scope = expr_scope.joins do
+          scope = item(klass.to_s.camelize.constantize)
           if value.kind_of?(Hash)
-            value.each do |rel_model, rel_fields|
-              rel_table = rel_model.to_s.pluralize
-              rel_alias = "#{model}_#{field}"
-
-              join << "LEFT JOIN #{rel_table} AS #{rel_alias}
-                        ON #{rel_alias}.id = #{table}.#{field}_id "
-
-              rel_fields.each_with_index do |(rel_field, rel_value), rel_index|
-                condition << if index.zero? && rel_index.zero?
-                  "#{condition.empty? ? '(' : ') OR ('}"
-                else
-                  ' AND '
-                end
-                condition << "lower(#{rel_alias}.#{rel_field}) LIKE '%#{rel_value}%'"
-              end
+            scope = scope.send("#{field}", value.keys[0].to_s.camelize.constantize)
+          end
+          scope
+        end
+        expr_scope = expr_scope.where do
+          if value.kind_of?(Hash)
+            data = value.values.first
+            scope = nil
+            data.each do |subfield, match|
+              tmp_scope = item.send(field).send(subfield).like "%#{match}%"
+              scope = scope ? scope & tmp_scope : tmp_scope
             end
+            scope
           else
-            condition << if index.zero?
-              "#{condition.empty? ? '(' : ') OR ('}"
+            if klass.to_s.camelize.constantize.columns_hash[field.to_s].type == :integer
+              item.send(field) == value.to_i
             else
-              ' AND '
+              item.send(field).like "%#{value}%"
             end
-            condition << "lower(#{table}.#{field}) LIKE '%#{value}%'"
           end
         end
       end
+      ids << expr_scope
     end
-    condition << ')' unless condition.empty?
-
-    joins(join).where(condition)
+    if ids.count > 1
+      scoped.where do
+        ids.inject(nil) { |memo, version| memo ? memo | id.in(version) : id.in(version) }
+      end
+    else
+      ids.first
+    end
   end
 end

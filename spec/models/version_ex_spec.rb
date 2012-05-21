@@ -93,11 +93,12 @@ describe VersionEx do
       create(:chart)
       items = []
       (0..2).each do |i|
-        st = create(:entity, tag: "storekeeper#{i}")
+        st = i < 2 ? create(:entity, tag: "storekeeper#{i}") :
+            Entity.find_by_tag("storekeeper1")
         stp = create(:place, tag: "sk_place#{i}")
         ds = create(:legal_entity, name: "ds_name#{i}",
-               identifier_name: "ds_id_name#{i}",
-               identifier_value: "ds_id_value#{i}")
+               identifier_name: "ds_id_name1",
+               identifier_value: "ds_id_value#{i < 2 ? 1 : 2}")
         dsp = create(:place, tag: "ds_place#{i}")
 
         wb = build(:waybill, document_id: "test_document_id#{i}",
@@ -164,9 +165,40 @@ describe VersionEx do
                           place: { tag: 'ds_place1'}}}).map { |v| v.item }
         .eql?(filtered).should be_true
 
+      filtered = items.select { |i| i.kind_of?(Waybill) &&
+        i.storekeeper == st && i.storekeeper_place == stp}
+      VersionEx.filter(waybill: {
+                        storekeeper: {
+                          entity: { tag: st.tag}},
+                        storekeeper_place: {
+                          place: { tag: stp.tag}}}).map { |v| v.item }
+        .eql?(filtered).should be_true
+
+      filtered = items.select { |i| i.kind_of?(Waybill) &&
+        i.storekeeper == st && i.storekeeper_place == stp}
+      VersionEx.filter(waybill: {
+                        storekeeper: {
+                          entity: { tag: st.tag}},
+                        storekeeper_place: {
+                          place: { tag: stp.tag}},
+                        created: Date.today.to_s[0,2]}).map { |v| v.item }
+        .eql?(filtered).should be_true
+
       VersionEx.filter(waybill: { created: Date.today.to_s[0,2] },
                        distribution: { created: Date.today.to_s[0,2] })
         .count.should eq(items.count)
+
+      filtered = items.select { |i| (i.kind_of?(Waybill) &&
+        i.storekeeper == st) || (i.kind_of?(Distribution) && i.storekeeper == st) }
+      VersionEx.filter(waybill: {
+                        storekeeper: {
+                          entity: { tag: st.tag}},
+                        created: Date.today.to_s[0,2]},
+                       distribution: {
+                        storekeeper: {
+                          entity: { tag: st.tag}},
+                        created: Date.today.to_s[0,2] }).map { |v| v.item }
+        .eql?(filtered).should be_true
 
       filtered = items.select { |i| i.kind_of?(Distribution) && i.state == 1}
       VersionEx.filter(distribution: { state: '1' })

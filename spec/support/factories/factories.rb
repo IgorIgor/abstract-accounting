@@ -179,9 +179,14 @@ FactoryGirl.define do
     state 0
   end
 
-  factory :credential do |c|
+  factory :credential do
     user
     place
     sequence(:document_type) { |n| "document_type#{n}" }
+  end
+
+  factory :group do
+    tag
+    manager { |group| group.association(:user) }
   end
 end

@@ -27,6 +27,7 @@ describe User do
     should have_many User.versions_association_name
     User.new.root?.should be_false
     should have_many(:credentials)
+    should have_and_belong_to_many(:groups)
   end
 
   it "should authenticate from config" do

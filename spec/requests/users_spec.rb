@@ -342,4 +342,41 @@ feature "user", %q{
       end
     end
   end
+
+  scenario "edit user password", js: true do
+    password = "password"
+    user = User.count > 0 ? User.first : create(:user)
+    user.password_confirmation = password
+    user.change_password!(password)
+
+    page_login(user.email, password)
+    page.should have_selector("#inbox[@class='sidebar-selected']")
+    click_link I18n.t('views.home.logout')
+
+    page_login
+    click_link I18n.t('views.home.users')
+    within('#container_documents') do
+      within('table') do
+        find(:xpath, ".//tbody//tr[1]//td[contains(.//text(), '#{user.entity.tag}')]").click
+      end
+      click_button(I18n.t('views.users.edit'))
+      find('#user_password')[:disabled].should eq('true')
+      find('#user_password_confirmation')[:disabled].should eq('true')
+      check('change_pass')
+      find('#user_password')[:disabled].should eq('false')
+      find('#user_password_confirmation')[:disabled].should eq('false')
+      password = 'newpassword'
+      fill_in('user_password', with: password)
+      fill_in('user_password_confirmation', with: password)
+    end
+    lambda do
+      click_button(I18n.t('views.users.save'))
+      page.should have_selector("#inbox[@class='sidebar-selected']")
+    end.should change(User, :count).by(0)
+    click_link I18n.t('views.home.logout')
+
+    page_login(user.email, password)
+    page.should have_selector("#inbox[@class='sidebar-selected']")
+    click_link I18n.t('views.home.logout')
+  end
 end

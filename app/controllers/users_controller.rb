@@ -73,6 +73,10 @@ class UsersController < ApplicationController
           end
         end
         user.save!
+        if params[:user][:password]
+          user.password_confirmation = params[:user][:password_confirmation]
+          user.change_password!(params[:user][:password])
+        end
       end
       render text: "success"
     rescue

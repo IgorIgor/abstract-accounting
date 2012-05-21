@@ -51,8 +51,18 @@
                  data-bind="value: object.user.email, disable: readonly">
         </span>
       </div>
-      <!-- ko ifnot: readonly -->
-      <!-- ko ifnot: id_presence -->
+    </div>
+  </fieldset>
+  <fieldset>
+    <!-- ko ifnot: readonly -->
+    <!-- ko if: id_presence -->
+    <legend>
+      <label for="change_pass" ><%= t('views.users.change_password') %>:</label>
+      <input id="change_pass" type="checkbox" data-bind="checked: change_password" />
+    </legend>
+    <!-- /ko -->
+    <!-- /ko -->
+    <div>
       <div>
         <span class="form-cell-label">
           <label for="user_password"><%= t('views.users.password') %>:</label>
@@ -62,7 +72,7 @@
                  rule="min_length"
                  min_length="6"
                  error-message-min-length="<%=t('errors.messages.too_short.few', count: 6) %>"
-                 data-bind="value: object.user.password, disable: readonly">
+                 data-bind="value: object.user.password, disable: !change_password()">
         </span>
       </div>
       <div>
@@ -76,11 +86,10 @@
                  equal_to="user_password"
                  error-message-equal-to="<%= t('errors.messages.equal_to',
                                                value: t('views.users.password') ) %>"
-                 data-bind="value: object.user.password_confirmation, disable: readonly">
+                 data-bind="value: object.user.password_confirmation,
+                            disable: !change_password()">
         </span>
       </div>
-      <!-- /ko -->
-      <!-- /ko -->
     </div>
   </fieldset>
 

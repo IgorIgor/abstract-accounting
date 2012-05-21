@@ -3,6 +3,7 @@ $ ->
     constructor: (object, readonly = false) ->
       super(object, '/users', readonly)
       @id_presence = ko.observable(object.user.id?)
+      @change_password = ko.observable(!object.user.id?)
 
     addCredential: =>
       @object.credentials.push(tag: ko.observable(), document_type: null)

@@ -16,3 +16,4 @@ ru:
       credential: "Полномочие"
       place: "Место"
       document_type: "Тип документа"
+      change_password: "Изменить пароль"

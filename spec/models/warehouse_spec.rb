@@ -338,5 +338,20 @@ describe Warehouse do
                     without: [ Asset.find_by_tag_and_mu('nails', 'kg').id,
                                Asset.find_by_tag_and_mu('roof', 'rm').id ])
       .should eq(wh.count)
+
+    ds_minsk = build(:distribution, storekeeper: petrov,
+                                            storekeeper_place: minsk)
+    ds_minsk.add_item('roof', 'rm', 200)
+    ds_minsk.add_item('nails', 'kg', 85)
+    ds_minsk.save!
+
+    Warehouse.all(where: { storekeeper_id: { equal: petrov.id },
+                           storekeeper_place_id: { equal: minsk.id },
+                           'assets.id' => { equal_attr: Asset.find_by_tag("nails").id } })
+             .first.exp_amount.to_i.should eq(215)
+    Warehouse.all(where: { storekeeper_id: { equal: petrov.id },
+                           storekeeper_place_id: { equal: minsk.id },
+                           'assets.id' => { equal_attr: Asset.find_by_tag("roof").id } })
+             .first.exp_amount.to_i.should eq(300)
   end
 end

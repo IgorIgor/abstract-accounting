@@ -47,6 +47,7 @@ class Warehouse
 
       condition = ''
       condition_storekeeper = ''
+      condition_attr = ''
       if attrs.has_key?(:where)
         attrs[:where].each { |attr, value|
           if value.kind_of?(Hash)
@@ -54,6 +55,8 @@ class Warehouse
               condition_storekeeper += " AND waybills.#{attr} = '#{value[:equal]}'"
             elsif value.has_key?(:like)
               condition += " AND lower(warehouse.#{attr}) LIKE '%#{value[:like]}%'"
+            elsif value.has_key?(:equal_attr)
+              condition_attr = " AND #{attr} = '#{value[:equal_attr]}'"
             end
           end
         }
@@ -76,7 +79,7 @@ class Warehouse
             INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
             INNER JOIN assets ON assets.id = terms.resource_id
             INNER JOIN places ON places.id = terms.place_id
-          WHERE states.paid is NULL #{condition_storekeeper}
+          WHERE states.paid is NULL #{condition_storekeeper} #{condition_attr}
           GROUP BY places.id, terms.resource_id
           UNION
           SELECT places.tag as place, assets.id as id, assets.tag as tag,

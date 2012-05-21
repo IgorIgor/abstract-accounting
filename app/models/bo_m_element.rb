@@ -38,7 +38,7 @@ class BoMElement < ActiveRecord::Base
   end
 
   def find_or_create_deal(tag, entity, place, give, take, rate)
-    deal = Deal.where(:entity_id => entity.id, :entity_type => entity.class).
+    deal = Deal.where(:entity_id => entity.id, :entity_type => entity.class.name).
                 where(:tag => tag).first
     if deal.nil?
       deal = Deal.new(:tag => tag, :rate => rate, :entity => entity)

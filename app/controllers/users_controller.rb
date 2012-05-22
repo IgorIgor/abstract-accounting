@@ -83,4 +83,10 @@ class UsersController < ApplicationController
       render json: user.errors.messages
     end
   end
+
+  def names
+    term = params[:term]
+    @users = User.joins{entity}.where{entity.tag.like "%#{term}%"}.
+        order("entities.tag").limit(5)
+  end
 end

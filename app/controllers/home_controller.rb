@@ -10,7 +10,7 @@
 class HomeController < ApplicationController
   def user_documents
     if current_user.root?
-      implemented_documents + [User.name]
+      implemented_documents + [User.name, Group.name]
     else
       current_user.credentials(:force_update).
           collect{ |c| c.document_type } & implemented_documents

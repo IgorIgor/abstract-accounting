@@ -1,0 +1,12 @@
+en:
+  views:
+    groups:
+      user_name: "User name"
+      users: "Users"
+      user: "User"
+      save: "Save"
+      back: "Back"
+      page_title_new: "Create new group"
+      add: "Add"
+      manager: "Manager"
+      tag: "Group tag"

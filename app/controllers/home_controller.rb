@@ -31,7 +31,7 @@ class HomeController < ApplicationController
     unless types.empty?
       scoped_versions = VersionEx.lasts.by_type(user_documents).filter(params[:like])
       @versions = scoped_versions.paginate(page: params[:page], per_page: params[:per_page]).
-          all(include: [item: [:versions, :storekeeper]])
+          all()#include: [item: [:versions, :storekeeper]])
       @count = scoped_versions.count
     end
   end

@@ -31,6 +31,15 @@ class WarehousesController < ApplicationController
     end
 
     attrs[:without] = params[:without] if params.has_key?(:without)
+    if !current_user.root?
+      credential = current_user.credentials(:force_update).
+          where{document_type == Warehouse.name}.first
+      if credential
+        attrs[:where] = {} unless attrs.has_key?(:where)
+        attrs[:where][:storekeeper_id] = { equal: current_user.entity_id }
+        attrs[:where][:storekeeper_place_id] = { equal: credential.place_id }
+      end
+    end
 
     @warehouse = Warehouse.all(attrs)
     @count = Warehouse.count(attrs)

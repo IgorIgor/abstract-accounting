@@ -8,11 +8,15 @@
 # Please see ./COPYING for details
 
 class HomeController < ApplicationController
+  def implemented_documents
+    [Waybill.name, Distribution.name]
+  end
   def user_documents
     if current_user.root?
-      [Waybill.name, Distribution.name]
+      implemented_documents
     else
-      current_user.credentials(:force_update).collect{ |c| c.document_type }
+      current_user.credentials(:force_update).
+          collect{ |c| c.document_type } & implemented_documents
     end
   end
 

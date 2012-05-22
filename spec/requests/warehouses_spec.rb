@@ -145,4 +145,69 @@ feature 'warehouses', %q{
       find_button('<')[:disabled].should eq('true')
     end
   end
+
+  scenario "user without root credentials should see only his data", js: true do
+    password = "password"
+    user = create(:user, password: password)
+    credential = create(:credential, user: user, document_type: Warehouse.name)
+
+    create(:chart)
+    wb = build(:waybill)
+    5.times do |i|
+      wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
+    end
+    wb.save!
+    page_login(user.email, password)
+
+    page.find('#warehouses a').click
+    current_hash.should eq('warehouses')
+
+    within('#container_documents table') do
+      within('thead tr') do
+        page.should have_content(I18n.t('views.warehouses.place'))
+        page.should have_content(I18n.t('views.warehouses.tag'))
+        page.should have_content(I18n.t('views.warehouses.real_amount'))
+        page.should have_content(I18n.t('views.warehouses.expectation_amount'))
+        page.should have_content(I18n.t('views.warehouses.mu'))
+      end
+      page.should have_selector("tbody[@data-bind='foreach: documents']")
+      within('tbody') do
+        page.should_not have_selector("tr")
+      end
+    end
+    click_link I18n.t('views.home.logout')
+
+    wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place)
+    5.times do |i|
+      wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
+    end
+    wb.save!
+    page_login(user.email, password)
+
+    page.find('#warehouses a').click
+    current_hash.should eq('warehouses')
+
+    resources = Warehouse.all(where: { storekeeper_id: { equal: user.entity_id },
+                                       storekeeper_place_id: { equal: credential.place_id } })
+    within('#container_documents table') do
+      within('thead tr') do
+        page.should have_content(I18n.t('views.warehouses.place'))
+        page.should have_content(I18n.t('views.warehouses.tag'))
+        page.should have_content(I18n.t('views.warehouses.real_amount'))
+        page.should have_content(I18n.t('views.warehouses.expectation_amount'))
+        page.should have_content(I18n.t('views.warehouses.mu'))
+      end
+      page.should have_selector("tbody[@data-bind='foreach: documents']")
+      within('tbody') do
+        resources.each do |r|
+          page.should have_content(r.place)
+          page.should have_content(r.tag)
+          page.should have_content(r.real_amount.to_i)
+          page.should have_content(r.exp_amount.to_i)
+          page.should have_content(r.mu)
+        end
+      end
+    end
+    click_link I18n.t('views.home.logout')
+  end
 end

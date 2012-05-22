@@ -224,21 +224,40 @@ feature "single page application", %q{
     page.should_not have_xpath("//ul[@id='documents_list']//li")
     click_link I18n.t('views.home.logout')
 
-    create(:credential, user: user, document_type: Waybill.name)
+    credential = create(:credential, user: user, document_type: Waybill.name)
 
     page_login(user.email, password)
     within(:xpath, "//ul[@id='documents_list']") do
       page.should have_selector("li", count: user.credentials(:force_update).count)
-      user.credentials(:force_update).each do |credential|
-        page.should have_content(I18n.t("views.home.#{credential.document_type.underscore}"))
+      user.credentials(:force_update).each do |cred|
+        page.should have_content(I18n.t("views.home.#{cred.document_type.underscore}"))
       end
     end
     page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
-    versions = VersionEx.lasts.
-        by_type(user.credentials(:force_update).collect { |c| c.document_type }).
-        paginate(page: 1, per_page: @per_page).all
-
     within('#container_documents table tbody') do
+      page.should_not have_selector("tr")
+    end
+    click_link I18n.t('views.home.logout')
+
+    5.times do |i|
+      wb = build(:waybill, storekeeper: user.entity,
+                           storekeeper_place: i < 3 ? credential.place : create(:place))
+      wb.add_item('roof', 'm2', 2, 10.0)
+      wb.save!
+
+      ds = build(:distribution, storekeeper: wb.storekeeper,
+                                storekeeper_place: wb.storekeeper_place)
+      ds.add_item('roof', 'm2', 1)
+      ds.save!
+    end
+
+    versions = VersionEx.lasts.
+      by_type(user.credentials(:force_update).collect { |c| c.document_type }).
+      by_user(user).paginate(page: 1, per_page: @per_page).all
+    page_login(user.email, password)
+    page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
+    within('#container_documents table tbody') do
+      page.should have_selector("tr", count: versions.count)
       versions.each do |version|
         page.should have_content(version.item.class.name)
         page.should have_content(version.item.storekeeper.tag)
@@ -251,19 +270,35 @@ feature "single page application", %q{
     end
     click_link I18n.t('views.home.logout')
 
-    create(:credential, user: user, document_type: Distribution.name)
+    credential = create(:credential, user: user, document_type: Distribution.name)
 
     page_login(user.email, password)
     within(:xpath, "//ul[@id='documents_list']") do
       page.should have_selector("li", count: user.credentials(:force_update).count)
-      user.credentials(:force_update).each do |credential|
-        page.should have_content(I18n.t("views.home.#{credential.document_type.underscore}"))
+      user.credentials(:force_update).each do |cred|
+        page.should have_content(I18n.t("views.home.#{cred.document_type.underscore}"))
+      end
+    end
+    page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
+    within('#container_documents table tbody') do
+      page.should_not have_content(Distribution.name)
+    end
+    click_link I18n.t('views.home.logout')
+
+    credential.update_attributes(place:
+      user.credentials(:force_update).find_by_document_type(Waybill.name).place)
+
+    page_login(user.email, password)
+    within(:xpath, "//ul[@id='documents_list']") do
+      page.should have_selector("li", count: user.credentials(:force_update).count)
+      user.credentials(:force_update).each do |cred|
+        page.should have_content(I18n.t("views.home.#{cred.document_type.underscore}"))
       end
     end
     page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
     versions = VersionEx.lasts.
-        by_type(user.credentials(:force_update).collect { |c| c.document_type }).
-        paginate(page: 1, per_page: @per_page).all
+      by_type(user.credentials(:force_update).collect { |c| c.document_type }).
+      by_user(user).paginate(page: 1, per_page: @per_page).all
 
     within('#container_documents table tbody') do
       versions.each do |version|

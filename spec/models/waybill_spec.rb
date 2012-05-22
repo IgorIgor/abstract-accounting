@@ -362,8 +362,18 @@ describe Waybill do
     Waybill.in_warehouse.include?(wb2).should be_true
     Waybill.in_warehouse.include?(wb3).should be_true
 
+    wbs = Waybill.in_warehouse(without_waybills: [ wb1.id ])
+    wbs.include?(wb1).should be_false
+    wbs.include?(wb2).should be_true
+    wbs.include?(wb3).should be_true
+
+    wbs = Waybill.in_warehouse(without_waybills: [ wb1.id, wb3.id ])
+    wbs.include?(wb1).should be_false
+    wbs.include?(wb2).should be_true
+    wbs.include?(wb3).should be_false
+
     ds_moscow = build(:distribution, storekeeper: ivanov,
-                                             storekeeper_place: moscow)
+                                     storekeeper_place: moscow)
     ds_moscow.add_item('roof', 'rm', 146)
     ds_moscow.add_item('nails', 'pcs', 1890)
     ds_moscow.save!

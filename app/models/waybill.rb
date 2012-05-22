@@ -61,15 +61,18 @@ class Waybill < ActiveRecord::Base
   end
 
   def self.in_warehouse(attrs = {})
-    condition_storekeeper = ''
+    condition = ''
     if attrs.has_key?(:where)
       attrs[:where].each do |attr, value|
         if value.kind_of?(Hash) && value.has_key?(:equal)
-          condition_storekeeper <<
-            (condition_storekeeper.empty? ? ' AND' : 'WHERE')
-          condition_storekeeper << " waybills.#{attr} = '#{value[:equal]}'"
+          condition << (condition.empty? ? ' AND' : 'WHERE')
+          condition << " waybills.#{attr} = '#{value[:equal]}'"
         end
       end
+    end
+    if attrs.has_key?(:without_waybills)
+      condition << (condition.empty? ? 'WHERE' : ' AND')
+      condition << " waybills.id NOT IN (#{attrs[:without_waybills].join(', ')})"
     end
 
     script = "
@@ -82,7 +85,7 @@ class Waybill < ActiveRecord::Base
                               AND states.paid IS NULL
             INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
             INNER JOIN assets ON assets.id = terms.resource_id
-          #{condition_storekeeper}
+          #{condition}
           GROUP BY waybills.id, rules.to_id
           UNION
           SELECT waybills.id as id, assets.id as asset_id,
@@ -93,7 +96,7 @@ class Waybill < ActiveRecord::Base
             INNER JOIN rules AS ds_rule ON ds_rule.from_id = rules.to_id
             INNER JOIN distributions ON distributions.deal_id = ds_rule.deal_id
                                      AND distributions.state = 1
-          #{condition_storekeeper}
+          #{condition}
           GROUP BY waybills.id, rules.to_id )
         GROUP BY id, asset_id
       ) WHERE exp_amount > 0

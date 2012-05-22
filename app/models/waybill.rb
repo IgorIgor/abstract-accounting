@@ -47,13 +47,13 @@ class Waybill < ActiveRecord::Base
   def add_item(tag, mu, amount, price)
     resource = Asset.find_by_tag_and_mu(tag, mu)
     resource = Asset.new(:tag => tag, :mu => mu) if resource.nil?
-    @items << WaybillItem.new(resource, amount, price)
+    @items << WaybillItem.new(self, resource, amount, price)
   end
 
   def items
     if @items.empty? and !self.deal.nil?
       self.deal.rules.each { |rule|
-        @items << WaybillItem.new(rule.from.take.resource, rule.rate,
+        @items << WaybillItem.new(self, rule.from.take.resource, rule.rate,
                                   (1.0 / rule.from.rate).accounting_norm)
       }
     end
@@ -150,7 +150,15 @@ end
 class WaybillItem
   attr_reader :resource, :amount, :price
 
-  def initialize(resource, amount, price)
+  def exp_amount
+    Warehouse.all(where: { storekeeper_id: { equal: @waybill.storekeeper_id },
+                         storekeeper_place_id: { equal: @waybill.storekeeper_place_id },
+                         'assets.id' => { equal_attr: self.resource.id } })
+           .first.exp_amount
+  end
+
+  def initialize(waybill, resource, amount, price)
+    @waybill = waybill
     @resource = resource
     @amount = amount
     @price = price

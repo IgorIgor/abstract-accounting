@@ -224,6 +224,7 @@
     <thead>
     <tr>
       <th></th>
+      <th></th>
       <th><%= t 'views.distributions.document_id' %></th>
       <th><%= t 'views.distributions.created_at' %></th>
       <th><%= t 'views.distributions.distributor' %></th>
@@ -233,6 +234,9 @@
     </thead>
     <tbody data-bind="foreach: availableResources">
     <tr>
+      <td class="distribution-actions-by-wb">
+        <span class="mini-icon add" data-bind="click: $parent.selectWaybill"></span>
+      </td>
       <td data-bind="click: $parent.treeMapping" class="distribution-tree-actions-by-wb">
         <div class="ui-corner-all ui-state-hover">
           <span class="ui-icon ui-icon-circle-plus"></span>
@@ -247,20 +251,20 @@
     <!-- ko if: resources.show -->
     <tr>
       <td></td>
-      <td colspan="5">
+      <td colspan="6">
         <table>
           <thead>
           <tr>
             <th class="available-resources-tag"><%= t 'views.distributions.tag' %></th>
             <th class="available-resources-mu"><%= t 'views.distributions.mu' %></th>
-            <th class="available-resources-exp-amount"><%= t 'views.distributions.expectation_amount' %></th>
+            <th class="available-resources-amount"><%= t 'views.distributions.amount' %></th>
           </tr>
           </thead>
           <tbody data-bind="foreach: resources.items">
           <tr>
             <td data-bind="text: tag"></td>
             <td data-bind="text: mu"></td>
-            <td data-bind="text: exp_amount"></td>
+            <td data-bind="text: amount"></td>
           </tr>
           </tbody>
         </table>

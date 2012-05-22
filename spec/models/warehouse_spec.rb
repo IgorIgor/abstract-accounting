@@ -353,5 +353,7 @@ describe Warehouse do
                            storekeeper_place_id: { equal: minsk.id },
                            'assets.id' => { equal_attr: Asset.find_by_tag("roof").id } })
              .first.exp_amount.to_i.should eq(300)
+    wb.items.first.exp_amount.should eq(300)
+    wb.items.last.exp_amount.should eq(215)
   end
 end

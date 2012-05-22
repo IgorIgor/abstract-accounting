@@ -176,6 +176,15 @@ feature 'distributions', %q{
             tr.should have_content(item.amount.to_i)
           end
         end
+        page.find("td[@class='distribution-actions-by-wb'] span").click
+      end
+
+      within('#selected-resources tbody') do
+        wb.items.each do |item|
+          page.should have_content(item.resource.tag)
+          page.should have_content(item.resource.mu)
+          page.should have_content(item.amount.to_i)
+        end
       end
 
       page.find('#mode-resources-by-wb').click

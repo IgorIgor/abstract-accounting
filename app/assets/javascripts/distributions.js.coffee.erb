@@ -43,6 +43,24 @@ $ ->
       @object.items.remove(resource)
       @getPaginateData()
 
+    selectWaybill: (waybill) =>
+      if waybill.resources.items().length
+        for resource in waybill.resources.items()
+          if resource.amount > resource.exp_amount
+            resource.amount = resource.exp_amount
+          @object.items.push(resource) if jQuery.inArray(
+              resource.id, $.map(@object.items(), (r) -> r.id)) == -1
+        @getPaginateData()
+      else
+        $.getJSON("/waybills/#{waybill.id}/resources.json", null, (items) =>
+          for resource in items
+            if resource.amount > resource.exp_amount
+              resource.amount = resource.exp_amount
+            @object.items.push(resource) if jQuery.inArray(
+                resource.id, $.map(@object.items(), (r) -> r.id)) == -1
+          @getPaginateData()
+        )
+
     getState: (state) ->
       switch state
         when 0 then "<%= I18n.t 'views.distributions.unknown' %>"
@@ -78,7 +96,10 @@ $ ->
       @getPaginateData()
 
     getPaginateData: =>
-      @params['without'] = $.map(@object.items(), (r) -> r.id) if @object.items().length > 0
+      if @object.items().length > 0
+        @params['without'] = $.map(@object.items(), (r) -> r.id)
+      else
+        delete @params['without'] if @params.hasOwnProperty('without')
       $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
         @availableResources([])
         for obj in data.objects

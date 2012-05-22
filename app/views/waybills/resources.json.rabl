@@ -9,6 +9,6 @@
 
 collection @resources
 glue :resource do
-  attributes :tag, :mu
+  attributes :id, :tag, :mu
 end
-node(:exp_amount) { |item| item.amount }
+attributes :amount, :exp_amount

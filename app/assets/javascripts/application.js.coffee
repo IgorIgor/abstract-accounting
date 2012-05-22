@@ -51,10 +51,16 @@ $ ->
     hash
 
   class self.ObjectViewModel
-    constructor: ->
+    constructor: (object, save_url, readonly = false)->
+      @readonly = ko.observable(readonly)
+      @object = ko.mapping.fromJS(object)
+      @save_url = save_url
       $('.paginate').hide()
 
     back: -> location.hash = 'inbox'
+
+    save: =>
+      ajaxRequest('POST', @save_url, ko.mapping.toJS(@object))
 
   class self.FolderViewModel
     constructor: (data) ->

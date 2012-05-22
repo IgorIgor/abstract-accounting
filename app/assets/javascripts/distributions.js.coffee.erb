@@ -1,8 +1,7 @@
 $ ->
   class self.DistributionViewModel extends ObjectViewModel
     constructor: (object, readonly = false) ->
-      @readonly = ko.observable(readonly)
-      @object = ko.mapping.fromJS(object)
+      super(object, '/distributions', readonly)
       @disable_storekeeper = if object.distribution.storekeeper_id then true else false
       @availableResources = ko.observableArray([])
 
@@ -35,8 +34,6 @@ $ ->
           ajaxRequest('GET', "/distributions/#{this.params.id}/cancel"))
       )
 
-      super
-
     selectResource: (resource) =>
       resource['amount'] = resource.exp_amount
       @object.items.push(resource)
@@ -45,9 +42,6 @@ $ ->
     unselectResource: (resource) =>
       @object.items.remove(resource)
       @getPaginateData()
-
-    save: =>
-      ajaxRequest('POST', '/distributions', ko.mapping.toJS(@object))
 
     getState: (state) ->
       switch state

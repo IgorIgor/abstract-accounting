@@ -18,6 +18,35 @@ class VersionEx < Version
     where(types.map{|item| "item_type='#{item}'"}.join(' OR '))
   end
 
+  def self.by_user(user)
+    return scoped if user.root?
+    if user.credentials(:force_update).empty?
+      where{item_type == ""}
+    else
+      versions_scope = scoped
+      versions_scope = versions_scope.
+        by_type(user.credentials.collect{ |c| c.document_type })
+      versions_scope = versions_scope.where do
+        scope = nil
+        user.credentials.each do |c|
+          if c.document_type != Waybill.name && c.document_type != Distribution.name
+            tmp_scope = (whodunnit == user.id.to_s)
+            scope = scope ? (scope | tmp_scope) : tmp_scope
+          else
+            tmp_scope = id.in(
+                versions_scope.joins{item(c.document_type.camelize.constantize)}.
+                    where{(item.storekeeper_id == user.entity_id) &
+                          (item.storekeeper_place_id == c.place_id)}
+            )
+            scope = scope ? scope | tmp_scope : tmp_scope
+          end
+        end
+        scope
+      end
+      versions_scope
+    end
+  end
+
   def self.paginate(attrs = {})
     page = 1
     per_page = Settings.root.per_page

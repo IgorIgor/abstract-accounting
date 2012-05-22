@@ -56,6 +56,84 @@ describe VersionEx do
     end
   end
 
+  describe "#by_user" do
+    it "should return all records for root user" do
+      create(:entity)
+      create(:legal_entity)
+      VersionEx.all.should =~ VersionEx.by_user(RootUser.new).all
+    end
+
+    it "should return records by user credentials" do
+      user = create(:user)
+      5.times do
+        create(:entity)
+      end
+      VersionEx.by_user(user).all.should be_empty
+      create(:credential, user: user, document_type: Entity.name)
+      VersionEx.by_user(user).all.should be_empty
+      VersionEx.by_type([Entity.name]).each do |v|
+        v.update_attributes(whodunnit: user.id)
+      end
+      VersionEx.by_user(user).all.should =~ VersionEx.by_type([Entity.name])
+      create(:chart)
+      5.times do
+        wb = build(:waybill, storekeeper: user.entity)
+        wb.add_item('roof', 'm2', 2, 10.0)
+        wb.save!
+
+        ds = build(:distribution, storekeeper: wb.storekeeper,
+                                  storekeeper_place: wb.storekeeper_place)
+        ds.add_item('roof', 'm2', 1)
+        ds.save!
+      end
+      VersionEx.by_user(user).all.should =~ VersionEx.by_type([Entity.name]).
+          where{whodunnit == user.id.to_s}
+      credential = create(:credential, user: user, document_type: Waybill.name)
+      VersionEx.by_user(user).all.should =~ VersionEx.by_type([Entity.name]).
+                where{whodunnit == user.id.to_s}
+      5.times do
+        wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place)
+        wb.add_item('roof', 'm2', 2, 10.0)
+        wb.save!
+      end
+      VersionEx.by_user(user).all.should =~ VersionEx.
+          by_type([Entity.name, Waybill.name]).
+          joins{item(Waybill).outer}.
+          where{((item.storekeeper_id == user.entity_id) &
+                (item.storekeeper_place_id == credential.place_id)) |
+                (whodunnit == user.id.to_s)}.all
+      create(:credential, user: user,
+          place: credential.place, document_type: Distribution.name)
+      VersionEx.by_user(user).all.should =~ VersionEx.
+          by_type([Entity.name, Waybill.name]).
+          joins{item(Waybill).outer}.
+          where{((item.storekeeper_id == user.entity_id) &
+                (item.storekeeper_place_id == credential.place_id)) |
+                (whodunnit == user.id.to_s)}.all
+      5.times do
+        wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place)
+        wb.add_item('roof', 'm2', 2, 10.0)
+        wb.save!
+
+        ds = build(:distribution, storekeeper: wb.storekeeper,
+                                  storekeeper_place: wb.storekeeper_place)
+        ds.add_item('roof', 'm2', 1)
+        ds.save!
+      end
+      VersionEx.by_user(user).all.should =~ VersionEx.
+          by_type([Entity.name, Waybill.name, Distribution.name]).
+          where{id.in(
+            Version.joins{item(Waybill)}.
+                    where{(item.storekeeper_id == user.entity_id) &
+                          (item.storekeeper_place_id == credential.place_id)}.select{id}
+          ) | id.in(
+            Version.joins{item(Distribution)}.
+                    where{(item.storekeeper_id == user.entity_id) &
+                          (item.storekeeper_place_id == credential.place_id)}.select{id}
+          ) | (whodunnit == user.id.to_s)}
+    end
+  end
+
   describe '#paginate' do
     it 'should split records by pages' do
       per_page = Settings.root.per_page
@@ -90,7 +168,8 @@ describe VersionEx do
 
   describe '#filter' do
     it 'should filtered records' do
-      create(:chart)
+      create(:chart) unless Chart.count > 0
+      Version.where{item_type.in([Waybill.name, Distribution.name])}.delete_all
       items = []
       (0..2).each do |i|
         st = i < 2 ? create(:entity, tag: "storekeeper#{i}") :

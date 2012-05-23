@@ -180,6 +180,8 @@ $ ->
                   new TranscriptViewModel(data)
                 when 'users'
                   new UsersViewModel(data)
+                when 'groups'
+                  new GroupsViewModel(data)
 
               $('#container_documents').html(form)
               ko.cleanNode($('#main').get(0))

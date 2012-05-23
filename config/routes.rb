@@ -81,6 +81,7 @@ Abstract::Application.routes.draw do
   resources :groups do
     collection do
       get 'preview'
+      get 'data'
     end
   end
 

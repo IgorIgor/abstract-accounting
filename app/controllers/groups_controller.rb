@@ -8,12 +8,24 @@
 # Please see ./COPYING for details
 
 class GroupsController < ApplicationController
+  def index
+    render 'groups/index', layout: false
+  end
+
   def preview
     render 'groups/preview', layout: false
   end
 
   def new
     @group = Group.new
+  end
+
+  def data
+    page = params[:page].nil? ? 1 : params[:page].to_i
+    per_page = params[:per_page].nil? ?
+        Settings.root.per_page.to_i : params[:per_page].to_i
+    @groups = Group.limit(per_page).offset((page - 1) * per_page).all
+    @count = Group.count
   end
 
   def create

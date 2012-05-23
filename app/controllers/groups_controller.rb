@@ -28,6 +28,10 @@ class GroupsController < ApplicationController
     @count = Group.count
   end
 
+  def show
+    @group = Group.find(params[:id])
+  end
+
   def create
     group = nil
     begin

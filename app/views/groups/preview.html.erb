@@ -1,10 +1,16 @@
 <form data-bind="validate: { success: save }">
   <div class='actions'>
-    <input type='submit' value="<%= t 'views.groups.save' %>"/>
+    <input type='submit' value="<%= t 'views.groups.save' %>"
+           data-bind='disable: readonly'/>
     <input type='button' value="<%= t 'views.groups.back' %>"/>
   </div>
   <span id="page-title">
-    <%= t 'views.groups.page_title_new' %>
+    <!-- ko if: readonly -->
+      <%= t('views.groups.page_title_show') %>
+    <!-- /ko -->
+    <!-- ko ifnot: readonly -->
+      <%= t 'views.groups.page_title_new' %>
+    <!-- /ko -->
   </span>
   <%= render 'home/errors' %>
 
@@ -16,7 +22,7 @@
         </span>
         <span>
           <input type="text" id="group_tag" name="<%= t 'views.groups.tag' %>"
-                 rule="required" data-bind="value: object.group.tag">
+                 rule="required" data-bind="value: object.group.tag, disable: readonly">
         </span>
       </div>
       <div>
@@ -30,7 +36,7 @@
                                             bind: { id: $parent.object.group.manager_id },
                                             onlySelect: true,
                                             value: 'tag'},
-                            value: tag">
+                            value: tag, disable: $parent.readonly">
         </span>
       </div>
     </div>
@@ -39,7 +45,7 @@
   <fieldset>
     <legend><%= t 'views.groups.users' %></legend>
     <input type="button" value="<%=t 'views.groups.add' %>"
-           data-bind="click: addUser">
+           data-bind="click: addUser, disable: readonly">
     <table>
       <thead>
         <tr>
@@ -57,15 +63,19 @@
                               attr: { name: '<%=t 'views.groups.user_name' %>#'+
                                             $parent.object.users.indexOf($data) +
                                             ' <%=t 'views.groups.user' %>',
-                                      id: 'user_' + $parent.object.users.indexOf($data) }">
+                                      id: 'user_' + $parent.object.users.indexOf($data) },
+                              value: tag, disable: $parent.readonly">
           </td>
+
+          <!-- ko ifnot: $parent.readonly -->
           <td class="table-actions">
             <label data-bind="click: $parent.deleteUser"></label>
           </td>
+          <!-- /ko -->
         </tr>
       </tbody>
     </table>
     <input type="button" value="<%=t 'views.groups.add' %>"
-           data-bind="click: addUser">
+           data-bind="click: addUser, disable: readonly">
   </fieldset>
 </form>

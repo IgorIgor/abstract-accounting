@@ -138,4 +138,37 @@ feature "group", %q{
       find_button('>')[:disabled].should eq('false')
     end
   end
+
+  scenario "show group", js: true do
+    group = Group.count > 0 ? Group.first : create(:group)
+    if group.users(:force_update).empty?
+      2.times { group.users << create(:user) }
+    end
+    page_login
+    click_link I18n.t('views.home.groups')
+    current_hash.should eq('groups')
+    page.should have_xpath("//div[@id='sidebar']/ul/li[@id='groups'" +
+                               " and @class='sidebar-selected']")
+    within('#container_documents table') do
+      find(:xpath, ".//tbody//tr[1]//td["+
+          "contains(.//text(), '#{group.manager.entity.tag}')]").click
+    end
+    current_hash.should eq("documents/groups/#{group.id}")
+    find("#group_tag")[:disabled].should eq('true')
+    find("#group_manager")[:disabled].should eq('true')
+    find_button(I18n.t('views.groups.add'))[:disabled].should eq('true')
+    find_button(I18n.t('views.groups.save'))[:disabled].should eq('true')
+
+    find("#group_tag")[:value].should eq(group.tag)
+    find("#group_manager")[:value].should eq(group.manager.entity.tag)
+
+    within("fieldset table tbody") do
+      group.users(:force_update).each_with_index do |u, i|
+        within(:xpath, ".//tr[#{i + 1}]") do
+          find(:xpath, ".//td//input[@type='text']")[:value].should eq(u.entity.tag)
+          find(:xpath, ".//td//input[@type='text']")[:disabled].should eq("true")
+        end
+      end
+    end
+  end
 end

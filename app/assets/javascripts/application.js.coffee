@@ -157,6 +157,8 @@ $ ->
                   new WaybillViewModel(object, true)
                 when 'users'
                   new UserViewModel(object, true)
+                when 'groups'
+                  new GroupViewModel(object, true)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))

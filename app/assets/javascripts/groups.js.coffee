@@ -7,3 +7,6 @@ $ ->
       @params =
         page: @page
         per_page: @per_page
+
+    showGroup: (object) ->
+      location.hash = "documents/groups/#{object.id}"

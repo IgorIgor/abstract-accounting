@@ -4,7 +4,7 @@ $ ->
       super(object, '/groups', readonly)
 
     addUser: =>
-      @object.users.push(id: ko.observable())
+      @object.users.push(id: ko.observable(), tag: ko.observable())
 
     deleteUser: (user) =>
       @object.users.remove(user)

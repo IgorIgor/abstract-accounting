@@ -8,9 +8,17 @@
 # Please see ./COPYING for details
 
 object false
-child(@groups => :objects) do
-  attributes :id, :tag
-  node(:manager_tag) { |group| group.manager.entity.tag }
+child(@group => :group) do
+  attributes :id, :tag, :manager_id
 end
-node(:per_page) { Settings.root.per_page }
-node(:count) { @count }
+child(@group.manager => :manager) do
+  glue :entity do
+    attributes :tag
+  end
+end
+child(@group.users => :users) do
+  attributes :id
+  glue :entity do
+    attributes :tag
+  end
+end

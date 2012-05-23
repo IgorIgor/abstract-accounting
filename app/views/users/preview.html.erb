@@ -1,0 +1,69 @@
+<form data-bind="validate: { success: save }">
+  <div class='actions'>
+    <input type='submit' value="<%= t 'views.waybills.save' %>"/>
+    <input type='button' value="<%= t 'views.waybills.back' %>"
+           data-bind='click: back'/>
+  </div>
+
+  <span id="page-title">
+    <%= t('views.users.page_title_new') %>
+  </span>
+
+  <%= render 'home/errors' %>
+
+
+  <fieldset>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="user_entity"><%= t('views.users.user_name') %>:</label>
+        </span>
+        <span data-bind='with: object.entity'>
+          <input type="text" id="user_entity"
+                 name="<%= t('views.users.user_name') %>" rule="required"
+                 data-bind="autocomplete: { source: '/entities.json',
+                                            value: 'tag',
+                                            bind: { id: $parent.object.user.entity_id } },
+                            value: tag">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="user_email"><%= t('views.users.email') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="user_email" name="<%= t('views.users.email') %>"
+                 rule="email"
+                 error-message-email="<%=t('errors.messages.email') %>"
+                 data-bind="value: object.user.email">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="user_password"><%= t('views.users.password') %>:</label>
+        </span>
+        <span>
+          <input type="password" id="user_password" name="<%=t('views.users.password') %>"
+                 rule="min_length"
+                 min_length="6"
+                 error-message-min-length="<%=t('errors.messages.too_short.few', count: 6) %>"
+                 data-bind="value: object.user.password">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="user_password_confirmation">
+            <%= t('views.users.password_confirmation') %>:</label>
+        </span>
+        <span>
+          <input type="password" id="user_password_confirmation"
+                 name="<%=t('views.users.password_confirmation') %>" rule="equal_to"
+                 equal_to="user_password"
+                 error-message-equal-to="<%= t('errors.messages.equal_to',
+                                               value: t('views.users.password') ) %>"
+                 data-bind="value: object.user.password_confirmation">
+        </span>
+      </div>
+    </div>
+  </fieldset>
+</form>

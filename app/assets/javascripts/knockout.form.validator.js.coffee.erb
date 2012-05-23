@@ -15,6 +15,34 @@ init_rules = ->
         min: "#{$(this).attr('name')} : <%= I18n.t('errors.messages.greater_than_or_equal_to', count: 1) %>"
       }
     })
+  $("input[rule='email']").each ->
+    $(this).rules('add', {
+      required: true
+      email: true
+      messages: {
+        required: "#{$(this).attr('name')} : #{$(this).attr('error-message-required') ? "<%= I18n.t('errors.messages.blank') %>"}"
+        email: "#{$(this).attr('name')} : #{$(this).attr('error-message-email') ? "<%= I18n.t('errors.messages.email') %>"}"
+      }
+    })
+  $("input[rule='min_length']").each ->
+    min_length = parseInt($(this).attr('min_length') ? 6)
+    $(this).rules('add', {
+      required: true
+      minlength: min_length
+      messages: {
+        required: "#{$(this).attr('name')} : #{$(this).attr('error-message-required') ? "<%= I18n.t('errors.messages.blank') %>"}"
+        minlength: "#{$(this).attr('name')} : #{$(this).attr('error-message-min-length') ? "<%= I18n.t('errors.messages.too_short.few') %>"}"
+      }
+    })
+  $("input[rule='equal_to']").each ->
+    $(this).rules('add', {
+      required: true
+      equalTo: "##{$(this).attr('equal_to')}"
+      messages: {
+        required: "#{$(this).attr('name')} : #{$(this).attr('error-message-required') ? "<%= I18n.t('errors.messages.blank') %>"}"
+        equalTo: "#{$(this).attr('name')} : #{$(this).attr('error-message-equal-to') ? "<%= I18n.t('errors.messages.equal_to') %>"}"
+      }
+    })
 
 ko.bindingHandlers.validate =
   init: (element, valueAccessor) ->

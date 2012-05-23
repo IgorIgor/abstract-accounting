@@ -6,3 +6,11 @@ en:
     messages:
       blank: can't be empty.
       greater_than_or_equal_to: may have a value greater than or equal %{count}
+      email: must be a valid email-address
+      min_length: must have length greater or equal than %{count}
+      equal_to: value of field must equal to %{value}
+      too_short:
+        few: insufficient length (can not be less than %{count} characters)
+        many: insufficient length (can not be less than %{count} characters)
+        one: insufficient length (can not be less than %{count} characters)
+        other: insufficient length (can not be less than %{count} characters)

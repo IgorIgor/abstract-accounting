@@ -40,8 +40,7 @@ ko.bindingHandlers.autocomplete =
         ul.outerWidth(this.element.outerWidth())
 
       $(element).bind('autocompletechange', (e, ui) ->
-        if config.onlySelect && !ui.item
-          allBindings().value('')
+        if !ui.item
           if config.hasOwnProperty("bind")
             bind = config.bind
             for key, value of bind
@@ -50,5 +49,7 @@ ko.bindingHandlers.autocomplete =
                   value2(null)
               else
                 value(null)
-          config.afterChange() if config.afterChange
+          if config.onlySelect
+            allBindings().value('')
+            config.afterChange() if config.afterChange
       )

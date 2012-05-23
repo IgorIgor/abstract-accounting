@@ -1,0 +1,10 @@
+en:
+  views:
+    users:
+      user_name: "User name"
+      email: "Email"
+      password: "Password"
+      password_confirmation: "Password confirmation"
+      save: "Save"
+      back: "Back"
+      page_title_new: "Create new user"

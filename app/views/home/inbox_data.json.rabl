@@ -13,7 +13,14 @@ child(@versions => :objects) do
   node(:type) { |version| version.item.class.name.pluralize.downcase }
   node(:name) { |version| version.item.class.name }
   node(:sum) { 0.0 }
-  node(:content) { |version| version.item.storekeeper.tag }
+  node(:content) do |version|
+    klass_associations = version.item.class.reflect_on_all_associations(:belongs_to)
+    if klass_associations.any? { |assoc| assoc.name == :storekeeper }
+      version.item.storekeeper.tag
+    elsif klass_associations.any? { |assoc| assoc.name == :entity }
+      version.item.entity.tag
+    end
+  end
   node(:created_at) { |version| version.item.versions.first.created_at.strftime('%Y-%m-%d') }
   node(:update_at) { |version| version.item.versions.last.created_at.strftime('%Y-%m-%d') }
 end

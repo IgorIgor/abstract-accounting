@@ -131,6 +131,8 @@ $ ->
                   new DistributionViewModel(object)
                 when 'waybills'
                   new WaybillViewModel(object)
+                when 'users'
+                  new UserViewModel(object)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))

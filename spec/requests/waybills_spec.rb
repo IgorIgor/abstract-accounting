@@ -145,7 +145,8 @@ feature "waybill", %q{
       page.should have_selector("#inbox[@class='sidebar-selected']")
     }.should change(Waybill, :count).by(1)
 
-    page.find("td[@class='cell-entity']").click
+    page.find(:xpath, "//td[@class='cell-title' and " +
+                  "contains(.//text(), '#{Waybill.name}')]").click
     current_hash.should eq("documents/waybills/" + Waybill.first.id.to_s)
 
     page.should have_selector("span[@id='page-title']")

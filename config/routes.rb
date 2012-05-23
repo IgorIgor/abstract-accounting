@@ -70,6 +70,11 @@ Abstract::Application.routes.draw do
   end
   resources :deals
   resources :storekeepers, only: [:index]
+  resources :users, only: [:new, :create] do
+    collection do
+      get 'preview'
+    end
+  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

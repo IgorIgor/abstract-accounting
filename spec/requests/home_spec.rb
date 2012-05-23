@@ -211,6 +211,20 @@ feature "single page application", %q{
     end
 
     click_link I18n.t('views.home.logout')
+
+    user = create(:user)
+    VersionEx.where{item_type.in([Waybill.name, Distribution.name])}.delete_all
+    page_login
+
+    within('#container_documents table') do
+      page.should have_selector('tbody tr', count: 1)
+      page.should have_content(user.class.name)
+      page.should have_content(user.entity.tag)
+      page.should have_content(user.versions.first.created_at.
+                                 strftime('%Y-%m-%d'))
+      page.should have_content(user.versions.last.created_at.
+                                 strftime('%Y-%m-%d'))
+    end
   end
 
   scenario "non root user should see only information accessible by him", js: true do

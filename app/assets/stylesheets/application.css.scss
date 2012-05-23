@@ -41,7 +41,7 @@ input[type=button] {
   min-width: 60px;
 }
 
-input[type=text] {
+input[type=text], input[type=password] {
   border: 1px solid #b0b0b0;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -278,7 +278,7 @@ input[type=text] {
               padding-right: 10px;
               vertical-align: middle;
 
-              input[type=text] {
+              input[type=text], input[type=password] {
                 width: 100%;
                 min-width: 300px;
               }
@@ -294,15 +294,6 @@ input[type=text] {
             }
           }
         }
-      }
-
-      input[type=text] {
-        border: 1px solid #b0b0b0;
-        padding: 2px 0 2px 4px;
-      }
-
-      input[type=text]:focus {
-        background-color: #efefef;
       }
 
       input.error {

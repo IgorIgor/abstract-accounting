@@ -1,0 +1,10 @@
+ru:
+  views:
+    users:
+      user_name: "ФИО пользователя"
+      email: "Почтовый ящик"
+      password: "Пароль"
+      password_confirmation: "Повторить пароль"
+      save: "Сохранить"
+      back: "Назад"
+      page_title_new: "Новый пользователь"

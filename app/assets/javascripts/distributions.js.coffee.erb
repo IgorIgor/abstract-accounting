@@ -35,7 +35,7 @@ $ ->
       )
 
     selectResource: (resource) =>
-      resource['amount'] = resource.exp_amount
+      resource.amount = ko.observable(resource.exp_amount)
       @object.items.push(resource)
       @getPaginateData()
 
@@ -46,20 +46,38 @@ $ ->
     selectWaybill: (waybill) =>
       if waybill.resources.items().length
         for resource in waybill.resources.items()
-          resource.waybill_id = waybill.id
-          if resource.amount > resource.exp_amount
-            resource.amount = resource.exp_amount
-          @object.items.push(resource) if jQuery.inArray(
-              resource.id, $.map(@object.items(), (r) -> r.id)) == -1
+          exist = $.grep(@object.items(), (r) -> return r.id == resource.id)[0]
+          if exist
+            exist.waybill_id = waybill.id
+            if resource.amount + exist.amount() > resource.exp_amount
+              exist.amount(resource.exp_amount)
+            else
+              exist.amount(resource.amount + exist.amount())
+          else
+            resource.waybill_id = waybill.id
+            if resource.amount > resource.exp_amount
+              resource.amount = ko.observable(resource.exp_amount)
+            else
+              resource.amount = ko.observable(resource.amount)
+            @object.items.push(resource)
         @getPaginateData()
       else
         $.getJSON("/waybills/#{waybill.id}/resources.json", null, (items) =>
           for resource in items
-            resource.waybill_id = waybill.id
-            if resource.amount > resource.exp_amount
-              resource.amount = resource.exp_amount
-            @object.items.push(resource) if jQuery.inArray(
-                resource.id, $.map(@object.items(), (r) -> r.id)) == -1
+            exist = $.grep(@object.items(), (r) -> return r.id == resource.id)[0]
+            if exist
+              exist.waybill_id = waybill.id
+              if resource.amount + exist.amount() > resource.exp_amount
+                exist.amount(resource.exp_amount)
+              else
+                exist.amount(resource.amount + exist.amount())
+            else
+              resource.waybill_id = waybill.id
+              if resource.amount > resource.exp_amount
+                resource.amount = ko.observable(resource.exp_amount)
+              else
+                resource.amount = ko.observable(resource.amount)
+              @object.items.push(resource)
           @getPaginateData()
         )
 

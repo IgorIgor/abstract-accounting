@@ -201,10 +201,29 @@ feature 'distributions', %q{
         end
       end
 
+      wb3 = build(:waybill, storekeeper: wb.storekeeper,
+                                    storekeeper_place: wb.storekeeper_place)
+      wb3.add_item('resource#0', 'mu0', 27, 10)
+      wb3.save!
+      wb3.apply.should be_true
+
+      wbs = Waybill.in_warehouse(where: { storekeeper_id: {
+                                            equal: wb.storekeeper.id },
+                                          storekeeper_place_id: {
+                                            equal: wb.storekeeper_place.id }})
+
       page.find('#mode-waybills').click
       page.should have_no_selector('#available-resources')
       within('#available-resources-by-wb') do
-        page.find("td[@class='distribution-actions-by-wb'] span").click
+        page.all('tbody tr').each do |tr|
+          if tr.has_content?(wb.document_id) &&
+             tr.has_content?(wb.created.strftime('%Y-%m-%d')) &&
+             tr.has_content?(wb.distributor.name) &&
+             tr.has_content?(wb.storekeeper.tag) &&
+             tr.has_content?(wb.storekeeper_place.tag)
+            tr.find("td[@class='distribution-actions-by-wb'] span").click
+          end
+        end
         within('tbody') do
           if wbs.count - 1 > 0
             page.should have_selector('tr', count: wbs.count - 1)
@@ -215,10 +234,42 @@ feature 'distributions', %q{
       end
 
       within('#selected-resources tbody') do
+        page.all('tbody tr').each do |tr|
+          if tr.has_content?('resource#0') &&
+             tr.has_content?('mu0') &&
+             tr.has_content?('127')
+            tr.find('input')[:value].should eq('100')
+          end
+        end
+
         wb.items.each do |item|
-          page.should have_content(item.resource.tag)
-          page.should have_content(item.resource.mu)
-          page.should have_content(item.amount.to_i)
+          if item.resource.tag != "resource#0"
+            page.should have_content(item.resource.tag)
+            page.should have_content(item.resource.mu)
+            page.should have_content(item.amount.to_i)
+          end
+        end
+      end
+
+      within('#available-resources-by-wb') do
+        page.all('tbody tr').each do |tr|
+          if tr.has_content?(wb3.document_id) &&
+             tr.has_content?(wb3.created.strftime('%Y-%m-%d')) &&
+             tr.has_content?(wb3.distributor.name) &&
+             tr.has_content?(wb3.storekeeper.tag) &&
+             tr.has_content?(wb3.storekeeper_place.tag)
+            tr.find("td[@class='distribution-actions-by-wb'] span").click
+          end
+        end
+      end
+
+      within('#selected-resources') do
+        page.all('tbody tr').each do |tr|
+          if tr.has_content?('resource#0') &&
+             tr.has_content?('mu0') &&
+             tr.has_content?('127')
+            tr.find('input')[:value].should eq('127')
+          end
         end
       end
     end

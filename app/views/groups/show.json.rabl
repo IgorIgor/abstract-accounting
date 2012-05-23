@@ -8,8 +8,9 @@
 # Please see ./COPYING for details
 
 object false
+node(:id) { @group.id }
 child(@group => :group) do
-  attributes :id, :tag, :manager_id
+  attributes :tag, :manager_id
 end
 child(@group.manager => :manager) do
   glue :entity do

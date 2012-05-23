@@ -44,4 +44,17 @@ class GroupsController < ApplicationController
       render json: group.errors.messages
     end
   end
+
+  def update
+    group = Group.find(params[:id])
+    begin
+      Group.transaction do
+        group.update_attributes(params[:group])
+        group.user_ids = params[:users].values.map{ |item| item[:id] }
+        render :text => "success"
+      end
+    rescue
+      render json: group.errors.messages
+    end
+  end
 end

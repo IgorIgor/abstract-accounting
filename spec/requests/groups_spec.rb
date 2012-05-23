@@ -171,4 +171,74 @@ feature "group", %q{
       end
     end
   end
+
+  scenario "edit group", js: true do
+    group = Group.count > 0 ? Group.first : create(:group)
+    if group.users(:force_update).empty?
+      2.times { group.users << create(:user) }
+    end
+    page_login
+    click_link I18n.t('views.home.groups')
+    current_hash.should eq('groups')
+    page.should have_xpath("//div[@id='sidebar']/ul/li[@id='groups'" +
+                               " and @class='sidebar-selected']")
+    within('#container_documents') do
+      within('table') do
+        find(:xpath, ".//tbody//tr[1]//td["+
+            "contains(.//text(), '#{group.manager.entity.tag}')]").click
+      end
+
+      current_hash.should eq("documents/groups/#{group.id}")
+      find_button(I18n.t('views.groups.add'))[:disabled].should eq('true')
+      find_button(I18n.t('views.groups.save'))[:disabled].should eq('true')
+      find_button(I18n.t('views.groups.edit'))[:disabled].should eq('false')
+      find('#page-title').should have_content(
+                                     I18n.t('views.groups.page_title_show'))
+
+      within('table tbody') do
+        page.should have_selector('tr', count: group.users.count)
+      end
+
+      click_button(I18n.t('views.groups.edit'))
+      find('#page-title').should have_content(
+                                     I18n.t('views.groups.page_title_edit'))
+      find_button(I18n.t('views.groups.edit'))[:disabled].should eq('true')
+      find_button(I18n.t('views.groups.add'))[:disabled].should eq('false')
+
+      find("#group_tag")[:value].should eq(group.tag)
+      find("#group_manager")[:value].should eq(group.manager.entity.tag)
+
+      find("#group_tag")[:disabled].should eq('false')
+      find("#group_manager")[:disabled].should eq('false')
+
+      fill_in('group_tag', with: 'some different group tag')
+      fill_in_autocomplete('group_manager', create(:user).entity.tag)
+
+      click_button(I18n.t('views.groups.add'))
+
+      within("fieldset table tbody") do
+        fill_in_autocomplete("user_#{group.users.count}", create(:user).entity.tag)
+      end
+    end
+
+    lambda do
+      click_button(I18n.t('views.groups.save'))
+      page.should have_selector("#inbox[@class='sidebar-selected']")
+    end.should change(Group, :count).by(0)
+
+    group = Group.find(group.id)
+    click_link I18n.t('views.home.groups')
+    within('#container_documents') do
+      within('table') do
+        find(:xpath, ".//tbody//tr[1]//td["+
+            "contains(.//text(), '#{group.manager.entity.tag}')]").click
+      end
+      current_hash.should eq("documents/groups/#{group.id}")
+      find("#group_tag")[:value].should eq('some different group tag')
+      find("#group_manager")[:value].should eq(group.manager.entity.tag)
+      within('table tbody') do
+        page.should have_selector('tr', count: group.users.count)
+      end
+    end
+  end
 end

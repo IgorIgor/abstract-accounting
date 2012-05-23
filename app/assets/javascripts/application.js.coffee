@@ -51,19 +51,32 @@ $ ->
     hash
 
   class self.ObjectViewModel
-    constructor: (object, save_url, readonly = false)->
+    constructor: (object, route, readonly = false)->
       @readonly = ko.observable(readonly)
       @object = ko.mapping.fromJS(object)
-      @save_url = save_url
+      @route = route
       $('.paginate').hide()
-      @method = 'POST'
 
     back: -> location.hash = 'inbox'
 
     save: =>
-      url = @save_url
+      ajaxRequest('POST', "/#{@route}", ko.mapping.toJS(@object))
+
+  class self.EditableObjectViewModel extends ObjectViewModel
+    constructor: (object, route, readonly = false)->
+      super(object, route, readonly)
+      @method = 'POST'
+      @id_presence = ko.observable(object.id?)
+
+    edit: =>
+      @readonly(false)
+      @method = 'PUT'
+      location.hash = "#documents/#{@route}/#{@object.id()}/edit"
+
+    save: =>
+      url = "/#{@route}"
       if @method == 'PUT'
-        url = "#{@save_url}/#{@id()}"
+        url = "/#{@route}/#{@object.id()}"
       ajaxRequest(@method, url, ko.mapping.toJS(@object))
 
   class self.FolderViewModel

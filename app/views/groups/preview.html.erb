@@ -2,6 +2,8 @@
   <div class='actions'>
     <input type='submit' value="<%= t 'views.groups.save' %>"
            data-bind='disable: readonly'/>
+    <input type='button' value="<%= t 'views.groups.edit' %>"
+           data-bind='click: edit, disable: !readonly()'/>
     <input type='button' value="<%= t 'views.groups.back' %>"/>
   </div>
   <span id="page-title">
@@ -9,7 +11,12 @@
       <%= t('views.groups.page_title_show') %>
     <!-- /ko -->
     <!-- ko ifnot: readonly -->
-      <%= t 'views.groups.page_title_new' %>
+      <!-- ko if: id_presence -->
+        <%= t('views.groups.page_title_edit') %>
+      <!-- /ko -->
+      <!-- ko ifnot: id_presence -->
+        <%= t('views.groups.page_title_new') %>
+      <!-- /ko -->
     <!-- /ko -->
   </span>
   <%= render 'home/errors' %>

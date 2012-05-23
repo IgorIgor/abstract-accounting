@@ -8,8 +8,9 @@
 # Please see ./COPYING for details
 
 object true
+node(:id) { @user.id }
 child(@user => :user) do
-  attributes :id, :email, :entity_id
+  attributes :email, :entity_id
   node(:password) { "" }
   node(:password_confirmation) { "" }
 end

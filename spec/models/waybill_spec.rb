@@ -30,6 +30,7 @@ describe Waybill do
     should belong_to(:distributor_place).class_name(Place)
     should belong_to(:storekeeper_place).class_name(Place)
     should have_many(Waybill.versions_association_name)
+    should have_many :comments
   end
 
   it 'should create items' do

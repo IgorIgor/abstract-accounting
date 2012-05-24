@@ -93,6 +93,15 @@ ActiveRecord::Schema.define(:version => 20120527141104) do
 
   add_index "classifiers", ["tag"], :name => "index_classifiers_on_tag", :unique => true
 
+  create_table "comments", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "item_id"
+    t.string   "item_type"
+    t.text     "message"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
   create_table "countries", :force => true do |t|
     t.string "tag"
   end

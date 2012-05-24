@@ -43,6 +43,8 @@ class Waybill < ActiveRecord::Base
   belongs_to :distributor_place, :class_name => 'Place'
   belongs_to :storekeeper_place, :class_name => 'Place'
 
+  has_many :comments, :as => :item
+
   after_initialize :do_after_initialize
   before_save :do_before_save
   after_apply :do_after_apply

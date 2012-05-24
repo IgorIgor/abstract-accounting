@@ -33,6 +33,7 @@ describe Distribution do
     should belong_to(:foreman_place).class_name(Place)
     should belong_to(:storekeeper_place).class_name(Place)
     should have_many Distribution.versions_association_name
+    should have_many :comments
   end
 
   it 'should create items' do

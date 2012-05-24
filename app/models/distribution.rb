@@ -42,6 +42,8 @@ class Distribution < ActiveRecord::Base
   belongs_to :foreman_place, class_name: 'Place'
   belongs_to :storekeeper_place, class_name: 'Place'
 
+  has_many :comments, :as => :item
+
   after_initialize :do_after_initialize
   before_save :do_before_save
 

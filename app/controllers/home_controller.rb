@@ -8,9 +8,6 @@
 # Please see ./COPYING for details
 
 class HomeController < ApplicationController
-  def implemented_documents
-    [Waybill.name, Distribution.name]
-  end
   def user_documents
     if current_user.root?
       implemented_documents + [User.name]

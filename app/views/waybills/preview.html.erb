@@ -147,7 +147,7 @@
     <legend><%=t 'views.waybills.waybill_entry' %></legend>
     <input type="button" value="<%= t('views.waybills.add') %>"
            data-bind="click: addResource, disable: readonly"/>
-    <table id="estimate_boms">
+    <table>
       <thead>
       <tr>
         <th class="waybill-entry-tag"><%=t 'views.waybills.entry_name' %></th>
@@ -155,7 +155,7 @@
         <th class="waybill-entry-count"><%=t 'views.waybills.count' %></th>
         <th class="waybill-entry-price"><%=t 'views.waybills.price' %></th>
         <!-- ko ifnot: readonly -->
-        <th class="estimate-boms-actions"></th>
+        <th class="table-actions"></th>
         <!-- /ko -->
       </tr>
       </thead>
@@ -194,7 +194,7 @@
                                     ' <%=t 'views.waybills.price' %>'}" />
         </td>
         <!-- ko ifnot: $parent.readonly -->
-        <td class="estimate-boms-actions">
+        <td class="table-actions">
           <label data-bind="click: $parent.removeResource"></label>
         </td>
         <!-- /ko -->

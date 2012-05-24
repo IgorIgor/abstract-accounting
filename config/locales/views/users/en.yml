@@ -8,3 +8,8 @@ en:
       save: "Save"
       back: "Back"
       page_title_new: "Create new user"
+      add: "Add"
+      credentials: "Credentials"
+      credential: "Credential"
+      place: "Place"
+      document_type: "Document type"

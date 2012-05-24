@@ -8,3 +8,8 @@ ru:
       save: "Сохранить"
       back: "Назад"
       page_title_new: "Новый пользователь"
+      add: "Добавить"
+      credentials: "Полномочия"
+      credential: "Полномочие"
+      place: "Место"
+      document_type: "Тип документа"

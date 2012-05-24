@@ -66,4 +66,46 @@
       </div>
     </div>
   </fieldset>
+
+  <fieldset>
+    <legend><%=t 'views.users.credentials' %></legend>
+    <input type="button" value="<%= t('views.users.add') %>"
+           data-bind="click: addCredential, disable: readonly">
+    <table>
+      <thead>
+        <tr>
+          <th><%=t 'views.users.place' %></th>
+          <th><%=t 'views.users.document_type' %></th>
+          <th class="table-actions"></th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach: object.credentials, elementValidate: object.credentials">
+        <tr data-bind="attr: { idx: $parent.object.credentials.indexOf($data) }">
+          <td>
+            <input type="text" rule="required"
+                   data-bind="autocomplete: { source: '/places.json',
+                                              value: 'tag' },
+                              attr: { name: '<%=t 'views.users.credential' %>#' +
+                                            $parent.object.credentials.indexOf($data) +
+                                            ' <%=t 'views.users.place' %>'},
+                              value: tag">
+          </td>
+          <td>
+            <select data-bind="value: doctype">
+              <% @document_types.each do |document| %>
+                <option value="<%= document %>">
+                  <%=t "views.home.#{document.downcase}" %>
+                </option>
+              <% end %>
+            </select>
+          </td>
+          <td class="table-actions">
+            <label data-bind="click: $parent.deleteCredential"></label>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <input type="button" value="<%= t('views.users.add') %>"
+           data-bind="click: addCredential, disable: readonly">
+  </fieldset>
 </form>

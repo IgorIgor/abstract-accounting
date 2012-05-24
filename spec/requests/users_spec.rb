@@ -93,5 +93,82 @@ feature "user", %q{
     page.find("a[@href='#documents/users/new']").click
     click_button(I18n.t('views.users.back'))
     page.should have_selector("#inbox[@class='sidebar-selected']")
+
+    page.find('#btn_create').click
+    page.find("a[@href='#documents/users/new']").click
+    click_button(I18n.t('views.users.add'))
+    within("#container_documents form fieldset table tbody") do
+      page.should have_selector('tr', count: 1)
+      [Waybill.name, Distribution.name].each do |document|
+        within(:xpath, ".//tr//select//option[@value='#{document}']") do
+          page.should have_content(I18n.t("views.home.#{document.downcase}"))
+        end
+      end
+    end
+    click_button(I18n.t('views.users.add'))
+    within("#container_documents form fieldset table tbody") do
+      page.should have_selector('tr', count: 2)
+    end
+
+    click_button(I18n.t('views.users.save'))
+    within("#container_documents form") do
+      find("#container_notification").visible?.should be_true
+      within("#container_notification") do
+        page.should have_content("#{I18n.t(
+            'views.users.credential')}#0 #{I18n.t(
+            'views.users.place')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.users.credential')}#1 #{I18n.t(
+            'views.users.place')} : #{I18n.t('errors.messages.blank')}")
+      end
+      place = create(:place)
+      within("fieldset table tbody") do
+        fill_in("#{I18n.t('views.users.credential')}#0 #{I18n.t(
+              'views.users.place')}", with: place.tag)
+        fill_in("#{I18n.t('views.users.credential')}#1 #{I18n.t(
+            'views.users.place')}", with: place.tag[0..2])
+        page.should have_xpath("//ul[contains(@class, 'ui-autocomplete')"+
+                                   " and contains(@style, 'display: block')]")
+        within(:xpath, "//ul[contains(@class, 'ui-autocomplete')"+
+            " and contains(@style, 'display: block')]") do
+          all(:xpath, ".//li//a")[0].click
+        end
+      end
+      within("#container_notification ul") do
+        find(:xpath, ".//li[contains(.//text(), '#{I18n.t(
+            'views.users.credential')}#0 #{I18n.t(
+            'views.users.place')} : #{I18n.t('errors.messages.blank')}')]").
+            visible?.should_not be_true
+        find(:xpath, ".//li[contains(.//text(), '#{I18n.t(
+            'views.users.credential')}#1 #{I18n.t(
+            'views.users.place')} : #{I18n.t('errors.messages.blank')}')]").
+            visible?.should_not be_true
+      end
+      within("fieldset table tbody") do
+        page.find(:xpath, ".//td[@class='table-actions']//label").click
+        page.should have_selector('tr', count: 1)
+        page.find(:xpath, ".//td[@class='table-actions']//label").click
+        page.should_not have_selector('tr')
+      end
+
+      fill_in('user_entity', with: 'Some Cool Man')
+      fill_in('user_email', with: 'mymail@gmail.com')
+      fill_in('user_password', with: '1234567')
+      fill_in('user_password_confirmation', with: '1234567')
+
+      click_button(I18n.t('views.users.add'))
+      click_button(I18n.t('views.users.add'))
+      within("fieldset table tbody") do
+        fill_in("#{I18n.t('views.users.credential')}#0 #{I18n.t(
+              'views.users.place')}", with: place.tag)
+        fill_in("#{I18n.t('views.users.credential')}#1 #{I18n.t(
+            'views.users.place')}", with: "Place for creation")
+      end
+    end
+    lambda do
+      click_button(I18n.t('views.users.save'))
+      page.should have_selector("#inbox[@class='sidebar-selected']")
+    end.should change(User, :count).by(1) && change(Credential, :count).by(2) &&
+                   change(Place, :count).by(1)
   end
 end

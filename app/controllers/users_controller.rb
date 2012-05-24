@@ -9,6 +9,7 @@
 
 class UsersController < ApplicationController
   def preview
+    @document_types = implemented_documents
     render "users/preview", :layout => false
   end
 
@@ -25,6 +26,13 @@ class UsersController < ApplicationController
           user.entity = Entity.create!(tag: params[:entity][:tag])
         end
         user.save!
+        if params[:credentials]
+          params[:credentials].values.each do |credential|
+            user.credentials.create!(
+                place: Place.find_or_create_by_tag(credential[:tag]),
+                document_type: credential[:doctype])
+          end
+        end
       end
       render :text => "success"
     rescue

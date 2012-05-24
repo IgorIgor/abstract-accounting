@@ -16,11 +16,6 @@
 *= require_tree .
 */
 
-@import "login.css.scss";
-@import "sessions.css.scss";
-@import "password_resets.css.scss";
-@import "slide_area.css.scss";
-
 $table_border: 1px solid #d8d8d8;
 $table_head_background: #ededed;
 $table_head_title: #878787;
@@ -258,6 +253,49 @@ input[type=text], input[type=password] {
         border: $table_border;
         width: 700px;
         margin-bottom: 2px;
+
+        input[type=button] {
+          margin: 0;
+          float: right;
+        }
+
+        table {
+          border-spacing: 0;
+          width: 100%;
+          margin: 30px 0 5px 0;
+          border-top: $table_border;
+          border-left: $table_border;
+
+          td {
+            border-right: $table_border;
+            padding: 1px 8px 0 2px;
+            height: 18px;
+          }
+
+          td.table-actions label {
+            background: url("close.png") no-repeat;
+            cursor: pointer;
+          }
+
+          .table-actions {
+            width: 17px;
+            padding: 4px 2px 0 3px;
+            vertical-align: top;
+
+            label {
+              padding-left: 16px;
+            }
+          }
+
+          input {
+            width: 100%;
+            border: 0;
+          }
+
+          input[disabled] {
+            background: #fff;
+          }
+        }
 
         legend{
           font-size: smaller;

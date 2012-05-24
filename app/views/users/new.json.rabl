@@ -16,3 +16,4 @@ end
 child(Entity.new => :entity) do
   attributes :tag
 end
+child([] => :credentials) {}

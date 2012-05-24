@@ -1,100 +1,52 @@
-$table_border: 1px solid #d8d8d8;
+#container_documents form fieldset table {
+  .estimate-boms-name {
+    width: 65%;
 
-#container_documents form fieldset {
-  input[type=button] {
-    margin: 0;
-    float: right;
+    table.estimate-bom-elements {
+      border-spacing: 0;
+      width: 100%;
+      border-top: 1px solid #e5e5e5;
+      border-left: 1px solid #e5e5e5;
+      border-bottom: 1px solid #e5e5e5;
+
+      td {
+        color: #b8b8b8;
+      }
+    }
   }
 
-  #estimate_boms {
-    border-spacing: 0;
-    width: 100%;
-    margin: 30px 0 5px 0;
-    border-top: $table_border;
-    border-left: $table_border;
+  .estimate-boms-count,
+  .estimate-boms-sum,
+  .estimate-boms-tab {
+    vertical-align: top;
+  }
 
-    td {
-      border-right: $table_border;
-      padding: 1px 8px 0 2px;
-      height: 18px;
+  .estimate-boms-tab {
+    width: 20%;
+  }
+
+  .estimate-boms-sum {
+    width: 10%;
+  }
+
+  .estimate-boms-actions,
+  .estimate-boms-tree-actions {
+    width: 17px;
+    padding: 4px 2px 0 3px;
+    vertical-align: top;
+
+    label {
+      padding-left: 16px;
     }
+  }
 
-    .estimate-boms-name {
-      width: 65%;
+  label.tree-plus {
+    background: url("plus.png") no-repeat;
+    cursor: pointer;
+  }
 
-      table.estimate-bom-elements {
-        border-spacing: 0;
-        width: 100%;
-        border-top: 1px solid #e5e5e5;
-        border-left: 1px solid #e5e5e5;
-        border-bottom: 1px solid #e5e5e5;
-
-        td {
-          color: #b8b8b8;
-        }
-      }
-    }
-
-    .estimate-boms-count,
-    .estimate-boms-sum,
-    .estimate-boms-tab {
-      vertical-align: top;
-    }
-
-    .estimate-boms-tab {
-      width: 20%;
-    }
-
-    .estimate-boms-sum {
-      width: 10%;
-    }
-
-    .waybill-entry-tag{
-
-    }
-    .waybill-entry-mu{
-      width: 30%;
-    }
-    .waybill-entry-count{
-      width: 10%;
-    }
-    .waybill-entry-price{
-      width: 10%;
-    }
-
-    .estimate-boms-actions,
-    .estimate-boms-tree-actions {
-      width: 17px;
-      padding: 4px 2px 0 3px;
-      vertical-align: top;
-
-      label {
-        padding-left: 16px;
-      }
-    }
-
-    td.estimate-boms-actions label {
-      background: url("close.png") no-repeat;
-      cursor: pointer;
-    }
-
-    label.tree-plus {
-      background: url("plus.png") no-repeat;
-      cursor: pointer;
-    }
-
-    label.tree-minus {
-      background: url("minus.png") no-repeat;
-      cursor: pointer;
-    }
-
-    input {
-      width: 100%;
-      border: 0;
-    }
-
-    input[disabled] {
-      background: #fff;
-    }
+  label.tree-minus {
+    background: url("minus.png") no-repeat;
+    cursor: pointer;
   }
 }

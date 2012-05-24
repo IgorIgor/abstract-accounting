@@ -14,7 +14,7 @@ feature "waybill", %q{
   I want to manage waybills
 }do
 
-  scenario "manage waybills", :js => true do
+  scenario "manage waybills", js: true do
     PaperTrail.enabled = true
 
     page_login
@@ -78,7 +78,8 @@ feature "waybill", %q{
 
       items[0].update_attributes!(identifier_name: 'MSRN')
       fill_in('waybill_entity', :with => items[0].send(:name)[0..1])
-      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
+      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
+          "contains(@style, 'display: block')]") do
         all(:xpath, ".//li//a")[0].click
       end
       find('#waybill_ident_name')['value'].should eq(items[0].identifier_name)
@@ -106,26 +107,27 @@ feature "waybill", %q{
         User.where(entity_id: items[0].id).first.
           credentials.where(document_type: Waybill.name).first.place.tag)
 
-      page.should have_xpath("//table[@id='estimate_boms']")
-      page.should_not have_selector(:xpath, "//table[@id='estimate_boms']//tbody//tr")
-      page.find(:xpath, "//fieldset[@class='with-legend']//input[@value='#{I18n.t('views.waybills.add')}']").click
-      page.should have_selector(:xpath, "//table[@id='estimate_boms']//tbody//tr")
-      page.should have_selector(:xpath, "//table[@id='estimate_boms']//tbody//tr//td[@class='estimate-boms-actions']")
+      page.should have_xpath("//table")
+      page.should_not have_selector("table tbody tr")
+      page.find(:xpath, "//fieldset[@class='with-legend']" +
+          "//input[@value='#{I18n.t('views.waybills.add')}']").click
+      page.should have_xpath("//table//tbody//tr")
+      page.should have_xpath("//table//tbody//tr//td[@class='table-actions']")
       fill_in("tag_0", :with => "tag")
       fill_in("mu_0", :with => "mu")
       fill_in("count_0", :with => "0")
       fill_in("price_0", :with => "0")
-      page.find("table[@id='estimate_boms'] thead tr").click
+      page.find("table thead tr").click
       page.find("#tag_0")["value"].should eq("tag")
       page.find("#mu_0")["value"].should eq("mu")
       page.find("#count_0")["value"].should eq("0")
       page.find("#price_0")["value"].should eq("0")
-      page.find("table[@id='estimate_boms'] tbody tr td[@class='estimate-boms-actions'] label").click
+      page.find("table tbody tr td[@class='table-actions'] label").click
       page.has_no_selector?("#tag_0").should be_true
       page.has_no_selector?("#mu_0").should be_true
       page.has_no_selector?("#count_0").should be_true
       page.has_no_selector?("#price_0").should be_true
-      page.should_not have_selector("table[@id='estimate_boms'] tbody tr")
+      page.should_not have_selector("table tbody tr")
     end
 
     click_button(I18n.t('views.waybills.save'))
@@ -134,16 +136,18 @@ feature "waybill", %q{
         page.should have_content("items: must exist")
       end
 
-      page.find(:xpath, "//fieldset[@class='with-legend']//input[@value='#{I18n.t('views.waybills.add')}']").click
+      page.find(:xpath, "//fieldset[@class='with-legend']" +
+          "//input[@value='#{I18n.t('views.waybills.add')}']").click
       fill_in("tag_0", :with => "tag_1")
       fill_in("mu_0", :with => "RUB")
       fill_in("count_0", :with => "10")
       fill_in("price_0", :with => "100")
     end
-    lambda {
-      page.find(:xpath, "//div[@class='actions']//input[@value='#{I18n.t('views.waybills.save')}']").click
+    lambda do
+      page.find(:xpath, "//div[@class='actions']" +
+          "//input[@value='#{I18n.t('views.waybills.save')}']").click
       page.should have_selector("#inbox[@class='sidebar-selected']")
-    }.should change(Waybill, :count).by(1)
+    end.should change(Waybill, :count).by(1)
 
     page.find(:xpath, "//td[@class='cell-title' and " +
                   "contains(.//text(), '#{Waybill.name}')]").click
@@ -174,7 +178,7 @@ feature "waybill", %q{
       find("#storekeeper_entity")[:disabled].should eq("true")
       find("#storekeeper_place")[:disabled].should eq("true")
 
-      within("#estimate_boms tbody") do
+      within("table tbody") do
         find("#tag_0")[:value].should eq(Waybill.first.items[0].resource.tag)
         find("#mu_0")[:value].should eq(Waybill.first.items[0].resource.mu)
         find("#count_0")[:value].should eq(Waybill.first.items[0].amount.to_i.to_s)
@@ -228,12 +232,12 @@ feature "waybill", %q{
       fill_in("count_0", :with => "10")
       fill_in("price_0", :with => "100")
     end
-    lambda {
+    lambda do
       page.find(:xpath, "//div[@class='actions']//input[@value='#{
                           I18n.t('views.waybills.save')
                         }']").click
       page.should have_selector("#inbox[@class='sidebar-selected']")
-    }.should change(Waybill, :count).by(1)
+    end.should change(Waybill, :count).by(1)
 
     PaperTrail.enabled = false
   end

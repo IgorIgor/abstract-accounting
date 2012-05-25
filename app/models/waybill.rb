@@ -9,10 +9,10 @@
 
 class ItemsValidator < ActiveModel::Validator
   def validate(record)
-    record.errors[:items] <<
-      'must exist' if record.items.empty?
+    record.errors[:items] << I18n.t(
+      "activerecord.errors.models.waybill.items.blank") if record.items.empty?
     items = []
-    record.items.each { |item|
+    record.items.each do |item|
       record.errors[:items] <<
         'invalid' if item.resource.nil? || item.resource.invalid?
       record.errors[:items] << 'invalid amount' if item.amount <= 0
@@ -23,7 +23,7 @@ class ItemsValidator < ActiveModel::Validator
         record.errors[:items] << 'two identical resources'
       end
       items << {tag: item.resource.tag, mu: item.resource.mu, price: item.price}
-    }
+    end
   end
 end
 

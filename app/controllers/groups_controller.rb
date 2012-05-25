@@ -41,7 +41,7 @@ class GroupsController < ApplicationController
         render text: 'success'
       end
     rescue
-      render json: group.errors.messages
+      render json: group.errors.full_messages
     end
   end
 
@@ -54,7 +54,7 @@ class GroupsController < ApplicationController
         render :text => "success"
       end
     rescue
-      render json: group.errors.messages
+      render json: group.errors.full_messages
     end
   end
 end

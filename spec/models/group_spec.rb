@@ -19,4 +19,33 @@ describe Group do
     should have_many Group.versions_association_name
     should have_and_belong_to_many(:users)
   end
+
+  it "should not update manager someone from users" do
+    group = create(:group)
+    user = create(:user)
+    group.users << user
+    expect do
+      group.manager = user
+      expect { group.save! }.should raise_error
+    end.to change{ group.errors[:manager].size }.from(0).to(1)
+  end
+
+  it "should not contain manager in users" do
+    group = create(:group)
+    user = create(:user)
+    group.users << user
+    manager = User.find(group.manager_id)
+    expect do
+      expect { group.users << manager }.should raise_error
+    end.to change{ group.errors[:users].size }.from(0).to(1)
+  end
+
+  it "should contain unique users" do
+    group = create(:group)
+    user = create(:user)
+    group.users << user
+    expect do
+      expect { group.users << user }.should raise_error
+    end.to change{ group.errors[:users].size }.from(0).to(1)
+  end
 end

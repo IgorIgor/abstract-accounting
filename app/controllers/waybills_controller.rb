@@ -67,7 +67,7 @@ class WaybillsController < ApplicationController
         render :text => "success"
       end
     rescue
-      render json: waybill.errors.messages
+      render json: waybill.errors.full_messages
     end
   end
 

@@ -1,0 +1,21 @@
+ru:
+  activerecord:
+    models:
+      group: Группа
+      waybill: Накладная
+    attributes:
+      group:
+        tag: Название группы
+        manager: Управляющий
+        users: Пользователи
+      waybill:
+        items: Ресурсы
+    errors:
+      models:
+        group:
+          manager_in_users: не должен совпадать с пользователем группы
+          users_same_as_manager: ": среди пользователей не должно быть управляющего"
+          users_unique: должны быть уникальными
+        waybill:
+          items:
+            blank: должны быть введены

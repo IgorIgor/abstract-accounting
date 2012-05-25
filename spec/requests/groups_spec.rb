@@ -54,7 +54,6 @@ feature "group", %q{
         page.should have_content("#{I18n.t(
             'views.groups.user_name')}#0 #{I18n.t(
             'views.groups.user')} : #{I18n.t('errors.messages.blank')}")
-
       end
       within("fieldset table tbody") do
         fill_in_autocomplete("user_0", User.last.entity.tag)
@@ -238,6 +237,67 @@ feature "group", %q{
       find("#group_manager")[:value].should eq(group.manager.entity.tag)
       within('table tbody') do
         page.should have_selector('tr', count: group.users.count)
+      end
+    end
+  end
+
+  scenario "test server validation on creating group", :js => true do
+    group = create(:group)
+    6.times { create(:entity) }
+    page_login
+
+    page.find('#btn_create').click
+    page.find("a[@href='#documents/groups/new']").click
+    page.should have_xpath("//ul[@id='documents_list' and "+
+                               " contains(@style, 'display: none')]")
+    current_hash.should eq('documents/groups/new')
+
+    fill_in('group_tag', with: group.tag)
+    fill_in('group_manager', with: Entity.first.tag[0..2])
+    page.should have_xpath("//ul[contains(@class, 'ui-autocomplete')"+
+                               " and contains(@style, 'display: block')]")
+    within(:xpath, "//ul[contains(@class, 'ui-autocomplete')"+
+        " and contains(@style, 'display: block')]") do
+      all(:xpath, ".//li//a")[0].click
+    end
+
+    click_button(I18n.t('views.groups.save'))
+    within("#container_documents form") do
+      find("#container_notification").visible?.should be_true
+      within("#container_notification") do
+        page.should have_content("#{I18n.t(
+            'activerecord.attributes.group.tag')} #{I18n.t(
+            'errors.messages.taken')}")
+      end
+    end
+  end
+
+  scenario "test server validation on updating group", :js => true do
+    create(:group)
+    create(:group)
+    group = Group.first
+    group_last = Group.last
+    page_login
+
+    click_link I18n.t('views.home.groups')
+    current_hash.should eq('groups')
+    page.should have_xpath("//div[@id='sidebar']/ul/li[@id='groups'" +
+                               " and @class='sidebar-selected']")
+    within('#container_documents') do
+      within('table tbody') do
+        find(:xpath, './/tr[1]//td[1]').click
+      end
+      current_hash.should eq("documents/groups/#{group.id}")
+
+      click_button(I18n.t('views.groups.edit'))
+      fill_in('group_tag', with: group_last.tag)
+
+      click_button(I18n.t('views.groups.save'))
+      find("#container_notification").visible?.should be_true
+      within("#container_notification") do
+        page.should have_content("#{I18n.t(
+            'activerecord.attributes.group.tag')} #{I18n.t(
+            'errors.messages.taken')}")
       end
     end
   end

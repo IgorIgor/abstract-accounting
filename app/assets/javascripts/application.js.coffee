@@ -29,9 +29,10 @@ $ ->
         else
           $('#container_notification').css('display', 'block')
           $('#container_notification ul').css('display', 'block')
+          $('#container_notification ul').empty()
           for key, value of JSON.parse(data.responseText)
             $('#container_notification ul')
-            .append($("<li class='server-message'>#{key}: #{value}</li>"))
+            .append($("<li class='server-message'>#{value}</li>"))
     )
 
   self.toggleSelect = (id = null) ->

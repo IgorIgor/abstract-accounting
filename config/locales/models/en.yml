@@ -1,0 +1,21 @@
+en:
+  activerecord:
+    models:
+      group: Group
+      waybill: Waybill
+    attributes:
+      group:
+        tag: Tag
+        manager: Manager
+        users: Users
+      waybill:
+        items: Resources
+    errors:
+      models:
+        group:
+          manager_in_users: already in group users
+          users_same_as_manager: ": can't contain manager"
+          users_unique: must be unique
+        waybill:
+          items:
+            blank: must exist

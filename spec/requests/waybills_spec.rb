@@ -133,7 +133,9 @@ feature "waybill", %q{
     click_button(I18n.t('views.waybills.save'))
     within("#container_documents form") do
       within("#container_notification") do
-        page.should have_content("items: must exist")
+        page.should have_content("#{I18n.t(
+                    'activerecord.attributes.waybill.items')} #{I18n.t(
+                    'activerecord.errors.models.waybill.items.blank')}")
       end
 
       page.find(:xpath, "//fieldset[@class='with-legend']" +

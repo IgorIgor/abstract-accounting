@@ -5,6 +5,7 @@ en:
   errors:
     messages:
       blank: can't be empty.
+      taken: already exist
       greater_than_or_equal_to: may have a value greater than or equal %{count}
       email: must be a valid email-address
       min_length: must have length greater or equal than %{count}

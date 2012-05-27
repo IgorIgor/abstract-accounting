@@ -189,4 +189,8 @@ FactoryGirl.define do
     tag
     manager { |group| group.association(:user) }
   end
+
+  factory :classifier do
+    tag
+  end
 end

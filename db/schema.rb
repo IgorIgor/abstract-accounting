@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120521145735) do
+ActiveRecord::Schema.define(:version => 20120527140309) do
 
   create_table "assets", :force => true do |t|
     t.string  "tag"
@@ -86,6 +86,12 @@ ActiveRecord::Schema.define(:version => 20120521145735) do
   create_table "charts", :force => true do |t|
     t.integer "currency_id"
   end
+
+  create_table "classifiers", :force => true do |t|
+    t.string "tag"
+  end
+
+  add_index "classifiers", ["tag"], :name => "index_classifiers_on_tag", :unique => true
 
   create_table "countries", :force => true do |t|
     t.string "tag"

@@ -14,6 +14,7 @@ feature "GeneralLedger", %q{
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
     end
     wb.save!
+    wb.apply
 
     gl = GeneralLedger.all(page: 1)
     gl_count = GeneralLedger.count

@@ -29,6 +29,8 @@ end
 
 class Waybill < ActiveRecord::Base
   has_paper_trail
+  include Statable
+  act_as_statable
 
   validates :document_id, :distributor, :distributor_place, :storekeeper,
             :storekeeper_place, :created, :presence => true
@@ -43,6 +45,7 @@ class Waybill < ActiveRecord::Base
 
   after_initialize :do_after_initialize
   before_save :do_before_save
+  after_apply :do_after_apply
 
   def add_item(tag, mu, amount, price)
     resource = Asset.find_by_tag_and_mu(tag, mu)
@@ -138,13 +141,13 @@ class Waybill < ActiveRecord::Base
           from: distributor_item, to: storekeeper_item, fact_side: false,
           change_side: true, rate: item.amount).nil?
       }
+    end
+    true
+  end
 
-      f = Fact.create(amount: 1.0, resource: self.deal.give.resource,
-                      day: DateTime.current.change(hour: 12), to: self.deal)
-      return false if f.nil?
-      return false if Txn.create(fact: f).nil?
-    else
-      return false
+  def do_after_apply(fact)
+    if fact
+      return !Txn.create(fact: fact).nil?
     end
     true
   end

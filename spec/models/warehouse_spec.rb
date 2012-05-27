@@ -21,17 +21,20 @@ describe Warehouse do
     wb.add_item('roof', 'rm', 100, 120.0)
     wb.add_item('nails', 'pcs', 700, 1.0)
     wb.save!
+    wb.apply
     wb = build(:waybill, storekeeper: ivanov,
                                  storekeeper_place: moscow)
     wb.add_item('nails', 'pcs', 1200, 1.0)
     wb.add_item('nails', 'kg', 10, 150.0)
     wb.add_item('roof', 'rm', 50, 100.0)
     wb.save!
+    wb.apply
     wb = build(:waybill, storekeeper: petrov,
                                  storekeeper_place: minsk)
     wb.add_item('roof', 'rm', 500, 120.0)
     wb.add_item('nails', 'kg', 300, 150.0)
     wb.save!
+    wb.apply
 
     wh = Warehouse.all
     wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'roof') &&

@@ -17,6 +17,7 @@ describe Distribution do
     @wb.add_item('nails', 'pcs', 1200, 1.0)
     @wb.add_item('nails', 'kg', 10, 150.0)
     @wb.save!
+    @wb.apply
   end
 
   it 'should have next behaviour' do
@@ -80,7 +81,7 @@ describe Distribution do
                          storekeeper_place: @wb.storekeeper_place)
     wb.add_item('roof', 'm2', 100, 10.0)
     wb.add_item('hammer', 'th', 500, 100.0)
-    lambda { wb.save } .should change(Deal, :count).by(3)
+    lambda { wb.save; wb.apply } .should change(Deal, :count).by(3)
 
     db = build(:distribution, storekeeper: db.storekeeper,
                               storekeeper_place: db.storekeeper_place)
@@ -192,6 +193,7 @@ describe DistributionItemsValidator do
     wb.add_item('roof', 'm2', 500, 10.0)
     wb.add_item('nails', 'pcs', 1200, 1.0)
     wb.save!
+    wb.apply
 
     db = build(:distribution, storekeeper: wb.storekeeper,
                               storekeeper_place: wb.storekeeper_place)

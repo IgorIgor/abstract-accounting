@@ -220,10 +220,32 @@ describe Waybill do
       wb.storekeeper).should eq(rule.to)
   end
 
-  it 'should create fact' do
+  it 'should change state' do
+    wb = build(:waybill)
+    wb.add_item('roof', 'm2', 500, 10.0)
+    wb.state.should eq(Waybill::UNKNOWN)
+
+    wb.cancel.should be_false
+
+    wb.save!
+    wb.state.should eq(Waybill::INWORK)
+
+    wb = Waybill.find(wb)
+    wb.cancel.should be_true
+    wb.state.should eq(Waybill::CANCELED)
+
+    wb = build(:waybill)
+    wb.add_item('roof', 'm2', 500, 10.0)
+    wb.save!
+    wb.apply.should be_true
+    wb.state.should eq(Waybill::APPLIED)
+  end
+
+  it 'should create fact after apply' do
     wb = build(:waybill)
     wb.add_item('roof', 'm2', 500, 10.0)
     wb.save.should be_true
+    wb.apply.should be_true
 
     state = wb.items.first.warehouse_deal(Chart.first.currency,
       wb.distributor_place, wb.distributor).state
@@ -244,6 +266,7 @@ describe Waybill do
     wb.add_item('roof', 'm2', 100, 10.0)
     wb.add_item('hammer', 'th', 500, 100.0)
     wb.save.should be_true
+    wb.apply.should be_true
 
     state = wb.items[0].warehouse_deal(Chart.first.currency,
       wb.distributor_place, wb.distributor).state
@@ -270,10 +293,11 @@ describe Waybill do
     state.start.should eq(DateTime.current.change(hour: 12))
   end
 
-  it 'should create txn' do
+  it 'should create txn after apply' do
     wb = build(:waybill)
     wb.add_item('roof', 'm2', 500, 10.0)
     wb.save.should be_true
+    wb.apply.should be_true
 
     balance = wb.items.first.warehouse_deal(Chart.first.currency,
                                           wb.distributor_place, wb.distributor).balance
@@ -294,6 +318,7 @@ describe Waybill do
     wb.add_item('roof', 'm2', 100, 10.0)
     wb.add_item('hammer', 'th', 500, 100.0)
     wb.save.should be_true
+    wb.apply.should be_true
 
     balance = wb.items[0].warehouse_deal(Chart.first.currency,
                                        wb.distributor_place, wb.distributor).balance
@@ -331,17 +356,20 @@ describe Waybill do
     wb1.add_item('roof', 'rm', 100, 120.0)
     wb1.add_item('nails', 'pcs', 700, 1.0)
     wb1.save!
+    wb1.apply.should be_true
     wb2 = build(:waybill, storekeeper: ivanov,
                                   storekeeper_place: moscow)
     wb2.add_item('nails', 'pcs', 1200, 1.0)
     wb2.add_item('nails', 'kg', 10, 150.0)
     wb2.add_item('roof', 'rm', 50, 100.0)
     wb2.save!
+    wb2.apply.should be_true
     wb3 = build(:waybill, storekeeper: petrov,
                                   storekeeper_place: minsk)
     wb3.add_item('roof', 'rm', 500, 120.0)
     wb3.add_item('nails', 'kg', 300, 150.0)
     wb3.save!
+    wb3.apply.should be_true
 
     Waybill.in_warehouse.include?(wb1).should be_true
     Waybill.in_warehouse.include?(wb2).should be_true
@@ -401,6 +429,21 @@ describe Waybill do
     wbs.include?(wb1).should be_false
     wbs.include?(wb2).should be_false
     wbs.include?(wb3).should be_false
+
+    Waybill.in_warehouse.include?(wb1).should be_false
+    Waybill.in_warehouse.include?(wb2).should be_true
+    Waybill.in_warehouse.include?(wb3).should be_false
+
+    wb4 = build(:waybill, storekeeper: ivanov,
+                          storekeeper_place: moscow)
+    wb4.add_item('roof', 'rm', 100, 120.0)
+    wb4.add_item('nails', 'pcs', 700, 1.0)
+    wb4.save!
+
+    Waybill.in_warehouse.include?(wb1).should be_false
+    Waybill.in_warehouse.include?(wb2).should be_true
+    Waybill.in_warehouse.include?(wb3).should be_false
+    Waybill.in_warehouse.include?(wb4).should be_false
   end
 end
 

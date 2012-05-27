@@ -24,6 +24,7 @@ feature 'distributions', %q{
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
     end
     wb.save!
+    wb.apply
 
     page_login
 
@@ -149,6 +150,7 @@ feature 'distributions', %q{
       wb2 = build(:waybill)
       wb2.add_item("resource_2", "mu_2", 100, 10)
       wb2.save!
+      wb2.apply
 
       wbs = Waybill.in_warehouse(where: { storekeeper_id: {
                                             equal: wb.storekeeper.id },
@@ -213,6 +215,7 @@ feature 'distributions', %q{
     wb.add_item('roof', 'm2', 12, 100.0)
     wb.add_item('roof2', 'm2', 12, 100.0)
     wb.save!
+    wb.apply
 
     page_login
 
@@ -263,6 +266,7 @@ feature 'distributions', %q{
     wb.add_item('roof', 'm2', 12, 100.0)
     wb.add_item('roof2', 'm2', 12, 100.0)
     wb.save!
+    wb.apply
 
     password = "password"
     user = create(:user, password: password, entity: wb.storekeeper)
@@ -306,6 +310,7 @@ feature 'distributions', %q{
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
     }
     wb.save!
+    wb.apply
     ds = build(:distribution, storekeeper: wb.storekeeper,
                                       storekeeper_place: wb.storekeeper_place)
     (0..4).each { |i|
@@ -360,6 +365,7 @@ feature 'distributions', %q{
     wb = build(:waybill)
     wb.add_item("test resource", "test mu", 100, 10)
     wb.save!
+    wb.apply
 
     ds = build(:distribution, storekeeper: wb.storekeeper,
                        storekeeper_place: wb.storekeeper_place)
@@ -386,6 +392,7 @@ feature 'distributions', %q{
     wb = build(:waybill)
     wb.add_item("test resource", "test mu", 100, 10)
     wb.save!
+    wb.apply
 
     ds = build(:distribution, storekeeper: wb.storekeeper,
                        storekeeper_place: wb.storekeeper_place)
@@ -411,6 +418,7 @@ feature 'distributions', %q{
     wb = build(:waybill)
     wb.add_item("test resource", "test mu", 100, 10)
     wb.save!
+    wb.apply
 
     ds = build(:distribution, storekeeper: wb.storekeeper,
                        storekeeper_place: wb.storekeeper_place)

@@ -23,6 +23,7 @@ feature 'warehouses', %q{
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
     }
     wb.save!
+    wb.apply
 
     page_login
 
@@ -157,6 +158,7 @@ feature 'warehouses', %q{
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
     end
     wb.save!
+    wb.apply
     page_login(user.email, password)
 
     page.find('#warehouses a').click
@@ -182,6 +184,7 @@ feature 'warehouses', %q{
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
     end
     wb.save!
+    wb.apply
     page_login(user.email, password)
 
     page.find('#warehouses a').click

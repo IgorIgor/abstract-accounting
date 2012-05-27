@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120527140309) do
+ActiveRecord::Schema.define(:version => 20120527141104) do
 
   create_table "assets", :force => true do |t|
     t.string  "tag"
@@ -337,6 +337,7 @@ ActiveRecord::Schema.define(:version => 20120527140309) do
     t.integer "place_id"
     t.integer "resource_id"
     t.string  "resource_type"
+    t.integer "type_id"
   end
 
   create_table "txns", :force => true do |t|

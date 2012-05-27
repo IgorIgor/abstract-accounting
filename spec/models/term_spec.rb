@@ -18,6 +18,7 @@ describe Term do
     should validate_uniqueness_of(:deal_id).scoped_to(:side)
     should belong_to :deal
     should belong_to :place
+    should belong_to(:type).class_name(Classifier)
     should belong_to :resource
   end
 end

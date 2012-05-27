@@ -7,13 +7,8 @@
 #
 # Please see ./COPYING for details
 
-class Term < ActiveRecord::Base
-  has_paper_trail
-
-  validates :deal_id, :place_id, :resource_id, :presence => true
-  validates_uniqueness_of :deal_id, :scope => [:side]
-  belongs_to :deal
-  belongs_to :place
-  belongs_to :type, :class_name => Classifier
-  belongs_to :resource, :polymorphic => true
+class AddTypeColumnToTerms < ActiveRecord::Migration
+  def change
+    add_column :terms, :type_id, :integer
+  end
 end

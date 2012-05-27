@@ -158,7 +158,8 @@ FactoryGirl.define do
   end
 
   factory :term do
-    place #{ |term| term.association(:place) }
+    place
+    type { |term| term.association(:classifier) }
     resource { |term| term.association(:asset) }
   end
 

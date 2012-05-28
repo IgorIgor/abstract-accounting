@@ -178,7 +178,6 @@ feature 'distributions', %q{
             tr.should have_content(item.amount.to_i)
           end
         end
-        page.find("td[@class='distribution-actions-by-wb'] span").click
       end
 
       within('#selected-resources tbody') do
@@ -199,6 +198,27 @@ feature 'distributions', %q{
           page.should have_selector('#available-resources tbody tr', count: 1+i)
         else
           page.should_not have_selector('#selected-resources tbody tr')
+        end
+      end
+
+      page.find('#mode-waybills').click
+      page.should have_no_selector('#available-resources')
+      within('#available-resources-by-wb') do
+        page.find("td[@class='distribution-actions-by-wb'] span").click
+        within('tbody') do
+          if wbs.count - 1 > 0
+            page.should have_selector('tr', count: wbs.count - 1)
+          else
+            page.should_not have_selector('tr')
+          end
+        end
+      end
+
+      within('#selected-resources tbody') do
+        wb.items.each do |item|
+          page.should have_content(item.resource.tag)
+          page.should have_content(item.resource.mu)
+          page.should have_content(item.amount.to_i)
         end
       end
     end

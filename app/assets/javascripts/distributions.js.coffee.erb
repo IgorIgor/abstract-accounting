@@ -19,7 +19,7 @@ $ ->
         page: @page
         per_page: @per_page
 
-      @availableMode = ko.observable(0)
+      @availableMode = ko.observable('0')
       @availableMode.subscribe((val) =>
         @url = "/#{if val == '0' then 'warehouses' else 'waybills'}/data.json"
         @loadAvailableResources(false)
@@ -46,6 +46,7 @@ $ ->
     selectWaybill: (waybill) =>
       if waybill.resources.items().length
         for resource in waybill.resources.items()
+          resource.waybill_id = waybill.id
           if resource.amount > resource.exp_amount
             resource.amount = resource.exp_amount
           @object.items.push(resource) if jQuery.inArray(
@@ -54,6 +55,7 @@ $ ->
       else
         $.getJSON("/waybills/#{waybill.id}/resources.json", null, (items) =>
           for resource in items
+            resource.waybill_id = waybill.id
             if resource.amount > resource.exp_amount
               resource.amount = resource.exp_amount
             @object.items.push(resource) if jQuery.inArray(
@@ -97,9 +99,12 @@ $ ->
 
     getPaginateData: =>
       if @object.items().length > 0
-        @params['without'] = $.map(@object.items(), (r) -> r.id)
-      else
-        delete @params['without'] if @params.hasOwnProperty('without')
+        if @availableMode() == '0'
+          @params['without'] = $.map(@object.items(), (r) -> r.id)
+        else
+          @params['without'] = $.map(@object.items(), (r) -> r.waybill_id)
+      else if @params.hasOwnProperty('without')
+        delete @params['without']
       $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
         @availableResources([])
         for obj in data.objects

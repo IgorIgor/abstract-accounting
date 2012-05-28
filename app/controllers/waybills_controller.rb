@@ -86,6 +86,9 @@ class WaybillsController < ApplicationController
       end
     end
 
+    attrs[:without_waybills] =
+      params[:without] if params.has_key?(:without)
+
     @waybills = Waybill.in_warehouse(attrs)
   end
 

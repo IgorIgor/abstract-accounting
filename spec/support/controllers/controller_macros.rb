@@ -41,7 +41,7 @@ module ControllerMacros
         page.should have_content(item.send(attr)) if idx < 5
         page.should_not have_content(item.send(attr)) if idx >= 5
       end
-      all(:xpath, ".//li//a")[1].click
+      find(:xpath, ".//li//a[contains(.//text(), '#{items[1].send(attr)}')]").click
     end
     find("##{element_id}")["value"].should eq(items[1].send(attr))
     yield(items[1]) if block_given?

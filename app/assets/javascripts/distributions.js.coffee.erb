@@ -1,5 +1,5 @@
 $ ->
-  class self.DistributionViewModel extends ObjectViewModel
+  class self.DistributionViewModel extends CommentableViewModel
     constructor: (object, readonly = false) ->
       super(object, 'distributions', readonly)
       @disable_storekeeper = if object.distribution.storekeeper_id then true else false
@@ -101,11 +101,11 @@ $ ->
         @range(@rangeGenerate())
 
     apply: =>
-      location.hash = "#documents/distributions/#{@object.distribution.id()}/apply"
+      location.hash = "#documents/distributions/#{@object.id()}/apply"
     cancel: =>
-      location.hash = "#documents/distributions/#{@object.distribution.id()}/cancel"
+      location.hash = "#documents/distributions/#{@object.id()}/cancel"
     print: =>
-      location.href = "distributions/#{@object.distribution.id()}.pdf"
+      location.href = "distributions/#{@object.id()}.pdf"
 
     prev: =>
       @page(@page() - 1)

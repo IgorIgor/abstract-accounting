@@ -8,6 +8,8 @@
 # Please see ./COPYING for details
 
 object true
+node(:id) { @waybill.id }
+node(:type) { @waybill.class.name }
 child(@waybill => :waybill) do
   attributes :document_id,
              :distributor_id, :distributor_place_id,

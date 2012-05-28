@@ -9,8 +9,10 @@
 require "waybill"
 
 class DistributionsController < ApplicationController
+  layout 'comments'
+
   def preview
-    render "distributions/preview", :layout => false
+    render 'distributions/preview'
   end
 
   def new

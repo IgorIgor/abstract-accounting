@@ -62,6 +62,39 @@ $ ->
     save: =>
       ajaxRequest('POST', "/#{@route}", ko.mapping.toJS(@object))
 
+  class self.CommentableViewModel extends ObjectViewModel
+    constructor: (object, route, readonly = false)->
+      super(object, route, readonly)
+      @message = ko.observable('')
+      @messages = ko.observableArray([])
+      @getMessages()
+
+    getMessages: =>
+      params =
+        item_id: @object.id
+        item_type: @object.type
+
+      $.getJSON('/comments.json', params, (comments) =>
+        @messages(comments)
+      )
+
+    saveComment: =>
+      params =
+        comment:
+          item_id: @object.id
+          item_type: @object.type
+          message: @message
+
+      $.ajax(
+        type: 'post'
+        url: 'comments'
+        data: params
+        complete: (data) =>
+          if data.responseText == 'success'
+            @message('')
+            @getMessages()
+      )
+
   class self.EditableObjectViewModel extends ObjectViewModel
     constructor: (object, route, readonly = false)->
       super(object, route, readonly)

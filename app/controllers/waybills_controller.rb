@@ -8,8 +8,10 @@
 # Please see ./COPYING for details
 
 class WaybillsController < ApplicationController
+  layout 'comments'
+
   def preview
-    render "waybills/preview", :layout => false
+    render 'waybills/preview'
   end
 
   def new

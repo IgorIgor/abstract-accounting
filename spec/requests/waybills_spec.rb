@@ -239,6 +239,23 @@ feature "waybill", %q{
       page.should have_selector("#inbox[@class='sidebar-selected']")
     end.should change(Waybill, :count).by(1)
 
+    page.find("td[@class='cell-entity']").click
+
+    within('div.comments') do
+      page.should have_content(I18n.t('layouts.comments.comments'))
+
+      fill_in('message', with: 'My first comment')
+      click_button(I18n.t('layouts.comments.save'))
+
+      comment = Waybill.first.comments(:force_update).first
+      within('fieldset fieldset') do
+        page.should have_content(comment.user.entity.tag +
+          " #{I18n.t('layouts.comments.at')} " +
+          comment.created_at.strftime('%Y-%m-%d %H:%M:%S').to_s)
+        within('span') { page.should have_content(comment.message) }
+      end
+    end
+
     PaperTrail.enabled = false
   end
 end

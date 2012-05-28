@@ -87,6 +87,7 @@ Abstract::Application.routes.draw do
       get 'data'
     end
   end
+  resources :comments, only: [:create, :index]
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

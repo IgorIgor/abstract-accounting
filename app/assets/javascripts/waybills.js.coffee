@@ -1,5 +1,5 @@
 $ ->
-  class self.WaybillViewModel extends ObjectViewModel
+  class self.WaybillViewModel extends CommentableViewModel
     constructor: (object, readonly = false) ->
       @disable_storekeeper = if object.waybill.storekeeper_id then true else false
       super(object, 'waybills', readonly)

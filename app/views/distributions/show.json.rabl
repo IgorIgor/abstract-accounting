@@ -8,9 +8,11 @@
 # Please see ./COPYING for details
 
 object true
+node(:id) { @distribution.id }
+node(:type) { @distribution.class.name }
 child(@distribution => :distribution) do
   node(:created) { |distribution| distribution.created.strftime("%m/%d/%Y") }
-  attributes :id, :state,
+  attributes :state,
              :foreman_id, :foreman_place_id,
              :storekeeper_id, :storekeeper_place_id
 end

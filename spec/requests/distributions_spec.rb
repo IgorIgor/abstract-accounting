@@ -71,7 +71,7 @@ feature 'distributions', %q{
       items = Credential.where(document_type: Distribution.name).
           all.collect { |c| c.user.entity }
       check_autocomplete("storekeeper_entity", items, :tag, true)
-      fill_in('storekeeper_entity', :with => items[0].tag[0..1])
+      fill_in('storekeeper_entity', :with => items[0].tag)
       within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
                      "contains(@style, 'display: block')]") do
         all(:xpath, ".//li//a")[0].click

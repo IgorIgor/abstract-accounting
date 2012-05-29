@@ -9,9 +9,9 @@
 
 require 'waybill'
 
-class DistributionItemsValidator < ActiveModel::Validator
+class AllocationItemsValidator < ActiveModel::Validator
   def validate(record)
-    if record.state == Distribution::UNKNOWN
+    if record.state == Allocation::UNKNOWN
       record.errors[:items] << 'must exist' if record.items.empty?
 
       record.items.each { |item|
@@ -27,14 +27,14 @@ class DistributionItemsValidator < ActiveModel::Validator
   end
 end
 
-class Distribution < ActiveRecord::Base
+class Allocation < ActiveRecord::Base
   has_paper_trail
   include Statable
   act_as_statable
 
   validates :foreman, :foreman_place, :storekeeper, :storekeeper_place,
             :created, :state, presence: true
-  validates_with DistributionItemsValidator
+  validates_with AllocationItemsValidator
 
   belongs_to :deal
   belongs_to :foreman, polymorphic: true
@@ -49,13 +49,13 @@ class Distribution < ActiveRecord::Base
 
   def add_item(tag, mu, amount)
     resource = Asset.find_by_tag_and_mu(tag, mu)
-    @items << DistributionItem.new(resource, amount)
+    @items << AllocationItem.new(resource, amount)
   end
 
   def items
     if @items.empty? and !self.deal.nil?
       self.deal.rules.each { |rule|
-        @items << DistributionItem.new(rule.from.take.resource, rule.rate)
+        @items << AllocationItem.new(rule.from.take.resource, rule.rate)
       }
     end
     @items
@@ -70,7 +70,7 @@ class Distribution < ActiveRecord::Base
     if self.new_record?
       shipment = Asset.find_or_create_by_tag('Warehouse Shipment')
       self.deal = Deal.new(entity: self.storekeeper, rate: 1.0, isOffBalance: true,
-        tag: "Distribution shipment ##{Distribution.last.nil? ? 0 : Distribution.last.id}")
+        tag: "Allocation shipment ##{Allocation.last.nil? ? 0 : Allocation.last.id}")
       return false if self.deal.build_give(place: self.storekeeper_place,
                                            resource: shipment).nil?
       return false if self.deal.build_take(place: self.foreman_place,
@@ -95,7 +95,7 @@ class Distribution < ActiveRecord::Base
   end
 end
 
-class DistributionItem < WaybillItem
+class AllocationItem < WaybillItem
   def initialize(resource, amount)
     @resource = resource
     @amount = amount
@@ -115,11 +115,11 @@ class DistributionItem < WaybillItem
       state = rules.sum('rules.rate')
 
       rules = Rule.where('rules.from_id = ?', deal).
-              joins('INNER JOIN distributions ON distributions.deal_id = rules.deal_id').
-              where('distributions.created <= ? AND distributions.state != ?',
-                    date, Distribution::CANCELED)
+              joins('INNER JOIN allocations ON allocations.deal_id = rules.deal_id').
+              where('allocations.created <= ? AND allocations.state != ?',
+                    date, Allocation::CANCELED)
       unless place.nil?
-        rules.where('distributions.place_id = ?', place)
+        rules.where('allocations.place_id = ?', place)
       end
       state - rules.sum('rules.rate')
   end

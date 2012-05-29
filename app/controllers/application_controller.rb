@@ -31,7 +31,7 @@ class ApplicationController < ActionController::Base
   end
 
   def implemented_documents
-    [Waybill.name, Distribution.name]
+    [Waybill.name, Allocation.name]
   end
 
   protected

@@ -2,7 +2,7 @@
   <div class="tabs" data-bind="tabs: { current: 0 }">
   	<ul>
       <li><a><%=t 'views.home.waybill' %></a></li>
-      <li><a><%=t 'views.home.distribution' %></a></li>
+      <li><a><%=t 'views.home.allocation' %></a></li>
   	</ul>
   	<div class="tab">
       <label><%=t 'views.waybills.created_at' %></label>
@@ -50,33 +50,33 @@
              data-bind="value: filter.waybill.storekeeper_place.place.tag"/>
   	</div>
   	<div class="tab">
-      <label><%=t 'views.distributions.created_at' %></label>
-      <input type="text" id="filter-d-created"
-             data-bind="value: filter.distribution.created"/>
+      <label><%=t 'views.allocations.created_at' %></label>
+      <input type="text" id="filter-a-created"
+             data-bind="value: filter.allocation.created"/>
 
       <label><%=t 'views.statable.state' %></label>
-      <select id="filter-d-state" data-bind="value: filter.distribution.state">
+      <select id="filter-a-state" data-bind="value: filter.allocation.state">
         <option value=""></option>
         <option value="1"><%=t 'views.statable.inwork' %></option>
         <option value="2"><%=t 'views.statable.canceled' %></option>
         <option value="3"><%=t 'views.statable.applied' %></option>
       </select>
 
-      <label><%=t 'views.distributions.storekeeper' %></label>
-      <input type="text" id="filter-d-storekeeper"
-             data-bind="value: filter.distribution.storekeeper.entity.tag"/>
+      <label><%=t 'views.allocations.storekeeper' %></label>
+      <input type="text" id="filter-a-storekeeper"
+             data-bind="value: filter.allocation.storekeeper.entity.tag"/>
 
-      <label><%=t 'views.distributions.storekeeper_place' %></label>
-      <input type="text" id="filter-d-storekeeper-place"
-             data-bind="value: filter.distribution.storekeeper_place.place.tag"/>
+      <label><%=t 'views.allocations.storekeeper_place' %></label>
+      <input type="text" id="filter-a-storekeeper-place"
+             data-bind="value: filter.allocation.storekeeper_place.place.tag"/>
 
-      <label><%=t 'views.distributions.foreman' %></label>
-      <input type="text" id="filter-d-foreman"
-             data-bind="value: filter.distribution.foreman.entity.tag"/>
+      <label><%=t 'views.allocations.foreman' %></label>
+      <input type="text" id="filter-a-foreman"
+             data-bind="value: filter.allocation.foreman.entity.tag"/>
 
-      <label><%=t 'views.distributions.foreman_place' %></label>
-      <input type="text" id="filter-d-foreman-place"
-             data-bind="value: filter.distribution.foreman_place.place.tag"/>
+      <label><%=t 'views.allocations.foreman_place' %></label>
+      <input type="text" id="filter-a-foreman-place"
+             data-bind="value: filter.allocation.foreman_place.place.tag"/>
   	</div>
   </div>
   <input type="button" value="<%=t 'views.home.search' %>"

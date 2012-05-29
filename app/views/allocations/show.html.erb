@@ -1,0 +1,53 @@
+<html>
+<head>
+  <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+  <%= wicked_pdf_stylesheet_link_tag 'pdf' %>
+</head>
+<body>
+  <div id='pdf-wrapper'>
+    <ul id='person-list'>
+      <li>
+        <span class='name_element'><%= t 'views.allocations.storekeeper' %>:</span>
+        <span class='description_element'><%= @allocation.storekeeper.tag %></span>
+      </li>
+      <li>
+        <span class='name_element'><%= t 'views.allocations.foreman' %>:</span>
+        <span class='description_element'><%= @allocation.foreman.tag %></span>
+      </li>
+    </ul>
+    <table class='allocations'>
+      <thead>
+        <tr>
+          <th><%= t 'views.allocations.tag' %></th>
+          <th><%= t 'views.allocations.mu' %></th>
+          <th><%= t 'views.allocations.amount' %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @allocation.items.each { |item| %>
+          <tr>
+            <td><%= item.resource.tag %></td>
+            <td><%= item.resource.mu %></td>
+            <td><%= item.amount %></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+    <div class='date-block'>
+      <span class='date-write'><%= @allocation.created.strftime('%Y-%m-%d') %></span>
+    </div>
+    <div id='signature'>
+      <ul>
+        <li>
+          <span class='autograph'>&nbsp;</span>
+          <span class='fio'><%=@allocation.storekeeper.tag %></span>
+        </li>
+        <li>
+          <span class='autograph'>&nbsp;</span>
+          <span class='fio'><%=@allocation.foreman.tag %></span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 en:
   views:
-    distributions:
+    allocations:
       created_at: "Created at"
       storekeeper: "Storekeeper"
       storekeeper_place: "Storekeeper place"
@@ -20,8 +20,8 @@ en:
       apply: "Apply"
       cancel: "Cancel"
       print: "Print"
-      page_title_new: "Create new distribution"
-      page_title_show: "Show distribution"
+      page_title_new: "Create new allocation"
+      page_title_show: "Show allocation"
       by_resource: by resources
       by_waybills: by waybills
       created_at: Created at

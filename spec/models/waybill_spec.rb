@@ -376,13 +376,13 @@ describe Waybill do
     Waybill.in_warehouse.include?(wb2).should be_true
     Waybill.in_warehouse.include?(wb3).should be_true
 
-    ds_moscow = build(:distribution, storekeeper: ivanov,
-                                             storekeeper_place: moscow)
+    ds_moscow = build(:allocation, storekeeper: ivanov,
+                                   storekeeper_place: moscow)
     ds_moscow.add_item('nails', 'pcs', 10)
     ds_moscow.add_item('roof', 'rm', 4)
     ds_moscow.save!
-    ds_minsk = build(:distribution, storekeeper: petrov,
-                                            storekeeper_place: minsk)
+    ds_minsk = build(:allocation, storekeeper: petrov,
+                                  storekeeper_place: minsk)
     ds_minsk.add_item('roof', 'rm', 400)
     ds_minsk.add_item('nails', 'kg', 200)
     ds_minsk.save!
@@ -401,8 +401,8 @@ describe Waybill do
     wbs.include?(wb2).should be_true
     wbs.include?(wb3).should be_false
 
-    ds_moscow = build(:distribution, storekeeper: ivanov,
-                                     storekeeper_place: moscow)
+    ds_moscow = build(:allocation, storekeeper: ivanov,
+                                   storekeeper_place: moscow)
     ds_moscow.add_item('roof', 'rm', 146)
     ds_moscow.add_item('nails', 'pcs', 1890)
     ds_moscow.save!
@@ -418,8 +418,8 @@ describe Waybill do
     wbs.include?(wb2).should be_false
     wbs.include?(wb3).should be_true
 
-    ds_minsk = build(:distribution, storekeeper: petrov,
-                                    storekeeper_place: minsk)
+    ds_minsk = build(:allocation, storekeeper: petrov,
+                                  storekeeper_place: minsk)
     ds_minsk.add_item('roof', 'rm', 100)
     ds_minsk.add_item('nails', 'kg', 100)
     ds_minsk.save!

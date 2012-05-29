@@ -7,9 +7,9 @@
 #
 # Please see ./COPYING for details
 
-class CreateDistributions < ActiveRecord::Migration
+class CreateAllocations < ActiveRecord::Migration
   def change
-    create_table :distributions do |t|
+    create_table :allocations do |t|
       t.references :foreman_place
       t.references :storekeeper_place
       t.references :foreman, :polymorphic => true

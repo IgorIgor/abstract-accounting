@@ -199,8 +199,8 @@ $ ->
               toggleSelect()
 
               viewModel = switch type
-                when 'distributions'
-                  new DistributionViewModel(object)
+                when 'allocations'
+                  new AllocationViewModel(object)
                 when 'waybills'
                   new WaybillViewModel(object)
                 when 'users'
@@ -219,8 +219,8 @@ $ ->
           $.get("#{type}/preview", {}, (form) ->
             $.getJSON("#{type}/#{id}.json", {}, (object) ->
               viewModel = switch type
-                when 'distributions'
-                  new DistributionViewModel(object, true)
+                when 'allocations'
+                  new AllocationViewModel(object, true)
                 when 'waybills'
                   new WaybillViewModel(object, true)
                 when 'users'

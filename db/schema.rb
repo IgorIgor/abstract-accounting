@@ -13,6 +13,18 @@
 
 ActiveRecord::Schema.define(:version => 20120527141104) do
 
+  create_table "allocations", :force => true do |t|
+    t.integer  "foreman_place_id"
+    t.integer  "storekeeper_place_id"
+    t.integer  "foreman_id"
+    t.string   "foreman_type"
+    t.integer  "storekeeper_id"
+    t.string   "storekeeper_type"
+    t.integer  "deal_id"
+    t.datetime "created"
+    t.integer  "state"
+  end
+
   create_table "assets", :force => true do |t|
     t.string  "tag"
     t.integer "detail_id"
@@ -152,18 +164,6 @@ ActiveRecord::Schema.define(:version => 20120527141104) do
 
   add_index "detailed_services", ["mu_id"], :name => "index_detailed_services_on_mu_id"
   add_index "detailed_services", ["tag"], :name => "index_detailed_services_on_tag", :unique => true
-
-  create_table "distributions", :force => true do |t|
-    t.integer  "foreman_place_id"
-    t.integer  "storekeeper_place_id"
-    t.integer  "foreman_id"
-    t.string   "foreman_type"
-    t.integer  "storekeeper_id"
-    t.string   "storekeeper_type"
-    t.integer  "deal_id"
-    t.datetime "created"
-    t.integer  "state"
-  end
 
   create_table "entities", :force => true do |t|
     t.string  "tag"

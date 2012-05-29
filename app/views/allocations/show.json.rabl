@@ -8,19 +8,19 @@
 # Please see ./COPYING for details
 
 object true
-node(:id) { @distribution.id }
-node(:type) { @distribution.class.name }
-child(@distribution => :distribution) do
-  node(:created) { |distribution| distribution.created.strftime("%m/%d/%Y") }
+node(:id) { @allocation.id }
+node(:type) { @allocation.class.name }
+child(@allocation => :allocation) do
+  node(:created) { |allocation| allocation.created.strftime("%m/%d/%Y") }
   attributes :state,
              :foreman_id, :foreman_place_id,
              :storekeeper_id, :storekeeper_place_id
 end
-child(@distribution.storekeeper => :storekeeper) { attributes :tag }
-child(@distribution.storekeeper_place => :storekeeper_place) { attributes :tag }
-child(@distribution.foreman => :foreman) { attributes :tag }
-child(@distribution.foreman_place => :foreman_place) { attributes :tag }
-child(@distribution.items => :items) do
+child(@allocation.storekeeper => :storekeeper) { attributes :tag }
+child(@allocation.storekeeper_place => :storekeeper_place) { attributes :tag }
+child(@allocation.foreman => :foreman) { attributes :tag }
+child(@allocation.foreman_place => :foreman_place) { attributes :tag }
+child(@allocation.items => :items) do
   attributes :amount
   glue :resource do
     attributes :mu, :tag

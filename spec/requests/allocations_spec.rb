@@ -9,16 +9,16 @@
 
 require 'spec_helper'
 
-feature 'distributions', %q{
+feature 'allocation', %q{
   As an user
-  I want to view distributions
+  I want to view allocations
 } do
 
-  scenario 'view distributions', js: true do
+  scenario 'view allocations', js: true do
     per_page = Settings.root.per_page
     create(:chart)
     user = create(:user)
-    credential = create(:credential, user: user, document_type: Distribution.name)
+    credential = create(:credential, user: user, document_type: Allocation.name)
     wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place)
     (per_page + 1).times do |i|
       wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
@@ -29,19 +29,19 @@ feature 'distributions', %q{
     page_login
 
     page.find("#btn_create").click
-    page.find("a[@href='#documents/distributions/new']").click
-    current_hash.should eq('documents/distributions/new')
+    page.find("a[@href='#documents/allocations/new']").click
+    current_hash.should eq('documents/allocations/new')
 
     page.should have_selector("div[@id='container_documents'] form")
-    page.should have_selector("input[@value='#{I18n.t('views.distributions.save')}']")
-    page.should have_selector("input[@value='#{I18n.t('views.distributions.back')}']")
-    page.should have_selector("input[@value='#{I18n.t('views.distributions.draft')}']")
+    page.should have_selector("input[@value='#{I18n.t('views.allocations.save')}']")
+    page.should have_selector("input[@value='#{I18n.t('views.allocations.back')}']")
+    page.should have_selector("input[@value='#{I18n.t('views.allocations.draft')}']")
     page.should have_xpath("//div[@class='paginate' and contains(@style, 'display: none')]")
     page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
 
     page.should have_selector("span[@id='page-title']")
     within('#page-title') do
-      page.should have_content("#{I18n.t('views.distributions.page_title_new')}")
+      page.should have_content("#{I18n.t('views.allocations.page_title_new')}")
     end
 
     page.should have_datepicker("created")
@@ -65,10 +65,10 @@ feature 'distributions', %q{
 
       3.times do
         user = create(:user)
-        create(:credential, user: user, document_type: Distribution.name)
+        create(:credential, user: user, document_type: Allocation.name)
       end
       3.times { create(:user) }
-      items = Credential.where(document_type: Distribution.name).
+      items = Credential.where(document_type: Allocation.name).
           all.collect { |c| c.user.entity }
       check_autocomplete("storekeeper_entity", items, :tag, true)
       fill_in('storekeeper_entity', :with => items[0].tag)
@@ -79,7 +79,7 @@ feature 'distributions', %q{
       find("#storekeeper_entity")[:value].should eq(items[0].tag)
       find("#storekeeper_place")[:value].should eq(
         User.where(entity_id: items[0].id).first.
-          credentials.where(document_type: Distribution.name).first.place.tag)
+          credentials.where(document_type: Allocation.name).first.place.tag)
 
       items = Entity.all(order: :tag, limit: 5)
       check_autocomplete("foreman_entity", items, :tag)
@@ -128,7 +128,7 @@ feature 'distributions', %q{
       end
 
       (0..count-1).each do |i|
-        page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
+        page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
         if i < count - 1
           if i < count - per_page
             page.should have_selector('#available-resources tbody tr', count: per_page)
@@ -169,7 +169,7 @@ feature 'distributions', %q{
           tr.should have_content(w.storekeeper_place.tag)
         end
 
-        page.find("td[@class='distribution-tree-actions-by-wb']").click
+        page.find("td[@class='allocation-tree-actions-by-wb']").click
         within('table') do
           wbs[0].items.each_with_index do |item, idx|
             tr = page.all('tbody tr')[idx]
@@ -192,7 +192,7 @@ feature 'distributions', %q{
       page.should have_no_selector('#available-resources-by-wb')
 
       (0..count-1).each do |i|
-        page.find("#selected-resources tbody tr td[@class='distribution-actions'] span").click
+        page.find("#selected-resources tbody tr td[@class='allocation-actions'] span").click
         if i < count-1
           page.should have_selector('#selected-resources tbody tr', count: count-i-1)
           page.should have_selector('#available-resources tbody tr', count: 1+i)
@@ -221,7 +221,7 @@ feature 'distributions', %q{
              tr.has_content?(wb.distributor.name) &&
              tr.has_content?(wb.storekeeper.tag) &&
              tr.has_content?(wb.storekeeper_place.tag)
-            tr.find("td[@class='distribution-actions-by-wb'] span").click
+            tr.find("td[@class='allocation-actions-by-wb'] span").click
           end
         end
         within('tbody') do
@@ -258,7 +258,7 @@ feature 'distributions', %q{
              tr.has_content?(wb3.distributor.name) &&
              tr.has_content?(wb3.storekeeper.tag) &&
              tr.has_content?(wb3.storekeeper_place.tag)
-            tr.find("td[@class='distribution-actions-by-wb'] span").click
+            tr.find("td[@class='allocation-actions-by-wb'] span").click
           end
         end
       end
@@ -275,12 +275,12 @@ feature 'distributions', %q{
     end
   end
 
-  scenario 'test distributions save', js: true do
+  scenario 'test allocations save', js: true do
     PaperTrail.enabled = true
 
     create(:chart)
     user = create(:user)
-    credential = create(:credential, user: user, document_type: Distribution.name)
+    credential = create(:credential, user: user, document_type: Allocation.name)
     wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place,
                          created: DateTime.current.change(year: 2011))
     wb.add_item('roof', 'm2', 12, 100.0)
@@ -291,20 +291,20 @@ feature 'distributions', %q{
     page_login
 
     page.find("#btn_create").click
-    page.find("a[@href='#documents/distributions/new']").click
+    page.find("a[@href='#documents/allocations/new']").click
 
-    click_button(I18n.t('views.distributions.save'))
+    click_button(I18n.t('views.allocations.save'))
     within("#container_documents form") do
       find("#container_notification").visible?.should be_true
       within("#container_notification") do
         page.should have_content(
-          "#{I18n.t('views.distributions.created_at')} : #{I18n.t('errors.messages.blank')}")
+          "#{I18n.t('views.allocations.created_at')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content(
-          "#{I18n.t('views.distributions.storekeeper')} : #{I18n.t('errors.messages.blank')}")
+          "#{I18n.t('views.allocations.storekeeper')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content(
-          "#{I18n.t('views.distributions.foreman')} : #{I18n.t('errors.messages.blank')}")
+          "#{I18n.t('views.allocations.foreman')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content(
-          "#{I18n.t('views.distributions.foreman_place')} : #{I18n.t('errors.messages.blank')}")
+          "#{I18n.t('views.allocations.foreman_place')} : #{I18n.t('errors.messages.blank')}")
       end
     end
 
@@ -317,14 +317,14 @@ feature 'distributions', %q{
     end
 
     within("#container_documents") do
-      page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
-      page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
+      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
+      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
     end
 
     lambda {
-      click_button(I18n.t('views.distributions.save'))
+      click_button(I18n.t('views.allocations.save'))
       page.should have_selector("#inbox[@class='sidebar-selected']")
-    }.should change(Distribution, :count).by(1)
+    }.should change(Allocation, :count).by(1)
 
     PaperTrail.enabled = false
   end
@@ -342,12 +342,12 @@ feature 'distributions', %q{
     password = "password"
     user = create(:user, password: password, entity: wb.storekeeper)
     create(:credential, place: wb.storekeeper_place, user: user,
-                        document_type: Distribution.name)
+                        document_type: Allocation.name)
 
     page_login user.email, password
 
     page.find("#btn_create").click
-    page.find("a[@href='#documents/distributions/new']").click
+    page.find("a[@href='#documents/allocations/new']").click
 
     within("#container_documents form") do
       page.datepicker("created").prev_month.day(10)
@@ -360,37 +360,19 @@ feature 'distributions', %q{
     end
 
     within("#container_documents") do
-      page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
-      page.find("#available-resources tbody tr td[@class='distribution-actions'] span").click
+      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
+      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
     end
 
     lambda {
-      click_button(I18n.t('views.distributions.save'))
+      click_button(I18n.t('views.allocations.save'))
       page.should have_selector("#inbox[@class='sidebar-selected']")
-    }.should change(Distribution, :count).by(1)
-
-    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      '#{Distribution.name} - #{user.entity.tag}')]").click
-
-    within('div.comments') do
-      page.should have_content(I18n.t('layouts.comments.comments'))
-
-      fill_in('message', with: 'My first comment')
-      click_button(I18n.t('layouts.comments.save'))
-
-      comment = Distribution.first.comments(:force_update).first
-      within('fieldset fieldset') do
-        page.should have_content(comment.user.entity.tag +
-          " #{I18n.t('layouts.comments.at')} " +
-          comment.created_at.strftime('%Y-%m-%d %H:%M:%S').to_s)
-        within('span') { page.should have_content(comment.message) }
-      end
-    end
+    }.should change(Allocation, :count).by(1)
 
     PaperTrail.enabled = false
   end
 
-  scenario 'show distributions', js: true do
+  scenario 'show allocations', js: true do
     PaperTrail.enabled = true
 
     create(:chart)
@@ -400,8 +382,8 @@ feature 'distributions', %q{
     }
     wb.save!
     wb.apply
-    ds = build(:distribution, storekeeper: wb.storekeeper,
-                                      storekeeper_place: wb.storekeeper_place)
+    ds = build(:allocation, storekeeper: wb.storekeeper,
+                            storekeeper_place: wb.storekeeper_place)
     (0..4).each { |i|
       ds.add_item("resource##{i}", "mu#{i}", 10+i)
     }
@@ -410,13 +392,13 @@ feature 'distributions', %q{
     page_login
 
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Distribution - #{wb.storekeeper.tag}')]").click
-    current_hash.should eq("documents/distributions/#{ds.id}")
+      'Allocation - #{wb.storekeeper.tag}')]").click
+    current_hash.should eq("documents/allocations/#{ds.id}")
 
     page.should have_selector("span[@id='page-title']")
     within('#page-title') do
       page.should have_content(
-        "#{I18n.t('views.distributions.page_title_show')}")
+        "#{I18n.t('views.allocations.page_title_show')}")
     end
 
     within("#container_documents form") do
@@ -447,7 +429,7 @@ feature 'distributions', %q{
     PaperTrail.enabled = false
   end
 
-  scenario 'applying distributions', js: true do
+  scenario 'applying allocations', js: true do
     PaperTrail.enabled = true
 
     create(:chart)
@@ -456,25 +438,25 @@ feature 'distributions', %q{
     wb.save!
     wb.apply
 
-    ds = build(:distribution, storekeeper: wb.storekeeper,
-                       storekeeper_place: wb.storekeeper_place)
+    ds = build(:allocation, storekeeper: wb.storekeeper,
+                            storekeeper_place: wb.storekeeper_place)
     ds.add_item("test resource", "test mu", 10)
     ds.save!
 
     page_login
+
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Distribution - #{wb.storekeeper.tag}')]").click
-    click_button(I18n.t('views.distributions.apply'))
-    page.should have_selector("#inbox[@class='sidebar-selected']")
+      'Allocation - #{wb.storekeeper.tag}')]").click
+      click_button(I18n.t('views.allocations.apply'))
+      page.should have_selector("#inbox[@class='sidebar-selected']")
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Distribution - #{wb.storekeeper.tag}')]").click
-    page.should have_xpath("//div[@class='actions']//" +
-      "input[@value='#{I18n.t('views.distributions.apply')}'" +
-      " and contains(@style, 'display: none')]")
+      'Allocation - #{wb.storekeeper.tag}')]").click
+    page.should_not have_selector("div[@class='actions'] input[@value='#{I18n.t('views.allocations.apply')}']")
+
     PaperTrail.enabled = false
   end
 
-  scenario 'canceling distributions', js: true do
+  scenario 'canceling allocations', js: true do
     PaperTrail.enabled = true
 
     create(:chart)
@@ -483,21 +465,20 @@ feature 'distributions', %q{
     wb.save!
     wb.apply
 
-    ds = build(:distribution, storekeeper: wb.storekeeper,
-                       storekeeper_place: wb.storekeeper_place)
+    ds = build(:allocation, storekeeper: wb.storekeeper,
+                            storekeeper_place: wb.storekeeper_place)
     ds.add_item("test resource", "test mu", 10)
     ds.save!
 
     page_login
+
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Distribution - #{wb.storekeeper.tag}')]").click
-    click_button(I18n.t('views.distributions.cancel'))
+      'Allocation - #{wb.storekeeper.tag}')]").click
+    click_button(I18n.t('views.allocations.cancel'))
     page.should have_selector("#inbox[@class='sidebar-selected']")
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Distribution - #{wb.storekeeper.tag}')]").click
-    page.should have_xpath("//div[@class='actions']//" +
-      "input[@value='#{I18n.t('views.distributions.apply')}'" +
-      " and contains(@style, 'display: none')]")
+      'Allocation - #{wb.storekeeper.tag}')]").click
+    page.should_not have_selector("div[@class='actions'] input[@value='#{I18n.t('views.allocations.cancel')}']")
     PaperTrail.enabled = false
   end
 
@@ -510,17 +491,17 @@ feature 'distributions', %q{
     wb.save!
     wb.apply
 
-    ds = build(:distribution, storekeeper: wb.storekeeper,
-                       storekeeper_place: wb.storekeeper_place)
+    ds = build(:allocation, storekeeper: wb.storekeeper,
+                            storekeeper_place: wb.storekeeper_place)
     ds.add_item("test resource", "test mu", 10)
     ds.save!
 
     page_login
 
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-                      'Distribution - #{wb.storekeeper.tag}')]").click
+                      'Allocation - #{wb.storekeeper.tag}')]").click
 
-    visit("#{distribution_path(ds)}.html")
+    visit("#{allocation_path(ds)}.html")
 
     page.should have_selector("span [@class='description_element']")
 
@@ -529,7 +510,7 @@ feature 'distributions', %q{
       page.should have_content("#{ds.foreman.tag}")
     end
 
-    within("table[@class='distributions'] tbody tr") do
+    within("table[@class='allocations'] tbody tr") do
       page.should have_content("test resource")
       page.should have_content("test mu")
       page.should have_content("10")

@@ -9,7 +9,7 @@
 
 require 'spec_helper'
 
-describe Distribution do
+describe Allocation do
   before(:all) do
     create(:chart)
     @wb = build(:waybill)
@@ -32,23 +32,23 @@ describe Distribution do
     should belong_to :storekeeper
     should belong_to(:foreman_place).class_name(Place)
     should belong_to(:storekeeper_place).class_name(Place)
-    should have_many Distribution.versions_association_name
+    should have_many Allocation.versions_association_name
     should have_many :comments
   end
 
   it 'should create items' do
-    db = build(:distribution, storekeeper: @wb.storekeeper,
-                              storekeeper_place: @wb.storekeeper_place)
+    db = build(:allocation, storekeeper: @wb.storekeeper,
+                            storekeeper_place: @wb.storekeeper_place)
     db.add_item('nails', 'pcs', 500)
     db.add_item('nails', 'kg', 2)
     db.items.count.should eq(2)
-    lambda { db.save } .should change(Distribution, :count).by(1)
+    lambda { db.save } .should change(Allocation, :count).by(1)
     db.items[0].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'pcs').first)
     db.items[0].amount.should eq(500)
     db.items[1].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'kg').first)
     db.items[1].amount.should eq(2)
 
-    db = Distribution.find(db)
+    db = Allocation.find(db)
     db.items.count.should eq(2)
     db.items[0].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'pcs').first)
     db.items[0].amount.should eq(500)
@@ -57,8 +57,8 @@ describe Distribution do
   end
 
   it 'should create deals' do
-    db = build(:distribution, storekeeper: @wb.storekeeper,
-                              storekeeper_place: @wb.storekeeper_place)
+    db = build(:allocation, storekeeper: @wb.storekeeper,
+                            storekeeper_place: @wb.storekeeper_place)
     db.add_item('roof', 'm2', 200)
     lambda { db.save } .should change(Deal, :count).by(2)
 
@@ -84,8 +84,8 @@ describe Distribution do
     wb.add_item('hammer', 'th', 500, 100.0)
     lambda { wb.save; wb.apply } .should change(Deal, :count).by(3)
 
-    db = build(:distribution, storekeeper: db.storekeeper,
-                              storekeeper_place: db.storekeeper_place)
+    db = build(:allocation, storekeeper: db.storekeeper,
+                            storekeeper_place: db.storekeeper_place)
     db.add_item('roof', 'm2', 20)
     db.add_item('nails', 'pcs', 10)
     db.add_item('hammer', 'th', 50)
@@ -109,8 +109,8 @@ describe Distribution do
   end
 
   it 'should create rules' do
-    db = build(:distribution, storekeeper: @wb.storekeeper,
-                              storekeeper_place: @wb.storekeeper_place)
+    db = build(:allocation, storekeeper: @wb.storekeeper,
+                            storekeeper_place: @wb.storekeeper_place)
     db.add_item('roof', 'm2', 200)
     lambda { db.save } .should change(Rule, :count).by(1)
 
@@ -121,8 +121,8 @@ describe Distribution do
     db.items.first.warehouse_deal(nil, db.foreman_place,
       db.foreman).should eq(rule.to)
 
-    db = build(:distribution, storekeeper: db.storekeeper,
-                              storekeeper_place: db.storekeeper_place)
+    db = build(:allocation, storekeeper: db.storekeeper,
+                            storekeeper_place: db.storekeeper_place)
     db.add_item('roof', 'm2', 150)
     db.add_item('nails', 'pcs', 300)
     lambda { db.save } .should change(Rule, :count).by(2)
@@ -143,31 +143,31 @@ describe Distribution do
   end
 
   it 'should change state' do
-    db = build(:distribution, storekeeper: @wb.storekeeper,
-                              storekeeper_place: @wb.storekeeper_place)
+    db = build(:allocation, storekeeper: @wb.storekeeper,
+                            storekeeper_place: @wb.storekeeper_place)
     db.add_item('roof', 'm2', 5)
-    db.state.should eq(Distribution::UNKNOWN)
+    db.state.should eq(Allocation::UNKNOWN)
 
     db.cancel.should be_false
 
     db.save!
-    db.state.should eq(Distribution::INWORK)
+    db.state.should eq(Allocation::INWORK)
 
-    db = Distribution.find(db)
+    db = Allocation.find(db)
     db.cancel.should be_true
-    db.state.should eq(Distribution::CANCELED)
+    db.state.should eq(Allocation::CANCELED)
 
-    db = build(:distribution, storekeeper: @wb.storekeeper,
-                              storekeeper_place: @wb.storekeeper_place)
+    db = build(:allocation, storekeeper: @wb.storekeeper,
+                            storekeeper_place: @wb.storekeeper_place)
     db.add_item('roof', 'm2', 1)
     db.save!
     db.apply.should be_true
-    db.state.should eq(Distribution::APPLIED)
+    db.state.should eq(Allocation::APPLIED)
   end
 
   it 'should create facts by rules after apply' do
-    db = build(:distribution, storekeeper: @wb.storekeeper,
-                              storekeeper_place: @wb.storekeeper_place)
+    db = build(:allocation, storekeeper: @wb.storekeeper,
+                            storekeeper_place: @wb.storekeeper_place)
     db.add_item('roof', 'm2', 5)
     db.add_item('nails', 'pcs', 10)
 
@@ -187,7 +187,7 @@ describe Distribution do
   end
 end
 
-describe DistributionItemsValidator do
+describe AllocationItemsValidator do
   it 'should not validate' do
     create(:chart)
     wb = build(:waybill)
@@ -196,8 +196,8 @@ describe DistributionItemsValidator do
     wb.save!
     wb.apply
 
-    db = build(:distribution, storekeeper: wb.storekeeper,
-                              storekeeper_place: wb.storekeeper_place)
+    db = build(:allocation, storekeeper: wb.storekeeper,
+                            storekeeper_place: wb.storekeeper_place)
     db.add_item('', 'm2', 1)
     db.should be_invalid
     db.items.clear
@@ -211,8 +211,8 @@ describe DistributionItemsValidator do
     db.add_item('roof', 'm2', 300)
     db.save!
 
-    db2 = build(:distribution, storekeeper: wb.storekeeper,
-                               storekeeper_place: wb.storekeeper_place)
+    db2 = build(:allocation, storekeeper: wb.storekeeper,
+                             storekeeper_place: wb.storekeeper_place)
     db2.add_item('roof', 'm2', 201)
     db2.should be_invalid
 

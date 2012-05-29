@@ -1,6 +1,6 @@
 ru:
   views:
-    distributions:
+    allocations:
       created_at: "Дата создания"
       storekeeper: "Кладовщик"
       storekeeper_place: "Место кладовщика"

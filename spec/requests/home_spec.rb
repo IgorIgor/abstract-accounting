@@ -18,7 +18,7 @@ feature "single page application", %q{
     PaperTrail.enabled = true
     create(:chart)
     @waybills = []
-    @distributions = []
+    @allocations = []
     @per_page = Settings.root.per_page
     (0..(@per_page/2).floor).each do
       wb = build(:waybill)
@@ -27,11 +27,11 @@ feature "single page application", %q{
       wb.apply
       @waybills << wb
 
-      ds = build(:distribution, storekeeper: wb.storekeeper,
-                                        storekeeper_place: wb.storekeeper_place)
+      ds = build(:allocation, storekeeper: wb.storekeeper,
+                              storekeeper_place: wb.storekeeper_place)
       ds.add_item('roof', 'm2', 1)
       ds.save!
-      @distributions << ds
+      @allocations << ds
     end
   end
 
@@ -65,7 +65,7 @@ feature "single page application", %q{
     page.find("#container_documents").click
     page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
 
-    versions = VersionEx.lasts.by_type([ Waybill.name, Distribution.name ]).
+    versions = VersionEx.lasts.by_type([ Waybill.name, Allocation.name ]).
       paginate(page: 1, per_page: @per_page).
       all(include: [item: [:versions, :storekeeper]])
 
@@ -80,7 +80,7 @@ feature "single page application", %q{
       end
     end
 
-    items_count = @waybills.count + @distributions.count
+    items_count = @waybills.count + @allocations.count
 
     page.all("div[@class='paginate']").each do |control|
       within("span[@data-bind='text: range']") do
@@ -101,7 +101,7 @@ feature "single page application", %q{
 
     click_button('>')
 
-    versions = VersionEx.lasts.by_type([ Waybill.name, Distribution.name ]).
+    versions = VersionEx.lasts.by_type([ Waybill.name, Allocation.name ]).
       paginate(page: 2, per_page: @per_page).
       all(include: [item: [:versions, :storekeeper]])
 
@@ -181,23 +181,23 @@ feature "single page application", %q{
 
     within('#filter-area') do
       page.find(:xpath, "//div[@class='tabs']//ul//li//a[contains(.//text(),
-            '#{I18n.t('views.home.distribution')}')]").click
+            '#{I18n.t('views.home.allocation')}')]").click
 
-      page.should have_content(I18n.t('views.distributions.created_at'))
+      page.should have_content(I18n.t('views.allocations.created_at'))
       page.should have_content(I18n.t('views.statable.state'))
-      page.should have_content(I18n.t('views.distributions.storekeeper'))
-      page.should have_content(I18n.t('views.distributions.storekeeper_place'))
-      page.should have_content(I18n.t('views.distributions.foreman'))
-      page.should have_content(I18n.t('views.distributions.foreman_place'))
+      page.should have_content(I18n.t('views.allocations.storekeeper'))
+      page.should have_content(I18n.t('views.allocations.storekeeper_place'))
+      page.should have_content(I18n.t('views.allocations.foreman'))
+      page.should have_content(I18n.t('views.allocations.foreman_place'))
 
-      fill_in('filter-d-created', with: '2')
-      select(I18n.t('views.statable.inwork'), from: 'filter-d-state')
+      fill_in('filter-a-created', with: '2')
+      select(I18n.t('views.statable.inwork'), from: 'filter-a-state')
 
-      fill_in('filter-d-storekeeper', with: @distributions[0].storekeeper.tag)
-      fill_in('filter-d-storekeeper-place', with: @distributions[0].
+      fill_in('filter-a-storekeeper', with: @allocations[0].storekeeper.tag)
+      fill_in('filter-a-storekeeper-place', with: @allocations[0].
                                                     storekeeper_place.tag)
-      fill_in('filter-d-foreman', with: @distributions[0].foreman.tag)
-      fill_in('filter-d-foreman-place', with: @distributions[0].
+      fill_in('filter-a-foreman', with: @allocations[0].foreman.tag)
+      fill_in('filter-a-foreman-place', with: @allocations[0].
                                                 foreman_place.tag)
 
       click_button(I18n.t('views.home.search'))
@@ -205,18 +205,18 @@ feature "single page application", %q{
 
     within('#container_documents table') do
       page.should have_selector('tbody tr', count: 2)
-      page.should have_content(@distributions[0].class.name)
-      page.should have_content(@distributions[0].storekeeper.tag)
-      page.should have_content(@distributions[0].versions.first.created_at.
+      page.should have_content(@allocations[0].class.name)
+      page.should have_content(@allocations[0].storekeeper.tag)
+      page.should have_content(@allocations[0].versions.first.created_at.
                                  strftime('%Y-%m-%d'))
-      page.should have_content(@distributions[0].versions.last.created_at.
+      page.should have_content(@allocations[0].versions.last.created_at.
                                  strftime('%Y-%m-%d'))
     end
 
     click_link I18n.t('views.home.logout')
 
     user = create(:user)
-    VersionEx.where{item_type.in([Waybill.name, Distribution.name])}.delete_all
+    VersionEx.where{item_type.in([Waybill.name, Allocation.name])}.delete_all
     page_login
 
     within('#container_documents table') do
@@ -262,8 +262,8 @@ feature "single page application", %q{
       wb.add_item('roof', 'm2', 2, 10.0)
       wb.save!
 
-      ds = build(:distribution, storekeeper: wb.storekeeper,
-                                storekeeper_place: wb.storekeeper_place)
+      ds = build(:allocation, storekeeper: wb.storekeeper,
+                              storekeeper_place: wb.storekeeper_place)
       ds.add_item('roof', 'm2', 1)
       ds.save!
     end
@@ -283,11 +283,11 @@ feature "single page application", %q{
         page.should have_content(version.item.versions.last.created_at.
                                      strftime('%Y-%m-%d'))
       end
-      page.should_not have_content(Distribution.name)
+      page.should_not have_content(Allocation.name)
     end
     click_link I18n.t('views.home.logout')
 
-    credential = create(:credential, user: user, document_type: Distribution.name)
+    credential = create(:credential, user: user, document_type: Allocation.name)
 
     page_login(user.email, password)
     within(:xpath, "//ul[@id='documents_list']") do
@@ -298,7 +298,7 @@ feature "single page application", %q{
     end
     page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
     within('#container_documents table tbody') do
-      page.should_not have_content(Distribution.name)
+      page.should_not have_content(Allocation.name)
     end
     click_link I18n.t('views.home.logout')
 

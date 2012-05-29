@@ -81,8 +81,8 @@ describe VersionEx do
         wb.add_item('roof', 'm2', 2, 10.0)
         wb.save!
 
-        ds = build(:distribution, storekeeper: wb.storekeeper,
-                                  storekeeper_place: wb.storekeeper_place)
+        ds = build(:allocation, storekeeper: wb.storekeeper,
+                                storekeeper_place: wb.storekeeper_place)
         ds.add_item('roof', 'm2', 1)
         ds.save!
       end
@@ -103,7 +103,7 @@ describe VersionEx do
                 (item.storekeeper_place_id == credential.place_id)) |
                 (whodunnit == user.id.to_s)}.all
       create(:credential, user: user,
-          place: credential.place, document_type: Distribution.name)
+          place: credential.place, document_type: Allocation.name)
       VersionEx.by_user(user).all.should =~ VersionEx.
           by_type([Entity.name, Waybill.name]).
           joins{item(Waybill).outer}.
@@ -115,19 +115,19 @@ describe VersionEx do
         wb.add_item('roof', 'm2', 2, 10.0)
         wb.save!
 
-        ds = build(:distribution, storekeeper: wb.storekeeper,
-                                  storekeeper_place: wb.storekeeper_place)
+        ds = build(:allocation, storekeeper: wb.storekeeper,
+                                storekeeper_place: wb.storekeeper_place)
         ds.add_item('roof', 'm2', 1)
         ds.save!
       end
       VersionEx.by_user(user).all.should =~ VersionEx.
-          by_type([Entity.name, Waybill.name, Distribution.name]).
+          by_type([Entity.name, Waybill.name, Allocation.name]).
           where{id.in(
             Version.joins{item(Waybill)}.
                     where{(item.storekeeper_id == user.entity_id) &
                           (item.storekeeper_place_id == credential.place_id)}.select{id}
           ) | id.in(
-            Version.joins{item(Distribution)}.
+            Version.joins{item(Allocation)}.
                     where{(item.storekeeper_id == user.entity_id) &
                           (item.storekeeper_place_id == credential.place_id)}.select{id}
           ) | (whodunnit == user.id.to_s)}
@@ -169,7 +169,7 @@ describe VersionEx do
   describe '#filter' do
     it 'should filtered records' do
       create(:chart) unless Chart.count > 0
-      Version.where{item_type.in([Waybill.name, Distribution.name])}.delete_all
+      Version.where{item_type.in([Waybill.name, Allocation.name])}.delete_all
       items = []
       (0..2).each do |i|
         st = i < 2 ? create(:entity, tag: "storekeeper#{i}") :
@@ -189,7 +189,7 @@ describe VersionEx do
 
         fr = create(:entity, tag: "foreman#{i}")
         frp = create(:place, tag: "fr_place#{i}")
-        dsn = build(:distribution, storekeeper: st,
+        dsn = build(:allocation, storekeeper: st,
                 storekeeper_place: stp, foreman: fr, foreman_place: frp)
         dsn.add_item('roof', 'm2', 1)
         dsn.save!
@@ -264,49 +264,49 @@ describe VersionEx do
         .eql?(filtered).should be_true
 
       VersionEx.filter(waybill: { created: Date.today.to_s[0,2] },
-                       distribution: { created: Date.today.to_s[0,2] })
+                       allocation: { created: Date.today.to_s[0,2] })
         .count.should eq(items.count)
 
       filtered = items.select { |i| (i.kind_of?(Waybill) &&
-        i.storekeeper == st) || (i.kind_of?(Distribution) && i.storekeeper == st) }
+        i.storekeeper == st) || (i.kind_of?(Allocation) && i.storekeeper == st) }
       VersionEx.filter(waybill: {
                         storekeeper: {
                           entity: { tag: st.tag}},
                         created: Date.today.to_s[0,2]},
-                       distribution: {
+                       allocation: {
                         storekeeper: {
                           entity: { tag: st.tag}},
                         created: Date.today.to_s[0,2] }).map { |v| v.item }
         .eql?(filtered).should be_true
 
-      filtered = items.select { |i| i.kind_of?(Distribution) && i.state == 1}
-      VersionEx.filter(distribution: { state: '1' })
+      filtered = items.select { |i| i.kind_of?(Allocation) && i.state == 1}
+      VersionEx.filter(allocation: { state: '1' })
         .map { |v| v.item } .eql?(filtered).should be_true
 
-      filtered = items.select { |i| i.kind_of?(Distribution) &&
+      filtered = items.select { |i| i.kind_of?(Allocation) &&
                                     i.storekeeper == st}
-      VersionEx.filter(distribution: {
+      VersionEx.filter(allocation: {
                         storekeeper: {
                           entity: { tag: 'storekeeper1'}}}).map { |v| v.item }
         .eql?(filtered).should be_true
 
-      filtered = items.select { |i| i.kind_of?(Distribution) &&
+      filtered = items.select { |i| i.kind_of?(Allocation) &&
                                     i.storekeeper_place == stp}
-      VersionEx.filter(distribution: {
+      VersionEx.filter(allocation: {
                         storekeeper_place: {
                           place: { tag: 'sk_place1'}}}).map { |v| v.item }
         .eql?(filtered).should be_true
 
-      filtered = items.select { |i| i.kind_of?(Distribution) &&
+      filtered = items.select { |i| i.kind_of?(Allocation) &&
                                     i.foreman == fr}
-      VersionEx.filter(distribution: {
+      VersionEx.filter(allocation: {
                         foreman: {
                           entity: { tag: 'foreman1'}}}).map { |v| v.item }
         .eql?(filtered).should be_true
 
-      filtered = items.select { |i| i.kind_of?(Distribution) &&
+      filtered = items.select { |i| i.kind_of?(Allocation) &&
                                     i.foreman_place == frp}
-      VersionEx.filter(distribution: {
+      VersionEx.filter(allocation: {
                         foreman_place: {
                           place: { tag: 'fr_place1'}}}).map { |v| v.item }
         .eql?(filtered).should be_true

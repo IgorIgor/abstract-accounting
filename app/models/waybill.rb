@@ -99,8 +99,8 @@ class Waybill < ActiveRecord::Base
             INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
             INNER JOIN assets ON assets.id = terms.resource_id
             INNER JOIN rules AS ds_rule ON ds_rule.from_id = rules.to_id
-            INNER JOIN distributions ON distributions.deal_id = ds_rule.deal_id
-                                     AND distributions.state = 1
+            INNER JOIN allocations ON allocations.deal_id = ds_rule.deal_id
+                                     AND allocations.state = 1
           #{condition}
           GROUP BY waybills.id, rules.to_id )
         GROUP BY id, asset_id

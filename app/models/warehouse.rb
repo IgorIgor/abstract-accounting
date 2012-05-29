@@ -85,12 +85,12 @@ class Warehouse
           SELECT places.tag as place, assets.id as id, assets.tag as tag,
                  0.0 as amount, SUM(rules.rate) as exp_amount, assets.mu as mu
           FROM rules
-            INNER JOIN distributions ON distributions.deal_id = rules.deal_id
+            INNER JOIN allocations ON allocations.deal_id = rules.deal_id
             INNER JOIN states ON states.deal_id = rules.from_id
             INNER JOIN terms ON terms.deal_id = rules.from_id AND terms.side = 'f'
             INNER JOIN assets ON assets.id = terms.resource_id
             INNER JOIN places ON places.id = terms.place_id
-          WHERE distributions.state = 1 AND states.paid is NULL
+          WHERE allocations.state = 1 AND states.paid is NULL
           GROUP BY places.id, terms.resource_id
         )
         GROUP BY place, tag, mu

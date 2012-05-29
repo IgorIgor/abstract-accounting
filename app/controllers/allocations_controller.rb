@@ -8,74 +8,74 @@
 # Please see ./COPYING for details
 require "waybill"
 
-class DistributionsController < ApplicationController
+class AllocationsController < ApplicationController
   layout 'comments'
 
   def preview
-    render 'distributions/preview'
+    render 'allocations/preview'
   end
 
   def new
-    @distribution = Distribution.new
+    @allocation = Allocation.new
     unless current_user.root?
-      credential = current_user.credentials.where(document_type: Distribution.name).first
+      credential = current_user.credentials.where(document_type: Allocation.name).first
       if credential
-        @distribution.storekeeper = current_user.entity
-        @distribution.storekeeper_place = credential.place
+        @allocation.storekeeper = current_user.entity
+        @allocation.storekeeper_place = credential.place
       end
     end
   end
 
   def create
-    distribution = nil
+    allocation = nil
     begin
-      Distribution.transaction do
+      Allocation.transaction do
         Chart.create!(:currency => Money.create!(:alpha_code => "RUB",
                                                  :num_code => 222)) unless Chart.count > 0
-        params[:distribution][:storekeeper_type] = "Entity"
-        params[:distribution][:foreman_type] = "Entity"
-        params[:distribution].delete(:state) if params[:distribution].has_key?(:state)
-        distribution = Distribution.new(params[:distribution])
-        if distribution.storekeeper_id.zero?
+        params[:allocation][:storekeeper_type] = "Entity"
+        params[:allocation][:foreman_type] = "Entity"
+        params[:allocation].delete(:state) if params[:allocation].has_key?(:state)
+        allocation = Allocation.new(params[:allocation])
+        if allocation.storekeeper_id.zero?
           storekeeper = Entity.find_or_create_by_tag(params[:storekeeper])
           storekeeper.save!
-          distribution.storekeeper = storekeeper
+          allocation.storekeeper = storekeeper
         end
-        if distribution.storekeeper_place_id.zero?
+        if allocation.storekeeper_place_id.zero?
           storekeeper_place = Place.find_or_create_by_tag(params[:storekeeper_place])
           storekeeper_place.save!
-          distribution.storekeeper_place = storekeeper_place
+          allocation.storekeeper_place = storekeeper_place
         end
-        if distribution.foreman_id.zero?
+        if allocation.foreman_id.zero?
           foreman = Entity.find_or_create_by_tag(params[:foreman])
           foreman.save!
-          distribution.foreman = foreman
+          allocation.foreman = foreman
         end
-        if distribution.foreman_place_id.zero?
+        if allocation.foreman_place_id.zero?
           foreman_place = Place.find_or_create_by_tag(params[:foreman_place])
           foreman_place.save!
-          distribution.foreman_place = foreman_place
+          allocation.foreman_place = foreman_place
         end
         params[:items].each_value { |item|
-          distribution.add_item(item[:tag], item[:mu], item[:amount].to_f)
+          allocation.add_item(item[:tag], item[:mu], item[:amount].to_f)
         } if params[:items]
-        distribution.save!
+        allocation.save!
         render :text => "success"
       end
     rescue
-      render json: distribution.errors.messages
+      render json: allocation.errors.messages
     end
   end
 
   def show
-    @distribution = Distribution.find(params[:id])
+    @allocation = Allocation.find(params[:id])
 
     respond_to { |format|
       format.html { render :show, layout: false }
       format.json
       format.pdf {
-        render pdf: 'distribution',
-               template: 'distributions/show.html.erb',
+        render pdf: 'allocation',
+               template: 'allocations/show.html.erb',
                encoding: 'utf-8',
                layout: false
       }
@@ -83,20 +83,20 @@ class DistributionsController < ApplicationController
   end
 
   def apply
-    distribution = Distribution.find(params[:id])
-    if distribution.apply
+    allocation = Allocation.find(params[:id])
+    if allocation.apply
       render :text => "success"
     else
-      render json: distribution.errors.messages
+      render json: allocation.errors.messages
     end
   end
 
   def cancel
-    distribution = Distribution.find(params[:id])
-    if distribution.cancel
+    allocation = Allocation.find(params[:id])
+    if allocation.cancel
       render :text => "success"
     else
-      render json: distribution.errors.messages
+      render json: allocation.errors.messages
     end
   end
 

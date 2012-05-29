@@ -1,8 +1,8 @@
 $ ->
-  class self.DistributionViewModel extends StatableViewModel
+  class self.AllocationViewModel extends StatableViewModel
     constructor: (object, readonly = false) ->
-      super(object, 'distributions', readonly)
-      @disable_storekeeper = if object.distribution.storekeeper_id then true else false
+      super(object, 'allocations', readonly)
+      @disable_storekeeper = if object.allocation.storekeeper_id then true else false
       @availableResources = ko.observableArray([])
 
       @url = '/warehouses/data.json'
@@ -14,8 +14,8 @@ $ ->
 
       @params =
         equal:
-          storekeeper_id: @object.distribution.storekeeper_id
-          storekeeper_place_id: @object.distribution.storekeeper_place_id
+          storekeeper_id: @object.allocation.storekeeper_id
+          storekeeper_place_id: @object.allocation.storekeeper_place_id
         page: @page
         per_page: @per_page
 
@@ -77,7 +77,7 @@ $ ->
     loadAvailableResources: (clearSelected = true) =>
       @object.items([]) if clearSelected
       @availableResources([])
-      if @object.distribution.storekeeper_id() && @object.distribution.storekeeper_place_id()
+      if @object.allocation.storekeeper_id() && @object.allocation.storekeeper_place_id()
         @page(1)
         @getPaginateData()
       else
@@ -87,7 +87,7 @@ $ ->
         @range(@rangeGenerate())
 
     print: =>
-      location.href = "distributions/#{@object.id()}.pdf"
+      location.href = "allocations/#{@object.id()}.pdf"
 
     prev: =>
       @page(@page() - 1)

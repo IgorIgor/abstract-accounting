@@ -54,13 +54,13 @@ describe Warehouse do
                    (w.mu == 'kg') } .should_not be_empty
     Warehouse.count.should eq(wh.count)
 
-    ds_moscow = build(:distribution, storekeeper: ivanov,
-                                             storekeeper_place: moscow)
+    ds_moscow = build(:allocation, storekeeper: ivanov,
+                                   storekeeper_place: moscow)
     ds_moscow.add_item('nails', 'pcs', 510)
     ds_moscow.add_item('roof', 'rm', 7)
     ds_moscow.save!
-    ds_minsk = build(:distribution, storekeeper: petrov,
-                                            storekeeper_place: minsk)
+    ds_minsk = build(:allocation, storekeeper: petrov,
+                                  storekeeper_place: minsk)
     ds_minsk.add_item('roof', 'rm', 500)
     ds_minsk.add_item('nails', 'kg', 85)
     ds_minsk.save!
@@ -342,8 +342,8 @@ describe Warehouse do
                                Asset.find_by_tag_and_mu('roof', 'rm').id ])
       .should eq(wh.count)
 
-    ds_minsk = build(:distribution, storekeeper: petrov,
-                                            storekeeper_place: minsk)
+    ds_minsk = build(:allocation, storekeeper: petrov,
+                                  storekeeper_place: minsk)
     ds_minsk.add_item('roof', 'rm', 200)
     ds_minsk.add_item('nails', 'kg', 85)
     ds_minsk.save!

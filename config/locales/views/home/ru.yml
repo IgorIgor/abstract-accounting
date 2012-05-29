@@ -16,7 +16,7 @@ ru:
       logout: "Выйти"
       estimate: "Смета"
       waybill: "Накладная"
-      distribution: "Выдача"
+      allocation: Выдача
       of: "из"
       errors: 'Ошибки'
       user: 'Пользователь'

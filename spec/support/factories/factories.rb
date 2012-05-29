@@ -171,11 +171,11 @@ FactoryGirl.define do
     side true
   end
 
-  factory :distribution do
-    foreman { |distribution| distribution.association(:entity) }
-    foreman_place { |distribution| distribution.association(:place) }
-    storekeeper { |distribution| distribution.association(:entity) }
-    storekeeper_place { |distribution| distribution.association(:place) }
+  factory :allocation do
+    foreman { |allocation| allocation.association(:entity) }
+    foreman_place { |allocation| allocation.association(:place) }
+    storekeeper { |allocation| allocation.association(:entity) }
+    storekeeper_place { |allocation| allocation.association(:place) }
     created Date.today
     state 0
   end

@@ -99,7 +99,7 @@ feature "user", %q{
     click_button(I18n.t('views.users.add'))
     within("#container_documents form fieldset table tbody") do
       page.should have_selector('tr', count: 1)
-      [Waybill.name, Distribution.name].each do |document|
+      [Waybill.name, Allocation.name].each do |document|
         within(:xpath, ".//tr//select//option[@value='#{document}']") do
           page.should have_content(I18n.t("views.home.#{document.downcase}"))
         end
@@ -251,7 +251,7 @@ feature "user", %q{
     user = User.count > 0 ? User.first : create(:user)
     if user.credentials(:force_update).empty?
       user.credentials.create!(place: create(:place), document_type: Waybill.name)
-      user.credentials.create!(place: create(:place), document_type: Distribution.name)
+      user.credentials.create!(place: create(:place), document_type: Allocation.name)
     end
     page_login
     click_link I18n.t('views.home.users')

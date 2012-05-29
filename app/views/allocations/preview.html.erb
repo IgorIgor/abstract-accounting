@@ -1,26 +1,26 @@
 <form data-bind="validate: { success: save }">
   <div class='actions'>
-    <input type='submit' value="<%= t('views.distributions.save') %>"
+    <input type='submit' value="<%= t('views.allocations.save') %>"
            data-bind='visible: !readonly()'/>
-    <input type='button' value="<%= t('views.distributions.draft') %>"
+    <input type='button' value="<%= t('views.allocations.draft') %>"
            data-bind='visible: !readonly()'/>
-    <input type='button' value="<%= t('views.distributions.back') %>"
+    <input type='button' value="<%= t('views.allocations.back') %>"
            data-bind='click: back'/>
     <div class='buttons-separator' data-bind='visible: readonly'></div>
-    <input type='button' value="<%= t('views.distributions.apply') %>"
-           data-bind='click: apply, visible: readonly && object.distribution.state() == 1'/>
-    <input type='button' value="<%= t('views.distributions.cancel') %>"
-           data-bind='click: cancel, visible: readonly && object.distribution.state() == 1'/>
-    <input type='button' value="<%= t('views.distributions.print') %>"
+    <input type='button' value="<%= t('views.allocations.apply') %>"
+           data-bind='click: apply, visible: readonly && object.allocation.state() == 1'/>
+    <input type='button' value="<%= t('views.allocations.cancel') %>"
+           data-bind='click: cancel, visible: readonly && object.allocation.state() == 1'/>
+    <input type='button' value="<%= t('views.allocations.print') %>"
            data-bind='click: print, visible: readonly'/>
   </div>
 
   <span id="page-title">
   <!-- ko if: readonly -->
-    <%= t('views.distributions.page_title_show') %>
+    <%= t('views.allocations.page_title_show') %>
   <!-- /ko -->
   <!-- ko ifnot: readonly -->
-    <%= t('views.distributions.page_title_new') %>
+    <%= t('views.allocations.page_title_new') %>
   <!-- /ko -->
   </span>
 
@@ -30,22 +30,22 @@
     <div>
       <div>
         <span class="form-cell-label">
-          <label for="created"><%= t 'views.distributions.created_at' %>:</label>
+          <label for="created"><%= t 'views.allocations.created_at' %>:</label>
         </span>
         <span>
           <input type="text" id="created" rule="required"
-                 name="<%= t 'views.distributions.created_at' %>"
-                 data-bind="datepicker: object.distribution.created, disable: readonly">
+                 name="<%= t 'views.allocations.created_at' %>"
+                 data-bind="datepicker: object.allocation.created, disable: readonly">
         </span>
       </div>
       <!-- ko if: readonly -->
       <div>
         <span class="form-cell-label">
-          <label for="state"><%= t 'views.distributions.state' %>:</label>
+          <label for="state"><%= t 'views.allocations.state' %>:</label>
         </span>
         <span>
           <input type="text" id="state" disabled="disabled"
-                 data-bind="value: getState(object.distribution.state())">
+                 data-bind="value: getState(object.allocation.state())">
         </span>
       </div>
       <!-- /ko -->
@@ -53,22 +53,22 @@
   </fieldset>
 
   <fieldset>
-    <legend><%= t 'views.distributions.storekeeper' %></legend>
+    <legend><%= t 'views.allocations.storekeeper' %></legend>
     <div>
       <div>
         <span class="form-cell-label">
-          <label for="storekeeper_entity"><%= t 'views.distributions.entity' %>:</label>
+          <label for="storekeeper_entity"><%= t 'views.allocations.entity' %>:</label>
         </span>
         <span data-bind='with: object.storekeeper'>
           <input type='text' id='storekeeper_entity'
-                 name='<%= t 'views.distributions.storekeeper' %>' rule='required'
+                 name='<%= t 'views.allocations.storekeeper' %>' rule='required'
                  data-bind="autocomplete: {
-                              source: '/storekeepers.json?document_type=<%= Distribution.name %>',
+                              source: '/storekeepers.json?document_type=<%= Allocation.name %>',
                               value: 'tag',
                               bind: {
-                                id: $parent.object.distribution.storekeeper_id,
+                                id: $parent.object.allocation.storekeeper_id,
                                 place: {
-                                  id: $parent.object.distribution.storekeeper_place_id,
+                                  id: $parent.object.allocation.storekeeper_place_id,
                                   tag: $parent.object.storekeeper_place.tag,
                                 }
                               },
@@ -79,11 +79,11 @@
       </div>
       <div>
         <span class="form-cell-label">
-          <label for="storekeeper_place"><%= t 'views.distributions.place' %>:</label>
+          <label for="storekeeper_place"><%= t 'views.allocations.place' %>:</label>
         </span>
         <span data-bind='with: object.storekeeper_place'>
           <input type='text' id='storekeeper_place'
-                 name='<%= t 'views.distributions.storekeeper_place' %>' rule='required'
+                 name='<%= t 'views.allocations.storekeeper_place' %>' rule='required'
                  data-bind="value: tag" disabled="disabled" />
         </span>
       </div>
@@ -91,33 +91,33 @@
   </fieldset>
 
   <fieldset>
-    <legend><%= t 'views.distributions.foreman' %></legend>
+    <legend><%= t 'views.allocations.foreman' %></legend>
     <div>
       <div>
         <span class="form-cell-label">
-          <label for="foreman_entity"><%= t 'views.distributions.entity' %>:</label>
+          <label for="foreman_entity"><%= t 'views.allocations.entity' %>:</label>
         </span>
         <span data-bind='with: object.foreman'>
           <input type='text' id='foreman_entity'
-                 name='<%= t 'views.distributions.foreman' %>' rule='required'
+                 name='<%= t 'views.allocations.foreman' %>' rule='required'
                  data-bind="autocomplete: {
                               source: '/entities.json',
                               value: 'tag',
-                              bind: { id: $parent.object.distribution.foreman_id }
+                              bind: { id: $parent.object.allocation.foreman_id }
                             }, value: tag, disable: $parent.readonly" />
         </span>
       </div>
       <div>
         <span class="form-cell-label">
-          <label for="foreman_place"><%= t 'views.distributions.place' %>:</label>
+          <label for="foreman_place"><%= t 'views.allocations.place' %>:</label>
         </span>
         <span data-bind='with: object.foreman_place'>
           <input type='text' id='foreman_place'
-                 name='<%= t 'views.distributions.foreman_place' %>' rule='required'
+                 name='<%= t 'views.allocations.foreman_place' %>' rule='required'
                  data-bind="autocomplete: {
                               source: '/places.json',
                               value: 'tag',
-                              bind: { id: $parent.object.distribution.foreman_place_id }
+                              bind: { id: $parent.object.allocation.foreman_place_id }
                             }, value: tag, disable: $parent.readonly" />
         </span>
       </div>
@@ -125,26 +125,26 @@
   </fieldset>
 
   <table id="selected-resources">
-    <caption><%= t 'views.distributions.selected_resources' %></caption>
+    <caption><%= t 'views.allocations.selected_resources' %></caption>
     <thead>
     <tr>
       <!-- ko ifnot: readonly -->
-      <th class="distribution-actions"></th>
+      <th class="allocation-actions"></th>
       <!-- /ko -->
-      <th class="selected-resources-tag"><%= t 'views.distributions.tag' %></th>
-      <th class="selected-resources-mu"><%= t 'views.distributions.mu' %></th>
+      <th class="selected-resources-tag"><%= t 'views.allocations.tag' %></th>
+      <th class="selected-resources-mu"><%= t 'views.allocations.mu' %></th>
       <!-- ko ifnot: readonly -->
       <th class="selected-resources-exp-amount">
-        <%= t 'views.distributions.expectation_amount' %>
+        <%= t 'views.allocations.expectation_amount' %>
       </th>
       <!-- /ko -->
-      <th class="selected-resources-count"><%= t 'views.distributions.amount' %></th>
+      <th class="selected-resources-count"><%= t 'views.allocations.amount' %></th>
     </tr>
     </thead>
     <tbody data-bind="foreach: object.items">
     <tr>
       <!-- ko ifnot: $parent.readonly -->
-      <td class="distribution-actions">
+      <td class="allocation-actions">
         <span class="mini-icon delete" data-bind="click: $parent.unselectResource"></span>
       </td>
       <!-- /ko -->
@@ -170,30 +170,30 @@
         <input type="radio" id="mode-resources" name="mode" value="0"
                data-bind="checked: availableMode"/>
         <label for="mode-resources">
-          <%= t 'views.distributions.by_resource' %>
+          <%= t 'views.allocations.by_resource' %>
         </label>
         <input type="radio" id="mode-waybills" name="mode" value="1"
                data-bind="checked: availableMode"/>
         <label for="mode-waybills">
-          <%= t 'views.distributions.by_waybills' %>
+          <%= t 'views.allocations.by_waybills' %>
         </label>
       </div>
-      <%= t 'views.distributions.available_resources' %>
+      <%= t 'views.allocations.available_resources' %>
       <%= render 'home/paginate' %>
     </caption>
     <thead>
     <tr>
-      <th class="distribution-actions"></th>
-      <th class="available-resources-tag"><%= t 'views.distributions.tag' %></th>
-      <th class="available-resources-mu"><%= t 'views.distributions.mu' %></th>
+      <th class="allocation-actions"></th>
+      <th class="available-resources-tag"><%= t 'views.allocations.tag' %></th>
+      <th class="available-resources-mu"><%= t 'views.allocations.mu' %></th>
       <th class="available-resources-exp-amount">
-        <%= t 'views.distributions.expectation_amount' %>
+        <%= t 'views.allocations.expectation_amount' %>
       </th>
     </tr>
     </thead>
     <tbody data-bind="foreach: availableResources">
     <tr>
-      <td class="distribution-actions">
+      <td class="allocation-actions">
         <span class="mini-icon add" data-bind="click: $parent.selectResource"></span>
       </td>
       <td data-bind="text: tag"></td>
@@ -211,33 +211,33 @@
         <input type="radio" id="mode-resources-by-wb" name="mode-by-wb"
                value="0" data-bind="checked: availableMode"/>
         <label for="mode-resources-by-wb">
-          <%= t 'views.distributions.by_resource' %>
+          <%= t 'views.allocations.by_resource' %>
         </label>
         <input type="radio" id="mode-waybills-by-wb" name="mode-by-wb"
                value="1" data-bind="checked: availableMode"/>
         <label for="mode-waybills-by-wb">
-          <%= t 'views.distributions.by_waybills' %>
+          <%= t 'views.allocations.by_waybills' %>
         </label>
       </div>
-      <%= t 'views.distributions.available_resources' %>
+      <%= t 'views.allocations.available_resources' %>
     </caption>
     <thead>
     <tr>
       <th></th>
       <th></th>
-      <th><%= t 'views.distributions.document_id' %></th>
-      <th><%= t 'views.distributions.created_at' %></th>
-      <th><%= t 'views.distributions.distributor' %></th>
-      <th><%= t 'views.distributions.storekeeper' %></th>
-      <th><%= t 'views.distributions.storekeeper_place' %></th>
+      <th><%= t 'views.allocations.document_id' %></th>
+      <th><%= t 'views.allocations.created_at' %></th>
+      <th><%= t 'views.allocations.distributor' %></th>
+      <th><%= t 'views.allocations.storekeeper' %></th>
+      <th><%= t 'views.allocations.storekeeper_place' %></th>
     </tr>
     </thead>
     <tbody data-bind="foreach: availableResources">
     <tr>
-      <td class="distribution-actions-by-wb">
+      <td class="allocation-actions-by-wb">
         <span class="mini-icon add" data-bind="click: $parent.selectWaybill"></span>
       </td>
-      <td data-bind="click: $parent.treeMapping" class="distribution-tree-actions-by-wb">
+      <td data-bind="click: $parent.treeMapping" class="allocation-tree-actions-by-wb">
         <div class="ui-corner-all ui-state-hover">
           <span class="ui-icon ui-icon-circle-plus"></span>
         </div>
@@ -255,9 +255,9 @@
         <table>
           <thead>
           <tr>
-            <th class="available-resources-tag"><%= t 'views.distributions.tag' %></th>
-            <th class="available-resources-mu"><%= t 'views.distributions.mu' %></th>
-            <th class="available-resources-amount"><%= t 'views.distributions.amount' %></th>
+            <th class="available-resources-tag"><%= t 'views.allocations.tag' %></th>
+            <th class="available-resources-mu"><%= t 'views.allocations.mu' %></th>
+            <th class="available-resources-amount"><%= t 'views.allocations.amount' %></th>
           </tr>
           </thead>
           <tbody data-bind="foreach: resources.items">

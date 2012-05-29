@@ -29,7 +29,7 @@ class VersionEx < Version
       versions_scope = versions_scope.where do
         scope = nil
         user.credentials.each do |c|
-          if c.document_type != Waybill.name && c.document_type != Distribution.name
+          if c.document_type != Waybill.name && c.document_type != Allocation.name
             tmp_scope = (whodunnit == user.id.to_s)
             scope = scope ? (scope | tmp_scope) : tmp_scope
           else

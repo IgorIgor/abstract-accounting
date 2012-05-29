@@ -21,7 +21,7 @@ $ ->
           storekeeper_place:
             place:
               tag: ko.observable('')
-        distribution:
+        allocation:
           created: ko.observable('')
           state: ko.observable('')
           storekeeper:

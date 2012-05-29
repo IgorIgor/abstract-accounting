@@ -63,15 +63,23 @@ describe Allocation do
     lambda { db.save } .should change(Deal, :count).by(2)
 
     deal = Deal.find(db.deal)
+    deal.tag.should eq(I18n.t('activerecord.attributes.allocation.deal.tag',
+                              id: Allocation.last.nil? ? 1 : Allocation.last.id))
     deal.entity.should eq(db.storekeeper)
     deal.isOffBalance.should be_true
 
+    roof_deal_tag = Waybill.first.items.first.warehouse_deal(nil,
+      db.storekeeper_place, db.storekeeper).tag
     deal = db.items.first.warehouse_deal(nil, db.storekeeper_place, db.storekeeper)
+    deal.tag.should eq(roof_deal_tag)
     deal.should_not be_nil
     deal.rate.should eq(1.0)
     deal.isOffBalance.should be_false
 
     deal = db.items.first.warehouse_deal(nil, db.foreman_place, db.foreman)
+    deal.tag.should eq(I18n.t('activerecord.attributes.allocation.deal.resource.tag',
+                              id: Allocation.last.nil? ? 1 : Allocation.last.id,
+                              index: 1))
     deal.should_not be_nil
     deal.rate.should eq(1.0)
     deal.isOffBalance.should be_false
@@ -92,20 +100,25 @@ describe Allocation do
     lambda { db.save } .should change(Deal, :count).by(4)
 
     deal = Deal.find(db.deal)
+    deal.tag.should eq(I18n.t('activerecord.attributes.allocation.deal.tag',
+                              id: Allocation.last.nil? ? 1 : Allocation.last.id))
     deal.entity.should eq(db.storekeeper)
     deal.isOffBalance.should be_true
 
-    db.items.each { |i|
+    db.items.each_with_index do |i, idx|
       deal = i.warehouse_deal(nil, db.storekeeper_place, db.storekeeper)
       deal.should_not be_nil
       deal.rate.should eq(1.0)
       deal.isOffBalance.should be_false
 
       deal = i.warehouse_deal(nil, db.foreman_place, db.foreman)
+      deal.tag.should eq(I18n.t('activerecord.attributes.allocation.deal.resource.tag',
+                                id: Allocation.last.nil? ? 1 : Allocation.last.id,
+                                index: idx + 1))
       deal.should_not be_nil
       deal.rate.should eq(1.0)
       deal.isOffBalance.should be_false
-    }
+    end
   end
 
   it 'should create rules' do

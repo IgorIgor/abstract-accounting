@@ -70,16 +70,23 @@ describe Waybill do
     lambda { wb.save } .should change(Deal, :count).by(3)
 
     deal = Deal.find(wb.deal)
+    deal.tag.should eq(I18n.t('activerecord.attributes.waybill.deal.tag',
+                              id: wb.document_id))
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 
+    roof_deal_tag = I18n.t("activerecord.attributes.waybill.deal.resource.tag",
+                  id: wb.document_id,
+                  index: 1)
     deal = wb.items.first.warehouse_deal(Chart.first.currency,
       wb.distributor_place, wb.distributor)
     deal.should_not be_nil
+    deal.tag.should eq(roof_deal_tag)
     deal.rate.should eq(1 / wb.items.first.price)
     deal.isOffBalance.should be_false
 
     deal = wb.items.first.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+    deal.tag.should eq(roof_deal_tag)
     deal.should_not be_nil
     deal.rate.should eq(1.0)
     deal.isOffBalance.should be_false
@@ -93,16 +100,23 @@ describe Waybill do
     lambda { wb.save } .should change(Deal, :count).by(3)
 
     deal = Deal.find(wb.deal)
+    deal.tag.should eq(I18n.t('activerecord.attributes.waybill.deal.tag',
+                              id: wb.document_id))
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 
-    wb.items.each do |i|
+    wb.items.each_with_index do |i, idx|
+      deal_tag = I18n.t("activerecord.attributes.waybill.deal.resource.tag",
+                        id: wb.document_id,
+                        index: idx + 1)
       deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
+      deal.tag.should eq(wb.items[idx].resource.tag == 'roof' ? roof_deal_tag : deal_tag)
       deal.should_not be_nil
       deal.rate.should eq(1 / i.price)
       deal.isOffBalance.should be_false
 
       deal = i.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+      deal.tag.should eq(wb.items[idx].resource.tag == 'roof' ? roof_deal_tag : deal_tag)
       deal.should_not be_nil
       deal.rate.should eq(1.0)
       deal.isOffBalance.should be_false

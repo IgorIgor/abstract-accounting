@@ -10,6 +10,16 @@ en:
         users: Users
       waybill:
         items: Resources
+        deal:
+          tag: Invoice %{id}
+          resource:
+            tag: Invoice %{id} string %{index}
+      allocation:
+        items: Resources
+        deal:
+          tag: WIP %{id}
+          resource:
+            tag: WIP %{id} string %{index}
     errors:
       models:
         group:

@@ -14,15 +14,13 @@ class AllocationItemsValidator < ActiveModel::Validator
     if record.state == Allocation::UNKNOWN
       record.errors[:items] << 'must exist' if record.items.empty?
 
-      record.items.each { |item|
+      record.items.each do |item|
         deal = item.warehouse_deal(nil, record.storekeeper_place, record.storekeeper)
         record.errors[:items] = 'invalid' if deal.nil?
-        if (item.amount > item.warehouse_state(record.storekeeper,
-                                               record.storekeeper_place,
-                                               record.created)) || (item.amount <= 0)
+        if (item.amount > item.exp_amount) || (item.amount <= 0)
           record.errors[:items] = 'invalid amount'
         end
-      }
+      end
     end
   end
 end
@@ -49,14 +47,14 @@ class Allocation < ActiveRecord::Base
 
   def add_item(tag, mu, amount)
     resource = Asset.find_by_tag_and_mu(tag, mu)
-    @items << AllocationItem.new(resource, amount)
+    @items << AllocationItem.new(self, resource, amount)
   end
 
   def items
     if @items.empty? and !self.deal.nil?
-      self.deal.rules.each { |rule|
-        @items << AllocationItem.new(rule.from.take.resource, rule.rate)
-      }
+      self.deal.rules.each do |rule|
+        @items << AllocationItem.new(self, rule.from.take.resource, rule.rate)
+      end
     end
     @items
   end
@@ -70,7 +68,8 @@ class Allocation < ActiveRecord::Base
     if self.new_record?
       shipment = Asset.find_or_create_by_tag('Warehouse Shipment')
       self.deal = Deal.new(entity: self.storekeeper, rate: 1.0, isOffBalance: true,
-        tag: "Allocation shipment ##{Allocation.last.nil? ? 0 : Allocation.last.id}")
+        tag: I18n.t('activerecord.attributes.allocation.deal.tag',
+                    id: Allocation.last.nil? ? 1 : Allocation.last.id + 1))
       return false if self.deal.build_give(place: self.storekeeper_place,
                                            resource: shipment).nil?
       return false if self.deal.build_take(place: self.foreman_place,
@@ -78,7 +77,7 @@ class Allocation < ActiveRecord::Base
       return false unless self.deal.save
       self.deal_id = self.deal.id
 
-      @items.each { |item, idx|
+      @items.each do |item, idx|
         storekeeper_item = item.warehouse_deal(nil, self.storekeeper_place,
                                                self.storekeeper)
         return false if storekeeper_item.nil?
@@ -89,38 +88,8 @@ class Allocation < ActiveRecord::Base
         return false if self.deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
           from: storekeeper_item, to: foreman_item, fact_side: false,
           change_side: true, rate: item.amount).nil?
-      }
+      end
     end
     true
-  end
-end
-
-class AllocationItem < WaybillItem
-  def initialize(resource, amount)
-    @resource = resource
-    @amount = amount
-  end
-
-  def warehouse_state entity, place, date
-      deal = self.warehouse_deal(nil, place, entity)
-      return 0 if deal.nil?
-      date += 1
-
-      rules = Rule.where('rules.to_id = ?', deal).
-              joins('INNER JOIN waybills ON waybills.deal_id = rules.deal_id').
-              where('waybills.created <= ?', date)
-      unless place.nil?
-        rules.where('waybills.place_id = ?', place)
-      end
-      state = rules.sum('rules.rate')
-
-      rules = Rule.where('rules.from_id = ?', deal).
-              joins('INNER JOIN allocations ON allocations.deal_id = rules.deal_id').
-              where('allocations.created <= ? AND allocations.state != ?',
-                    date, Allocation::CANCELED)
-      unless place.nil?
-        rules.where('allocations.place_id = ?', place)
-      end
-      state - rules.sum('rules.rate')
   end
 end

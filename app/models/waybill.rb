@@ -119,7 +119,7 @@ class Waybill < ActiveRecord::Base
   def do_before_save
     if self.new_record?
       self.deal = Deal.new(entity: self.storekeeper, rate: 1.0, isOffBalance: true,
-        tag: "Waybill shipment ##{Waybill.last.nil? ? 0 : Waybill.last.id}")
+        tag: I18n.t('activerecord.attributes.waybill.deal.tag', id: self.document_id))
       shipment = Asset.find_or_create_by_tag('Warehouse Shipment')
       return false if self.deal.build_give(place: self.distributor_place,
                                            resource: shipment).nil?
@@ -154,43 +154,3 @@ class Waybill < ActiveRecord::Base
     true
   end
 end
-
-class WaybillItem
-  attr_reader :resource, :amount, :price
-
-  def exp_amount
-    Warehouse.all(where: { storekeeper_id: { equal: @waybill.storekeeper_id },
-                         storekeeper_place_id: { equal: @waybill.storekeeper_place_id },
-                         'assets.id' => { equal_attr: self.resource.id } })
-           .first.exp_amount
-  end
-
-  def initialize(waybill, resource, amount, price)
-    @waybill = waybill
-    @resource = resource
-    @amount = amount
-    @price = price
-  end
-
-  def warehouse_deal(give_r, place, entity)
-    deal_rate = give_r.nil? ? 1.0 : 1.0 / self.price
-    give_r ||= self.resource
-    take_r = self.resource
-
-    deal = Deal.joins(:give, :take).where do
-      (give.resource_id == give_r) & (give.place_id == place) &
-      (take.resource_id == take_r) & (give.place_id == place) &
-      (entity_id == entity) & (entity_type == entity.class.name) & (self.rate == deal_rate)
-    end.first
-    if deal.nil? && !self.resource.nil?
-      deal = Deal.new(entity: entity, rate: deal_rate,
-        tag: "storehouse resource: #{self.resource.tag}[#{self.resource.mu}];" +
-          " warehouse: #{place.tag}; rate: #{deal_rate}")
-      return nil if deal.build_give(place: place, resource: give_r).nil?
-      return nil if deal.build_take(place: place, resource: self.resource).nil?
-      return nil unless deal.save
-    end
-    deal
-  end
-end
-

@@ -10,6 +10,16 @@ ru:
         users: Пользователи
       waybill:
         items: Ресурсы
+        deal:
+          tag: Накладная %{id}
+          resource:
+            tag: Накладная %{id} строка %{index}
+      allocation:
+        items: Ресурсы
+        deal:
+          tag: НЗП %{id}
+          resource:
+            tag: НЗП %{id} строка %{index}
     errors:
       models:
         group:

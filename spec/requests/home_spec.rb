@@ -261,6 +261,7 @@ feature "single page application", %q{
                            storekeeper_place: i < 3 ? credential.place : create(:place))
       wb.add_item('roof', 'm2', 2, 10.0)
       wb.save!
+      wb.apply
 
       ds = build(:allocation, storekeeper: wb.storekeeper,
                               storekeeper_place: wb.storekeeper_place)

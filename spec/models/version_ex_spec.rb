@@ -80,6 +80,7 @@ describe VersionEx do
         wb = build(:waybill, storekeeper: user.entity)
         wb.add_item('roof', 'm2', 2, 10.0)
         wb.save!
+        wb.apply.should be_true
 
         ds = build(:allocation, storekeeper: wb.storekeeper,
                                 storekeeper_place: wb.storekeeper_place)
@@ -95,6 +96,7 @@ describe VersionEx do
         wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place)
         wb.add_item('roof', 'm2', 2, 10.0)
         wb.save!
+        wb.apply.should be_true
       end
       VersionEx.by_user(user).all.should =~ VersionEx.
           by_type([Entity.name, Waybill.name]).
@@ -114,6 +116,7 @@ describe VersionEx do
         wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place)
         wb.add_item('roof', 'm2', 2, 10.0)
         wb.save!
+        wb.apply.should be_true
 
         ds = build(:allocation, storekeeper: wb.storekeeper,
                                 storekeeper_place: wb.storekeeper_place)
@@ -185,6 +188,7 @@ describe VersionEx do
                distributor_place: dsp)
         wb.add_item('roof', 'm2', 2, 1.0)
         wb.save!
+        wb.apply.should be_true
         items << wb
 
         fr = create(:entity, tag: "foreman#{i}")
@@ -207,26 +211,26 @@ describe VersionEx do
       VersionEx.filter().should eq(VersionEx.all)
 
       filtered = items.select { |i| i.kind_of?(Waybill) }
-      VersionEx.filter(waybill: { created: Date.today.to_s[0,2] })
-        .map { |v| v.item } .eql?(filtered).should be_true
+      VersionEx.filter(waybill: { created: Date.today.to_s[0,2] }).lasts
+        .map { |v| v.item }.should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Waybill) &&
                                     i.document_id == 'test_document_id1'}
-      VersionEx.filter(waybill: { document_id: 'test_document_id1' })
-        .map { |v| v.item } .eql?(filtered).should be_true
+      VersionEx.filter(waybill: { document_id: 'test_document_id1' }).lasts
+        .map { |v| v.item }.should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Waybill) && i.storekeeper == st}
       VersionEx.filter(waybill: {
                         storekeeper: {
-                          entity: { tag: 'storekeeper1'}}}).map { |v| v.item }
-        .eql?(filtered).should be_true
+                          entity: { tag: 'storekeeper1'}}}).lasts.map { |v| v.item }.
+        should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Waybill) &&
                                     i.storekeeper_place == stp}
       VersionEx.filter(waybill: {
                         storekeeper_place: {
-                          place: { tag: 'sk_place1'}}}).map { |v| v.item }
-        .eql?(filtered).should be_true
+                          place: { tag: 'sk_place1'}}}).lasts.map { |v| v.item }.
+        should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Waybill) && i.distributor == ds}
       VersionEx.filter(waybill: {
@@ -234,15 +238,15 @@ describe VersionEx do
                           legal_entity: {
                             identifier_name: 'ds_id_name1',
                             identifier_value: 'ds_id_value1',
-                            name: 'ds_name1'}}}).map { |v| v.item }
-        .eql?(filtered).should be_true
+                            name: 'ds_name1'}}}).lasts.map { |v| v.item }.
+        should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Waybill) &&
                                     i.distributor_place == dsp}
       VersionEx.filter(waybill: {
                         distributor_place: {
-                          place: { tag: 'ds_place1'}}}).map { |v| v.item }
-        .eql?(filtered).should be_true
+                          place: { tag: 'ds_place1'}}}).lasts.map { |v| v.item }.
+        should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Waybill) &&
         i.storekeeper == st && i.storekeeper_place == stp}
@@ -250,8 +254,8 @@ describe VersionEx do
                         storekeeper: {
                           entity: { tag: st.tag}},
                         storekeeper_place: {
-                          place: { tag: stp.tag}}}).map { |v| v.item }
-        .eql?(filtered).should be_true
+                          place: { tag: stp.tag}}}).lasts.map { |v| v.item }.
+        should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Waybill) &&
         i.storekeeper == st && i.storekeeper_place == stp}
@@ -260,11 +264,11 @@ describe VersionEx do
                           entity: { tag: st.tag}},
                         storekeeper_place: {
                           place: { tag: stp.tag}},
-                        created: Date.today.to_s[0,2]}).map { |v| v.item }
-        .eql?(filtered).should be_true
+                        created: Date.today.to_s[0,2]}).lasts.map { |v| v.item }.
+        should =~ filtered
 
       VersionEx.filter(waybill: { created: Date.today.to_s[0,2] },
-                       allocation: { created: Date.today.to_s[0,2] })
+                       allocation: { created: Date.today.to_s[0,2] }).lasts
         .count.should eq(items.count)
 
       filtered = items.select { |i| (i.kind_of?(Waybill) &&
@@ -276,40 +280,40 @@ describe VersionEx do
                        allocation: {
                         storekeeper: {
                           entity: { tag: st.tag}},
-                        created: Date.today.to_s[0,2] }).map { |v| v.item }
-        .eql?(filtered).should be_true
+                        created: Date.today.to_s[0,2] }).lasts.map { |v| v.item }.
+        should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Allocation) && i.state == 1}
-      VersionEx.filter(allocation: { state: '1' })
-        .map { |v| v.item } .eql?(filtered).should be_true
+      VersionEx.filter(allocation: { state: '1' }).lasts
+        .map { |v| v.item }.should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Allocation) &&
                                     i.storekeeper == st}
       VersionEx.filter(allocation: {
                         storekeeper: {
-                          entity: { tag: 'storekeeper1'}}}).map { |v| v.item }
-        .eql?(filtered).should be_true
+                          entity: { tag: 'storekeeper1'}}}).lasts.map { |v| v.item }.
+        should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Allocation) &&
                                     i.storekeeper_place == stp}
       VersionEx.filter(allocation: {
                         storekeeper_place: {
-                          place: { tag: 'sk_place1'}}}).map { |v| v.item }
-        .eql?(filtered).should be_true
+                          place: { tag: 'sk_place1'}}}).lasts.map { |v| v.item }.
+        should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Allocation) &&
                                     i.foreman == fr}
       VersionEx.filter(allocation: {
                         foreman: {
-                          entity: { tag: 'foreman1'}}}).map { |v| v.item }
-        .eql?(filtered).should be_true
+                          entity: { tag: 'foreman1'}}}).lasts.map { |v| v.item }.
+        should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Allocation) &&
                                     i.foreman_place == frp}
       VersionEx.filter(allocation: {
                         foreman_place: {
-                          place: { tag: 'fr_place1'}}}).map { |v| v.item }
-        .eql?(filtered).should be_true
+                          place: { tag: 'fr_place1'}}}).lasts.map { |v| v.item }.
+        should =~ filtered
 
       VersionEx.filter.class.name.should eq('ActiveRecord::Relation')
     end

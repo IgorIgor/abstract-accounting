@@ -2,7 +2,6 @@ en:
   views:
     distributions:
       created_at: "Created at"
-      state: "State"
       storekeeper: "Storekeeper"
       storekeeper_place: "Storekeeper place"
       entity: "Entity"
@@ -23,10 +22,6 @@ en:
       print: "Print"
       page_title_new: "Create new distribution"
       page_title_show: "Show distribution"
-      unknown: Unknown
-      inwork: Inwork
-      canceled: Canceled
-      applied: Applied
       by_resource: by resources
       by_waybills: by waybills
       created_at: Created at

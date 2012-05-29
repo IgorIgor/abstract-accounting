@@ -97,4 +97,22 @@ class WaybillsController < ApplicationController
   def resources
     @resources = Waybill.find(params[:id]).items
   end
+
+  def apply
+    waybill = Waybill.find(params[:id])
+    if waybill.apply
+      render :text => "success"
+    else
+      render json: waybill.errors.full_messages
+    end
+  end
+
+  def cancel
+    waybill = Waybill.find(params[:id])
+    if waybill.cancel
+      render :text => "success"
+    else
+      render json: waybill.errors.full_messages
+    end
+  end
 end

@@ -9,7 +9,7 @@
 
 object true
 child(@waybill => :waybill) do
-  attributes :created, :document_id,
+  attributes :created, :document_id, :state,
              :distributor_id, :distributor_place_id,
              :storekeeper_id, :storekeeper_place_id
 end

@@ -13,6 +13,14 @@
       <input type="text" id="filter-w-document"
              data-bind="value: filter.waybill.document_id"/>
 
+      <label><%=t 'views.statable.state' %></label>
+      <select id="filter-w-state" data-bind="value: filter.waybill.state">
+        <option value=""></option>
+        <option value="1"><%=t 'views.statable.inwork' %></option>
+        <option value="2"><%=t 'views.statable.canceled' %></option>
+        <option value="3"><%=t 'views.statable.applied' %></option>
+      </select>
+
       <label><%=t 'views.waybills.distributor' %></label>
       <input type="text" id="filter-w-distributor"
              data-bind="value: filter.waybill.distributor.legal_entity.name"/>
@@ -46,13 +54,12 @@
       <input type="text" id="filter-d-created"
              data-bind="value: filter.distribution.created"/>
 
-      <label><%=t 'views.distributions.state' %></label>
+      <label><%=t 'views.statable.state' %></label>
       <select id="filter-d-state" data-bind="value: filter.distribution.state">
         <option value=""></option>
-        <option value="0"><%=t 'views.distributions.unknown' %></option>
-        <option value="1"><%=t 'views.distributions.inwork' %></option>
-        <option value="2"><%=t 'views.distributions.canceled' %></option>
-        <option value="3"><%=t 'views.distributions.applied' %></option>
+        <option value="1"><%=t 'views.statable.inwork' %></option>
+        <option value="2"><%=t 'views.statable.canceled' %></option>
+        <option value="3"><%=t 'views.statable.applied' %></option>
       </select>
 
       <label><%=t 'views.distributions.storekeeper' %></label>

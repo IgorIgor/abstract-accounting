@@ -2,7 +2,6 @@ ru:
   views:
     distributions:
       created_at: "Дата создания"
-      state: "Состояние"
       storekeeper: "Кладовщик"
       storekeeper_place: "Место кладовщика"
       entity: "Лицо"
@@ -23,10 +22,6 @@ ru:
       print: "Печать"
       page_title_new: "Новая выдача"
       page_title_show: "Просмотр выдачи"
-      unknown: Неизвестно
-      inwork: В работе
-      canceled: Отменён
-      applied: Применён
       by_resource: по ресурсам
       by_waybills: по накладным
       created_at: Дата создания

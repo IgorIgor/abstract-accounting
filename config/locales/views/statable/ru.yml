@@ -1,0 +1,8 @@
+ru:
+  views:
+    statable:
+      state: "Состояние"
+      unknown: Неизвестно
+      inwork: В работе
+      canceled: Отменён
+      applied: Применён

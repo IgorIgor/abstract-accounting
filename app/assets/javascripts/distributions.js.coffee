@@ -1,5 +1,5 @@
 $ ->
-  class self.DistributionViewModel extends CommentableViewModel
+  class self.DistributionViewModel extends StatableViewModel
     constructor: (object, readonly = false) ->
       super(object, 'distributions', readonly)
       @disable_storekeeper = if object.distribution.storekeeper_id then true else false
@@ -26,13 +26,6 @@ $ ->
       )
 
       @loadAvailableResources() unless readonly
-
-      $.sammy( ->
-        this.get("#documents/distributions/:id/apply", ->
-          ajaxRequest('GET', "/distributions/#{this.params.id}/apply"))
-        this.get("#documents/distributions/:id/cancel", ->
-          ajaxRequest('GET', "/distributions/#{this.params.id}/cancel"))
-      )
 
     selectResource: (resource) =>
       resource.amount = ko.observable(resource.exp_amount)
@@ -81,13 +74,6 @@ $ ->
           @getPaginateData()
         )
 
-    getState: (state) ->
-      switch state
-        when 0 then "<%= I18n.t 'views.distributions.unknown' %>"
-        when 1 then "<%= I18n.t 'views.distributions.inwork' %>"
-        when 2 then "<%= I18n.t 'views.distributions.canceled' %>"
-        when 3 then "<%= I18n.t 'views.distributions.applied' %>"
-
     loadAvailableResources: (clearSelected = true) =>
       @object.items([]) if clearSelected
       @availableResources([])
@@ -100,10 +86,6 @@ $ ->
         @count(0)
         @range(@rangeGenerate())
 
-    apply: =>
-      location.hash = "#documents/distributions/#{@object.id()}/apply"
-    cancel: =>
-      location.hash = "#documents/distributions/#{@object.id()}/cancel"
     print: =>
       location.href = "distributions/#{@object.id()}.pdf"
 

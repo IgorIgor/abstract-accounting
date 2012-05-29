@@ -37,6 +37,8 @@ Abstract::Application.routes.draw do
       get 'data'
     end
     member do
+      get 'apply'
+      get 'cancel'
       get 'resources'
     end
   end

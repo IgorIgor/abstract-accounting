@@ -425,7 +425,7 @@ feature 'distributions', %q{
       find("#storekeeper_place")[:value].should eq(ds.storekeeper_place.tag)
       find("#foreman_entity")[:value].should eq(ds.foreman.tag)
       find("#foreman_place")[:value].should eq(ds.foreman_place.tag)
-      find("#state")[:value].should eq(I18n.t('views.distributions.inwork'))
+      find("#state")[:value].should eq(I18n.t('views.statable.inwork'))
 
       find("#created")[:disabled].should be_true
       find("#storekeeper_entity")[:disabled].should be_true
@@ -462,15 +462,15 @@ feature 'distributions', %q{
     ds.save!
 
     page_login
-
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Distribution - #{wb.storekeeper.tag}')]").click
-      click_button(I18n.t('views.distributions.apply'))
-      page.should have_selector("#inbox[@class='sidebar-selected']")
+    click_button(I18n.t('views.distributions.apply'))
+    page.should have_selector("#inbox[@class='sidebar-selected']")
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Distribution - #{wb.storekeeper.tag}')]").click
-    page.should_not have_selector("div[@class='actions'] input[@value='#{I18n.t('views.distributions.apply')}']")
-
+    page.should have_xpath("//div[@class='actions']//" +
+      "input[@value='#{I18n.t('views.distributions.apply')}'" +
+      " and contains(@style, 'display: none')]")
     PaperTrail.enabled = false
   end
 
@@ -489,14 +489,15 @@ feature 'distributions', %q{
     ds.save!
 
     page_login
-
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Distribution - #{wb.storekeeper.tag}')]").click
     click_button(I18n.t('views.distributions.cancel'))
     page.should have_selector("#inbox[@class='sidebar-selected']")
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Distribution - #{wb.storekeeper.tag}')]").click
-    page.should_not have_selector("div[@class='actions'] input[@value='#{I18n.t('views.distributions.cancel')}']")
+    page.should have_xpath("//div[@class='actions']//" +
+      "input[@value='#{I18n.t('views.distributions.apply')}'" +
+      " and contains(@style, 'display: none')]")
     PaperTrail.enabled = false
   end
 

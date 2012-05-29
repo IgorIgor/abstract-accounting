@@ -29,10 +29,9 @@ $ ->
         else
           $('#container_notification').css('display', 'block')
           $('#container_notification ul').css('display', 'block')
-          $('#container_notification ul').empty()
           for key, value of JSON.parse(data.responseText)
             $('#container_notification ul')
-            .append($("<li class='server-message'>#{value}</li>"))
+            .append($("<li class='server-message'>#{key}: #{value}</li>"))
     )
 
   self.toggleSelect = (id = null) ->
@@ -95,6 +94,28 @@ $ ->
             @message('')
             @getMessages()
       )
+
+  class self.StatableViewModel extends CommentableViewModel
+    constructor: (object, route, readonly = false)->
+      super(object, route, readonly)
+      $.sammy( ->
+        this.get("#documents/:type/:id/apply", ->
+          ajaxRequest('GET', "/#{this.params.type}/#{this.params.id}/apply"))
+        this.get("#documents/:type/:id/cancel", ->
+          ajaxRequest('GET', "/#{this.params.type}/#{this.params.id}/cancel"))
+      )
+
+    apply: =>
+      location.hash = "#documents/#{@route}/#{@object.id()}/apply"
+    cancel: =>
+      location.hash = "#documents/#{@route}/#{@object.id()}/cancel"
+
+    getState: (state) ->
+      switch state
+        when 0 then "<%= I18n.t 'views.statable.unknown' %>"
+        when 1 then "<%= I18n.t 'views.statable.inwork' %>"
+        when 2 then "<%= I18n.t 'views.statable.canceled' %>"
+        when 3 then "<%= I18n.t 'views.statable.applied' %>"
 
   class self.EditableObjectViewModel extends ObjectViewModel
     constructor: (object, route, readonly = false)->

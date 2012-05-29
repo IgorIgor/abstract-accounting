@@ -260,4 +260,48 @@ feature "waybill", %q{
 
     PaperTrail.enabled = false
   end
+
+  scenario 'applying waybills', js: true do
+    PaperTrail.enabled = true
+
+    create(:chart)
+    wb = build(:waybill)
+    wb.add_item("test resource", "test mu", 100, 10)
+    wb.save!
+
+    page_login
+    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
+      'Waybill - #{wb.storekeeper.tag}')]").click
+    click_button(I18n.t('views.waybills.apply'))
+    page.should have_selector("#inbox[@class='sidebar-selected']")
+    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
+      'Waybill - #{wb.storekeeper.tag}')]").click
+    page.should_not have_selector("div[@class='actions'] input[@value='#{I18n.t(
+        'views.waybills.apply')}']")
+    find_field('state').value.should eq(I18n.t('views.statable.applied'))
+
+    PaperTrail.enabled = false
+  end
+
+  scenario 'canceling waybills', js: true do
+    PaperTrail.enabled = true
+
+    create(:chart)
+    wb = build(:waybill)
+    wb.add_item("test resource", "test mu", 100, 10)
+    wb.save!
+
+    page_login
+    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
+      'Waybill - #{wb.storekeeper.tag}')]").click
+    click_button(I18n.t('views.waybills.cancel'))
+    page.should have_selector("#inbox[@class='sidebar-selected']")
+    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
+      'Waybill - #{wb.storekeeper.tag}')]").click
+    page.should_not have_selector("div[@class='actions'] input[@value='#{I18n.t(
+        'views.waybills.cancel')}']")
+    find_field('state').value.should eq(I18n.t('views.statable.canceled'))
+
+    PaperTrail.enabled = false
+  end
 end

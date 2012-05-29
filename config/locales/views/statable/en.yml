@@ -1,0 +1,8 @@
+en:
+  views:
+    statable:
+      state: "State"
+      unknown: Unknown
+      inwork: Inwork
+      canceled: Canceled
+      applied: Applied

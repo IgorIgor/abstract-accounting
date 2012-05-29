@@ -24,6 +24,7 @@ feature "single page application", %q{
       wb = build(:waybill)
       wb.add_item('roof', 'm2', 2, 10.0)
       wb.save!
+      wb.apply
       @waybills << wb
 
       ds = build(:distribution, storekeeper: wb.storekeeper,
@@ -141,6 +142,7 @@ feature "single page application", %q{
     within('#filter-area') do
       page.should have_content(I18n.t('views.waybills.created_at'))
       page.should have_content(I18n.t('views.waybills.document_id'))
+      page.should have_content(I18n.t('views.statable.state'))
       page.should have_content(I18n.t('views.waybills.distributor'))
       page.should have_content(I18n.t('views.waybills.ident_name'))
       page.should have_content(I18n.t('views.waybills.ident_value'))
@@ -148,6 +150,7 @@ feature "single page application", %q{
       page.should have_content(I18n.t('views.waybills.storekeeper'))
       page.should have_content(I18n.t('views.waybills.storekeeper_place'))
 
+      select(I18n.t('views.statable.applied'), from: 'filter-w-state')
       fill_in('filter-w-created', with: '2')
       fill_in('filter-w-document', with: @waybills[0].document_id)
       fill_in('filter-w-distributor', with: @waybills[0].distributor.name)
@@ -181,14 +184,14 @@ feature "single page application", %q{
             '#{I18n.t('views.home.distribution')}')]").click
 
       page.should have_content(I18n.t('views.distributions.created_at'))
-      page.should have_content(I18n.t('views.distributions.state'))
+      page.should have_content(I18n.t('views.statable.state'))
       page.should have_content(I18n.t('views.distributions.storekeeper'))
       page.should have_content(I18n.t('views.distributions.storekeeper_place'))
       page.should have_content(I18n.t('views.distributions.foreman'))
       page.should have_content(I18n.t('views.distributions.foreman_place'))
 
       fill_in('filter-d-created', with: '2')
-      select(I18n.t('views.distributions.inwork'), from: 'filter-d-state')
+      select(I18n.t('views.statable.inwork'), from: 'filter-d-state')
 
       fill_in('filter-d-storekeeper', with: @distributions[0].storekeeper.tag)
       fill_in('filter-d-storekeeper-place', with: @distributions[0].

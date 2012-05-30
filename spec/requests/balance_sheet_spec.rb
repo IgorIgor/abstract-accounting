@@ -25,6 +25,7 @@ feature "BalanceSheet", %q{
     bs_count = BalanceSheet.count
 
     page_login
+    page.find('#btn_slide_conditions').click
     click_link I18n.t('views.home.balance_sheet')
     current_hash.should eq('balance_sheet')
     page.should have_xpath("//li[@id='balance_sheet' and @class='sidebar-selected']")

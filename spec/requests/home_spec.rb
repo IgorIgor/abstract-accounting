@@ -65,6 +65,20 @@ feature "single page application", %q{
     page.find("#container_documents").click
     page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
 
+    page.should have_xpath("//div[@class='slider']")
+    page.should have_xpath("//div[@id='arrow_lists' and @class='arrow-down-slide']")
+    page.find('#slide_menu_lists').visible?.should eq(false)
+    page.find('#btn_slide_lists').click
+    page.find('#slide_menu_lists').visible?.should eq(true)
+    page.should have_xpath("//div[@id='arrow_lists' and @class='arrow-up-slide']")
+
+    page.should have_xpath("//div[@class='slider']")
+    page.should have_xpath("//div[@id='arrow_conditions' and @class='arrow-down-slide']")
+    page.find('#slide_menu_conditions').visible?.should eq(false)
+    page.find('#btn_slide_conditions').click
+    page.find('#slide_menu_conditions').visible?.should eq(true)
+    page.should have_xpath("//div[@id='arrow_conditions' and @class='arrow-up-slide']")
+
     versions = VersionEx.lasts.by_type([ Waybill.name, Allocation.name ]).
       paginate(page: 1, per_page: @per_page).
       all(include: {item: :versions})

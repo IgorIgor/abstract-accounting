@@ -26,7 +26,7 @@ feature 'warehouses', %q{
     wb.apply
 
     page_login
-
+    page.find('#btn_slide_conditions').click
     page.find('#warehouses a').click
     current_hash.should eq('warehouses')
 
@@ -161,6 +161,7 @@ feature 'warehouses', %q{
     wb.apply
     page_login(user.email, password)
 
+    page.find('#btn_slide_conditions').click
     page.find('#warehouses a').click
     current_hash.should eq('warehouses')
 
@@ -187,6 +188,7 @@ feature 'warehouses', %q{
     wb.apply
     page_login(user.email, password)
 
+    page.find('#btn_slide_conditions').click
     page.find('#warehouses a').click
     current_hash.should eq('warehouses')
 

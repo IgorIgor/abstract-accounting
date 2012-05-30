@@ -47,13 +47,39 @@
       <li><a><%=t 'views.home.trash' %></a></li>
       <li><a><%=t 'views.home.archive' %></a></li>
       <hr>
-      <li id="warehouses"><a href="#warehouses"><%=t 'views.home.warehouses' %></a></li>
-      <li id="general_ledger"><a href="#general_ledger"><%=t 'views.home.general_ledger' %></a></li>
-      <li id="balance_sheet"><a href="#balance_sheet"><%=t 'views.home.balance_sheet' %></a></li>
-      <li id="transcripts"><a href="#transcripts"><%=t 'views.home.transcripts' %></a></li>
-      <li id="users"><a href="#users"><%=t 'views.home.users' %></a></li>
-      <li id="groups"><a href="#groups"><%=t 'views.home.groups' %></a></li>
     </ul>
+
+    <div class="slider">
+      <div id="arrow_lists" class="arrow-down-slide"></div>
+      <a id="btn_slide_lists" class="btn-slide" data-bind="click: slideLists">
+        <%=t 'views.home.lists' %>
+      </a>
+      <ul id="slide_menu_lists" class="slide_menu" style="display: none;">
+        <li id="users"><a href="#users"><%=t 'views.home.users' %></a></li>
+        <li id="groups"><a href="#groups"><%=t 'views.home.groups' %></a></li>
+      </ul>
+    </div>
+
+    <div class="slider">
+      <div id="arrow_conditions" class="arrow-down-slide"></div>
+      <a id="btn_slide_conditions" class="btn-slide" data-bind="click: slideConditions">
+        <%=t 'views.home.conditions' %>
+      </a>
+      <ul id="slide_menu_conditions" class="slide_menu" style="display: none;">
+        <li id="warehouses">
+          <a href="#warehouses"><%=t 'views.home.warehouses' %></a>
+        </li>
+        <li id="general_ledger">
+          <a href="#general_ledger"><%=t 'views.home.general_ledger' %></a>
+        </li>
+        <li id="balance_sheet">
+          <a href="#balance_sheet"><%=t 'views.home.balance_sheet' %></a>
+        </li>
+        <li id="transcripts">
+          <a href="#transcripts"><%=t 'views.home.transcripts' %></a>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
 

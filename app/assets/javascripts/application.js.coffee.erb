@@ -264,4 +264,22 @@ $ ->
 
       location.hash = 'inbox' if $('#main').length
 
+    slideConditions: =>
+      if $('#slide_menu_conditions').is(":visible")
+        $('#arrow_conditions').removeClass('arrow-up-slide')
+        $('#arrow_conditions').addClass('arrow-down-slide')
+      else
+        $('#arrow_conditions').removeClass('arrow-down-slide')
+        $('#arrow_conditions').addClass('arrow-up-slide')
+      $("#slide_menu_conditions").slideToggle()
+
+    slideLists: =>
+      if $('#slide_menu_lists').is(":visible")
+        $('#arrow_lists').removeClass('arrow-up-slide')
+        $('#arrow_lists').addClass('arrow-down-slide')
+      else
+        $('#arrow_lists').removeClass('arrow-down-slide')
+        $('#arrow_lists').addClass('arrow-up-slide')
+      $("#slide_menu_lists").slideToggle()
+
   ko.applyBindings(new HomeViewModel(), $('#body').get(0))

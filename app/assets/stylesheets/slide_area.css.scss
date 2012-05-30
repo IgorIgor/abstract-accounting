@@ -1,5 +1,7 @@
 /* menu styles */
 
+$menu_selected: #e5e5e5;
+
 .arrow_down {
   background: url("down-arrow.gif") no-repeat transparent;
   width: 8px;
@@ -97,5 +99,93 @@ div.filter-area {
 
   input[type='button'] {
     margin: 0;
+  }
+}
+
+.slide_action {
+  width: 100%;
+  height: 17px;
+  position: relative;
+  clear: both;
+  margin-left: -14px;
+
+  .arrow-expand {
+    padding: 2px 0;
+    border-right: 2px solid #ffffff;
+    text-align: center;
+    float: left;
+    width: 12px;
+    height: 100%;
+  }
+
+  .arrow-right-expand{
+    background: url("right-arrow.gif") center no-repeat transparent;
+  }
+
+  .arrow-down-expand {
+    background: url("down-arrow.gif") center no-repeat transparent;
+  }
+
+  #btn_slide_action {
+    width: 100%;
+    height: 100%;
+    padding: 2px;
+    display: block;
+    text-align: left;
+  }
+
+  #btn_slide_action:hover{
+    background: $menu_selected;
+    font-weight: bold;
+  }
+}
+
+.slide_action:hover{
+  background: $menu_selected;
+  font-weight: bold;
+}
+
+#sidebar .slide_menu{
+  margin: 7px 0 4px 8px;
+  clear: both;
+  border-left: 1px solid #dddddd;
+}
+
+.slider {
+  width: 100%;
+  position: relative;
+  clear: both;
+
+  .arrow-down-slide{
+    background: url("down-arrow.gif") center no-repeat transparent;
+    border-top: 1px solid gray;
+    float: left;
+    position: absolute;
+    bottom: -4px;
+    width: 100%;
+    height: 6px;
+  }
+
+  .arrow-up-slide{
+    background: url("up-arrow.gif") center no-repeat transparent;
+    border-bottom: 1px solid gray;
+    float: left;
+    position: absolute;
+    bottom: -4px;
+    width: 100%;
+    height: 6px;
+  }
+
+  .btn_slide {
+    padding: 2px;
+    width: 100%;
+    height: 17px;
+    display: block;
+    text-align: left;
+  }
+
+  .btn_slide:hover{
+    background: $menu_selected;
+    font-weight: bold;
   }
 }

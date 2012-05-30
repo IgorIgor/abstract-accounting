@@ -178,10 +178,11 @@ feature "user", %q{
     users = User.limit(per_page)
     count = User.count
     page_login
+    page.find('#btn_slide_lists').click
     click_link I18n.t('views.home.users')
     current_hash.should eq('users')
-    page.should have_xpath("//div[@id='sidebar']/ul/li[@id='users'" +
-                               " and @class='sidebar-selected']")
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+     	                     "//li[@id='users' and @class='sidebar-selected']")
 
     within('#container_documents table') do
       within('thead tr') do
@@ -254,10 +255,11 @@ feature "user", %q{
       user.credentials.create!(place: create(:place), document_type: Allocation.name)
     end
     page_login
+    page.find('#btn_slide_lists').click
     click_link I18n.t('views.home.users')
     current_hash.should eq('users')
-    page.should have_xpath("//div[@id='sidebar']/ul/li[@id='users'" +
-                               " and @class='sidebar-selected']")
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+     	                     "//li[@id='users' and @class='sidebar-selected']")
     within('#container_documents table') do
       find(:xpath, ".//tbody//tr[1]//td[contains(.//text(), '#{user.entity.tag}')]").click
     end
@@ -289,10 +291,11 @@ feature "user", %q{
       user.credentials.create!(place: create(:place), document_type: Waybill.name)
     end
     page_login
+    page.find('#btn_slide_lists').click
     click_link I18n.t('views.home.users')
     current_hash.should eq('users')
-    page.should have_xpath("//div[@id='sidebar']/ul/li[@id='users'" +
-                               " and @class='sidebar-selected']")
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+     	                     "//li[@id='users' and @class='sidebar-selected']")
     within('#container_documents') do
       within('table') do
         find(:xpath, ".//tbody//tr[1]//td[contains(.//text(), '#{user.entity.tag}')]").click
@@ -354,6 +357,7 @@ feature "user", %q{
     click_link I18n.t('views.home.logout')
 
     page_login
+    page.find('#btn_slide_lists').click
     click_link I18n.t('views.home.users')
     within('#container_documents') do
       within('table') do

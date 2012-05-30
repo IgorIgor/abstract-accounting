@@ -74,10 +74,11 @@ feature "group", %q{
     groups = Group.limit(per_page).all
     count = Group.count
     page_login
+    page.find('#btn_slide_lists').click
     click_link I18n.t('views.home.groups')
     current_hash.should eq('groups')
-    page.should have_xpath("//div[@id='sidebar']/ul/li[@id='groups'" +
-                               " and @class='sidebar-selected']")
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+     	                     "//li[@id='groups' and @class='sidebar-selected']")
 
     within('#container_documents table') do
       within('thead tr') do
@@ -144,10 +145,11 @@ feature "group", %q{
       2.times { group.users << create(:user) }
     end
     page_login
+    page.find('#btn_slide_lists').click
     click_link I18n.t('views.home.groups')
     current_hash.should eq('groups')
-    page.should have_xpath("//div[@id='sidebar']/ul/li[@id='groups'" +
-                               " and @class='sidebar-selected']")
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+     	                     "//li[@id='groups' and @class='sidebar-selected']")
     within('#container_documents table') do
       find(:xpath, ".//tbody//tr[1]//td["+
           "contains(.//text(), '#{group.manager.entity.tag}')]").click
@@ -177,10 +179,11 @@ feature "group", %q{
       2.times { group.users << create(:user) }
     end
     page_login
+    page.find('#btn_slide_lists').click
     click_link I18n.t('views.home.groups')
     current_hash.should eq('groups')
-    page.should have_xpath("//div[@id='sidebar']/ul/li[@id='groups'" +
-                               " and @class='sidebar-selected']")
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+     	                     "//li[@id='groups' and @class='sidebar-selected']")
     within('#container_documents') do
       within('table') do
         find(:xpath, ".//tbody//tr[1]//td["+
@@ -272,17 +275,18 @@ feature "group", %q{
     end
   end
 
-  scenario "test server validation on updating group", :js => true do
+  scenario 'test server validation on updating group', js: true do
     create(:group)
     create(:group)
     group = Group.first
     group_last = Group.last
     page_login
 
+    page.find('#btn_slide_lists').click
     click_link I18n.t('views.home.groups')
     current_hash.should eq('groups')
-    page.should have_xpath("//div[@id='sidebar']/ul/li[@id='groups'" +
-                               " and @class='sidebar-selected']")
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+     	                     "//li[@id='groups' and @class='sidebar-selected']")
     within('#container_documents') do
       within('table tbody') do
         find(:xpath, './/tr[1]//td[1]').click

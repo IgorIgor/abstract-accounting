@@ -20,7 +20,7 @@ feature "GeneralLedger", %q{
     gl_count = GeneralLedger.count
 
     page_login
-
+    page.find('#btn_slide_conditions').click
     click_link I18n.t('views.home.general_ledger')
     current_hash.should eq('general_ledger')
 

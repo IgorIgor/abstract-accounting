@@ -36,6 +36,7 @@ feature "Transcripts", %q{
     end
 
     page_login
+    page.find('#btn_slide_conditions').click
     click_link I18n.t('views.home.transcripts')
     current_hash.should eq('transcripts')
     page.should have_xpath("//li[@id='transcripts' and @class='sidebar-selected']")

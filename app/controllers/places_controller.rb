@@ -9,6 +9,19 @@
 
 class PlacesController < ApplicationController
   def index
-    @places = Place.where("tag LIKE ?", "%#{params[:term]}%").order("tag").limit(5)
+    if params[:term]
+      term = params[:term]
+      @places = Place.where{tag.like "%#{term}%"}.order("tag").limit(5)
+    else
+      render 'index', layout: false
+    end
+  end
+
+  def data
+    page = params[:page].nil? ? 1 : params[:page].to_i
+    per_page = params[:per_page].nil? ?
+        Settings.root.per_page.to_i : params[:per_page].to_i
+    @places = Place.limit(per_page).offset((page - 1) * per_page).all
+    @count = Place.count
   end
 end

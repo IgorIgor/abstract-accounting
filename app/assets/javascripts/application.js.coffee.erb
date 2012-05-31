@@ -257,6 +257,8 @@ $ ->
                   new AssetsViewModel(data)
                 when 'entities'
                   new EntitiesViewModel(data)
+                when 'places'
+                  new PlacesViewModel(data)
 
               $('#container_documents').html(form)
               ko.cleanNode($('#main').get(0))

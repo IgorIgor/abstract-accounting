@@ -24,5 +24,6 @@ en:
       group: 'Group'
       groups: 'Groups'
       assets: 'Assets'
+      entities: 'Entities'
       lists: 'Lists'
       conditions: 'Conditions'

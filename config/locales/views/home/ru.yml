@@ -24,5 +24,6 @@ ru:
       group: 'Группа'
       groups: 'Группы'
       assets: 'Ресурсы'
+      entities: 'Лица'
       lists: 'Списки'
       conditions: 'Состояния'

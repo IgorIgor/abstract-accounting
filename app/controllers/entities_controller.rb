@@ -9,6 +9,19 @@
 
 class EntitiesController < ApplicationController
   def index
-    @entities = Entity.where("tag LIKE ?", "%#{params[:term]}%").order("tag").limit(5)
+    if params[:term]
+      term = params[:term]
+      @entities = Entity.where{tag =~ "%#{term}%"}.order("tag").limit(5)
+    else
+      render 'index', layout: false
+    end
+  end
+
+  def data
+    page = params[:page].nil? ? 1 : params[:page].to_i
+    per_page = params[:per_page].nil? ?
+        Settings.root.per_page.to_i : params[:per_page].to_i
+    @entities = Entity.limit(per_page).offset((page - 1) * per_page).all
+    @count = Entity.count
   end
 end

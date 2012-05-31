@@ -43,7 +43,11 @@ Abstract::Application.routes.draw do
     end
   end
   resources :places
-  resources :entities
+  resources :entities, only: :index do
+    collection do
+      get 'data'
+    end
+  end
   resources :warehouses, only: [:index] do
     collection do
       get 'data'

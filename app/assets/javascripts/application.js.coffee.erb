@@ -255,6 +255,8 @@ $ ->
                   new GroupsViewModel(data)
                 when 'assets'
                   new AssetsViewModel(data)
+                when 'entities'
+                  new EntitiesViewModel(data)
 
               $('#container_documents').html(form)
               ko.cleanNode($('#main').get(0))

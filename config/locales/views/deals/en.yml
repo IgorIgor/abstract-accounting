@@ -1,0 +1,9 @@
+en:
+  views:
+    deals:
+      tag: Tag
+      mu: MU
+      entity: Entity
+      rate: Rate
+      give: Give
+      take: Take

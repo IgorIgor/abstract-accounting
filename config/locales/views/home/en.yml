@@ -26,5 +26,6 @@ en:
       assets: 'Assets'
       entities: 'Entities'
       places: 'Places'
+      deals: 'Deals'
       lists: 'Lists'
       conditions: 'Conditions'

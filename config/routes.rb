@@ -82,7 +82,11 @@ Abstract::Application.routes.draw do
       get 'data'
     end
   end
-  resources :deals
+  resources :deals, only: :index do
+    collection do
+      get 'data'
+    end
+  end
   resources :storekeepers, only: [:index]
   resources :users do
     collection do

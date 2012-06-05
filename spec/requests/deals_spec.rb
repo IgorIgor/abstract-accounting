@@ -29,7 +29,8 @@ feature 'deals', %q{
     click_link I18n.t('views.home.deals')
     current_hash.should eq('deals')
     page.should have_xpath("//ul[@id='slide_menu_lists']" +
-                           "/li[@id='deals' and @class='sidebar-selected']")
+      "/div[@class='slide_action']" +
+      "/a[@id='deals' and @class='btn_slide_action sidebar-selected']")
 
     within('#container_documents table') do
       within('thead tr') do

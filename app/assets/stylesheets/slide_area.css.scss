@@ -108,6 +108,7 @@ div.filter-area {
   position: relative;
   clear: both;
   margin-left: -14px;
+  margin-bottom: 6px;
 
   .arrow-expand {
     padding: 2px 0;
@@ -126,15 +127,17 @@ div.filter-area {
     background: url("down-arrow.gif") center no-repeat transparent;
   }
 
-  #btn_slide_action {
+  .btn_slide_action {
     width: 100%;
     height: 100%;
     padding: 2px;
     display: block;
     text-align: left;
+    text-decoration: none;
+    color: black;
   }
 
-  #btn_slide_action:hover{
+  .btn_slide_action:hover{
     background: $menu_selected;
     font-weight: bold;
   }
@@ -155,7 +158,7 @@ div.filter-area {
   width: 100%;
   position: relative;
   clear: both;
-  margin-bottom: 4px;
+  margin-top: 8px;
 
   .arrow-down-slide{
     background: url("down-arrow.gif") center no-repeat transparent;
@@ -172,7 +175,7 @@ div.filter-area {
     border-bottom: 1px solid gray;
     float: left;
     position: absolute;
-    bottom: -4px;
+    bottom: -6px;
     width: 100%;
     height: 6px;
   }

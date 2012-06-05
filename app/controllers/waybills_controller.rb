@@ -10,8 +10,12 @@
 class WaybillsController < ApplicationController
   layout 'comments'
 
+  def index
+    render 'index', layout: false
+  end
+
   def preview
-    render 'waybills/preview'
+    render 'preview'
   end
 
   def new
@@ -73,7 +77,7 @@ class WaybillsController < ApplicationController
     @waybill = Waybill.find(params[:id])
   end
 
-  def data
+  def present
     attrs = {}
 
     if params.has_key?(:equal)
@@ -90,6 +94,17 @@ class WaybillsController < ApplicationController
       params[:without] if params.has_key?(:without)
 
     @waybills = Waybill.in_warehouse(attrs)
+
+    render :data
+  end
+
+  def data
+    page = params[:page].nil? ? 1 : params[:page].to_i
+    per_page = params[:per_page].nil? ?
+        Settings.root.per_page.to_i : params[:per_page].to_i
+
+    @waybills = Waybill.limit(per_page).offset((page - 1) * per_page)
+    @count = Waybill.count
   end
 
   def resources

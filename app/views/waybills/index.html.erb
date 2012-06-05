@@ -1,0 +1,22 @@
+<table>
+  <thead>
+    <tr>
+      <th><%=t 'views.waybills.created_at' %></th>
+      <th><%=t 'views.waybills.document_id' %></th>
+      <th><%=t 'views.waybills.distributor' %></th>
+      <th><%=t 'views.waybills.storekeeper' %></th>
+      <th><%=t 'views.waybills.storekeeper_place' %></th>
+      <th><%=t 'views.statable.state' %></th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr>
+      <td data-bind="text: created"></td>
+      <td data-bind="text: document_id"></td>
+      <td data-bind="text: distributor"></td>
+      <td data-bind="text: storekeeper"></td>
+      <td data-bind="text: storekeeper_place"></td>
+      <td data-bind="text: state"></td>
+    </tr>
+  </tbody>
+</table>

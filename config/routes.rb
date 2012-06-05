@@ -31,10 +31,11 @@ Abstract::Application.routes.draw do
       get 'elements'
     end
   end
-  resources :waybills, only: [:new, :create, :show] do
+  resources :waybills, except: [:edit, :update, :destroy] do
     collection do
       get 'preview'
       get 'data'
+      get 'present'
     end
     member do
       get 'apply'

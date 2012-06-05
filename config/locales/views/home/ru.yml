@@ -16,6 +16,7 @@ ru:
       logout: "Выйти"
       estimate: "Смета"
       waybill: "Накладная"
+      waybills: Накладные
       allocation: Выдача
       of: "из"
       errors: 'Ошибки'

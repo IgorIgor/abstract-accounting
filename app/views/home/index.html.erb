@@ -60,7 +60,14 @@
         <li id="assets"><a href="#assets"><%=t 'views.home.assets' %></a></li>
         <li id="entities"><a href="#entities"><%=t 'views.home.entities' %></a></li>
         <li id="places"><a href="#places"><%=t 'views.home.places' %></a></li>
-        <li id="deals"><a href="#deals"><%=t 'views.home.deals' %></a></li>
+        <div class="slide_action">
+          <div id="arrow_actions" class="arrow-expand arrow-right-expand"></div>
+          <a href="#deals" id="deals" class="btn_slide_action"
+             data-bind="click: expand"><%=t 'views.home.deals' %></a>
+        </div>
+        <ul id="slide_menu_deals" class="slide_menu" style="display: none;">
+          <li id="waybills"><a href="#waybills"><%=t 'views.home.waybills' %></a></li>
+        </ul>
       </ul>
     </div>
 

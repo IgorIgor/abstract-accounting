@@ -16,6 +16,7 @@ en:
       logout: "Logout"
       estimate: "Estimate"
       waybill: "Waybill"
+      waybills: Waybills
       allocation: Allocation
       of: "of"
       errors: 'Errors'

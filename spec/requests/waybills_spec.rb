@@ -96,7 +96,7 @@ feature "waybill", %q{
       end
       3.times { create(:user) }
       items = Credential.where(document_type: Waybill.name).all.collect { |c| c.user.entity }
-      check_autocomplete("storekeeper_entity", items, :tag)
+      check_autocomplete("storekeeper_entity", items, :tag, true)
       fill_in('storekeeper_entity', :with => items[0].tag[0..1])
       within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
                      "contains(@style, 'display: block')]") do
@@ -276,8 +276,8 @@ feature "waybill", %q{
     page.should have_selector("#inbox[@class='sidebar-selected']")
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Waybill - #{wb.storekeeper.tag}')]").click
-    page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
-      'views.waybills.apply')}' and contains(@style, 'display: none')]")
+    page.should have_xpath("//div[@class='actions']/input[@value='#{I18n.t(
+        'views.waybills.apply')}' and contains(@style, 'display: none')]")
     find_field('state').value.should eq(I18n.t('views.statable.applied'))
 
     PaperTrail.enabled = false
@@ -303,5 +303,118 @@ feature "waybill", %q{
     find_field('state').value.should eq(I18n.t('views.statable.canceled'))
 
     PaperTrail.enabled = false
+  end
+
+  scenario 'view waybills', js: true do
+    per_page = Settings.root.per_page
+    create(:chart)
+    (per_page + 1).times do |i|
+      wb = build(:waybill)
+      wb.add_item(tag: "test resource##{i}", mu: "test mu", amount: 200+i, price: 100+i)
+      wb.save!
+    end
+
+    waybills = Waybill.limit(per_page)
+    count = Waybill.count
+
+    page_login
+    page.find('#btn_slide_lists').click
+    page.find('#deals').click
+    page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
+       "not(contains(@style, 'display: none'))]/li[@id='waybills']/a").click
+
+    current_hash.should eq('waybills')
+    page.should have_xpath("//ul[@id='slide_menu_lists']" +
+      "/ul[@id='slide_menu_deals']" +
+      "/li[@id='waybills' and @class='sidebar-selected']")
+
+    within('#container_documents table') do
+      within('thead tr') do
+        page.should have_content(I18n.t('views.waybills.created_at'))
+        page.should have_content(I18n.t('views.waybills.document_id'))
+        page.should have_content(I18n.t('views.waybills.distributor'))
+        page.should have_content(I18n.t('views.waybills.storekeeper'))
+        page.should have_content(I18n.t('views.waybills.storekeeper_place'))
+        page.should have_content(I18n.t('views.statable.state'))
+      end
+
+      within('tbody') do
+        waybills.each do |waybill|
+          page.should have_content(waybill.created.strftime('%Y-%m-%d'))
+          page.should have_content(waybill.document_id)
+          page.should have_content(waybill.distributor.name)
+          page.should have_content(waybill.storekeeper.tag)
+          page.should have_content(waybill.storekeeper_place.tag)
+          state =
+            case waybill.state
+              when Statable::UNKNOWN then I18n.t('views.statable.unknown')
+              when Statable::INWORK then I18n.t('views.statable.inwork')
+              when Statable::CANCELED then I18n.t('views.statable.canceled')
+              when Statable::APPLIED then I18n.t('views.statable.applied')
+            end
+          page.should have_content(state)
+        end
+      end
+    end
+
+    within("div[@class='paginate']") do
+      find("span[@data-bind='text: range']").
+          should have_content("1-#{per_page}")
+
+      find("span[@data-bind='text: count']").
+          should have_content(count.to_s)
+
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
+    end
+
+    within("#container_documents table tbody") do
+      page.should have_selector('tr', count: per_page)
+    end
+
+    within("div[@class='paginate']") do
+      click_button('>')
+
+      to_range = count > (per_page * 2) ? per_page * 2 : count
+
+      find("span[@data-bind='text: range']").
+          should have_content("#{per_page + 1}-#{to_range}")
+
+      find("span[@data-bind='text: count']").
+          should have_content(count.to_s)
+
+      find_button('<')[:disabled].should eq('false')
+    end
+
+    waybills = Waybill.limit(per_page).offset(per_page)
+    within('#container_documents table tbody') do
+      count_on_page = count - per_page > per_page ? per_page : count - per_page
+      page.should have_selector('tr', count: count_on_page)
+      waybills.each do |waybill|
+        page.should have_content(waybill.created.strftime('%Y-%m-%d'))
+        page.should have_content(waybill.document_id)
+        page.should have_content(waybill.distributor.name)
+        page.should have_content(waybill.storekeeper.tag)
+        page.should have_content(waybill.storekeeper_place.tag)
+        state =
+            case waybill.state
+              when Statable::UNKNOWN then I18n.t('views.statable.unknown')
+              when Statable::INWORK then I18n.t('views.statable.inwork')
+              when Statable::CANCELED then I18n.t('views.statable.canceled')
+              when Statable::APPLIED then I18n.t('views.statable.applied')
+            end
+        page.should have_content(state)
+      end
+    end
+
+    within("div[@class='paginate']") do
+      click_button('<')
+
+      find("span[@data-bind='text: range']").
+          should have_content("1-#{per_page}")
+
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
+    end
   end
 end

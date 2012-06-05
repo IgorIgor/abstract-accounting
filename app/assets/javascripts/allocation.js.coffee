@@ -21,7 +21,8 @@ $ ->
 
       @availableMode = ko.observable('0')
       @availableMode.subscribe((val) =>
-        @url = "/#{if val == '0' then 'warehouses' else 'waybills'}/data.json"
+        @url =
+          "/#{if val == '0' then 'warehouses/data' else 'waybills/present'}.json"
         @loadAvailableResources(false)
       )
 

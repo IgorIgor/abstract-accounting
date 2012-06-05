@@ -14,5 +14,18 @@ child(@waybills => :objects) do
   node(:distributor) { |waybill| waybill.distributor.name }
   node(:storekeeper) { |waybill| waybill.storekeeper.tag }
   node(:storekeeper_place) { |waybill| waybill.storekeeper_place.tag }
+  node(:state) do |waybill|
+    case waybill.state
+    when Statable::UNKNOWN
+      I18n.t 'views.statable.unknown'
+    when Statable::INWORK
+      I18n.t 'views.statable.inwork'
+    when Statable::CANCELED
+      I18n.t 'views.statable.canceled'
+    when Statable::APPLIED
+      I18n.t 'views.statable.applied'
+    end
+  end
 end
 node(:per_page) { Settings.root.per_page }
+node(:count) { @count }

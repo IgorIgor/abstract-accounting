@@ -12,7 +12,11 @@ class AllocationsController < ApplicationController
   layout 'comments'
 
   def preview
-    render 'allocations/preview'
+    render 'preview'
+  end
+
+  def index
+    render 'index', layout: false
   end
 
   def new
@@ -78,6 +82,15 @@ class AllocationsController < ApplicationController
                layout: false
       }
     }
+  end
+
+  def data
+    page = params[:page].nil? ? 1 : params[:page].to_i
+    per_page = params[:per_page].nil? ?
+        Settings.root.per_page.to_i : params[:per_page].to_i
+
+    @allocations = Allocation.limit(per_page).offset((page - 1) * per_page)
+    @count = Allocation.count
   end
 
   def apply

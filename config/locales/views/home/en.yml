@@ -18,6 +18,7 @@ en:
       waybill: "Waybill"
       waybills: Waybills
       allocation: Allocation
+      allocations: Allocations
       of: "of"
       errors: 'Errors'
       user: 'User'

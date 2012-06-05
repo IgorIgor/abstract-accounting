@@ -58,9 +58,10 @@ Abstract::Application.routes.draw do
       get 'data'
     end
   end
-  resources :allocations, only: [:new, :show, :create] do
+  resources :allocations, except: [:edit, :update, :destroy] do
     collection do
       get 'preview'
+      get 'data'
     end
     member do
       get 'apply'

@@ -18,6 +18,7 @@ ru:
       waybill: "Накладная"
       waybills: Накладные
       allocation: Выдача
+      allocations: Выдачи
       of: "из"
       errors: 'Ошибки'
       user: 'Пользователь'

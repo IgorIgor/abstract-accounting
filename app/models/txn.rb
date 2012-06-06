@@ -16,6 +16,12 @@ class Txn < ActiveRecord::Base
   after_initialize :after_init
   before_save :before_save
 
+  class << self
+    def on_date(date)
+      joins{fact}.where{fact.day < (date + 1)}
+    end
+  end
+
   def from_balance
     self.fact.from.balance
   end

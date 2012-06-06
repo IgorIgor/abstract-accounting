@@ -16,7 +16,7 @@ feature "GeneralLedger", %q{
     wb.save!
     wb.apply
 
-    gl = GeneralLedger.all(page: 1)
+    gl = GeneralLedger.paginate(page: 1).all
     gl_count = GeneralLedger.count
 
     page_login

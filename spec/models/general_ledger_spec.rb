@@ -32,19 +32,41 @@ describe GeneralLedger do
       GeneralLedger.all.count.should eq(Txn.count)
       GeneralLedger.all(limit: 1).count.should eq(1)
     end
+  end
 
+  describe "#paginate" do
     it "should paginate results" do
-      GeneralLedger.all(page: 1).should =~ Txn.limit(Settings.root.per_page).all
-      GeneralLedger.all(page: 1, per_page: (Txn.count / 2)).
+      GeneralLedger.paginate(page: 1).all.should =~ Txn.limit(Settings.root.per_page).all
+      GeneralLedger.paginate(page: 1, per_page: (Txn.count / 2)).all.
           should =~ Txn.limit(Txn.count / 2).all
-      GeneralLedger.all(page: 2, per_page: (Txn.count / 2)).
+      GeneralLedger.paginate(page: 2, per_page: (Txn.count / 2)).all.
           should =~ Txn.limit(Txn.count / 2).offset(Txn.count / 2).all
     end
   end
 
-  describe "#count" do
+  describe "#on_date" do
+    it 'should depend on date' do
+      GeneralLedger.on_date(Date.yesterday.to_s).count.should eq(0)
+      GeneralLedger.on_date(nil).count.should eq(Txn.count)
+      Txn.first.fact.update_attributes!(day: 1.day.since)
+      GeneralLedger.on_date(1.day.since.to_s).count.should eq(Txn.count)
+      GeneralLedger.on_date(nil).count.should eq(Txn.count - 1)
+      GeneralLedger.on_date.count.should eq(Txn.count - 1)
+      GeneralLedger.on_date(1.day.since.to_s).all.first.should eq(
+        Txn.on_date(1.day.since).first)
+    end
+  end
+
+  describe '#count' do
     it "should return total count of txns" do
       GeneralLedger.count.should eq(Txn.count)
+    end
+  end
+
+  describe "#current_scope" do
+    it "should return txns paginated" do
+      GeneralLedger.paginate(page: 1, per_page: (Txn.count / 2)).all.
+                should =~ Txn.limit(Txn.count / 2).all
     end
   end
 end

@@ -777,4 +777,9 @@ describe Txn do
     GeneralLedger.all.count.should eq(20)
     GeneralLedger.all.should =~ Txn.all
   end
+
+  it "should filter txns by date" do
+    Txn.count.should eq(20)
+    Txn.on_date(DateTime.civil(2011, 11, 27, 12, 0, 0) - 1).count.should eq(17)
+  end
 end

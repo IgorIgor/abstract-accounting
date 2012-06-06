@@ -9,20 +9,41 @@
 
 class GeneralLedger
   class << self
-    def all(attrs = {})
-      scope = Txn
+    def on_date(date = nil)
+      date = date.nil? ? Date.current : Date.parse(date)
+      self.current_scope = self.current_scope.on_date(date)
+      self
+    end
+
+    def paginate(attrs = {})
       unless attrs[:page].nil?
         per_page = (!attrs[:per_page].nil? and attrs[:per_page].to_i) ||
             Settings.root.per_page.to_i
-        scope = scope.limit(per_page).offset((attrs[:page].to_i - 1) * per_page)
-        attrs.delete(:page)
-        attrs.delete(:per_page)
+        self.current_scope = self.current_scope.limit(per_page).
+                                      offset((attrs[:page].to_i - 1) * per_page)
       end
+      self
+    end
+
+    def all(attrs = {})
+      scope = self.current_scope
+      self.current_scope = Txn
       scope.all(attrs)
     end
 
     def count
-      Txn.count
+      scope = self.current_scope
+      self.current_scope = Txn
+      scope.count
+    end
+
+    protected
+    def current_scope
+      Thread.current["#{self}_current_scope"] or Txn
+    end
+
+    def current_scope=(scope)
+      Thread.current["#{self}_current_scope"] = scope
     end
   end
 end

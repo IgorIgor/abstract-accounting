@@ -10,11 +10,11 @@
   </thead>
   <tbody data-bind="foreach: documents">
     <tr>
-      <td data-bind="text: tag"></td>
-      <td data-bind="text: entity_tag"></td>
-      <td data-bind="text: give"></td>
-      <td data-bind="text: take"></td>
-      <td data-bind="text: rate"></td>
+      <td data-bind="text: tag, click: $parent.canSelect() ? $parent.select : null"></td>
+      <td data-bind="text: entity_tag, click: $parent.canSelect() ? $parent.select : null"></td>
+      <td data-bind="text: give, click: $parent.canSelect() ? $parent.select : null"></td>
+      <td data-bind="text: take, click: $parent.canSelect() ? $parent.select : null"></td>
+      <td data-bind="text: rate, click: $parent.canSelect() ? $parent.select : null"></td>
     </tr>
   </tbody>
 </table>

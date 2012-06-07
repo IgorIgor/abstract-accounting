@@ -453,7 +453,6 @@ input[type=text], input[type=password] {
   }
 }
 
-
 #page-title {
   font-size: larger;
   font-weight: bold;
@@ -462,4 +461,115 @@ input[type=text], input[type=password] {
   width: 720px;
   padding: 0 2px 4px;
   color: dimGray;
+}
+
+#container_selection {
+  margin-left: 170px;
+  border-left: $table_border;
+  min-height: 189px;
+
+  .operations {
+    background: #f5f5f5;
+    border: $table_border;
+    padding: 7px;
+    height: 25px;
+    clear: left;
+
+    .paginate {
+      float: right;
+
+      span {
+        font-weight: bold;
+      }
+
+      input {
+        height: 25px;
+        min-width: 30px;
+      }
+
+      .paginate-right {
+        margin-left: -7px;
+      }
+    }
+  }
+
+  .left {
+    float: left;
+    padding: 2px 6px;
+  }
+
+  .clear {
+    clear: both;
+  }
+
+  table {
+    margin-left: 160px;
+    margin: 0;
+    border-spacing: 0;
+    width: 100%;
+
+
+    .without-border{
+      td{
+        border: none;
+      }
+    }
+
+    th {
+      border-right: $table_border;
+      border-bottom: $table_border;
+      background: $table_head_background;
+      padding-top: 4px;
+      color: $table_head_title;
+    }
+
+    tr {
+      cursor: pointer;
+
+      td {
+        border-bottom: $table_border;
+        border-right: $table_border;
+        height: 20px;
+        padding: 4px 5px 0 5px;
+      }
+
+      td.cell-checkbox {
+        width: 15px;
+
+        input {
+          margin: 0;
+        }
+      }
+
+      td.cell-star {
+        width: 15px;
+
+        p {
+          margin: 0;
+          float: left;
+          position: relative;
+          width: 16px;
+          height: 16px;
+        }
+
+        .checkbox-old {
+          float: left;
+          display: none;
+        }
+
+        .star {
+          position: absolute;
+          cursor: pointer;
+          padding-top: 16px;
+          padding-left: 16px;
+          background: url(star-off.png) no-repeat;
+          margin-top: -3px;
+        }
+
+        .checkbox-old:checked + .star {
+          background: url(star.png) no-repeat;
+        }
+      }
+    }
+  }
 }

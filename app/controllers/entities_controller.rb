@@ -13,7 +13,7 @@ class EntitiesController < ApplicationController
       term = params[:term]
       @entities = Entity.where{tag =~ "%#{term}%"}.order("tag").limit(5)
     else
-      render 'index', layout: false
+      render 'index', layout: params[:selection] ? 'form_selection' : false
     end
   end
 

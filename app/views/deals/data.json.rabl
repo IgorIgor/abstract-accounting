@@ -9,7 +9,7 @@
 
 object false
 child(@deals => :objects) do
-  attributes :tag
+  attributes :id, :tag
   node(:entity_tag) { |deal| deal.entity.name }
   node(:give) do |deal|
     if deal.give.resource.instance_of?( Asset ) && deal.give.resource.mu

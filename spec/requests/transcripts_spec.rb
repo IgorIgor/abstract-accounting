@@ -46,14 +46,14 @@ feature "Transcripts", %q{
 
     page.datepicker("transcript_date_from").prev_month.day(10)
 
-    5.times { create(:deal) }
-    items = Deal.limit(6).order("tag")
-    check_autocomplete("deal_tag", items, :tag)
-    fill_in('deal_tag', with: share.tag)
-    within(:xpath, "//ul[contains(@class, 'ui-autocomplete')"+
-        " and contains(@style, 'display: block')]") do
-      all(:xpath, ".//li//a")[0].click
+    click_button(I18n.t('views.transcripts.select_deal'))
+    page.find('#main').visible?.should_not be_true
+    page.find('#container_selection').visible?.should be_true
+    within('#container_selection table tbody') do
+      page.find(:xpath, ".//tr[1]/td[1]").click
     end
+    page.find('#main').visible?.should be_true
+    page.should_not have_selector('#container_selection')
 
     transcript = Transcript.new(share, DateTime.now.change(day: 10, month:
                                                            DateTime.now.prev_month.month),

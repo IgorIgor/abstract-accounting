@@ -1,9 +1,7 @@
 <div class="left">
-  <label for="deal_tag"><%=t 'views.transcripts.deal' %>:</label>
-  <input type="text" id="deal_tag" size="50"
-         data-bind="autocomplete: { source: '/deals.json',
-                                    value: 'tag',
-                                    bind: { id: deal }}">
+  <input type="text" id="deal_tag" readonly="readonly" data-bind="value: deal_tag"/>
+  <input type="button" value="<%=t 'views.transcripts.select_deal' %>"
+         data-bind="click: selectDeals"/>
 </div>
 <div class="left">
   <label for="transcript_date_from"><%=t 'views.transcripts.from' %></label>

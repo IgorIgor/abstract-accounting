@@ -13,9 +13,10 @@ class GeneralLedgerController < ApplicationController
   end
 
   def data
-    @gl = GeneralLedger.paginate(page: params[:page].nil? ? 1 : params[:page],
-                                 per_page: params[:per_page]).
+    @date = params[:date]
+    @gl = GeneralLedger.on_date(@date).paginate(page: params[:page].nil? ? 1 : params[:page],
+                                                per_page: params[:per_page]).
                         all(include: [fact: [:resource]])
-    @count = GeneralLedger.count
+    @count = GeneralLedger.on_date(@date).count
   end
 end

@@ -95,5 +95,24 @@ feature "GeneralLedger", %q{
       find_button('<')[:disabled].should eq('true')
       find_button('>')[:disabled].should eq('false')
     end
+
+    gl.each do |txn|
+      txn.fact.update_attributes(day: 1.months.since.change(day: 13))
+    end
+
+    page.should have_datepicker("general_ledger_date")
+    page.datepicker("general_ledger_date").next_month.day(11)
+
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 2)
+
+      page.should have_content(Txn.last.fact.day.strftime('%Y-%m-%d'))
+      page.should have_content(Txn.last.fact.amount.to_s)
+      page.should have_content(Txn.last.fact.resource.tag)
+      page.should have_content(Txn.last.fact.from.tag) unless Txn.last.fact.from.nil?
+      page.should have_content(Txn.last.fact.to.tag)
+      page.should have_content(Txn.last.value)
+      page.should have_content(Txn.last.earnings)
+    end
   end
 end

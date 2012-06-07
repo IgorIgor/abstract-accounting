@@ -11,9 +11,23 @@ $ ->
   class self.GeneralLedgerViewModel extends FolderViewModel
     constructor: (data) ->
       @url = '/general_ledger/data.json'
+      @date = ko.observable(new Date())
 
       super(data)
 
       @params =
         page: @page
         per_page: @per_page
+        date: @date().toString()
+
+    filter: =>
+      @params =
+        date: @date().toString()
+        page: @page
+        per_page: @per_page
+      $.getJSON(@url, @params, (data) =>
+        @documents(data.objects)
+        @page(1)
+        @count(data.count)
+        @range(@rangeGenerate())
+      )

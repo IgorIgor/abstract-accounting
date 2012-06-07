@@ -31,3 +31,4 @@ child(@gl => :objects) {
 }
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }
+node(:date) { @date }

@@ -1,3 +1,9 @@
+<div class="left">
+  <label for="general_ledger_date"><%= t 'views.balance_sheet.date' %>:</label>
+  <input type="text" id="general_ledger_date"
+         data-bind="datepicker: date, event: {change: filter}">
+</div>
+<div class="clear"></div>
 <table>
   <thead>
   <tr>

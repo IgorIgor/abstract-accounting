@@ -24,6 +24,11 @@ module Capybara
           self
         end
 
+        def next_month
+          session.execute_script %Q{ $('a.ui-datepicker-next').trigger("click") }
+          self
+        end
+
         def day(day)
           session.execute_script %Q{
             $("a.ui-state-default:contains('#{day}')").trigger("click")

@@ -10,7 +10,7 @@
 object false
 child(@transcripts => :objects) do
   node :date do |txn|
-    txn.fact.day
+    txn.fact.day.strftime('%Y-%m-%d')
   end
   node :account do |txn|
     if @transcript.deal.id == txn.fact.from.id

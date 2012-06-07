@@ -14,12 +14,6 @@
 ActiveRecord::Schema.define(:version => 20120527141104) do
 
   create_table "allocations", :force => true do |t|
-    t.integer  "foreman_place_id"
-    t.integer  "storekeeper_place_id"
-    t.integer  "foreman_id"
-    t.string   "foreman_type"
-    t.integer  "storekeeper_id"
-    t.string   "storekeeper_type"
     t.integer  "deal_id"
     t.datetime "created"
     t.integer  "state"
@@ -386,12 +380,6 @@ ActiveRecord::Schema.define(:version => 20120527141104) do
 
   create_table "waybills", :force => true do |t|
     t.string   "document_id"
-    t.integer  "distributor_place_id"
-    t.integer  "storekeeper_place_id"
-    t.integer  "distributor_id"
-    t.string   "distributor_type"
-    t.integer  "storekeeper_id"
-    t.string   "storekeeper_type"
     t.integer  "deal_id"
     t.datetime "created"
     t.integer  "state"

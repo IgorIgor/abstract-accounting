@@ -18,21 +18,21 @@ describe Warehouse do
     petrov = create(:entity, tag: 'Petrov')
     wb = build(:waybill, storekeeper: ivanov,
                                  storekeeper_place: moscow)
-    wb.add_item('roof', 'rm', 100, 120.0)
-    wb.add_item('nails', 'pcs', 700, 1.0)
+    wb.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+    wb.add_item(tag: 'nails', mu: 'pcs', amount: 700, price: 1.0)
     wb.save!
     wb.apply
     wb = build(:waybill, storekeeper: ivanov,
                                  storekeeper_place: moscow)
-    wb.add_item('nails', 'pcs', 1200, 1.0)
-    wb.add_item('nails', 'kg', 10, 150.0)
-    wb.add_item('roof', 'rm', 50, 100.0)
+    wb.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1.0)
+    wb.add_item(tag: 'nails', mu: 'kg', amount: 10, price: 150.0)
+    wb.add_item(tag: 'roof', mu: 'rm', amount: 50, price: 100.0)
     wb.save!
     wb.apply
     wb = build(:waybill, storekeeper: petrov,
                                  storekeeper_place: minsk)
-    wb.add_item('roof', 'rm', 500, 120.0)
-    wb.add_item('nails', 'kg', 300, 150.0)
+    wb.add_item(tag: 'roof', mu: 'rm', amount: 500, price: 120.0)
+    wb.add_item(tag: 'nails', mu: 'kg', amount: 300, price: 150.0)
     wb.save!
     wb.apply
 
@@ -56,13 +56,13 @@ describe Warehouse do
 
     ds_moscow = build(:allocation, storekeeper: ivanov,
                                    storekeeper_place: moscow)
-    ds_moscow.add_item('nails', 'pcs', 510)
-    ds_moscow.add_item('roof', 'rm', 7)
+    ds_moscow.add_item(tag: 'nails', mu: 'pcs', amount: 510)
+    ds_moscow.add_item(tag: 'roof', mu: 'rm', amount: 7)
     ds_moscow.save!
     ds_minsk = build(:allocation, storekeeper: petrov,
                                   storekeeper_place: minsk)
-    ds_minsk.add_item('roof', 'rm', 500)
-    ds_minsk.add_item('nails', 'kg', 85)
+    ds_minsk.add_item(tag: 'roof', mu: 'rm', amount: 500)
+    ds_minsk.add_item(tag: 'nails', mu: 'kg', amount: 85)
     ds_minsk.save!
 
     wh = Warehouse.all
@@ -344,8 +344,8 @@ describe Warehouse do
 
     ds_minsk = build(:allocation, storekeeper: petrov,
                                   storekeeper_place: minsk)
-    ds_minsk.add_item('roof', 'rm', 200)
-    ds_minsk.add_item('nails', 'kg', 85)
+    ds_minsk.add_item(tag: 'roof', mu: 'rm', amount: 200)
+    ds_minsk.add_item(tag: 'nails', mu: 'kg', amount: 85)
     ds_minsk.save!
 
     Warehouse.all(where: { storekeeper_id: { equal: petrov.id },

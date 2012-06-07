@@ -11,10 +11,20 @@ object true
 node(:id) { @waybill.id }
 node(:type) { @waybill.class.name }
 child(@waybill => :waybill) do
-  attributes :document_id, :state,
-             :distributor_id, :distributor_place_id,
-             :storekeeper_id, :storekeeper_place_id
+  attributes :document_id, :state
   node(:created) { |waybill| waybill.created.strftime("%m/%d/%Y") }
+  node(:storekeeper_id) do |waybill|
+    waybill.storekeeper.nil? ? nil : waybill.storekeeper.id
+  end
+  node(:storekeeper_place_id) do |waybill|
+    waybill.storekeeper_place.nil? ? nil : waybill.storekeeper_place.id
+  end
+  node(:distributor_id) do |waybill|
+    waybill.distributor.nil? ? nil : waybill.distributor.id
+  end
+  node(:distributor_place_id) do |waybill|
+    waybill.distributor_place.nil? ? nil : waybill.distributor_place.id
+  end
 end
 child(@waybill.distributor => :distributor) do
   attributes :name, :identifier_name, :identifier_value

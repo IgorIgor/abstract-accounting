@@ -12,9 +12,13 @@ node(:id) { @allocation.id }
 node(:type) { @allocation.class.name }
 child(@allocation => :allocation) do
   node(:created) { |allocation| allocation.created.strftime("%m/%d/%Y") }
-  attributes :state,
-             :foreman_id, :foreman_place_id,
-             :storekeeper_id, :storekeeper_place_id
+  attributes :id, :state, :foreman_id, :foreman_place_id
+  node(:storekeeper_id) do |waybill|
+    waybill.storekeeper.nil? ? nil : waybill.storekeeper.id
+  end
+  node(:storekeeper_place_id) do |waybill|
+    waybill.storekeeper_place.nil? ? nil : waybill.storekeeper_place.id
+  end
 end
 child(@allocation.storekeeper => :storekeeper) { attributes :tag }
 child(@allocation.storekeeper_place => :storekeeper_place) { attributes :tag }

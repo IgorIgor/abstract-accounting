@@ -28,42 +28,18 @@ class ItemsValidator < ActiveModel::Validator
 end
 
 class Waybill < ActiveRecord::Base
-  has_paper_trail
-  include Statable
-  act_as_statable
+  include WarehouseDeal
+  act_as_warehouse_deal from: :distributor,
+                        from_currency: lambda { Chart.first.currency },
+                        to: :storekeeper,
+                        item: :find_or_initialize
 
-  validates :document_id, :distributor, :distributor_place, :storekeeper,
-            :storekeeper_place, :created, :presence => true
+  validates_presence_of :document_id
   validates_uniqueness_of :document_id
   validates_with ItemsValidator
 
-  belongs_to :deal
-  belongs_to :distributor, :polymorphic => true
-  belongs_to :storekeeper, :polymorphic => true
-  belongs_to :distributor_place, :class_name => 'Place'
-  belongs_to :storekeeper_place, :class_name => 'Place'
-
-  has_many :comments, :as => :item
-
-  after_initialize :do_after_initialize
-  before_save :do_before_save
   after_apply :do_after_apply
-
-  def add_item(tag, mu, amount, price)
-    resource = Asset.find_by_tag_and_mu(tag, mu)
-    resource = Asset.new(:tag => tag, :mu => mu) if resource.nil?
-    @items << WaybillItem.new(self, resource, amount, price)
-  end
-
-  def items
-    if @items.empty? and !self.deal.nil?
-      self.deal.rules.each { |rule|
-        @items << WaybillItem.new(self, rule.from.take.resource, rule.rate,
-                                  (1.0 / rule.from.rate).accounting_norm)
-      }
-    end
-    @items
-  end
+  before_item_save :do_before_item_save
 
   def self.in_warehouse(attrs = {})
     condition = ''
@@ -71,7 +47,7 @@ class Waybill < ActiveRecord::Base
       attrs[:where].each do |attr, value|
         if value.kind_of?(Hash) && value.has_key?(:equal)
           condition << (condition.empty? ? ' AND' : 'WHERE')
-          condition << " waybills.#{attr} = '#{value[:equal]}'"
+          condition << " #{attr} = '#{value[:equal]}'"
         end
       end
     end
@@ -84,20 +60,28 @@ class Waybill < ActiveRecord::Base
       SELECT id FROM (
         SELECT id, SUM(amount) as exp_amount FROM (
           SELECT waybills.id as id, assets.id as asset_id,
-                 states.amount as amount FROM waybills
+                 states.amount as amount, entities.id as storekeeper_id,
+                 places.id as storekeeper_place_id FROM waybills
             LEFT JOIN rules ON rules.deal_id = waybills.deal_id
             INNER JOIN states ON states.deal_id = rules.to_id
                               AND states.paid IS NULL
+            INNER JOIN deals ON deals.id = rules.to_id
             INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
             INNER JOIN assets ON assets.id = terms.resource_id
+            INNER JOIN places ON places.id = terms.place_id
+            INNER JOIN entities ON entities.id = deals.entity_id
           #{condition}
           GROUP BY waybills.id, rules.to_id
           UNION
           SELECT waybills.id as id, assets.id as asset_id,
-                 -SUM(ds_rule.rate) as amount FROM waybills
+                 -SUM(ds_rule.rate) as amount, entities.id as storekeeper_id,
+                 places.id as storekeeper_place_id FROM waybills
             LEFT JOIN rules ON rules.deal_id = waybills.deal_id
+            INNER JOIN deals ON deals.id = rules.to_id
             INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
             INNER JOIN assets ON assets.id = terms.resource_id
+            INNER JOIN places ON places.id = terms.place_id
+            INNER JOIN entities ON entities.id = deals.entity_id
             INNER JOIN rules AS ds_rule ON ds_rule.from_id = rules.to_id
             INNER JOIN allocations ON allocations.deal_id = ds_rule.deal_id
                                      AND allocations.state = 1
@@ -112,45 +96,19 @@ class Waybill < ActiveRecord::Base
   end
 
   private
-  def do_after_initialize
-    @items = Array.new
-  end
-
-  def do_before_save
-    if self.new_record?
-      self.deal = Deal.new(entity: self.storekeeper, rate: 1.0, isOffBalance: true,
-        tag: I18n.t('activerecord.attributes.waybill.deal.tag', id: self.document_id))
-      shipment = Asset.find_or_create_by_tag('Warehouse Shipment')
-      return false if self.deal.build_give(place: self.distributor_place,
-                                           resource: shipment).nil?
-      return false if self.deal.build_take(place: self.storekeeper_place,
-                                           resource: shipment).nil?
-      return false unless self.deal.save
-      self.deal_id = self.deal.id
-
-      @items.each { |item, idx|
-        return false unless item.resource.save if item.resource.new_record?
-
-        distributor_item = item.warehouse_deal(Chart.first.currency,
-                                               self.distributor_place, self.distributor)
-        return false if distributor_item.nil?
-
-        storekeeper_item = item.warehouse_deal(nil, self.storekeeper_place,
-                                               self.storekeeper)
-        return false if storekeeper_item.nil?
-
-        return false if self.deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
-          from: distributor_item, to: storekeeper_item, fact_side: false,
-          change_side: true, rate: item.amount).nil?
-      }
-    end
-    true
+  def initialize(attrs = nil)
+    super(initialize_warehouse_attrs(attrs))
   end
 
   def do_after_apply(fact)
     if fact
       return !Txn.create(fact: fact).nil?
     end
+    true
+  end
+
+  def do_before_item_save(item)
+    return false unless item.resource.save if item.resource.new_record?
     true
   end
 end

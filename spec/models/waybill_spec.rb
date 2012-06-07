@@ -16,28 +16,25 @@ describe Waybill do
 
   it 'should have next behaviour' do
     wb = build(:waybill)
-    wb.add_item('roof', 'rm', 100, 120.0)
+    wb.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
     wb.save
     should validate_presence_of :document_id
     should validate_presence_of :distributor
-    should validate_presence_of :storekeeper
     should validate_presence_of :distributor_place
-    should validate_presence_of :storekeeper_place
     should validate_presence_of :created
+    should validate_presence_of :storekeeper
+    should validate_presence_of :storekeeper_place
     should validate_uniqueness_of :document_id
-    should belong_to :distributor
-    should belong_to :storekeeper
-    should belong_to(:distributor_place).class_name(Place)
-    should belong_to(:storekeeper_place).class_name(Place)
     should have_many(Waybill.versions_association_name)
     should have_many :comments
   end
 
   it 'should create items' do
     wb = build(:waybill)
-    wb.add_item('nails', 'pcs', 1200, 1.0)
-    wb.add_item('nails', 'kg', 10, 150.0)
+    wb.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1.0)
+    wb.add_item(tag: 'nails', mu: 'kg', amount: 10, price: 150.0)
     lambda { wb.save } .should change(Asset, :count).by(2)
+    Asset.all
     wb.items.count.should eq(2)
     wb.items[0].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'pcs').first)
     wb.items[0].amount.should eq(1200)
@@ -47,7 +44,7 @@ describe Waybill do
     wb.items[1].price.should eq(150.0)
 
     asset = create(:asset)
-    wb.add_item(asset.tag, asset.mu, 100, 12.0)
+    wb.add_item(tag: asset.tag, mu: asset.mu, amount: 100, price: 12.0)
     lambda { wb.save } .should_not change(Asset, :count)
     wb.items.count.should eq(3)
     wb.items[2].resource.should eq(asset)
@@ -66,7 +63,7 @@ describe Waybill do
 
   it 'should create deals' do
     wb = build(:waybill)
-    wb.add_item('roof', 'm2', 500, 10.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
     lambda { wb.save } .should change(Deal, :count).by(3)
 
     deal = Deal.find(wb.deal)
@@ -95,8 +92,8 @@ describe Waybill do
                                  distributor_place: wb.distributor_place,
                                  storekeeper: wb.storekeeper,
                                  storekeeper_place: wb.storekeeper_place)
-    wb.add_item('roof', 'm2', 100, 10.0)
-    wb.add_item('hammer', 'th', 500, 100.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 100, price: 10.0)
+    wb.add_item(tag: 'hammer', mu: 'th', amount: 500, price: 100.0)
     lambda { wb.save } .should change(Deal, :count).by(3)
 
     deal = Deal.find(wb.deal)
@@ -126,7 +123,7 @@ describe Waybill do
                                  distributor_place: wb.distributor_place,
                                  storekeeper: wb.storekeeper,
                                  storekeeper_place: wb.storekeeper_place)
-    wb.add_item('hammer', 'th', 50, 100.0)
+    wb.add_item(tag: 'hammer', mu: 'th', amount: 50, price: 100.0)
     lambda { wb.save } .should change(Deal, :count).by(1)
 
     deal = Deal.find(wb.deal)
@@ -135,7 +132,7 @@ describe Waybill do
 
     wb = build(:waybill, storekeeper: wb.storekeeper,
                                  storekeeper_place: wb.storekeeper_place)
-    wb.add_item('hammer', 'th', 200, 100.0)
+    wb.add_item(tag: 'hammer', mu: 'th', amount: 200, price: 100.0)
     lambda { wb.save } .should change(Deal, :count).by(2)
 
     deal = Deal.find(wb.deal)
@@ -157,8 +154,8 @@ describe Waybill do
                                  distributor_place: wb.distributor_place,
                                  storekeeper: wb.storekeeper,
                                  storekeeper_place: wb.storekeeper_place)
-    wb.add_item('roof', 'm2', 100, 10.0)
-    wb.add_item('roof', 'm2', 70, 12.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 100, price: 10.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 70, price: 12.0)
     lambda { wb.save } .should change(Deal, :count).by(3)
 
     deal = Deal.find(wb.deal)
@@ -180,7 +177,7 @@ describe Waybill do
     wb = build(:waybill, distributor: wb.distributor,
                          distributor_place: wb.distributor_place,
                          storekeeper: wb.storekeeper)
-    wb.add_item('roof', 'm2', 100, 10.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 100, price: 10.0)
     lambda { wb.save } .should change(Deal, :count).by(2)
 
     deal = Deal.find(wb.deal)
@@ -202,7 +199,7 @@ describe Waybill do
 
   it 'should create rules' do
     wb = build(:waybill)
-    wb.add_item('roof', 'm2', 500, 10.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
     lambda { wb.save } .should change(Rule, :count).by(1)
 
     rule = wb.deal.rules.first
@@ -216,8 +213,8 @@ describe Waybill do
                                  distributor_place: wb.distributor_place,
                                  storekeeper: wb.storekeeper,
                                  storekeeper_place: wb.storekeeper_place)
-    wb.add_item('roof', 'm2', 100, 10.0)
-    wb.add_item('hammer', 'th', 500, 100.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 100, price: 10.0)
+    wb.add_item(tag: 'hammer', mu: 'th', amount: 500, price: 100.0)
     lambda { wb.save } .should change(Rule, :count).by(2)
 
     rule = wb.deal.rules[0]
@@ -237,7 +234,7 @@ describe Waybill do
 
   it 'should change state' do
     wb = build(:waybill)
-    wb.add_item('roof', 'm2', 500, 10.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
     wb.state.should eq(Waybill::UNKNOWN)
 
     wb.cancel.should be_false
@@ -250,7 +247,7 @@ describe Waybill do
     wb.state.should eq(Waybill::CANCELED)
 
     wb = build(:waybill)
-    wb.add_item('roof', 'm2', 500, 10.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
     wb.save!
     wb.apply.should be_true
     wb.state.should eq(Waybill::APPLIED)
@@ -258,7 +255,7 @@ describe Waybill do
 
   it 'should create fact after apply' do
     wb = build(:waybill)
-    wb.add_item('roof', 'm2', 500, 10.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
     wb.save.should be_true
     wb.apply.should be_true
 
@@ -278,8 +275,8 @@ describe Waybill do
                                  distributor_place: wb.distributor_place,
                                  storekeeper: wb.storekeeper,
                                  storekeeper_place: wb.storekeeper_place)
-    wb.add_item('roof', 'm2', 100, 10.0)
-    wb.add_item('hammer', 'th', 500, 100.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 100, price: 10.0)
+    wb.add_item(tag: 'hammer', mu: 'th', amount: 500, price: 100.0)
     wb.save.should be_true
     wb.apply.should be_true
 
@@ -310,7 +307,7 @@ describe Waybill do
 
   it 'should create txn after apply' do
     wb = build(:waybill)
-    wb.add_item('roof', 'm2', 500, 10.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
     wb.save.should be_true
     wb.apply.should be_true
 
@@ -330,8 +327,8 @@ describe Waybill do
                        distributor_place: wb.distributor_place,
                        storekeeper: wb.storekeeper,
                        storekeeper_place: wb.storekeeper_place)
-    wb.add_item('roof', 'm2', 100, 10.0)
-    wb.add_item('hammer', 'th', 500, 100.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 100, price: 10.0)
+    wb.add_item(tag: 'hammer', mu: 'th', amount: 500, price: 100.0)
     wb.save.should be_true
     wb.apply.should be_true
 
@@ -368,21 +365,21 @@ describe Waybill do
 
     wb1 = build(:waybill, storekeeper: ivanov,
                                   storekeeper_place: moscow)
-    wb1.add_item('roof', 'rm', 100, 120.0)
-    wb1.add_item('nails', 'pcs', 700, 1.0)
+    wb1.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+    wb1.add_item(tag: 'nails', mu: 'pcs', amount: 700, price: 1.0)
     wb1.save!
     wb1.apply.should be_true
     wb2 = build(:waybill, storekeeper: ivanov,
                                   storekeeper_place: moscow)
-    wb2.add_item('nails', 'pcs', 1200, 1.0)
-    wb2.add_item('nails', 'kg', 10, 150.0)
-    wb2.add_item('roof', 'rm', 50, 100.0)
+    wb2.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1.0)
+    wb2.add_item(tag: 'nails', mu: 'kg', amount: 10, price: 150.0)
+    wb2.add_item(tag: 'roof', mu: 'rm', amount: 50, price: 100.0)
     wb2.save!
     wb2.apply.should be_true
     wb3 = build(:waybill, storekeeper: petrov,
                                   storekeeper_place: minsk)
-    wb3.add_item('roof', 'rm', 500, 120.0)
-    wb3.add_item('nails', 'kg', 300, 150.0)
+    wb3.add_item(tag: 'roof', mu: 'rm', amount: 500, price: 120.0)
+    wb3.add_item(tag: 'nails', mu: 'kg', amount: 300, price: 150.0)
     wb3.save!
     wb3.apply.should be_true
 
@@ -392,13 +389,13 @@ describe Waybill do
 
     ds_moscow = build(:allocation, storekeeper: ivanov,
                                    storekeeper_place: moscow)
-    ds_moscow.add_item('nails', 'pcs', 10)
-    ds_moscow.add_item('roof', 'rm', 4)
+    ds_moscow.add_item(tag: 'nails', mu: 'pcs', amount: 10)
+    ds_moscow.add_item(tag: 'roof', mu: 'rm', amount: 4)
     ds_moscow.save!
     ds_minsk = build(:allocation, storekeeper: petrov,
                                   storekeeper_place: minsk)
-    ds_minsk.add_item('roof', 'rm', 400)
-    ds_minsk.add_item('nails', 'kg', 200)
+    ds_minsk.add_item(tag: 'roof', mu: 'rm', amount: 400)
+    ds_minsk.add_item(tag: 'nails', mu: 'kg', amount: 200)
     ds_minsk.save!
 
     Waybill.in_warehouse.include?(wb1).should be_true
@@ -417,8 +414,8 @@ describe Waybill do
 
     ds_moscow = build(:allocation, storekeeper: ivanov,
                                    storekeeper_place: moscow)
-    ds_moscow.add_item('roof', 'rm', 146)
-    ds_moscow.add_item('nails', 'pcs', 1890)
+    ds_moscow.add_item(tag: 'roof', mu: 'rm', amount: 146)
+    ds_moscow.add_item(tag: 'nails', mu: 'pcs', amount: 1890)
     ds_moscow.save!
 
     Waybill.in_warehouse.include?(wb1).should be_false
@@ -434,8 +431,8 @@ describe Waybill do
 
     ds_minsk = build(:allocation, storekeeper: petrov,
                                   storekeeper_place: minsk)
-    ds_minsk.add_item('roof', 'rm', 100)
-    ds_minsk.add_item('nails', 'kg', 100)
+    ds_minsk.add_item(tag: 'roof', mu: 'rm', amount: 100)
+    ds_minsk.add_item(tag: 'nails', mu: 'kg', amount: 100)
     ds_minsk.save!
 
     wbs = Waybill.in_warehouse(where:
@@ -451,8 +448,8 @@ describe Waybill do
 
     wb4 = build(:waybill, storekeeper: ivanov,
                           storekeeper_place: moscow)
-    wb4.add_item('roof', 'rm', 100, 120.0)
-    wb4.add_item('nails', 'pcs', 700, 1.0)
+    wb4.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+    wb4.add_item(tag: 'nails', mu: 'pcs', amount: 700, price: 1.0)
     wb4.save!
 
     Waybill.in_warehouse.include?(wb1).should be_false
@@ -465,17 +462,17 @@ end
 describe ItemsValidator do
   it 'should not validate' do
     wb = build(:waybill)
-    wb.add_item('roof', 'm2', 1, 10.0)
-    wb.add_item('roof', 'm2', 1, 10.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 1, price: 10.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 1, price: 10.0)
     wb.should be_invalid
     wb.items.clear
-    wb.add_item('', 'm2', 1, 10.0)
+    wb.add_item(tag: '', mu: 'm2', amount: 1, price: 10.0)
     wb.should be_invalid
     wb.items.clear
-    wb.add_item('roof', 'm2', 0, 10.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 0, price: 10.0)
     wb.should be_invalid
     wb.items.clear
-    wb.add_item('roof', 'm2', 1, 0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 1, price: 0)
     wb.should be_invalid
   end
 end

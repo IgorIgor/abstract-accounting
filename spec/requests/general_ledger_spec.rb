@@ -11,7 +11,7 @@ feature "GeneralLedger", %q{
     create(:chart)
     wb = build(:waybill)
     per_page.times do |i|
-      wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
+      wb.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 100+i, price: 10+i)
     end
     wb.save!
     wb.apply

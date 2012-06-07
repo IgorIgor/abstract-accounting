@@ -13,34 +13,47 @@ describe Allocation do
   before(:all) do
     create(:chart)
     @wb = build(:waybill)
-    @wb.add_item('roof', 'm2', 500, 10.0)
-    @wb.add_item('nails', 'pcs', 1200, 1.0)
-    @wb.add_item('nails', 'kg', 10, 150.0)
+    @wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
+    @wb.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1.0)
+    @wb.add_item(tag: 'nails', mu: 'kg', amount: 10, price: 150.0)
     @wb.save!
     @wb.apply
   end
 
   it 'should have next behaviour' do
     should validate_presence_of :foreman
-    should validate_presence_of :storekeeper
     should validate_presence_of :foreman_place
-    should validate_presence_of :storekeeper_place
     should validate_presence_of :created
     should validate_presence_of :state
+    should validate_presence_of :storekeeper
+    should validate_presence_of :storekeeper_place
     should belong_to :deal
-    should belong_to :foreman
-    should belong_to :storekeeper
-    should belong_to(:foreman_place).class_name(Place)
-    should belong_to(:storekeeper_place).class_name(Place)
     should have_many Allocation.versions_association_name
     should have_many :comments
   end
 
+  it "should not create items by empty fields" do
+    db = Allocation.new(created: Date.today,
+                        foreman_type: Entity.name,
+                        storekeeper_id: @wb.storekeeper.id,
+                        storekeeper_type: @wb.storekeeper.class.name,
+                        storekeeper_place_id: @wb.storekeeper_place.id)
+    db.storekeeper.should eq(@wb.storekeeper)
+    db.storekeeper_place.should eq(@wb.storekeeper_place)
+    db.foreman.should be_nil
+  end
+
   it 'should create items' do
-    db = build(:allocation, storekeeper: @wb.storekeeper,
-                            storekeeper_place: @wb.storekeeper_place)
-    db.add_item('nails', 'pcs', 500)
-    db.add_item('nails', 'kg', 2)
+    db = Allocation.new(created: Date.today,
+                        foreman_id: create(:entity).id, foreman_type: Entity.name,
+                        storekeeper_id: @wb.storekeeper.id,
+                        storekeeper_type: @wb.storekeeper.class.name,
+                        foreman_place_id: @wb.storekeeper_place.id,
+                        storekeeper_place_id: @wb.storekeeper_place.id)
+    db.storekeeper.should eq(@wb.storekeeper)
+    db.storekeeper_place.should eq(@wb.storekeeper_place)
+    db.add_item(tag: 'nails', mu: 'pcs', amount: 500)
+    db.add_item(tag: 'nails', mu: 'kg', amount: 2)
     db.items.count.should eq(2)
     lambda { db.save } .should change(Allocation, :count).by(1)
     db.items[0].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'pcs').first)
@@ -59,7 +72,7 @@ describe Allocation do
   it 'should create deals' do
     db = build(:allocation, storekeeper: @wb.storekeeper,
                             storekeeper_place: @wb.storekeeper_place)
-    db.add_item('roof', 'm2', 200)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 200)
     lambda { db.save } .should change(Deal, :count).by(2)
 
     deal = Deal.find(db.deal)
@@ -88,15 +101,15 @@ describe Allocation do
                          distributor_place: @wb.distributor_place,
                          storekeeper: @wb.storekeeper,
                          storekeeper_place: @wb.storekeeper_place)
-    wb.add_item('roof', 'm2', 100, 10.0)
-    wb.add_item('hammer', 'th', 500, 100.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 100, price: 10.0)
+    wb.add_item(tag: 'hammer', mu: 'th', amount: 500, price: 100.0)
     lambda { wb.save; wb.apply } .should change(Deal, :count).by(3)
 
     db = build(:allocation, storekeeper: db.storekeeper,
                             storekeeper_place: db.storekeeper_place)
-    db.add_item('roof', 'm2', 20)
-    db.add_item('nails', 'pcs', 10)
-    db.add_item('hammer', 'th', 50)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 20)
+    db.add_item(tag: 'nails', mu: 'pcs', amount: 10)
+    db.add_item(tag: 'hammer', mu: 'th', amount: 50)
     lambda { db.save } .should change(Deal, :count).by(4)
 
     deal = Deal.find(db.deal)
@@ -124,7 +137,7 @@ describe Allocation do
   it 'should create rules' do
     db = build(:allocation, storekeeper: @wb.storekeeper,
                             storekeeper_place: @wb.storekeeper_place)
-    db.add_item('roof', 'm2', 200)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 200)
     lambda { db.save } .should change(Rule, :count).by(1)
 
     rule = db.deal.rules.first
@@ -136,8 +149,8 @@ describe Allocation do
 
     db = build(:allocation, storekeeper: db.storekeeper,
                             storekeeper_place: db.storekeeper_place)
-    db.add_item('roof', 'm2', 150)
-    db.add_item('nails', 'pcs', 300)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 150)
+    db.add_item(tag: 'nails', mu: 'pcs', amount: 300)
     lambda { db.save } .should change(Rule, :count).by(2)
 
     rule = db.deal.rules[0]
@@ -158,7 +171,7 @@ describe Allocation do
   it 'should change state' do
     db = build(:allocation, storekeeper: @wb.storekeeper,
                             storekeeper_place: @wb.storekeeper_place)
-    db.add_item('roof', 'm2', 5)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 5)
     db.state.should eq(Allocation::UNKNOWN)
 
     db.cancel.should be_false
@@ -172,7 +185,7 @@ describe Allocation do
 
     db = build(:allocation, storekeeper: @wb.storekeeper,
                             storekeeper_place: @wb.storekeeper_place)
-    db.add_item('roof', 'm2', 1)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 1)
     db.save!
     db.apply.should be_true
     db.state.should eq(Allocation::APPLIED)
@@ -181,8 +194,8 @@ describe Allocation do
   it 'should create facts by rules after apply' do
     db = build(:allocation, storekeeper: @wb.storekeeper,
                             storekeeper_place: @wb.storekeeper_place)
-    db.add_item('roof', 'm2', 5)
-    db.add_item('nails', 'pcs', 10)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 5)
+    db.add_item(tag: 'nails', mu: 'pcs', amount: 10)
 
     roof_deal = db.items[0].warehouse_deal(nil, db.storekeeper_place,
       db.storekeeper)
@@ -204,33 +217,33 @@ describe AllocationItemsValidator do
   it 'should not validate' do
     create(:chart)
     wb = build(:waybill)
-    wb.add_item('roof', 'm2', 500, 10.0)
-    wb.add_item('nails', 'pcs', 1200, 1.0)
+    wb.add_item(tag: 'roof', mu: 'm2',  amount: 500, price: 10.0)
+    wb.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1.0)
     wb.save!
     wb.apply
 
     db = build(:allocation, storekeeper: wb.storekeeper,
                             storekeeper_place: wb.storekeeper_place)
-    db.add_item('', 'm2', 1)
+    db.add_item(tag: '', mu: 'm2', amount: 1)
     db.should be_invalid
     db.items.clear
-    db.add_item('roof', 'm2', 0)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 0)
     db.should be_invalid
     db.items.clear
-    db.add_item('roof', 'm2', 500)
-    db.add_item('nails', 'pcs', 1201)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 500)
+    db.add_item(tag: 'nails', mu: 'pcs', amount: 1201)
     db.should be_invalid
     db.items.clear
-    db.add_item('roof', 'm2', 300)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 300)
     db.save!
 
     db2 = build(:allocation, storekeeper: wb.storekeeper,
                              storekeeper_place: wb.storekeeper_place)
-    db2.add_item('roof', 'm2', 201)
+    db2.add_item(tag: 'roof', mu: 'm2', amount: 201)
     db2.should be_invalid
 
     db.cancel
-    db.add_item('roof', 'm2', 201)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 201)
     db.should be_valid
   end
 end

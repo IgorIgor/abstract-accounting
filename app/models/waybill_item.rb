@@ -12,18 +12,19 @@ class WaybillItem
 
   def exp_amount
     return 0.0 unless self.resource
-    resource_state = Warehouse.all(where: { storekeeper_id: { equal: @object.storekeeper_id },
-                         storekeeper_place_id: { equal: @object.storekeeper_place_id },
+    resource_state = Warehouse.all(where: { storekeeper_id: { equal: @object.storekeeper.id },
+                         storekeeper_place_id: { equal: @object.storekeeper_place.id },
                          'assets.id' => { equal_attr: self.resource.id } }).first
     return 0.0 unless resource_state
     resource_state.exp_amount
   end
 
-  def initialize(object, resource, amount, price)
-    @object = object
-    @resource = resource
-    @amount = amount
-    @price = price
+  def initialize(attrs = {})
+    @object = attrs[:object]
+    @resource = attrs[:resource]
+    @amount = attrs[:amount].kind_of?(String) ? attrs[:amount].to_f : attrs[:amount]
+    @price = (attrs[:price] && attrs[:price].kind_of?(String)) ? attrs[:price].to_f :
+        attrs[:price]
   end
 
   def warehouse_deal(give_r, place, entity)

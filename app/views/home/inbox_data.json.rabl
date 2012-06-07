@@ -15,7 +15,7 @@ child(@versions => :objects) do
   node(:sum) { 0.0 }
   node(:content) do |version|
     klass_associations = version.item.class.reflect_on_all_associations(:belongs_to)
-    if klass_associations.any? { |assoc| assoc.name == :storekeeper }
+    if version.item.class.method_defined?(:storekeeper)
       version.item.storekeeper.tag
     elsif klass_associations.any? { |assoc| assoc.name == :entity }
       version.item.entity.tag

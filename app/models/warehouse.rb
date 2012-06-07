@@ -52,7 +52,7 @@ class Warehouse
         attrs[:where].each { |attr, value|
           if value.kind_of?(Hash)
             if value.has_key?(:equal)
-              condition_storekeeper += " AND waybills.#{attr} = '#{value[:equal]}'"
+              condition_storekeeper += " AND #{attr} = '#{value[:equal]}'"
             elsif value.has_key?(:like)
               condition += " AND lower(warehouse.#{attr}) LIKE '%#{value[:like]}%'"
             elsif value.has_key?(:equal_attr)
@@ -72,24 +72,30 @@ class Warehouse
                ROUND(SUM(real_amount - exp_amount), 2) as exp_amount, mu
         FROM (
           SELECT places.tag as place, assets.id as id, assets.tag as tag,
-                 states.amount as real_amount, 0.0 as exp_amount, assets.mu as mu
+                 states.amount as real_amount, 0.0 as exp_amount, assets.mu as mu,
+                 entities.id as storekeeper_id, places.id as storekeeper_place_id
           FROM rules
             INNER JOIN waybills ON waybills.deal_id = rules.deal_id
             INNER JOIN states ON states.deal_id = rules.to_id
+            INNER JOIN deals ON deals.id = rules.to_id
             INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
             INNER JOIN assets ON assets.id = terms.resource_id
             INNER JOIN places ON places.id = terms.place_id
+            INNER JOIN entities ON entities.id = deals.entity_id
           WHERE states.paid is NULL #{condition_storekeeper} #{condition_attr}
           GROUP BY places.id, terms.resource_id
           UNION
           SELECT places.tag as place, assets.id as id, assets.tag as tag,
-                 0.0 as amount, SUM(rules.rate) as exp_amount, assets.mu as mu
+                 0.0 as amount, SUM(rules.rate) as exp_amount, assets.mu as mu,
+                 entities.id as storekeeper_id, places.id as storekeeper_place_id
           FROM rules
             INNER JOIN allocations ON allocations.deal_id = rules.deal_id
             INNER JOIN states ON states.deal_id = rules.from_id
+            INNER JOIN deals ON deals.id = rules.from_id
             INNER JOIN terms ON terms.deal_id = rules.from_id AND terms.side = 'f'
             INNER JOIN assets ON assets.id = terms.resource_id
             INNER JOIN places ON places.id = terms.place_id
+            INNER JOIN entities ON entities.id = deals.entity_id
           WHERE allocations.state = 1 AND states.paid is NULL
           GROUP BY places.id, terms.resource_id
         )

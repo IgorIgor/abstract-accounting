@@ -44,8 +44,9 @@ $ ->
         if (typeof value == 'object') && !$.isEmptyObject(value)
           normalize(value)
         else
-          delete hash[key] unless hash[key] == undefined || value.length ||
-                                  (typeof hash[key] == 'number')
+          delete hash[key] unless (value != null) && (hash[key] == undefined ||
+                                  value.toString().length ||
+                                  (typeof hash[key] == 'number'))
 
     null until $.map(normalize(hash), (c) -> c).toString().indexOf(true) == -1
     hash
@@ -60,7 +61,7 @@ $ ->
     back: -> location.hash = 'inbox'
 
     save: =>
-      ajaxRequest('POST', "/#{@route}", ko.mapping.toJS(@object))
+      ajaxRequest('POST', "/#{@route}", normalizeHash(ko.mapping.toJS(@object)))
 
   class self.CommentableViewModel extends ObjectViewModel
     constructor: (object, route, readonly = false)->

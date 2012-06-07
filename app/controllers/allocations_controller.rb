@@ -36,29 +36,27 @@ class AllocationsController < ApplicationController
         params[:allocation][:foreman_type] = "Entity"
         params[:allocation].delete(:state) if params[:allocation].has_key?(:state)
         allocation = Allocation.new(params[:allocation])
-        if allocation.storekeeper_id.zero?
+        unless allocation.storekeeper
           storekeeper = Entity.find_or_create_by_tag(params[:storekeeper])
           storekeeper.save!
           allocation.storekeeper = storekeeper
         end
-        if allocation.storekeeper_place_id.zero?
+        unless allocation.storekeeper_place
           storekeeper_place = Place.find_or_create_by_tag(params[:storekeeper_place])
           storekeeper_place.save!
           allocation.storekeeper_place = storekeeper_place
         end
-        if allocation.foreman_id.zero?
+        unless allocation.foreman
           foreman = Entity.find_or_create_by_tag(params[:foreman])
           foreman.save!
           allocation.foreman = foreman
         end
-        if allocation.foreman_place_id.zero?
+        unless allocation.foreman_place
           foreman_place = Place.find_or_create_by_tag(params[:foreman_place])
           foreman_place.save!
           allocation.foreman_place = foreman_place
         end
-        params[:items].each_value { |item|
-          allocation.add_item(item[:tag], item[:mu], item[:amount].to_f)
-        } if params[:items]
+        params[:items].each_value { |item| allocation.add_item(item) } if params[:items]
         allocation.save!
         render :text => "success"
       end

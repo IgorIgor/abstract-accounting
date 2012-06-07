@@ -12,6 +12,8 @@ module Statable
 
   module ClassMethods
     def act_as_statable
+      validates_presence_of :state
+
       after_initialize :state_initialize
       before_save :state_change
       class_attribute :after_apply_callback

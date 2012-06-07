@@ -11,10 +11,6 @@ class CreateWaybills < ActiveRecord::Migration
   def change
     create_table :waybills do |t|
       t.string :document_id
-      t.references :distributor_place
-      t.references :storekeeper_place
-      t.references :distributor, :polymorphic => true
-      t.references :storekeeper, :polymorphic => true
       t.references :deal
       t.datetime :created
       t.integer :state

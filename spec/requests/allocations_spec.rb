@@ -21,7 +21,7 @@ feature 'allocation', %q{
     credential = create(:credential, user: user, document_type: Allocation.name)
     wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place)
     (per_page + 1).times do |i|
-      wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
+      wb.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 100+i, price: 10+i)
     end
     wb.save!
     wb.apply
@@ -148,7 +148,7 @@ feature 'allocation', %q{
       end
 
       wb2 = build(:waybill)
-      wb2.add_item("resource_2", "mu_2", 100, 10)
+      wb2.add_item(tag: "resource_2", mu: "mu_2", amount: 100, price: 10)
       wb2.save!
       wb2.apply
 
@@ -203,7 +203,7 @@ feature 'allocation', %q{
 
       wb3 = build(:waybill, storekeeper: wb.storekeeper,
                                     storekeeper_place: wb.storekeeper_place)
-      wb3.add_item('resource#0', 'mu0', 27, 10)
+      wb3.add_item(tag: 'resource#0', mu: 'mu0', amount: 27, price: 10)
       wb3.save!
       wb3.apply.should be_true
 
@@ -283,8 +283,8 @@ feature 'allocation', %q{
     credential = create(:credential, user: user, document_type: Allocation.name)
     wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place,
                          created: DateTime.current.change(year: 2011))
-    wb.add_item('roof', 'm2', 12, 100.0)
-    wb.add_item('roof2', 'm2', 12, 100.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 12, price: 100.0)
+    wb.add_item(tag: 'roof2', mu: 'm2', amount: 12, price: 100.0)
     wb.save!
     wb.apply
 
@@ -334,8 +334,8 @@ feature 'allocation', %q{
 
     create(:chart)
     wb = build(:waybill, created: DateTime.current.change(year: 2011))
-    wb.add_item('roof', 'm2', 12, 100.0)
-    wb.add_item('roof2', 'm2', 12, 100.0)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 12, price: 100.0)
+    wb.add_item(tag: 'roof2', mu: 'm2', amount: 12, price: 100.0)
     wb.save!
     wb.apply
 
@@ -377,16 +377,16 @@ feature 'allocation', %q{
 
     create(:chart)
     wb = build(:waybill)
-    (0..4).each { |i|
-      wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
-    }
+    (0..4).each do |i|
+      wb.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 100+i, price: 10+i)
+    end
     wb.save!
     wb.apply
     ds = build(:allocation, storekeeper: wb.storekeeper,
                             storekeeper_place: wb.storekeeper_place)
-    (0..4).each { |i|
-      ds.add_item("resource##{i}", "mu#{i}", 10+i)
-    }
+    (0..4).each do |i|
+      ds.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 10+i)
+    end
     ds.save!
 
     page_login
@@ -434,13 +434,13 @@ feature 'allocation', %q{
 
     create(:chart)
     wb = build(:waybill)
-    wb.add_item("test resource", "test mu", 100, 10)
+    wb.add_item(tag: "test resource", mu: "test mu", amount: 100, price: 10)
     wb.save!
     wb.apply
 
     ds = build(:allocation, storekeeper: wb.storekeeper,
                             storekeeper_place: wb.storekeeper_place)
-    ds.add_item("test resource", "test mu", 10)
+    ds.add_item(tag: "test resource", mu: "test mu", amount: 10)
     ds.save!
 
     page_login
@@ -451,8 +451,8 @@ feature 'allocation', %q{
       page.should have_selector("#inbox[@class='sidebar-selected']")
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Allocation - #{wb.storekeeper.tag}')]").click
-    page.should_not have_selector("div[@class='actions'] input[@value='#{I18n.t('views.allocations.apply')}']")
-
+    page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
+      'views.allocations.apply')}' and contains(@style, 'display: none')]")
     PaperTrail.enabled = false
   end
 
@@ -461,13 +461,13 @@ feature 'allocation', %q{
 
     create(:chart)
     wb = build(:waybill)
-    wb.add_item("test resource", "test mu", 100, 10)
+    wb.add_item(tag: "test resource", mu: "test mu", amount: 100, price: 10)
     wb.save!
     wb.apply
 
     ds = build(:allocation, storekeeper: wb.storekeeper,
                             storekeeper_place: wb.storekeeper_place)
-    ds.add_item("test resource", "test mu", 10)
+    ds.add_item(tag: "test resource", mu: "test mu", amount: 10)
     ds.save!
 
     page_login
@@ -478,7 +478,8 @@ feature 'allocation', %q{
     page.should have_selector("#inbox[@class='sidebar-selected']")
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Allocation - #{wb.storekeeper.tag}')]").click
-    page.should_not have_selector("div[@class='actions'] input[@value='#{I18n.t('views.allocations.cancel')}']")
+    page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
+        'views.allocations.cancel')}' and contains(@style, 'display: none')]")
     PaperTrail.enabled = false
   end
 
@@ -487,13 +488,13 @@ feature 'allocation', %q{
 
     create(:chart)
     wb = build(:waybill)
-    wb.add_item("test resource", "test mu", 100, 10)
+    wb.add_item(tag: "test resource", mu: "test mu", amount: 100, price: 10)
     wb.save!
     wb.apply
 
     ds = build(:allocation, storekeeper: wb.storekeeper,
                             storekeeper_place: wb.storekeeper_place)
-    ds.add_item("test resource", "test mu", 10)
+    ds.add_item(tag: "test resource", mu: "test mu", amount: 10)
     ds.save!
 
     page_login

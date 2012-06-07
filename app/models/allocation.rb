@@ -26,70 +26,24 @@ class AllocationItemsValidator < ActiveModel::Validator
 end
 
 class Allocation < ActiveRecord::Base
-  has_paper_trail
-  include Statable
-  act_as_statable
+  include WarehouseDeal
+  act_as_warehouse_deal from: :storekeeper, to: :foreman, item: :find
 
-  validates :foreman, :foreman_place, :storekeeper, :storekeeper_place,
-            :created, :state, presence: true
   validates_with AllocationItemsValidator
 
-  belongs_to :deal
-  belongs_to :foreman, polymorphic: true
-  belongs_to :storekeeper, polymorphic: true
-  belongs_to :foreman_place, class_name: 'Place'
-  belongs_to :storekeeper_place, class_name: 'Place'
+  before_item_save :do_before_item_save
 
-  has_many :comments, :as => :item
-
-  after_initialize :do_after_initialize
-  before_save :do_before_save
-
-  def add_item(tag, mu, amount)
-    resource = Asset.find_by_tag_and_mu(tag, mu)
-    @items << AllocationItem.new(self, resource, amount)
-  end
-
-  def items
-    if @items.empty? and !self.deal.nil?
-      self.deal.rules.each do |rule|
-        @items << AllocationItem.new(self, rule.from.take.resource, rule.rate)
-      end
-    end
-    @items
+  def document_id
+    Allocation.last.nil? ? 1 : Allocation.last.id + 1
   end
 
   private
-  def do_after_initialize
-    @items = Array.new
+  def initialize(attrs = nil)
+    super(initialize_warehouse_attrs(attrs))
   end
 
-  def do_before_save
-    if self.new_record?
-      shipment = Asset.find_or_create_by_tag('Warehouse Shipment')
-      self.deal = Deal.new(entity: self.storekeeper, rate: 1.0, isOffBalance: true,
-        tag: I18n.t('activerecord.attributes.allocation.deal.tag',
-                    id: Allocation.last.nil? ? 1 : Allocation.last.id + 1))
-      return false if self.deal.build_give(place: self.storekeeper_place,
-                                           resource: shipment).nil?
-      return false if self.deal.build_take(place: self.foreman_place,
-                                           resource: shipment).nil?
-      return false unless self.deal.save
-      self.deal_id = self.deal.id
-
-      @items.each do |item, idx|
-        storekeeper_item = item.warehouse_deal(nil, self.storekeeper_place,
-                                               self.storekeeper)
-        return false if storekeeper_item.nil?
-
-        foreman_item = item.warehouse_deal(nil, self.foreman_place, self.foreman)
-        return false if foreman_item.nil?
-
-        return false if self.deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
-          from: storekeeper_item, to: foreman_item, fact_side: false,
-          change_side: true, rate: item.amount).nil?
-      end
-    end
+  def do_before_item_save(item)
+    return false if item.resource.new_record?
     true
   end
 end

@@ -19,9 +19,9 @@ feature 'warehouses', %q{
 
     create(:chart)
     wb = build(:waybill)
-    (0..per_page).each { |i|
-      wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
-    }
+    (0..per_page).each do |i|
+      wb.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 100+i, price: 10+i)
+    end
     wb.save!
     wb.apply
 
@@ -155,7 +155,7 @@ feature 'warehouses', %q{
     create(:chart)
     wb = build(:waybill)
     5.times do |i|
-      wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
+      wb.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 100+i, price: 10+i)
     end
     wb.save!
     wb.apply
@@ -181,7 +181,7 @@ feature 'warehouses', %q{
 
     wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place)
     5.times do |i|
-      wb.add_item("resource##{i}", "mu#{i}", 100+i, 10+i)
+      wb.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 100+i, price: 10+i)
     end
     wb.save!
     wb.apply

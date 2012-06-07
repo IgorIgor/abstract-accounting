@@ -9,20 +9,27 @@
 
 object true
 child(@waybill => :waybill) do
-  attributes :created, :document_id, :state,
-             :distributor_id, :distributor_place_id,
-             :storekeeper_id, :storekeeper_place_id
+  attributes :created, :state, :document_id
+  node(:storekeeper_id) do |waybill|
+    waybill.storekeeper.nil? ? nil : waybill.storekeeper.id
+  end
+  node(:storekeeper_place_id) do |waybill|
+    waybill.storekeeper_place.nil? ? nil : waybill.storekeeper_place.id
+  end
+  node(:distributor_id) do |waybill|
+    waybill.distributor.nil? ? nil : waybill.distributor.id
+  end
+  node(:distributor_place_id) do |waybill|
+    waybill.distributor_place.nil? ? nil : waybill.distributor_place.id
+  end
 end
 child(LegalEntity.new => :distributor) do
   attributes :name, :identifier_name, :identifier_value
 end
-child(@waybill.build_distributor_place => :distributor_place) { attributes :tag }
+child(Place.new => :distributor_place) { attributes :tag }
 child((@waybill.storekeeper ? @waybill.storekeeper : Entity.new) => :storekeeper) do
   attributes :tag
 end
 place = @waybill.storekeeper_place
-unless place
-  place = @waybill.build_storekeeper_place
-end
-child(place => :storekeeper_place) { attributes :tag }
+child((place ? place : Place.new) => :storekeeper_place) { attributes :tag }
 child([] => :items)

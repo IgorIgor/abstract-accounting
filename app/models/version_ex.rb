@@ -29,17 +29,22 @@ class VersionEx < Version
       versions_scope = versions_scope.where do
         scope = nil
         user.credentials.each do |c|
-          if c.document_type != Waybill.name && c.document_type != Allocation.name
-            tmp_scope = (whodunnit == user.id.to_s)
-            scope = scope ? (scope | tmp_scope) : tmp_scope
-          else
+          if c.document_type == Waybill.name
             tmp_scope = id.in(
-                versions_scope.joins{item(c.document_type.camelize.constantize)}.
-                    where{(item.storekeeper_id == user.entity_id) &
-                          (item.storekeeper_place_id == c.place_id)}
+                versions_scope.joins{item(c.document_type.camelize.constantize).deal.take}.
+                    where{(item.deal.entity_id == user.entity_id) &
+                          (item.deal.take.place_id == c.place_id)}
             )
-            scope = scope ? scope | tmp_scope : tmp_scope
+          elsif c.document_type == Allocation.name
+            tmp_scope = id.in(
+                versions_scope.joins{item(c.document_type.camelize.constantize).deal.give}.
+                    where{(item.deal.entity_id == user.entity_id) &
+                          (item.deal.give.place_id == c.place_id)}
+            )
+          else
+            tmp_scope = (whodunnit == user.id.to_s)
           end
+          scope = scope ? scope | tmp_scope : tmp_scope
         end
         scope
       end

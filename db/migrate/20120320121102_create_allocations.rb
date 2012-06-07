@@ -10,10 +10,6 @@
 class CreateAllocations < ActiveRecord::Migration
   def change
     create_table :allocations do |t|
-      t.references :foreman_place
-      t.references :storekeeper_place
-      t.references :foreman, :polymorphic => true
-      t.references :storekeeper, :polymorphic => true
       t.references :deal
       t.datetime :created
       t.integer :state

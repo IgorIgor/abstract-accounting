@@ -9,16 +9,25 @@
 
 object true
 child(@allocation => :allocation) do
-  attributes :created, :state,
-             :foreman_id, :foreman_place_id,
-             :storekeeper_id, :storekeeper_place_id
+  attributes :created, :state
+  node(:storekeeper_id) do |allocation|
+    allocation.storekeeper.nil? ? nil : allocation.storekeeper.id
+  end
+  node(:storekeeper_place_id) do |allocation|
+    allocation.storekeeper_place.nil? ? nil : allocation.storekeeper_place.id
+  end
+  node(:foreman_id) do |allocation|
+    allocation.foreman.nil? ? nil : allocation.foreman.id
+  end
+  node(:foreman_place_id) do |allocation|
+    allocation.foreman_place.nil? ? nil : allocation.foreman_place.id
+  end
 end
 child(Entity.new => :foreman) { attributes :tag }
-child(@allocation.build_foreman_place => :foreman_place) { attributes :tag }
+child(Place.new => :foreman_place) { attributes :tag }
 storekeeper = @allocation.storekeeper
 child(storekeeper ? storekeeper : Entity.new => :storekeeper) { attributes :tag }
 place = @allocation.storekeeper_place
-place = @allocation.build_storekeeper_place unless place
-child(place => :storekeeper_place) { attributes :tag }
+child((place ? place : Place.new) => :storekeeper_place) { attributes :tag }
 child([] => :items)
 

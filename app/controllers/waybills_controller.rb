@@ -34,7 +34,7 @@ class WaybillsController < ApplicationController
         params[:waybill][:distributor_type] = "LegalEntity"
         params[:waybill][:storekeeper_type] = "Entity"
         waybill = Waybill.new(params[:waybill])
-        if waybill.distributor_id.zero?
+        unless waybill.distributor
           country = Country.find_or_create_by_tag(:tag => "Russian Federation")
           distributor = LegalEntity.find_all_by_name_and_country_id(
             params[:distributor][:name], country).first
@@ -45,24 +45,22 @@ class WaybillsController < ApplicationController
           end
           waybill.distributor = distributor
         end
-        if waybill.distributor_place_id.zero?
+        unless waybill.distributor_place
           distributor_place = Place.find_or_create_by_tag(params[:distributor_place])
           distributor_place.save!
           waybill.distributor_place = distributor_place
         end
-        if waybill.storekeeper_id.zero?
+        unless waybill.storekeeper
           storekeeper = Entity.find_or_create_by_tag(params[:storekeeper])
           storekeeper.save!
           waybill.storekeeper = storekeeper
         end
-        if waybill.storekeeper_place_id.zero?
+        unless waybill.storekeeper_place
           storekeeper_place = Place.find_or_create_by_tag(params[:storekeeper_place])
           storekeeper_place.save!
           waybill.storekeeper_place = storekeeper_place
         end
-        params[:items].each_value { |item|
-          waybill.add_item(item[:tag], item[:mu], item[:amount].to_f, item[:price].to_f)
-        } if params[:items]
+        params[:items].each_value { |item| waybill.add_item(item) } if params[:items]
         waybill.save!
         render :text => "success"
       end

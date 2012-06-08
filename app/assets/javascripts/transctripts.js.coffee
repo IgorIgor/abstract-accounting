@@ -58,3 +58,9 @@ $ ->
             $('#container_selection').get(0))
         )
       )
+
+    selectTranscript: (object) =>
+      @deal_tag(object.account)
+      @deal_id(object.deal_id)
+      @date_from(new Date(object.date))
+      @date_to(new Date(object.date))

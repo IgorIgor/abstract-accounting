@@ -67,12 +67,14 @@
   </tfoot>
   <tbody data-bind="foreach: documents">
   <tr>
-    <td data-bind="text: date"></td>
-    <td data-bind="text: account"></td>
+    <td data-bind="text: date, click: $parent.selectTranscript"></td>
+    <td data-bind="text: account, click: $parent.selectTranscript"></td>
     <td data-bind=
-          "text: type == 'debit' ? ($parent.mu() == 'natural' ? amount : value) : ''"></td>
+          "text: type == 'debit' ? ($parent.mu() == 'natural' ? amount : value) : '',
+          click: $parent.selectTranscript"></td>
     <td data-bind=
-          "text: type == 'credit' ? ($parent.mu() == 'natural' ? amount : value) : ''"></td>
+          "text: type == 'credit' ? ($parent.mu() == 'natural' ? amount : value) : '',
+          click: $parent.selectTranscript"></td>
   </tr>
   </tbody>
 </table>

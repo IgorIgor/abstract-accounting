@@ -243,5 +243,22 @@ feature "Transcripts", %q{
       find_button('<')[:disabled].should eq('true')
       find_button('>')[:disabled].should eq('false')
     end
+
+    within("#container_documents") do
+      page.find(:xpath, './/table/tbody/tr[1]/td[1]').click
+      if transcript.deal.id == txns[0].fact.from.id
+        page.find(:xpath, './/table/tbody/tr[1]/td[2]').
+            should have_content(txns[0].fact.from.tag)
+        page.find('#deal_tag')[:value].should have_content(txns[0].fact.to.tag)
+      else
+        page.find(:xpath, './/table/tbody/tr[1]/td[2]').
+            should have_content(txns[0].fact.to.tag)
+        page.find('#deal_tag')[:value].should have_content(txns[0].fact.from.tag)
+      end
+      Date.parse(page.find('#transcript_date_from')[:value]).
+          should eq(txns[0].fact.day.to_date)
+      Date.parse(page.find('#transcript_date_to')[:value]).
+          should eq(txns[0].fact.day.to_date)
+    end
   end
 end

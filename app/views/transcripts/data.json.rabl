@@ -9,6 +9,13 @@
 
 object false
 child(@transcripts => :objects) do
+  node :deal_id do |txn|
+    if @transcript.deal.id == txn.fact.from.id
+      txn.fact.to.id
+    else
+      txn.fact.from.id
+    end
+  end
   node :date do |txn|
     txn.fact.day.strftime('%Y-%m-%d')
   end

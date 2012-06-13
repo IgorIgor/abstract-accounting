@@ -782,6 +782,19 @@ describe Txn do
     bs.db_count.should eq(5)
     bs.assets.should eq(173900.0)
     bs.liabilities.should eq(242000.0)
+
+    bs = BalanceSheet.entity_id(@bank.entity_id).
+        date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
+    bs.count.should eq(1)
+    bs.db_count.should eq(1)
+    bs.assets.should eq(87920.0)
+    bs.liabilities.should eq(0.0)
+
+    bs = BalanceSheet.entity_id(@bank.entity_id).all
+    bs.count.should eq(1)
+    bs.db_count.should eq(1)
+    bs.assets.should eq(101900.0)
+    bs.liabilities.should eq(0.0)
   end
 
   it "should produce general ledger" do

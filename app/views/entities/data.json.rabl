@@ -9,7 +9,7 @@
 
 object false
 child(@entities => :objects) do
-  attributes :tag
+  attributes :id, :tag
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

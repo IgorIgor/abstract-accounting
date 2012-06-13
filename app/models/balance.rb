@@ -30,6 +30,10 @@ class Balance < ActiveRecord::Base
       where{(give.resource_id == id) | (take.resource_id == id)}
     end
 
+    def with_entity(id)
+      where{deal.entity_id == id}
+    end
+
     def in_time_frame(start, stop)
       where("balances.start < :stop AND (balances.paid > :start OR balances.paid IS NULL)",
             :start => DateTime.civil(start.year, start.month, start.day, 0, 0, 0),

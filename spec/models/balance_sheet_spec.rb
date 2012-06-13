@@ -105,6 +105,12 @@ describe BalanceSheet do
     end
   end
 
+  describe "#entity_id" do
+    it "should have filter attribute" do
+      BalanceSheet.entity_id(1).entity_id_value.should eq(1)
+    end
+  end
+
   describe "#getter" do
     it "should define singleton method" do
       BalanceSheet.class_eval do

@@ -15,6 +15,7 @@ class BalanceSheetController < ActionController::Base
   def data
     scope = BalanceSheet
     scope = scope.resource_id(params[:resource_id]) if params[:resource_id]
+    scope = scope.entity_id(params[:entity_id]) if params[:entity_id]
     @balances = scope.
         date(params[:date].nil? ? DateTime.now : Date.parse(params[:date])).
         paginate(page: params[:page] || 1, per_page: params[:per_page]).

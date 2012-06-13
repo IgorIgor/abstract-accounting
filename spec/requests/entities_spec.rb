@@ -86,4 +86,28 @@ feature 'entities', %q{
       find_button('>')[:disabled].should eq('false')
     end
   end
+
+  scenario 'view balances by entity', js: true do
+    entity = create(:entity)
+    deal = create(:deal, entity: entity, rate: 10)
+    create(:balance, deal: deal)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.entities')
+    current_hash.should eq('entities')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                           "//li[@id='entities' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      page.find(:xpath, ".//tr[1]/td[1]").click
+    end
+    current_hash.should eq("balance_sheet?entity_id=#{entity.id}")
+    find('#slide_menu_conditions').visible?.should be_true
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 1)
+      page.should have_content(deal.tag)
+      page.should have_content(deal.entity.name)
+    end
+  end
 end

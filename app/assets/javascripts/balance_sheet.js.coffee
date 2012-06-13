@@ -16,9 +16,11 @@ $ ->
       @total_debit = ko.observable(data.total_debit)
       @total_credit = ko.observable(data.total_credit)
       @resource_id = ko.observable()
+      @entity_id = ko.observable()
 
       unless $.isEmptyObject(params)
         @resource_id(params.resource_id) if params.resource_id
+        @entity_id(params.entity_id) if params.entity_id
 
       super(data)
 
@@ -27,6 +29,7 @@ $ ->
         page: @page
         per_page: @per_page
         resource_id: @resource_id()
+        entity_id: @entity_id()
 
     filter: =>
       @params =
@@ -34,6 +37,7 @@ $ ->
         page: @page
         per_page: @per_page
         resource_id: @resource_id()
+        entity_id: @entity_id()
       $.getJSON(@url, normalizeHash(@params), (data) =>
         @documents(data.objects)
         @page(1)

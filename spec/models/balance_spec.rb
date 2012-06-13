@@ -46,4 +46,12 @@ describe Balance do
     Balance.joins(:give).joins(:take).
         with_resource(Asset.find_or_create_by_tag("asset0").id).count.should eq(2)
   end
+
+  it "should filter by entity" do
+    3.times do |i|
+      create(:balance, deal: create(:deal, entity:
+          Entity.find_or_create_by_tag("entity#{i == 2 ? 0 : i}")))
+    end
+    Balance.joins(:deal).with_entity(Entity.find_by_tag("entity0").id).count.should eq(2)
+  end
 end

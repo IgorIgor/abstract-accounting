@@ -93,7 +93,7 @@ feature "Transcripts", %q{
 
       within(:xpath, './/tfoot//tr[1]') do
         page.should have_content(I18n.t('views.transcripts.total_circulation'))
-       page.find(:xpath, './/td[2]').should have_content(
+        page.find(:xpath, './/td[2]').should have_content(
                                                  transcript.total_debits)
         page.find(:xpath, './/td[3]').should have_content(
                                                  transcript.total_credits)
@@ -259,6 +259,47 @@ feature "Transcripts", %q{
           should eq(txns[0].fact.day.to_date)
       Date.parse(page.find('#transcript_date_to')[:value]).
           should eq(txns[0].fact.day.to_date)
+    end
+
+    page.find('#btn_slide_conditions').click
+    click_link I18n.t('views.home.general_ledger')
+
+    within('#container_documents') do
+      page.find(:xpath, './/table/tbody/tr[1]/td[1]').click
+    end
+
+    date = facts[0].day.strftime('%Y-%m-%d')
+    current_hash.should eq(
+      "transcripts?date_from=#{date}&date_to=#{date}&deal_id=#{bank.id}")
+
+    page.find('#deal_tag')[:value].should eq(bank.tag)
+    page.find('#transcript_date_from')[:value].
+        should eq(facts[0].day.strftime('%d.%m.%Y'))
+    page.find('#transcript_date_to')[:value].
+        should eq(facts[0].day.strftime('%d.%m.%Y'))
+
+    within('#container_documents table') do
+      within(:xpath, './/thead//tr[1]') do
+        page.find(:xpath, './/td[1]').
+            should have_content(facts[0].day.strftime('%Y-%m-%d'))
+      end
+
+      within(:xpath, './/tfoot//tr[3]') do
+        page.find(:xpath, './/td[1]').
+            should have_content(facts[0].day.strftime('%Y-%m-%d'))
+      end
+
+      within('tbody') do
+        filtered_txns = txns.all.select { |txn| txn.fact.to == bank }
+        per_page.times do |i|
+          page.find(:xpath, ".//tr[#{i+1}]").
+              should have_content(filtered_txns[i].fact.day.strftime('%Y-%m-%d'))
+          page.find(:xpath, ".//tr[#{i+1}]").
+              should have_content(filtered_txns[i].fact.from.tag)
+          page.find(:xpath, ".//tr[#{i+1}]").
+              should have_content(filtered_txns[i].fact.amount)
+        end
+      end
     end
   end
 end

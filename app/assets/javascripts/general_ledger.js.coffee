@@ -31,3 +31,11 @@ $ ->
         @count(data.count)
         @range(@rangeGenerate())
       )
+
+    toTranscript: (object) =>
+      filter =
+        date_from: object.day
+        date_to: object.day
+        deal_id: if object.deal_debit then object.deal_debit else object.deal_credit
+      location.hash = "transcripts?#{$.param(filter)}"
+

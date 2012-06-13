@@ -236,8 +236,10 @@ $ ->
         )
         this.get('#:report', ->
           report = this.params.report
+          delete this.params.report
+          filter = this.params.toHash()
           $.get("/#{report}", {}, (form) ->
-            $.getJSON("/#{report}/data.json", {}, (data) ->
+            $.getJSON("/#{report}/data.json", normalizeHash(filter), (data) ->
               toggleSelect(report)
               viewModel = switch report
                 when 'warehouses'
@@ -247,7 +249,7 @@ $ ->
                 when 'balance_sheet'
                   new BalanceSheetViewModel(data)
                 when 'transcripts'
-                  new TranscriptViewModel(data)
+                  new TranscriptViewModel(data, filter)
                 when 'users'
                   new UsersViewModel(data)
                 when 'groups'

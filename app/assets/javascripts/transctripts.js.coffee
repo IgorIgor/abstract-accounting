@@ -1,19 +1,26 @@
 $ ->
   class self.TranscriptViewModel extends FolderViewModel
-    constructor: (data) ->
+    constructor: (data, params = {}) ->
       @url = '/transcripts/data.json'
       @date_from = ko.observable(new Date())
+      @date_to = ko.observable(new Date())
+      @deal_id = ko.observable()
+      @deal_tag = ko.observable()
+
+      unless $.isEmptyObject(params)
+        @deal_id(params.deal_id)
+        @date_from($.datepicker.parseDate('yy-mm-dd', params.date_from))
+        @date_to($.datepicker.parseDate('yy-mm-dd', params.date_to))
+        @deal_tag(data.deal.tag) if data.deal
+
       @parse_date_from = ko.observable(
         $.datepicker.formatDate('yy-mm-dd', @date_from()))
-      @date_to = ko.observable(new Date())
       @parse_date_to = ko.observable(
         $.datepicker.formatDate('yy-mm-dd', @date_to()))
       @from = ko.observable(ko.mapping.fromJS(data.from))
       @to = ko.observable(ko.mapping.fromJS(data.to))
       @totals = ko.observable(ko.mapping.fromJS(data.totals))
       @mu = ko.observable('natural')
-      @deal_id = ko.observable()
-      @deal_tag = ko.observable()
 
       super(data)
 
@@ -62,5 +69,5 @@ $ ->
     selectTranscript: (object) =>
       @deal_tag(object.account)
       @deal_id(object.deal_id)
-      @date_from(new Date(object.date))
-      @date_to(new Date(object.date))
+      @date_from($.datepicker.parseDate('yy-mm-dd', object.date))
+      @date_to($.datepicker.parseDate('yy-mm-dd', object.date))

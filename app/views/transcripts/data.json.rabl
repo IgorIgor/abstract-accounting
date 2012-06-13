@@ -74,3 +74,8 @@ child(true => :totals) do
     node(:diff) { @transcript ? @transcript.total_credits_diff.to_s : '0.0' }
   end
 end
+if @transcript
+  child(@transcript.deal => :deal) do
+    attributes :id, :tag
+  end
+end

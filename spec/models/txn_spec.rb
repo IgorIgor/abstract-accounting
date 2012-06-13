@@ -770,6 +770,18 @@ describe Txn do
     bs.liabilities.should eq(242000.0)
     bs.to_a.should =~ Balance.in_time_frame(DateTime.civil(2011, 11, 27, 12, 0, 0),
                                             DateTime.civil(2011, 11, 26, 12, 0, 0))
+
+    bs = BalanceSheet.resource_id(@rub.id).date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
+    bs.count.should eq(5)
+    bs.db_count.should eq(5)
+    bs.assets.should eq(159920.0)
+    bs.liabilities.should eq(242000.0)
+
+    bs = BalanceSheet.resource_id(@rub.id).all
+    bs.count.should eq(5)
+    bs.db_count.should eq(5)
+    bs.assets.should eq(173900.0)
+    bs.liabilities.should eq(242000.0)
   end
 
   it "should produce general ledger" do

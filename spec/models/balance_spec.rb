@@ -24,6 +24,8 @@ describe Balance do
     should validate_uniqueness_of(:start).scoped_to(:deal_id)
     should belong_to :deal
     should have_many Balance.versions_association_name
+    should have_one(:give).through(:deal)
+    should have_one(:take).through(:deal)
 
     10.times { create(:balance, :side => Balance::PASSIVE) }
     5.times { create(:balance, :side => Balance::ACTIVE) }
@@ -31,5 +33,17 @@ describe Balance do
     Balance.active.count.should eq(6)
     Balance.passive.each { |b| b.side.should eq(Balance::PASSIVE) }
     Balance.active.each { |b| b.side.should eq(Balance::ACTIVE) }
+  end
+
+  it "should filter by resource" do
+    3.times do |i|
+      create(:balance, deal:
+          create(:deal, give:
+              build(:deal_give, resource: Asset.find_or_create_by_tag("asset#{i}")),
+                        take:
+              build(:deal_take, resource: Asset.find_or_create_by_tag("asset#{2 - i}"))))
+    end
+    Balance.joins(:give).joins(:take).
+        with_resource(Asset.find_or_create_by_tag("asset0").id).count.should eq(2)
   end
 end

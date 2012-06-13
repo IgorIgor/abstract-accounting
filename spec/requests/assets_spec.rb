@@ -89,4 +89,33 @@ feature 'assets', %q{
       find_button('>')[:disabled].should eq('false')
     end
   end
+
+  scenario 'view balances by asset', js: true do
+    res = create(:asset)
+    res2 = create(:asset)
+    deal = create(:deal,
+                   give: build(:deal_give, resource: res),
+                   take: build(:deal_take, resource: res2),
+                   rate: 10)
+    create(:balance, deal: deal)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.assets')
+    current_hash.should eq('assets')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                           "//li[@id='assets' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      page.find(:xpath, ".//tr[1]/td[1]").click
+    end
+    current_hash.should eq("balance_sheet?resource_id=#{res.id}")
+    find('#slide_menu_conditions').visible?.should be_true
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 1)
+      page.should have_content(deal.tag)
+      page.should have_content(deal.entity.name)
+      page.should have_content(res.tag)
+    end
+  end
 end

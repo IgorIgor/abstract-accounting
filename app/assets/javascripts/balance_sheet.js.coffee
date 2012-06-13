@@ -9,25 +9,32 @@
 
 $ ->
   class self.BalanceSheetViewModel extends FolderViewModel
-    constructor: (data) ->
+    constructor: (data, params = {}) ->
       @url = '/balance_sheet/data.json'
       @balances_date = ko.observable(new Date())
       @mu = ko.observable('natural')
       @total_debit = ko.observable(data.total_debit)
       @total_credit = ko.observable(data.total_credit)
+      @resource_id = ko.observable()
+
+      unless $.isEmptyObject(params)
+        @resource_id(params.resource_id) if params.resource_id
+
       super(data)
 
       @params =
         date: @balances_date().toString()
         page: @page
         per_page: @per_page
+        resource_id: @resource_id()
 
     filter: =>
       @params =
         date: @balances_date().toString()
         page: @page
         per_page: @per_page
-      $.getJSON(@url, @params, (data) =>
+        resource_id: @resource_id()
+      $.getJSON(@url, normalizeHash(@params), (data) =>
         @documents(data.objects)
         @page(1)
         @count(data.count)

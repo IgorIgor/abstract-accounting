@@ -37,22 +37,34 @@ class BalanceSheet < Array
 
   filter_attr :date, default: DateTime.now
   filter_attr :paginate
+  filter_attr :resource_id
 
   getter :all do |options = {}|
     build_scopes
-    scope = SqlRecord
-    scope = scope.paginate(self.paginate_value) if self.paginate_value
-    scope.union(@balance_scope.select("id, '#{Balance.name}' as type").to_sql,
-                @income_scope.select("id, '#{Income.name}' as type").to_sql).
-          all.each do |object|
-      self << object.type.constantize.find(object.id, options)
+    if self.resource_id_value
+      @balance_scope.each do |o|
+        self << o
+      end
+    else
+      scope = SqlRecord
+      scope = scope.paginate(self.paginate_value) if self.paginate_value
+      scope.union(@balance_scope.select("id, '#{Balance.name}' as type").to_sql,
+                  @income_scope.select("id, '#{Income.name}' as type").to_sql).
+            all.each do |object|
+        self << object.type.constantize.find(object.id, options)
+      end
     end
     self
   end
 
   getter :db_count do
     build_scopes
-    SqlRecord.union(@balance_scope.select(:id).to_sql, @income_scope.select(:id).to_sql).count
+    if self.resource_id_value
+      @balance_scope.count
+    else
+      SqlRecord.union(@balance_scope.select(:id).to_sql, @income_scope.select(:id).to_sql).
+          count
+    end
   end
 
   def initialize
@@ -79,15 +91,24 @@ class BalanceSheet < Array
     unless @scopes_updated
       @balance_scope = @balance_scope.in_time_frame(self.date_value + 1, self.date_value)
       @income_scope = @income_scope.in_time_frame(self.date_value + 1, self.date_value)
+      if self.resource_id_value
+        @balance_scope = @balance_scope.joins(:take).joins(:give).
+            with_resource(self.resource_id_value)
+      end
       @scopes_updated = true
     end
   end
 
   def retrieve_assets
     build_scopes
-    object = SqlRecord.union(@balance_scope.select(build_select_statement(Balance)).to_sql,
-                             @income_scope.select(build_select_statement(Income)).to_sql).
-                       select("SUM(assets) as assets, SUM(liabilities) as liabilities").first
+    object = if self.resource_id_value
+        SqlRecord.union(@balance_scope.select(build_select_statement(Balance)).to_sql).
+                 select("SUM(assets) as assets, SUM(liabilities) as liabilities").first
+      else
+        SqlRecord.union(@balance_scope.select(build_select_statement(Balance)).to_sql,
+                        @income_scope.select(build_select_statement(Income)).to_sql).
+                  select("SUM(assets) as assets, SUM(liabilities) as liabilities").first
+      end
     @assets = object.assets.to_f
     @liabilities = object.liabilities.to_f
     @assets_retrieved = true
@@ -95,7 +116,8 @@ class BalanceSheet < Array
 
   def build_select_statement(klass)
     {assets: klass::ACTIVE, liabilities: klass::PASSIVE}.map do |key, value|
-      "(CASE WHEN side = '#{value}' THEN value ELSE 0.0 END) as #{key}"
+      "(CASE WHEN #{klass.name.pluralize}.side = '#{value}' THEN " +
+          "#{klass.name.pluralize}.value ELSE 0.0 END) as #{key}"
     end.join(",")
   end
 end

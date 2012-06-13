@@ -138,7 +138,6 @@ $ ->
   class self.FolderViewModel
     constructor: (data) ->
       @documents = ko.observableArray(data.objects)
-
       @page = ko.observable(data.page || 1)
       @per_page = ko.observable(data.per_page)
       @count = ko.observable(data.count)
@@ -148,7 +147,6 @@ $ ->
         like: @filter
         page: @page
         per_page: @per_page
-
       $('.paginate').show()
 
     prev: =>
@@ -247,7 +245,7 @@ $ ->
                 when 'general_ledger'
                   new GeneralLedgerViewModel(data, filter)
                 when 'balance_sheet'
-                  new BalanceSheetViewModel(data)
+                  new BalanceSheetViewModel(data, filter)
                 when 'transcripts'
                   new TranscriptViewModel(data, filter)
                 when 'users'

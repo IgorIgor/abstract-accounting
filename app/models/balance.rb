@@ -17,12 +17,19 @@ class Balance < ActiveRecord::Base
   validates_inclusion_of :side, :in => [PASSIVE, ACTIVE]
   validates_uniqueness_of :start, :scope => :deal_id
   belongs_to :deal
+  has_one :give, :through => :deal
+  has_one :take, :through => :deal
+
   after_initialize :do_init
   scope :not_paid, where("balances.paid IS NULL")
   scope :passive, where(:side => Balance::PASSIVE)
   scope :active, where(:side => Balance::ACTIVE)
 
   class << self
+    def with_resource(id)
+      where{(give.resource_id == id) | (take.resource_id == id)}
+    end
+
     def in_time_frame(start, stop)
       where("balances.start < :stop AND (balances.paid > :start OR balances.paid IS NULL)",
             :start => DateTime.civil(start.year, start.month, start.day, 0, 0, 0),

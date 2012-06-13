@@ -9,7 +9,7 @@
 
 object false
 child(@assets => :objects) do
-  attributes :tag, :mu
+  attributes :id, :tag, :mu
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

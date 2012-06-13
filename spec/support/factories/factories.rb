@@ -34,7 +34,7 @@ FactoryGirl.define do
     tag
     give { |deal| deal.association(:deal_give, :strategy => :build) }
     take { |deal| deal.association(:deal_take, :strategy => :build) }
-    entity #{ |deal| deal.association(:entity) }
+    entity
     rate 1.0
   end
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120527141104) do
+ActiveRecord::Schema.define(:version => 20120614113443) do
 
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
@@ -193,6 +193,7 @@ ActiveRecord::Schema.define(:version => 20120527141104) do
     t.integer  "to_deal_id"
     t.integer  "resource_id"
     t.string   "resource_type"
+    t.integer  "parent_id"
   end
 
   create_table "groups", :force => true do |t|

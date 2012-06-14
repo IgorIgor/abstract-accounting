@@ -28,24 +28,17 @@ class Fact < ActiveRecord::Base
   belongs_to :resource, :polymorphic => true
   belongs_to :from, :class_name => "Deal", :foreign_key => "from_deal_id"
   belongs_to :to, :class_name => "Deal", :foreign_key => "to_deal_id"
+  belongs_to :parent, class_name: Fact
   has_one :txn
-  after_initialize :do_after_initialize
+  has_many :children, class_name: Fact, foreign_key: :parent_id
   before_save :do_save
   before_destroy :do_before_destroy
 
   scope :pendings, includes("txn").where("txns.id is NULL")
 
-  def children
-    @children
-  end
-
   private
-  def do_after_initialize
-    @children = Array.new
-  end
-
   def do_save
-    if changed? or new_record?
+    if new_record?
       unless self.from.nil?
         return false unless update_states(self.from)
       end
@@ -83,7 +76,7 @@ class Fact < ActiveRecord::Base
             fact = rule.to_fact
             fact.day = self.day
             fact.amount *= amount
-            @children << fact
+            self.children << fact
             return false unless fact.save
           end
         end

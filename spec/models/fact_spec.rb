@@ -18,8 +18,10 @@ describe Fact do
     should belong_to :resource
     should belong_to :from
     should belong_to :to
+    should belong_to(:parent).class_name(Fact)
     should have_one :txn
     should have_many Fact.versions_association_name
+    should have_many(:children).class_name(Fact)
     build(:fact).should be_valid
     build(:fact, :from => create(:deal)).should_not be_valid
   end

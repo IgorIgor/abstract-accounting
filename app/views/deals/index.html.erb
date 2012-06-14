@@ -9,7 +9,7 @@
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">
-    <tr>
+    <tr data-bind="click: $parent.toConditions">
       <td data-bind="text: tag, click: $parent.canSelect() ? $parent.select : null"></td>
       <td data-bind="text: entity_tag, click: $parent.canSelect() ? $parent.select : null"></td>
       <td data-bind="text: give, click: $parent.canSelect() ? $parent.select : null"></td>

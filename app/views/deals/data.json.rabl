@@ -26,6 +26,7 @@ child(@deals => :objects) do
     end
   end
   node(:rate) { |deal| deal.rate.to_s }
+  node(:has_rules) { |deal| deal.rules.count }
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

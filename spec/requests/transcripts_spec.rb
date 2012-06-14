@@ -301,5 +301,48 @@ feature "Transcripts", %q{
         end
       end
     end
+
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.deals')
+    current_hash.should eq('deals')
+
+    within('#container_documents') do
+      page.find(:xpath, './/table/tbody/tr[1]/td[1]').click
+    end
+
+    deal = Deal.limit(per_page).first
+    date = DateTime.now.strftime('%Y-%m-%d')
+    current_hash.should eq(
+      "transcripts?date_from=#{date}&date_to=#{date}&deal_id=#{deal.id}")
+
+    page.find('#deal_tag')[:value].should eq(deal.tag)
+    page.find('#transcript_date_from')[:value].
+        should eq(DateTime.now.strftime('%d.%m.%Y'))
+    page.find('#transcript_date_to')[:value].
+        should eq(DateTime.now.strftime('%d.%m.%Y'))
+
+    within('#container_documents table') do
+      within(:xpath, './/thead//tr[1]') do
+        page.find(:xpath, './/td[1]').
+            should have_content(DateTime.now.strftime('%Y-%m-%d'))
+      end
+
+      within(:xpath, './/tfoot//tr[3]') do
+        page.find(:xpath, './/td[1]').
+            should have_content(DateTime.now.strftime('%Y-%m-%d'))
+      end
+
+      within('tbody') do
+        filtered_txns = txns.all.select { |txn| txn.fact.to == bank }
+        per_page.times do |i|
+          page.find(:xpath, ".//tr[#{i+1}]").
+              should have_content(filtered_txns[i].fact.day.strftime('%Y-%m-%d'))
+          page.find(:xpath, ".//tr[#{i+1}]").
+              should have_content(filtered_txns[i].fact.to.tag)
+          page.find(:xpath, ".//tr[#{i+1}]").
+              should have_content(filtered_txns[i].fact.amount)
+        end
+      end
+    end
   end
 end

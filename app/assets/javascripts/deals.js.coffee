@@ -16,3 +16,12 @@ $ ->
       ko.cleanNode($('#container_selection').get(0))
       $('#container_selection').remove()
       $('#main').show()
+
+    toConditions: (object) ->
+      unless object.has_rules
+        date = $.datepicker.formatDate('yy-mm-dd', new Date())
+        filter =
+          date_from: date
+          date_to: date
+          deal_id: object.id
+        location.hash = "transcripts?#{$.param(filter)}"

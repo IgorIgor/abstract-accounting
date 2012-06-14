@@ -39,10 +39,11 @@ class BalanceSheet < Array
   filter_attr :paginate
   filter_attr :resource_id
   filter_attr :entity_id
+  filter_attr :place_id
 
   getter :all do |options = {}|
     build_scopes
-    if self.resource_id_value || self.entity_id_value
+    if self.resource_id_value || self.entity_id_value || self.place_id_value
       @balance_scope.each do |o|
         self << o
       end
@@ -60,7 +61,7 @@ class BalanceSheet < Array
 
   getter :db_count do
     build_scopes
-    if self.resource_id_value || self.entity_id_value
+    if self.resource_id_value || self.entity_id_value || self.place_id_value
       @balance_scope.count
     else
       SqlRecord.union(@balance_scope.select(:id).to_sql, @income_scope.select(:id).to_sql).
@@ -99,13 +100,17 @@ class BalanceSheet < Array
       if self.entity_id_value
         @balance_scope = @balance_scope.joins(:deal).with_entity(self.entity_id_value)
       end
+      if self.place_id_value
+        @balance_scope = @balance_scope.joins(:take).joins(:give).
+            with_place(self.place_id_value)
+      end
       @scopes_updated = true
     end
   end
 
   def retrieve_assets
     build_scopes
-    object = if self.resource_id_value || self.entity_id_value
+    object = if self.resource_id_value || self.entity_id_value || self.place_id_value
         SqlRecord.union(@balance_scope.select(build_select_statement(Balance)).to_sql).
                  select("SUM(assets) as assets, SUM(liabilities) as liabilities").first
       else

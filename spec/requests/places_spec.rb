@@ -86,4 +86,37 @@ feature 'places', %q{
       find_button('>')[:disabled].should eq('false')
     end
   end
+
+  scenario 'view balances by place', js: true do
+    place = create(:place)
+    place2 = create(:place)
+    deal = create(:deal,
+                  give: build(:deal_give, place: place),
+                  take: build(:deal_take, place: place2),
+                  rate: 10)
+    create(:balance, deal: deal)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.places')
+    current_hash.should eq('places')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='places' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      page.find(:xpath, ".//tr[1]/td[1]").click
+    end
+    current_hash.should eq("balance_sheet?place_id=#{place.id}")
+    find('#slide_menu_conditions').visible?.should be_true
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 1)
+      page.should have_content(deal.tag)
+      page.should have_content(deal.entity.name)
+    end
+
+    within("div[@class='paginate']") do
+      find("span[@data-bind='text: range']").should have_content("1-1")
+      find("span[@data-bind='text: count']").should have_content("1")
+    end
+  end
 end

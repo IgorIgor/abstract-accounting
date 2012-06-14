@@ -54,4 +54,16 @@ describe Balance do
     end
     Balance.joins(:deal).with_entity(Entity.find_by_tag("entity0").id).count.should eq(2)
   end
+
+  it "should filter by place" do
+    3.times do |i|
+      create(:balance, deal:
+          create(:deal, give:
+              build(:deal_give, place: Place.find_or_create_by_tag("place#{i}")),
+                        take:
+              build(:deal_take, place: Place.find_or_create_by_tag("place#{2 - i}"))))
+    end
+    Balance.joins(:give).joins(:take).
+        with_place(Place.find_or_create_by_tag("place0").id).count.should eq(2)
+  end
 end

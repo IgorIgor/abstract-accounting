@@ -313,7 +313,7 @@ feature "Transcripts", %q{
     deal = Deal.limit(per_page).first
     date = DateTime.now.strftime('%Y-%m-%d')
     current_hash.should eq(
-      "transcripts?date_from=#{date}&date_to=#{date}&deal_id=#{deal.id}")
+      "transcripts?deal_id=#{deal.id}&date_from=#{date}&date_to=#{date}")
 
     page.find('#deal_tag')[:value].should eq(deal.tag)
     page.find('#transcript_date_from')[:value].

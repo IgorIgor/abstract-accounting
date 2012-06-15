@@ -14,9 +14,11 @@ class GeneralLedgerController < ApplicationController
 
   def data
     @date = params[:date]
-    @gl = GeneralLedger.on_date(@date).paginate(page: params[:page].nil? ? 1 : params[:page],
-                                                per_page: params[:per_page]).
-                        all(include: [fact: [:resource]])
-    @count = GeneralLedger.on_date(@date).count
+    scope = GeneralLedger.on_date(@date)
+    scope = scope.by_deal(params[:deal_id]) if params[:deal_id]
+    @gl = scope.paginate(page: params[:page].nil? ? 1 : params[:page],
+                         per_page: params[:per_page]).
+                all(include: [fact: [:resource]])
+    @count = scope.count
   end
 end

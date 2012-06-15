@@ -18,10 +18,12 @@ $ ->
       $('#main').show()
 
     toConditions: (object) ->
-      unless object.has_rules
-        date = $.datepicker.formatDate('yy-mm-dd', new Date())
-        filter =
-          date_from: date
-          date_to: date
-          deal_id: object.id
+      date = $.datepicker.formatDate('yy-mm-dd', new Date())
+      filter =
+        deal_id: object.id
+      if object.has_rules
+        filter["date"] = date
+        location.hash = "general_ledger?#{$.param(filter)}"
+      else
+        filter["date_to"] = filter["date_from"] = date
         location.hash = "transcripts?#{$.param(filter)}"

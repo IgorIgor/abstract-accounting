@@ -9,9 +9,11 @@
 
 $ ->
   class self.GeneralLedgerViewModel extends FolderViewModel
-    constructor: (data) ->
+    constructor: (data, params = {}) ->
       @url = '/general_ledger/data.json'
       @date = ko.observable(new Date())
+      unless $.isEmptyObject(params)
+        @date($.datepicker.parseDate('yy-mm-dd', params.date))
 
       super(data)
 

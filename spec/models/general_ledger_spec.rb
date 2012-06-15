@@ -27,6 +27,79 @@ describe GeneralLedger do
     end
   end
 
+  describe "#scope" do
+    it "should define instance method" do
+      str = "Test string"
+      GeneralLedger.class_eval do
+        scope :test1 do
+          str
+        end
+      end
+      GeneralLedger.new.test1.should eq(str)
+    end
+    it "should define singleton method" do
+      str = "Test string"
+      GeneralLedger.class_eval do
+        scope :test2 do
+          str
+        end
+      end
+      GeneralLedger.test2.should eq(str)
+    end
+    it "should pass args from singleton to instance methods" do
+      GeneralLedger.class_eval do
+        scope :test3 do |i|
+          i * 2
+        end
+        scope :test4 do |i, l|
+          i * l
+        end
+      end
+      GeneralLedger.test3(5).should eq(10)
+      GeneralLedger.test4(3, 4).should eq(12)
+    end
+
+    it "should call scoped method in txn scope" do
+      GeneralLedger.class_eval do
+        scope :test_count do
+          count
+        end
+      end
+      GeneralLedger.test_count.should eq(Txn.count)
+    end
+
+    it "should return self if scope updated" do
+      GeneralLedger.class_eval do
+        scope :test_limit do |*args|
+          limit(*args)
+        end
+        scope :test_all do
+          all
+        end
+      end
+      GeneralLedger.test_limit(1).class.name.should eq(GeneralLedger.name)
+      GeneralLedger.test_limit(1).test_all.count.should eq(1)
+    end
+
+    it "should clone self if scope updated" do
+      GeneralLedger.class_eval do
+        scope :test_by_facts do |ids|
+          where { fact_id.in(ids) }
+        end
+        scope :test_limit do |*args|
+          limit(*args)
+        end
+        scope :test_all do
+          all
+        end
+      end
+      fact_ids = Fact.limit(2).select(:id)
+      scope = GeneralLedger.test_by_facts(fact_ids)
+      scope.test_limit(1).test_all.count.should eq(1)
+      scope.test_all.count.should eq(2)
+    end
+  end
+
   describe "#all" do
     it "should pass attr to txn all" do
       GeneralLedger.all.count.should eq(Txn.count)
@@ -67,6 +140,16 @@ describe GeneralLedger do
     it "should return txns paginated" do
       GeneralLedger.paginate(page: 1, per_page: (Txn.count / 2)).all.
                 should =~ Txn.limit(Txn.count / 2).all
+    end
+  end
+
+  describe "#by_deal" do
+    it "should filter txns" do
+      wb = build(:waybill)
+      wb.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+      wb.save!
+      wb.apply
+      GeneralLedger.by_deal(wb.deal_id).all.should eq(Txn.all[-2, 2])
     end
   end
 end

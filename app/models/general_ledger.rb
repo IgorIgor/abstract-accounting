@@ -9,41 +9,52 @@
 
 class GeneralLedger
   class << self
-    def on_date(date = nil)
-      date = date.nil? ? Date.current : Date.parse(date)
-      self.current_scope = self.current_scope.on_date(date)
-      self
-    end
-
-    def paginate(attrs = {})
-      unless attrs[:page].nil?
-        per_page = (!attrs[:per_page].nil? and attrs[:per_page].to_i) ||
-            Settings.root.per_page.to_i
-        self.current_scope = self.current_scope.limit(per_page).
-                                      offset((attrs[:page].to_i - 1) * per_page)
+    def scope(name, &filter)
+      if block_given?
+        define_method name do |*args|
+          value = @current_scope.instance_exec *args, &filter
+          if value.instance_of?(ActiveRecord::Relation)
+            ledger_scope = clone
+            ledger_scope.instance_variable_set(:@current_scope, value)
+            ledger_scope
+          else
+            value
+          end
+        end
+        define_singleton_method name do |*args|
+          self.new.send(name, *args)
+        end
       end
-      self
     end
+  end
 
-    def all(attrs = {})
-      scope = self.current_scope
-      self.current_scope = Txn
-      scope.all(attrs)
-    end
+  def initialize
+    @current_scope = Txn
+  end
 
-    def count
-      scope = self.current_scope
-      self.current_scope = Txn
-      scope.count
-    end
+  scope :on_date do |date = nil|
+    on_date(date.nil? ? Date.current : Date.parse(date))
+  end
 
-    protected
-    def current_scope
-      Thread.current["#{self}_current_scope"] or Txn
+  scope :paginate do |attrs = {}|
+    unless attrs[:page].nil?
+      per_page = (!attrs[:per_page].nil? and attrs[:per_page].to_i) ||
+          Settings.root.per_page.to_i
+      limit(per_page).offset((attrs[:page].to_i - 1) * per_page)
     end
+  end
 
-    def current_scope=(scope)
-      Thread.current["#{self}_current_scope"] = scope
-    end
+  scope :all do |attrs = {}|
+    all(attrs)
+  end
+
+  scope :count do
+    count
+  end
+
+  scope :by_deal do |deal_id|
+    fact_ids = Fact.where{(from_deal_id == deal_id) | (to_deal_id == deal_id)}.select(:id)
+    children_fact_ids = Fact.where{parent_id.in(fact_ids)}.select(:id)
+    joins{fact}.where{fact.id.in(children_fact_ids + fact_ids)}
   end
 end

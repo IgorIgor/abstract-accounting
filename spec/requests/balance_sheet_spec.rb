@@ -161,4 +161,104 @@ feature "BalanceSheet", %q{
       page.should have_content(bs.assets.to_s)
     end
   end
+
+  scenario 'show transcripts by selected balance', js: true do
+    rub = create(:chart).currency
+    aasii = create(:asset)
+    share = create(:deal,
+                   give: build(:deal_give, resource: aasii),
+                   take: build(:deal_take, resource: rub),
+                   rate: 10000)
+    bank = create(:deal,
+                  give: build(:deal_give, resource: rub),
+                  take: build(:deal_take, resource: rub),
+                  rate: 1)
+    f = create(:fact, from: share, to: bank, resource: rub,
+               amount: 10000)
+    txn = create(:txn, fact: f)
+
+    page_login
+    page.find('#btn_slide_conditions').click
+    click_link I18n.t('views.home.balance_sheet')
+    current_hash.should eq('balance_sheet')
+    page.should have_xpath("//li[@id='balance_sheet' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      within(:xpath, ".//tr[1]") do
+        page.should have_content(share.tag)
+        page.should have_content(share.entity.name)
+        page.should have_content(share.give.resource.tag)
+      end
+    end
+
+    check("balance_#{share.balance.id}")
+    click_button(I18n.t('views.balance_sheet.report_on_selected'))
+
+    page.should have_xpath("//li[@id='transcripts' and @class='sidebar-selected']")
+    find_field('deal_tag').value.should have_content(share.tag)
+
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 1)
+      page.should have_content(txn.fact.day.strftime('%Y-%m-%d'))
+      if share.id == txn.fact.to.id
+        page.find(:xpath, ".//tr[1]//td[3]").
+            should have_content(txn.fact.amount)
+        page.should have_content(txn.fact.from.tag)
+      else
+        page.find(:xpath, ".//tr[1]//td[4]").
+            should have_content(txn.fact.amount)
+        page.should have_content(txn.fact.to.tag)
+      end
+    end
+  end
+
+  scenario 'show general ledger by selected balances', js: true do
+    rub = create(:chart).currency
+    aasii = create(:asset)
+    share = create(:deal,
+                   give: build(:deal_give, resource: aasii),
+                   take: build(:deal_take, resource: rub),
+                   rate: 10000)
+    bank = create(:deal,
+                  give: build(:deal_give, resource: rub),
+                  take: build(:deal_take, resource: rub),
+                  rate: 1)
+    f = create(:fact, from: share, to: bank, resource: rub,
+               amount: 10000)
+    txn = create(:txn, fact: f)
+
+    page_login
+    page.find('#btn_slide_conditions').click
+    click_link I18n.t('views.home.balance_sheet')
+    current_hash.should eq('balance_sheet')
+    page.should have_xpath("//li[@id='balance_sheet' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      within(:xpath, ".//tr[1]") do
+        page.should have_content(share.tag)
+        page.should have_content(share.entity.name)
+        page.should have_content(share.give.resource.tag)
+      end
+    end
+
+    check("balance_#{share.balance.id}")
+    check("balance_#{bank.balance.id}")
+    click_button(I18n.t('views.balance_sheet.report_on_selected'))
+
+    page.should have_xpath("//li[@id='general_ledger' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 2)
+      page.should have_content(txn.fact.day.strftime('%Y-%m-%d'))
+      page.should have_content(txn.fact.amount.to_s)
+      page.should have_content(txn.fact.resource.tag)
+      page.should have_content(txn.fact.from.tag)
+      page.should have_content(txn.fact.to.tag)
+      page.should have_content(txn.value)
+      page.should have_content(txn.earnings)
+
+      find(:xpath, ".//tr[1]//td[7]").should have_content('')
+      find(:xpath, ".//tr[2]//td[6]").should have_content('')
+    end
+  end
 end

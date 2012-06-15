@@ -16,6 +16,7 @@ class GeneralLedgerController < ApplicationController
     @date = params[:date]
     scope = GeneralLedger.on_date(@date)
     scope = scope.by_deal(params[:deal_id]) if params[:deal_id]
+    scope = scope.by_deals(params[:deal_ids]) if params[:deal_ids]
     @gl = scope.paginate(page: params[:page].nil? ? 1 : params[:page],
                          per_page: params[:per_page]).
                 all(include: [fact: [:resource]])

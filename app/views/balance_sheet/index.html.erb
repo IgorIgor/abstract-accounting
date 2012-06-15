@@ -1,3 +1,7 @@
+<div class='actions with-padding'>
+  <input type='button' value="<%= t 'views.balance_sheet.report_on_selected' %>"
+         data-bind="click: reportOnSelected, disable: !selected()"/>
+</div>
 <div class="left">
   <label for="balance_date_start"><%= t 'views.balance_sheet.date' %>:</label>
   <input type="text" id="balance_date_start"
@@ -12,9 +16,11 @@
          data-bind="checked: mu"><label for="currency_mu">
   <%= t 'views.balance_sheet.currency' %></label>
 </div>
+<div class="clear"></div>
 <table>
   <thead>
     <tr>
+      <th class="cell-checkbox"></th>
       <th class=""><%=t 'views.balance_sheet.deal'%></th>
       <th class=""><%=t 'views.balance_sheet.entity'%></th>
       <th class=""><%=t 'views.balance_sheet.resource'%></th>
@@ -24,13 +30,16 @@
   </thead>
   <tfoot>
     <tr>
-      <td colspan="3"><%=t 'views.balance_sheet.total'%>:</td>
+      <td colspan="4"><%=t 'views.balance_sheet.total'%>:</td>
       <td data-bind="text: total_debit"></td>
       <td data-bind="text: total_credit"></td>
     </tr>
   </tfoot>
   <tbody data-bind="foreach: documents">
     <tr>
+      <td class="cell-checkbox">
+        <input type="checkbox" data-bind="click: $parent.selectBalance,
+                                          attr: {id: 'balance_' + deal_id}"/></td>
       <td data-bind="text: tag"></td>
       <td data-bind="text: entity"></td>
       <td data-bind="text: resource"></td>

@@ -57,4 +57,8 @@ class GeneralLedger
     children_fact_ids = Fact.where{parent_id.in(fact_ids)}.select(:id)
     joins{fact}.where{fact.id.in(children_fact_ids + fact_ids)}
   end
+
+  scope :by_deals do |deal_ids|
+    joins{fact}.where{fact.from_deal_id.in(deal_ids) | fact.to_deal_id.in(deal_ids)}
+  end
 end

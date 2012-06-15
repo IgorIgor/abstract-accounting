@@ -51,6 +51,9 @@ $ ->
     null until $.map(normalize(hash), (c) -> c).toString().indexOf(true) == -1
     hash
 
+  Array.prototype.remove = (value) ->
+    this.splice(this.indexOf(value), 1)
+
   class self.ObjectViewModel
     constructor: (object, route, readonly = false)->
       @readonly = ko.observable(readonly)

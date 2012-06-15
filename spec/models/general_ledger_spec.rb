@@ -152,4 +152,18 @@ describe GeneralLedger do
       GeneralLedger.by_deal(wb.deal_id).all.should eq(Txn.all[-2, 2])
     end
   end
+
+  describe "#by_deals" do
+    it "should filter txns" do
+      wb = build(:waybill)
+      wb.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+      wb.save!
+      wb.apply
+      deal_ids = Txn.limit(Txn.count / 2).collect do |item|
+        (item.fact_id % 2) == 0 ? item.fact.from_deal_id : item.fact.to_deal_id
+      end
+      GeneralLedger.by_deals(deal_ids).all.should =~ Txn.joins(:fact).
+        where{(fact.from_deal_id.in(deal_ids) | fact.to_deal_id.in(deal_ids))}
+    end
+  end
 end

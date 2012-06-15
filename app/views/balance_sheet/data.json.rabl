@@ -9,6 +9,8 @@
 
 object false
 child(@balances => :objects) do
+  node(:deal_id) { |balance| balance.deal.id }
+  node(:date) { |balance| balance.start.strftime('%Y-%m-%d') }
   node(:tag) { |balance| balance.deal.tag }
   node(:entity) { |balance| balance.deal.entity.name }
   node(:resource) { |balance| balance.deal.give.resource.tag }

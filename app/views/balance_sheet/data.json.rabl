@@ -14,6 +14,7 @@ child(@balances => :objects) do
   node(:tag) { |balance| balance.deal.tag }
   node(:entity) { |balance| balance.deal.entity.name }
   node(:resource) { |balance| balance.deal.give.resource.tag }
+  node(:place) { |balance| balance.deal.give.place.tag }
   node(:type) { |balance| balance.side == Balance::PASSIVE ? 'debit' : 'credit' }
   node(:amount) { |balance| balance.amount.to_s }
   node(:value) { |balance| balance.value.to_s }

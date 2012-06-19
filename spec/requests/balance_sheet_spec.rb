@@ -35,6 +35,7 @@ feature "BalanceSheet", %q{
         page.should have_content(I18n.t('views.balance_sheet.deal'))
         page.should have_content(I18n.t('views.balance_sheet.entity'))
         page.should have_content(I18n.t('views.balance_sheet.resource'))
+        page.should have_content(I18n.t('views.balance_sheet.place'))
         page.should have_content(I18n.t('views.balance_sheet.debit'))
         page.should have_content(I18n.t('views.balance_sheet.credit'))
       end
@@ -45,6 +46,7 @@ feature "BalanceSheet", %q{
             page.should have_content(balance.deal.tag)
             page.should have_content(balance.deal.entity.name)
             page.should have_content(balance.deal.give.resource.tag)
+            page.should have_content(balance.deal.give.place.tag)
             if Balance::PASSIVE == balance.side
               find(:xpath, ".//td[5]").should have_content('')
             else
@@ -188,6 +190,7 @@ feature "BalanceSheet", %q{
         page.should have_content(share.tag)
         page.should have_content(share.entity.name)
         page.should have_content(share.give.resource.tag)
+        page.should have_content(share.give.place.tag)
       end
     end
 
@@ -238,6 +241,7 @@ feature "BalanceSheet", %q{
         page.should have_content(share.tag)
         page.should have_content(share.entity.name)
         page.should have_content(share.give.resource.tag)
+        page.should have_content(share.give.place.tag)
       end
     end
 

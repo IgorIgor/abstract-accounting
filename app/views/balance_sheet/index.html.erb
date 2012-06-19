@@ -24,13 +24,14 @@
       <th class=""><%=t 'views.balance_sheet.deal'%></th>
       <th class=""><%=t 'views.balance_sheet.entity'%></th>
       <th class=""><%=t 'views.balance_sheet.resource'%></th>
+      <th class=""><%=t 'views.balance_sheet.place'%></th>
       <th class=""><%=t 'views.balance_sheet.debit'%></th>
       <th class=""><%=t 'views.balance_sheet.credit'%></th>
     </tr>
   </thead>
   <tfoot>
     <tr>
-      <td colspan="4"><%=t 'views.balance_sheet.total'%>:</td>
+      <td colspan="5"><%=t 'views.balance_sheet.total'%>:</td>
       <td data-bind="text: total_debit"></td>
       <td data-bind="text: total_credit"></td>
     </tr>
@@ -43,6 +44,7 @@
       <td data-bind="text: tag"></td>
       <td data-bind="text: entity"></td>
       <td data-bind="text: resource"></td>
+      <td data-bind="text: place"></td>
       <td data-bind=
             "text: type == 'debit' ? ($parent.mu() == 'natural' ? amount : value) : ''"></td>
       <td data-bind=

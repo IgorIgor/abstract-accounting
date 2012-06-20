@@ -34,8 +34,6 @@ class AllocationsController < ApplicationController
     allocation = nil
     begin
       Allocation.transaction do
-        Chart.create!(:currency => Money.create!(:alpha_code => "RUB",
-                                                 :num_code => 222)) unless Chart.count > 0
         params[:allocation][:storekeeper_type] = "Entity"
         params[:allocation][:foreman_type] = "Entity"
         params[:allocation].delete(:state) if params[:allocation].has_key?(:state)

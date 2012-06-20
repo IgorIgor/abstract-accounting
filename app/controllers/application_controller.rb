@@ -9,7 +9,7 @@
 
 class ApplicationController < ActionController::Base
   protect_from_forgery
-  before_filter :set_locale, :require_login
+  before_filter :set_locale, :require_login, :check_chart
 
   def set_locale
     I18n.locale = params[:locale] || I18n.default_locale
@@ -43,5 +43,9 @@ class ApplicationController < ActionController::Base
   private
   def not_authenticated
     redirect_to login_path, alert: t('alert.unauthorized_access')
+  end
+
+  def check_chart
+    render :js => "window.location = '/#settings/new'" unless Chart.count > 0
   end
 end

@@ -1,0 +1,8 @@
+ru:
+  views:
+    settings:
+      page_title: Настройки
+      currency: Валюта учёта
+      tag: Название
+      code: Код
+      save: Сохранить

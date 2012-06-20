@@ -8,6 +8,8 @@
 # Please see ./COPYING for details
 
 class HomeController < ApplicationController
+  skip_before_filter :check_chart, only: [:index]
+
   def user_documents
     if current_user.root?
       implemented_documents + [User.name, Group.name]

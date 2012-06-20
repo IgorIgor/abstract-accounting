@@ -14,6 +14,10 @@ feature "estimates", %q{
   I want to manage estimates
 } do
 
+  before :each do
+    create(:chart)
+  end
+
   scenario "manage estimates", :js => true do
     pending "disabled according to not complete estimate"
     page_login

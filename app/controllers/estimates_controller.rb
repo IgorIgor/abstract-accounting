@@ -19,8 +19,6 @@ class EstimatesController < ApplicationController
   def create
     begin
       Estimate.transaction do
-        Chart.create!(:currency => Money.create!(:alpha_code => "RUB",
-          :num_code => 222)) unless Chart.count > 0
         estimate = Estimate.new(params[:object])
         unless estimate.legal_entity
           legal_entity = LegalEntity.new(params[:legal_entity])

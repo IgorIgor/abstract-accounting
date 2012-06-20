@@ -14,6 +14,10 @@ feature 'deals', %q{
   I want to view deals
 } do
 
+  before :each do
+    create(:chart)
+  end
+
   scenario 'view deals', js: true do
     per_page = Settings.root.per_page
     (per_page + 1).times { create(:deal) }

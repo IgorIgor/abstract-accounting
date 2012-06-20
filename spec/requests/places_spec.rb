@@ -14,6 +14,10 @@ feature 'places', %q{
   I want to view places
 } do
 
+  before :each do
+    create(:chart)
+  end
+
   scenario 'view places', js: true do
     per_page = Settings.root.per_page
     (per_page + 1).times { create(:place) }

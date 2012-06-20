@@ -14,6 +14,10 @@ feature "group", %q{
   I want to create groups
 }do
 
+  before :each do
+    create(:chart)
+  end
+
   scenario "create groups", js: true do
     2.times { create(:user) }
     page_login

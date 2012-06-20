@@ -8,7 +8,7 @@
 # Please see ./COPYING for details
 
 class PasswordResetsController < ApplicationController
-  skip_before_filter :require_login
+  skip_before_filter :check_chart, :require_login
 
   def new
   end

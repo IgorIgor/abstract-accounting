@@ -14,9 +14,12 @@ feature 'allocation', %q{
   I want to view allocations
 } do
 
+  before :each do
+    create(:chart)
+  end
+
   scenario 'view allocations', js: true do
     per_page = Settings.root.per_page
-    create(:chart)
     user = create(:user)
     credential = create(:credential, user: user, document_type: Allocation.name)
     wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place)
@@ -278,7 +281,6 @@ feature 'allocation', %q{
   scenario 'test allocations save', js: true do
     PaperTrail.enabled = true
 
-    create(:chart)
     user = create(:user)
     credential = create(:credential, user: user, document_type: Allocation.name)
     wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place,
@@ -332,7 +334,6 @@ feature 'allocation', %q{
   scenario 'save distibution by non root user', js: true do
     PaperTrail.enabled = true
 
-    create(:chart)
     wb = build(:waybill, created: DateTime.current.change(year: 2011))
     wb.add_item(tag: 'roof', mu: 'm2', amount: 12, price: 100.0)
     wb.add_item(tag: 'roof2', mu: 'm2', amount: 12, price: 100.0)
@@ -375,7 +376,6 @@ feature 'allocation', %q{
   scenario 'show allocations', js: true do
     PaperTrail.enabled = true
 
-    create(:chart)
     wb = build(:waybill)
     (0..4).each do |i|
       wb.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 100+i, price: 10+i)
@@ -432,7 +432,6 @@ feature 'allocation', %q{
   scenario 'applying allocations', js: true do
     PaperTrail.enabled = true
 
-    create(:chart)
     wb = build(:waybill)
     wb.add_item(tag: "test resource", mu: "test mu", amount: 100, price: 10)
     wb.save!
@@ -459,7 +458,6 @@ feature 'allocation', %q{
   scenario 'canceling allocations', js: true do
     PaperTrail.enabled = true
 
-    create(:chart)
     wb = build(:waybill)
     wb.add_item(tag: "test resource", mu: "test mu", amount: 100, price: 10)
     wb.save!
@@ -486,7 +484,6 @@ feature 'allocation', %q{
   scenario 'generate pdf', js: true do
     PaperTrail.enabled = true
 
-    create(:chart)
     wb = build(:waybill)
     wb.add_item(tag: "test resource", mu: "test mu", amount: 100, price: 10)
     wb.save!
@@ -532,7 +529,6 @@ feature 'allocation', %q{
   scenario 'view allocations', js: true do
     per_page = Settings.root.per_page
 
-    create(:chart)
     (per_page + 1).times do |i|
       wb = build(:waybill)
       wb.add_item(tag: "test resource##{i}", mu: "test mu", amount: 200+i, price: 100+i)

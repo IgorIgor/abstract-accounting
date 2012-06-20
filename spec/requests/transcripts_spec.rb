@@ -15,8 +15,12 @@ feature "Transcripts", %q{
   I want to view transcripts
 } do
 
+  before :each do
+    create(:chart)
+  end
+
   scenario 'visit transcripts page', js: true do
-    rub = create(:chart).currency
+    rub = Chart.first.currency
     aasii = create(:asset)
     share = create(:deal,
                      give: build(:deal_give, resource: aasii),

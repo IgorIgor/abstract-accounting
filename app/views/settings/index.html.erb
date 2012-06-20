@@ -1,0 +1,36 @@
+<form data-bind="validate: { success: save }">
+  <div class='actions'>
+    <input type="submit" value="<%= t('views.settings.save') %>" />
+  </div>
+  <span id="page-title"><%= t('views.settings.page_title') %></span>
+
+  <%= render 'home/errors' %>
+
+  <fieldset>
+    <legend><%= t('views.settings.currency') %>:</legend>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="money_alpha_code"><%= t('views.settings.tag') %>:
+          </label>
+        </span>
+        <span data-bind='with: object.money'>
+          <input type="text" id="money_alpha_code"
+                 name="<%= t('views.settings.tag') %>" rule="required"
+                 data-bind="value: alpha_code" />
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="money_num_code"><%= t('views.settings.code') %>:
+          </label>
+        </span>
+        <span data-bind='with: object.money'>
+          <input type="text" id="money_num_code"
+                 name="<%= t('views.settings.code') %>" rule="required"
+                 data-bind="value: num_code" />
+        </span>
+      </div>
+    </div>
+  </fieldset>
+</form>

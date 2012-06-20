@@ -15,6 +15,10 @@ feature "BalanceSheet", %q{
   I want to view balance sheet
 } do
 
+  before :each do
+    create(:chart)
+  end
+
   scenario 'visit balance sheet page', js: true do
     per_page = Settings.root.per_page
     (per_page + 1).times do |i|
@@ -165,7 +169,7 @@ feature "BalanceSheet", %q{
   end
 
   scenario 'show transcripts by selected balance', js: true do
-    rub = create(:chart).currency
+    rub = Chart.first.currency
     aasii = create(:asset)
     share = create(:deal,
                    give: build(:deal_give, resource: aasii),
@@ -216,7 +220,7 @@ feature "BalanceSheet", %q{
   end
 
   scenario 'show general ledger by selected balances', js: true do
-    rub = create(:chart).currency
+    rub = Chart.first.currency
     aasii = create(:asset)
     share = create(:deal,
                    give: build(:deal_give, resource: aasii),

@@ -14,6 +14,10 @@ feature 'assets', %q{
   I want to view assets
 } do
 
+  before :each do
+    create(:chart)
+  end
+
   scenario 'view assets', js: true do
     per_page = Settings.root.per_page
     (per_page + 1).times { create(:asset) }

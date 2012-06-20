@@ -1,0 +1,8 @@
+en:
+  views:
+    settings:
+      page_title: Settings
+      currency: Currency
+      tag: Tag
+      code: Code
+      save: Save

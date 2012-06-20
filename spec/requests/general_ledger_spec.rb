@@ -6,9 +6,12 @@ feature "GeneralLedger", %q{
   I want to view general ledger
 } do
 
+  before :each do
+    create(:chart)
+  end
+
   scenario 'visit general ledger page', js: true do
     per_page = Settings.root.per_page
-    create(:chart)
     wb = build(:waybill)
     per_page.times do |i|
       wb.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 100+i, price: 10+i)

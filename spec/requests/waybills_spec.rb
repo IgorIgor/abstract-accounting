@@ -14,6 +14,10 @@ feature "waybill", %q{
   I want to manage waybills
 }do
 
+  before :each do
+    create(:chart)
+  end
+
   scenario "manage waybills", js: true do
     PaperTrail.enabled = true
 
@@ -264,7 +268,6 @@ feature "waybill", %q{
   scenario 'applying waybills', js: true do
     PaperTrail.enabled = true
 
-    create(:chart)
     wb = build(:waybill)
     wb.add_item(tag: "test resource", mu: "test mu", amount: 100, price: 10)
     wb.save!
@@ -286,7 +289,6 @@ feature "waybill", %q{
   scenario 'canceling waybills', js: true do
     PaperTrail.enabled = true
 
-    create(:chart)
     wb = build(:waybill)
     wb.add_item(tag: "test resource", mu: "test mu", amount: 100, price: 10)
     wb.save!
@@ -307,7 +309,6 @@ feature "waybill", %q{
 
   scenario 'view waybills', js: true do
     per_page = Settings.root.per_page
-    create(:chart)
     (per_page + 1).times do |i|
       wb = build(:waybill)
       wb.add_item(tag: "test resource##{i}", mu: "test mu", amount: 200+i, price: 100+i)

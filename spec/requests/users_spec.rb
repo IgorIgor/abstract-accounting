@@ -14,6 +14,10 @@ feature "user", %q{
   I want to create users
 }do
 
+  before :each do
+    create(:chart)
+  end
+
   scenario "create users", :js => true do
     page_login
 

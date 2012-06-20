@@ -14,10 +14,13 @@ feature 'warehouses', %q{
   I want to view warehouses
 } do
 
+  before :each do
+    create(:chart)
+  end
+
   scenario 'view warehouses', js: true do
     per_page = Settings.root.per_page
 
-    create(:chart)
     wb = build(:waybill)
     (0..per_page).each do |i|
       wb.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 100+i, price: 10+i)
@@ -152,7 +155,6 @@ feature 'warehouses', %q{
     user = create(:user, password: password)
     credential = create(:credential, user: user, document_type: Warehouse.name)
 
-    create(:chart)
     wb = build(:waybill)
     5.times do |i|
       wb.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 100+i, price: 10+i)

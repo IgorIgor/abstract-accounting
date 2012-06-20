@@ -33,8 +33,6 @@ class WaybillsController < ApplicationController
     waybill = nil
     begin
       Waybill.transaction do
-        Chart.create!(:currency => Money.create!(:alpha_code => "RUB",
-                                                 :num_code => 222)) unless Chart.count > 0
         params[:waybill][:distributor_type] = "LegalEntity"
         params[:waybill][:storekeeper_type] = "Entity"
         waybill = Waybill.new(params[:waybill])

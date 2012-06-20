@@ -14,6 +14,10 @@ feature 'entities', %q{
   I want to view entities
 } do
 
+  before :each do
+    create(:chart)
+  end
+
   scenario 'view entities', js: true do
     per_page = Settings.root.per_page
     (per_page + 1).times { create(:entity) }

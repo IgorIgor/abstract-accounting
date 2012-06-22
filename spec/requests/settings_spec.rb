@@ -56,4 +56,22 @@ feature 'settings', %q{
       end.should change(Chart, :count).by(1)
     end
   end
+
+  scenario 'show current settings', js: true do
+    create(:chart)
+    page_login
+    current_hash.should eq('inbox')
+    page.should have_selector("#inbox[@class='sidebar-selected']")
+    click_link I18n.t('views.home.settings')
+    current_hash.should eq('settings')
+    page.should_not have_selector("#inbox[@class='sidebar-selected']")
+    page.should have_xpath("//span[@id='page-title']")
+    find('#money_alpha_code')[:disabled].should eq('true')
+    find('#money_num_code')[:disabled].should eq('true')
+    find_button(I18n.t('views.settings.save'))[:disabled].should eq('true')
+
+    money = Chart.first.currency
+    find("#money_alpha_code")[:value].should eq(money.alpha_code)
+    find("#money_num_code")[:value].should eq(money.num_code.to_s)
+  end
 end

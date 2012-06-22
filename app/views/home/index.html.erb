@@ -1,5 +1,7 @@
 <div id="header">
   <div class="div-logout"><%= link_to t('views.home.logout'), :logout %></div>
+  <div class="div-logout"><a href="#settings"><%=t 'views.home.settings' %></a>
+  </div>
   <div>
     <span>
       <%= current_user.kind_of?(RootUser) ? current_user.email : current_user.entity.tag %>

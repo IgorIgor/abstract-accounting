@@ -11,7 +11,11 @@ class SettingsController < ApplicationController
   skip_before_filter :check_chart
 
   def index
-    render 'settings/index', layout: false
+    @money = Chart.first.currency
+  end
+
+  def preview
+    render 'settings/preview', layout: false
   end
 
   def new

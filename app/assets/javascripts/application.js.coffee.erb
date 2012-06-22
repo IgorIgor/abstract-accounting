@@ -196,11 +196,20 @@ $ ->
           )
         )
         this.get('#settings/new', ->
-          $.get('/settings', {}, (form) ->
+          $.get('/settings/preview', {}, (form) ->
             $.getJSON('/settings/new.json', {}, (data) ->
               toggleSelect()
               $('#container_documents').html(form)
               ko.applyBindings(new SettingsViewModel(data), $('#container_documents').get(0))
+            )
+          )
+        )
+        this.get('#settings', ->
+          $.get('/settings/preview', {}, (form) ->
+            $.getJSON('/settings.json', {}, (data) ->
+              toggleSelect()
+              $('#container_documents').html(form)
+              ko.applyBindings(new SettingsViewModel(data, true), $('#container_documents').get(0))
             )
           )
         )

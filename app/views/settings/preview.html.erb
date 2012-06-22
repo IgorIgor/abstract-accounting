@@ -1,6 +1,7 @@
 <form data-bind="validate: { success: save }">
   <div class='actions'>
-    <input type="submit" value="<%= t('views.settings.save') %>" />
+    <input type="submit" value="<%= t('views.settings.save') %>"
+           data-bind="disable: readonly" />
   </div>
   <span id="page-title"><%= t('views.settings.page_title') %></span>
 
@@ -17,7 +18,7 @@
         <span data-bind='with: object.money'>
           <input type="text" id="money_alpha_code"
                  name="<%= t('views.settings.tag') %>" rule="required"
-                 data-bind="value: alpha_code" />
+                 data-bind="value: alpha_code, disable: $parent.readonly" />
         </span>
       </div>
       <div>
@@ -28,7 +29,7 @@
         <span data-bind='with: object.money'>
           <input type="text" id="money_num_code"
                  name="<%= t('views.settings.code') %>" rule="required"
-                 data-bind="value: num_code" />
+                 data-bind="value: num_code, disable: $parent.readonly" />
         </span>
       </div>
     </div>

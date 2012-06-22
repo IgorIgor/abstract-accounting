@@ -104,22 +104,22 @@ input[type=text], input[type=password] {
     padding: 7px;
     height: 25px;
     clear: left;
+  }
 
-    .paginate {
-      float: right;
+  .paginate {
+    float: right;
 
-      span {
-        font-weight: bold;
-      }
+    span {
+      font-weight: bold;
+    }
 
-      input {
-        height: 25px;
-        min-width: 30px;
-      }
+    input {
+      height: 25px;
+      min-width: 30px;
+    }
 
-      .paginate-right {
-        margin-left: -7px;
-      }
+    .paginate-right {
+      margin-left: -7px;
     }
   }
 
@@ -227,6 +227,10 @@ input[type=text], input[type=password] {
           .checkbox-old:checked + .star {
             background: url(star.png) no-repeat;
           }
+        }
+
+        td.td-inner-table {
+          padding: 0;
         }
 
         td.cell-entity {
@@ -577,4 +581,10 @@ input[type=text], input[type=password] {
       }
     }
   }
+}
+
+.inner-table {
+  padding: 0;
+  margin: 0;
+  border-top: $table_border;
 }

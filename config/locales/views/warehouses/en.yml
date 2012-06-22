@@ -6,3 +6,6 @@ en:
       real_amount: "Real Amount"
       expectation_amount: "Expectation Amount"
       mu: "MU"
+      group_none: No grouping
+      group_place: Place
+      group_tag: Tag

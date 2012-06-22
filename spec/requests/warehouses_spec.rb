@@ -217,4 +217,220 @@ feature 'warehouses', %q{
     end
     click_link I18n.t('views.home.logout')
   end
+
+  scenario 'grouping warehouses', js: true do
+    per_page = Settings.root.per_page
+
+    wb = build(:waybill)
+    wb2 = build(:waybill)
+
+    3.times do |i|
+      wb.add_item(tag: "resource##{i}", mu: "mu##{i}", price: 100+i, amount: 10+i)
+    end
+
+    wb.save!
+    wb.apply
+
+    (0..per_page).each { |i|
+      wb2.add_item(tag: "resource##{i}", mu: "mu##{i}", price: 500+i, amount: 50+i)
+    }
+    wb2.save!
+    wb2.apply
+
+    page_login
+    page.find('#btn_slide_conditions').click
+    page.find('#warehouses a').click
+    current_hash.should eq('warehouses')
+
+    within('#container_documents table tbody') do
+      page.all('tr').count.should eq(per_page)
+    end
+
+    select(I18n.t('views.warehouses.group_place'), from: 'warehouse_group')
+
+    resources = Warehouse.
+        all(where: { place_id: { equal_attr: wb.storekeeper_place.id } })
+    resources.length.should eq(3)
+
+    within('#container_documents table tbody') do
+      all("tr", visible: true)
+      page.should have_selector('tr', count: 2, visible: true)
+      page.should have_content(wb.storekeeper_place.tag)
+      page.should have_content(wb2.storekeeper_place.tag)
+      page.should have_selector(:xpath,
+                      ".//tr//td[@class='distribution-tree-actions-by-wb']
+                        //div[@class='ui-corner-all ui-state-hover']
+                        //span[@class='ui-icon ui-icon-circle-plus']", count: 2)
+      find(:xpath,
+           ".//tr[1]//td[@class='distribution-tree-actions-by-wb']").click
+      within("#group_#{wb.storekeeper_place.id}") do
+        page.should have_selector("td[@class='td-inner-table']")
+
+        within("div[@class='paginate']") do
+          within("span[@data-bind='text: range']") do
+            page.should have_content("1-#{resources.length}")
+          end
+          within("span[@data-bind='text: count']") do
+            page.should have_content("#{resources.length}")
+          end
+          find_button('<')[:disabled].should eq('true')
+          find_button('>')[:disabled].should eq('true')
+        end
+
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: resources.length)
+          resources.each do |r|
+            page.should have_content(wb.storekeeper_place.tag)
+            page.should have_content(r.tag)
+            page.should have_content(r.real_amount.to_i)
+            page.should have_content(r.exp_amount.to_i)
+            page.should have_content(r.mu)
+          end
+        end
+      end
+      find(:xpath,
+           ".//tr[1]//td[@class='distribution-tree-actions-by-wb']").click
+      page.find("#group_#{wb2.storekeeper_place.id}").visible?.should_not be_true
+
+      resources = Warehouse.
+          all(where: { place_id: { equal_attr: wb2.storekeeper_place.id } })
+      resources.length.should eq(per_page + 1)
+
+      find(:xpath,
+           ".//tr[3]//td[@class='distribution-tree-actions-by-wb']").click
+      within("#group_#{wb2.storekeeper_place.id}") do
+        page.should have_selector("td[@class='td-inner-table']")
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: per_page)
+          per_page.times do |i|
+            page.should have_content(wb2.storekeeper_place.tag)
+            page.should have_content(resources[i].tag)
+            page.should have_content(resources[i].real_amount.to_i)
+            page.should have_content(resources[i].exp_amount.to_i)
+            page.should have_content(resources[i].mu)
+          end
+        end
+
+        within("div[@class='paginate']") do
+          within("span[@data-bind='text: range']") do
+            page.should have_content("1-#{per_page}")
+          end
+          within("span[@data-bind='text: count']") do
+            page.should have_content("#{resources.length}")
+          end
+          find_button('<')[:disabled].should eq('true')
+          find_button('>')[:disabled].should eq('false')
+          click_button('>')
+          find_button('<')[:disabled].should eq('false')
+          find_button('>')[:disabled].should eq('true')
+          within("span[@data-bind='text: range']") do
+            page.should have_content("#{per_page + 1}-#{per_page + 1}")
+          end
+          within("span[@data-bind='text: count']") do
+            page.should have_content("#{resources.length}")
+          end
+        end
+
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: 1)
+          page.should have_content(wb2.storekeeper_place.tag)
+          page.should have_content(resources.last.tag)
+          page.should have_content(resources.last.real_amount.to_i)
+          page.should have_content(resources.last.exp_amount.to_i)
+          page.should have_content(resources.last.mu)
+        end
+
+        within("div[@class='paginate']") do
+          click_button('<')
+        end
+      end
+      find(:xpath,
+           ".//tr[3]//td[@class='distribution-tree-actions-by-wb']").click
+      page.find("#group_#{wb2.storekeeper_place.id}").visible?.should_not be_true
+    end
+
+    select(I18n.t('views.warehouses.group_tag'), from: 'warehouse_group')
+
+    within("div[@class='paginate']") do
+      within("span[@data-bind='text: range']") do
+        page.should have_content("1-#{per_page}")
+      end
+      within("span[@data-bind='text: count']") do
+        page.should have_content("#{per_page + 1}")
+      end
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
+      click_button('>')
+      find_button('<')[:disabled].should eq('false')
+      find_button('>')[:disabled].should eq('true')
+      within("span[@data-bind='text: range']") do
+        page.should have_content("#{per_page + 1}-#{per_page + 1}")
+      end
+      within("span[@data-bind='text: count']") do
+        page.should have_content("#{per_page + 1}")
+      end
+    end
+
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 1, visible: true)
+      page.should have_content(Asset.last.tag)
+    end
+
+    within("div[@class='paginate']") do
+      click_button('<')
+    end
+
+    items = wb2.items
+    within('#container_documents table tbody') do
+      per_page.times do |i|
+        page.should have_content(items[i].resource.tag)
+      end
+    end
+
+    resource = Asset.find_by_tag_and_mu('resource#0', 'mu#0')
+    resources = Warehouse.
+        all(where: { asset_id: { equal_attr: resource.id } })
+    resources.length.should eq(2)
+
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: per_page, visible: true)
+      page.should have_selector(:xpath,
+                      ".//tr//td[@class='distribution-tree-actions-by-wb']
+                        //div[@class='ui-corner-all ui-state-hover']
+                        //span[@class='ui-icon ui-icon-circle-plus']",
+                      count: per_page)
+
+      find(:xpath,
+           ".//tr[1]//td[@class='distribution-tree-actions-by-wb']").click
+      within("#group_#{resource.id}") do
+        page.should have_selector("td[@class='td-inner-table']")
+
+        within("div[@class='paginate']") do
+          within("span[@data-bind='text: range']") do
+            page.should have_content("1-#{resources.length}")
+          end
+          within("span[@data-bind='text: count']") do
+            page.should have_content("#{resources.length}")
+          end
+          find_button('<')[:disabled].should eq('true')
+          find_button('>')[:disabled].should eq('true')
+        end
+
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: resources.length)
+          page.should have_content(wb.storekeeper_place.tag)
+          page.should have_content(wb2.storekeeper_place.tag)
+          page.should have_content(resource.tag)
+          resources.each do |r|
+            page.should have_content(r.real_amount.to_i)
+            page.should have_content(r.exp_amount.to_i)
+            page.should have_content(r.mu)
+          end
+        end
+      end
+      find(:xpath,
+           ".//tr[1]//td[@class='distribution-tree-actions-by-wb']").click
+      page.find("#group_#{resource.id}").visible?.should_not be_true
+    end
+  end
 end

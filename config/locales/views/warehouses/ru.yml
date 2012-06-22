@@ -6,3 +6,6 @@ ru:
       real_amount: "Количество на складе"
       expectation_amount: "Ожидаемое количество"
       mu: "Ед. изм."
+      group_none: Без группировки
+      group_place: По месту
+      group_tag: По названию

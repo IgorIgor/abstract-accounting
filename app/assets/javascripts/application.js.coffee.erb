@@ -258,40 +258,49 @@ $ ->
           report = this.params.report
           delete this.params.report
           filter = this.params.toHash()
-          $.get("/#{report}", {}, (form) ->
-            $.getJSON("/#{report}/data.json", normalizeHash(filter), (data) ->
-              toggleSelect(report)
-              viewModel = switch report
-                when 'warehouses'
-                  new WarehouseViewModel(data)
-                when 'general_ledger'
-                  new GeneralLedgerViewModel(data, filter)
-                when 'balance_sheet'
-                  new BalanceSheetViewModel(data, filter)
-                when 'transcripts'
-                  new TranscriptViewModel(data, filter)
-                when 'users'
-                  new UsersViewModel(data)
-                when 'groups'
-                  new GroupsViewModel(data)
-                when 'assets'
-                  new AssetsViewModel(data)
-                when 'entities'
-                  new EntitiesViewModel(data)
-                when 'places'
-                  new PlacesViewModel(data)
-                when 'deals'
-                  new DealsViewModel(data)
-                when 'waybills'
-                  new WaybillsViewModel(data)
-                when 'allocations'
-                  new AllocationsViewModel(data)
-
-              $('#container_documents').html(form)
-              ko.cleanNode($('#main').get(0))
-              ko.applyBindings(viewModel, $('#main').get(0))
+          if filter.group_by?
+            $.get("/#{report}/group",  {}, (form) ->
+              $.getJSON("/#{report}/group.json", normalizeHash(filter), (data) ->
+                $('#container_documents').html(form)
+                ko.cleanNode($('#main').get(0))
+                ko.applyBindings(new GroupedViewModel(data, report, filter), $('#main').get(0))
+              )
             )
-          )
+          else
+            $.get("/#{report}", {}, (form) ->
+              $.getJSON("/#{report}/data.json", normalizeHash(filter), (data) ->
+                toggleSelect(report)
+                viewModel = switch report
+                  when 'warehouses'
+                    new WarehouseViewModel(data)
+                  when 'general_ledger'
+                    new GeneralLedgerViewModel(data, filter)
+                  when 'balance_sheet'
+                    new BalanceSheetViewModel(data, filter)
+                  when 'transcripts'
+                    new TranscriptViewModel(data, filter)
+                  when 'users'
+                    new UsersViewModel(data)
+                  when 'groups'
+                    new GroupsViewModel(data)
+                  when 'assets'
+                    new AssetsViewModel(data)
+                  when 'entities'
+                    new EntitiesViewModel(data)
+                  when 'places'
+                    new PlacesViewModel(data)
+                  when 'deals'
+                    new DealsViewModel(data)
+                  when 'waybills'
+                    new WaybillsViewModel(data)
+                  when 'allocations'
+                    new AllocationsViewModel(data)
+
+                $('#container_documents').html(form)
+                ko.cleanNode($('#main').get(0))
+                ko.applyBindings(viewModel, $('#main').get(0))
+              )
+            )
         )
       ).run()
 

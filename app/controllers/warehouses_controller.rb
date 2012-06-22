@@ -41,7 +41,29 @@ class WarehousesController < ApplicationController
       end
     end
 
+    attrs[:where] = params[:where] if params[:where]
+
     @warehouse = Warehouse.all(attrs)
     @count = Warehouse.count(attrs)
+  end
+
+  def group
+    respond_to do |format|
+      format.html { render :group, layout: false }
+      format.json do
+        params[:page] ||= 1
+        params[:per_page] ||= Settings.root.per_page
+
+        attrs = { page: params[:page], per_page: params[:per_page] }
+
+        if params.has_key?(:group_by)
+          attrs[:group_by] = params[:group_by]
+
+          @warehouse = Warehouse.group(attrs)
+          @count = Warehouse.count(attrs)
+          @group_by = params[:group_by]
+        end
+      end
+    end
   end
 end

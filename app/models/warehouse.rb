@@ -12,7 +12,7 @@ class Warehouse
 
   def initialize(attrs)
     @place = attrs['place']
-    @id = attrs['id']
+    @id = attrs['asset_id']
     @tag = attrs['tag']
     @real_amount = attrs['real_amount']
     @exp_amount = attrs['exp_amount']
@@ -21,13 +21,22 @@ class Warehouse
 
   def self.all(attrs = {})
     attrs[:select] = 'warehouse'
-
     warehouse = []
     ActiveRecord::Base.connection.
         execute("#{script(attrs)} #{SqlBuilder.paginate(attrs)}").each { |entry|
       warehouse << Warehouse.new(entry)
     }
     warehouse
+  end
+
+  def self.group(attrs = {})
+    groups = []
+    attrs[:select] = 'group'
+    ActiveRecord::Base.connection.
+        execute("#{script(attrs)} #{SqlBuilder.paginate(attrs)}").each { |entry|
+      groups << { value: entry['group_column'], id: entry['id'] }
+    }
+    groups
   end
 
   def self.count(attrs = {})
@@ -63,15 +72,36 @@ class Warehouse
       end
 
       if attrs.has_key?(:without)
-        condition << " AND warehouse.id NOT IN (#{attrs[:without].join(', ')})"
+        condition << " AND warehouse.asset_id NOT IN (#{attrs[:without].join(', ')})"
+      end
+
+      group_by = 'place_id, asset_id'
+      if attrs[:group_by]
+        group_by =
+          if attrs[:group_by] == 'place'
+            'place_id'
+          elsif attrs[:group_by] == 'tag'
+            'asset_id'
+          end
+
+        if attrs[:select] == 'group'
+          select_id =
+            if attrs[:group_by] == 'place'
+              'place_id as id'
+            elsif attrs[:group_by] == 'tag'
+              'asset_id as id'
+            end
+          select = "#{attrs[:group_by]} as group_column, #{select_id}"
+        end
       end
 
       "
       SELECT #{select} FROM (
-        SELECT place, id, tag, SUM(real_amount) as real_amount,
+        SELECT place, storekeeper_place_id as place_id, asset_id, tag,
+               SUM(real_amount) as real_amount,
                ROUND(SUM(real_amount - exp_amount), 2) as exp_amount, mu
         FROM (
-          SELECT places.tag as place, assets.id as id, assets.tag as tag,
+          SELECT places.tag as place, assets.id as asset_id, assets.tag as tag,
                  states.amount as real_amount, 0.0 as exp_amount, assets.mu as mu,
                  entities.id as storekeeper_id, places.id as storekeeper_place_id
           FROM rules
@@ -85,7 +115,7 @@ class Warehouse
           WHERE states.paid is NULL #{condition_storekeeper} #{condition_attr}
           GROUP BY places.id, terms.resource_id
           UNION
-          SELECT places.tag as place, assets.id as id, assets.tag as tag,
+          SELECT places.tag as place, assets.id as asset_id, assets.tag as tag,
                  0.0 as amount, SUM(rules.rate) as exp_amount, assets.mu as mu,
                  entities.id as storekeeper_id, places.id as storekeeper_place_id
           FROM rules
@@ -99,7 +129,7 @@ class Warehouse
           WHERE allocations.state = 1 AND states.paid is NULL
           GROUP BY places.id, terms.resource_id
         )
-        GROUP BY place, tag, mu
+        GROUP BY #{group_by}
       ) as warehouse
       WHERE warehouse.real_amount > 0.0 AND warehouse.exp_amount > 0.0 #{condition}"
     end

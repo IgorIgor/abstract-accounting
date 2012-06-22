@@ -358,5 +358,24 @@ describe Warehouse do
              .first.exp_amount.to_i.should eq(300)
     wb.items.first.exp_amount.should eq(300)
     wb.items.last.exp_amount.should eq(215)
+
+    wh = Warehouse.group({group_by: 'place'})
+    wh.select{ |w| (w[:value] == 'Moscow') &&
+        (w[:id] == moscow.id) }.should_not be_empty
+    wh.select{ |w| (w[:value] == 'Minsk') &&
+        (w[:id] == minsk.id) }.should_not be_empty
+    Warehouse.count({group_by: 'place'}).should eq(wh.length)
+
+    wh = Warehouse.group({group_by: 'tag'})
+    resorce = Asset.find_by_tag_and_mu('roof', 'rm')
+    wh.select{ |w| (w[:value] == resorce.tag) &&
+        (w[:id] == resorce.id) }.should_not be_empty
+    resorce = Asset.find_by_tag_and_mu('nails', 'pcs')
+    wh.select{ |w| (w[:value] == resorce.tag) &&
+        (w[:id] == resorce.id) }.should_not be_empty
+    resorce = Asset.find_by_tag_and_mu('nails', 'kg')
+    wh.select{ |w| (w[:value] == resorce.tag) &&
+        (w[:id] == resorce.id) }.should_not be_empty
+    Warehouse.count({group_by: 'tag'}).should eq(wh.length)
   end
 end

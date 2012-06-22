@@ -56,6 +56,7 @@ Abstract::Application.routes.draw do
   resources :warehouses, only: [:index] do
     collection do
       get 'data'
+      get 'group'
     end
   end
   resources :allocations, except: [:edit, :update, :destroy] do

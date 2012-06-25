@@ -751,7 +751,7 @@ describe Txn do
     (bs + Income.in_time_frame(DateTime.now, DateTime.now)).count.should eq(7)
 
     dt = DateTime.now
-    dt.should eq(BalanceSheet.all(date: dt).date)
+    dt.should eq(BalanceSheet.date(dt).date_value)
 
     bs = BalanceSheet.all
     bs.count.should eq(7)
@@ -764,7 +764,7 @@ describe Txn do
     bs.assets.should eq(242300.0)
     bs.liabilities.should eq(242300.0)
 
-    bs = BalanceSheet.all(date: DateTime.civil(2011, 11, 26, 12, 0, 0))
+    bs = BalanceSheet.date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
     bs.count.should eq(6)
     bs.assets.should eq(242000.0)
     bs.liabilities.should eq(242000.0)

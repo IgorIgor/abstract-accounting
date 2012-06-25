@@ -8,13 +8,65 @@
 # Please see ./COPYING for details
 
 class BalanceSheet < Array
-  attr_reader :date
+  class << self
+    def filter_attr(name, options = {})
+      define_method "#{name}_value" do
+        value = self.instance_variable_get("@#{name}".to_sym)
+        if value
+          value
+        elsif options[:default]
+          options[:default]
+        end
+      end
+      define_method name do |value = nil|
+        self.instance_variable_set("@#{name}".to_sym, value)
+        self
+      end
+      define_singleton_method name do |value = nil|
+        self.new.send(name, value)
+      end
+    end
 
-  def initialize(date)
-    @date = date
+    def getter(name, &block)
+      define_method name, &block
+      define_singleton_method name do |*attrs|
+        self.new.send(name, *attrs)
+      end
+    end
+  end
+
+  filter_attr :date, default: DateTime.now
+  filter_attr :paginate
+
+  getter :all do |options = {}|
+    build_scopes
+    sql = "SELECT * FROM(
+           #{@balance_scope.select("id, '#{Balance.name}' as type").to_sql}
+           UNION
+           #{@income_scope.select("id, '#{Income.name}' as type").to_sql})
+           #{SqlBuilder.paginate(self.paginate_value)}"
+    ActiveRecord::Base.connection.execute(sql).each do |item|
+      self << item["type"].constantize.find(item["id"], options)
+    end
+    self
+  end
+
+  getter :db_count do
+    build_scopes
+    sql = "SELECT count(*) FROM(
+           #{@balance_scope.select("id, '#{Balance.name}' as type").to_sql}
+           UNION
+           #{@income_scope.select("id, '#{Income.name}' as type").to_sql})"
+    ActiveRecord::Base.connection.execute(sql)[0][0]
+  end
+
+  def initialize
     @assets_retrieved = false
     @assets = 0.0
     @liabilities = 0.0
+    @balance_scope = Balance
+    @income_scope = Income
+    @scopes_updated = false
   end
 
   def assets
@@ -27,52 +79,31 @@ class BalanceSheet < Array
     @liabilities
   end
 
-  def self.all(options = {})
-    options[:date] = DateTime.now if options[:date].nil?
-    sql = "SELECT * FROM (#{sql_all_balances(options[:date])})
-           #{SqlBuilder.paginate(options)}"
-    bs = BalanceSheet.new(options[:date])
-    options.delete(:date)
-    options.delete(:page)
-    options.delete(:per_page)
-    ActiveRecord::Base.connection.execute(sql).each do |item|
-      bs << item["type"].constantize.find(item["id"], options)
-    end
-    bs
-  end
-
-  def self.count(date = DateTime.now)
-    sql = "SELECT count(*) as count_all FROM (#{sql_all_balances(date)})"
-    ActiveRecord::Base.connection.execute(sql)[0][0]
-  end
-
   protected
-  def self.sql_all_balances(date)
-    "SELECT id, 'Balance' as type FROM balances
-     WHERE balances.start < '#{(date + 1).to_s(:db)}'"+
-     " AND (balances.paid > '#{date.change(:hour => 13).to_s(:db)}'"+
-     " OR balances.paid IS NULL)
-     UNION
-     SELECT id, 'Income' as type FROM incomes
-     WHERE incomes.start < '#{(date + 1).to_s(:db)}'"+
-     " AND (incomes.paid > '#{date.change(:hour => 13).to_s(:db)}'"+
-     " OR incomes.paid IS NULL)"
+  def build_scopes
+    unless @scopes_updated
+      @balance_scope = @balance_scope.in_time_frame(self.date_value + 1, self.date_value)
+      @income_scope = @income_scope.in_time_frame(self.date_value + 1, self.date_value)
+      @scopes_updated = true
+    end
   end
 
   def retrieve_assets
+    build_scopes
     sql = "SELECT SUM(assets) as assets, SUM(liabilities) as liabilities FROM (
-            SELECT id, side, (CASE WHEN side = '#{Balance::ACTIVE}' THEN value ELSE 0.0 END) as assets,
-                         (CASE WHEN side = '#{Balance::PASSIVE}' THEN value ELSE 0.0 END) as liabilities FROM balances
-            WHERE balances.start < '#{(date + 1).to_s(:db)}' AND (balances.paid > '#{date.change(:hour => 13).to_s(:db)}' OR balances.paid IS NULL)
+            #{@balance_scope.select(build_select_statement(Balance)).to_sql}
             UNION
-            SELECT id, side, (CASE WHEN side = '#{Balance::ACTIVE}' THEN value ELSE 0.0 END) as assets,
-                         (CASE WHEN side = '#{Balance::PASSIVE}' THEN value ELSE 0.0 END) as liabilities FROM incomes
-            WHERE incomes.start < '#{(date + 1).to_s(:db)}' AND (incomes.paid > '#{date.change(:hour => 13).to_s(:db)}' OR incomes.paid IS NULL))"
-
+            #{@income_scope.select(build_select_statement(Income)).to_sql})"
     ActiveRecord::Base.connection.execute(sql).each do |item|
       @assets = item["assets"].to_f
       @liabilities = item["liabilities"].to_f
     end
     @assets_retrieved = true
+  end
+
+  def build_select_statement(klass)
+    {assets: klass::ACTIVE, liabilities: klass::PASSIVE}.map do |key, value|
+      "(CASE WHEN side = '#{value}' THEN value ELSE 0.0 END) as #{key}"
+    end.join(",")
   end
 end

@@ -19,6 +19,6 @@ end
 node(:total_debit) { @balances.liabilities.to_s }
 node(:total_credit) { @balances.assets.to_s }
 node (:per_page) { params[:per_page] || Settings.root.per_page }
-node (:count) { @count }
-node (:balances_date) { @date }
+node (:count) { @balances.db_count }
+node (:balances_date) { @balances.date_value }
 node (:mu) { @mu }

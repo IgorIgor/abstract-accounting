@@ -21,8 +21,8 @@ feature "BalanceSheet", %q{
       create(:balance, side: i % 2 == 0 ? Balance::ACTIVE : Balance::PASSIVE, amount: 3.0)
     end
 
-    bs = BalanceSheet.all(date: DateTime.now, page: 1)
-    bs_count = BalanceSheet.count
+    bs = BalanceSheet.paginate(page: 1).all
+    bs_count = BalanceSheet.db_count
 
     page_login
     page.find('#btn_slide_conditions').click
@@ -108,8 +108,8 @@ feature "BalanceSheet", %q{
     page.should have_datepicker("balance_date_start")
     page.datepicker("balance_date_start").prev_month.day(10)
 
-    bs = BalanceSheet.all(date: date)
-    bs_count = BalanceSheet.count(date)
+    bs = BalanceSheet.date(date).all
+    bs_count = BalanceSheet.date(date).db_count
     to_range = (bs_count > per_page) ? per_page : bs_count
     within("#container_documents table tbody") do
       bs.each do |item|

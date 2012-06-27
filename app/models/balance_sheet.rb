@@ -40,24 +40,19 @@ class BalanceSheet < Array
 
   getter :all do |options = {}|
     build_scopes
-    sql = "SELECT * FROM(
-           #{@balance_scope.select("id, '#{Balance.name}' as type").to_sql}
-           UNION
-           #{@income_scope.select("id, '#{Income.name}' as type").to_sql})
-           #{SqlBuilder.paginate(self.paginate_value)}"
-    ActiveRecord::Base.connection.execute(sql).each do |item|
-      self << item["type"].constantize.find(item["id"], options)
+    scope = SqlRecord
+    scope = scope.paginate(self.paginate_value) if self.paginate_value
+    scope.union(@balance_scope.select("id, '#{Balance.name}' as type").to_sql,
+                @income_scope.select("id, '#{Income.name}' as type").to_sql).
+          all.each do |object|
+      self << object.type.constantize.find(object.id, options)
     end
     self
   end
 
   getter :db_count do
     build_scopes
-    sql = "SELECT count(*) FROM(
-           #{@balance_scope.select("id, '#{Balance.name}' as type").to_sql}
-           UNION
-           #{@income_scope.select("id, '#{Income.name}' as type").to_sql})"
-    ActiveRecord::Base.connection.execute(sql)[0][0]
+    SqlRecord.union(@balance_scope.select(:id).to_sql, @income_scope.select(:id).to_sql).count
   end
 
   def initialize
@@ -90,14 +85,11 @@ class BalanceSheet < Array
 
   def retrieve_assets
     build_scopes
-    sql = "SELECT SUM(assets) as assets, SUM(liabilities) as liabilities FROM (
-            #{@balance_scope.select(build_select_statement(Balance)).to_sql}
-            UNION
-            #{@income_scope.select(build_select_statement(Income)).to_sql})"
-    ActiveRecord::Base.connection.execute(sql).each do |item|
-      @assets = item["assets"].to_f
-      @liabilities = item["liabilities"].to_f
-    end
+    object = SqlRecord.union(@balance_scope.select(build_select_statement(Balance)).to_sql,
+                             @income_scope.select(build_select_statement(Income)).to_sql).
+                       select("SUM(assets) as assets, SUM(liabilities) as liabilities").first
+    @assets = object.assets.to_f
+    @liabilities = object.liabilities.to_f
     @assets_retrieved = true
   end
 

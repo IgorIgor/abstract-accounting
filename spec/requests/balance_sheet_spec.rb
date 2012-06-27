@@ -97,7 +97,7 @@ feature "BalanceSheet", %q{
       find_button('>')[:disabled].should eq('false')
     end
 
-    date = DateTime.now.change(day: 10).prev_month
+    date = DateTime.now.change(day: 10, hour: 12, min: 0, sec: 0).prev_month
     half = (per_page / 2).round
     half.times do |i|
       bs[i].update_attributes(start: date)

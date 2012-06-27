@@ -46,11 +46,11 @@ FactoryGirl.define do
   end
 
   factory :balance do
-    start DateTime.now
+    start DateTime.now.change(hour: 12)
     amount 1.0
     value 1.0
     side Balance::ACTIVE
-    deal #{ |balance| balance.association(:deal) }
+    deal
   end
 
   factory :fact do

@@ -77,6 +77,7 @@ Abstract::Application.routes.draw do
   resources :balance_sheet, only: [:index] do
     collection do
       get 'data'
+      get 'group'
     end
   end
   resources :transcripts, only: [:index] do

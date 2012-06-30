@@ -1,4 +1,21 @@
 $ ->
+  class self.GroupedWarehouseViewModel extends GroupedViewModel
+    constructor: (data, filter) ->
+      super(data, "warehouses", filter)
+
+    generateChildrenParams: (object) =>
+      params = {}
+      switch @group_by()
+        when 'place'
+          params = {where: {place_id: {equal_attr: object.group_id}}}
+        when 'tag'
+          params = {where: {asset_id: {equal_attr: object.group_id}}}
+      params
+
+    createChildrenViewModel: (data, params) =>
+      new WarehouseViewModel(data, params)
+
+
   class self.WarehouseViewModel extends FolderViewModel
     constructor: (data, params = {}) ->
       @url = '/warehouses/data.json'

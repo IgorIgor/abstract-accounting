@@ -43,18 +43,44 @@
     </tr>
   </tfoot>
   <tbody data-bind="foreach: documents">
-    <tr>
-      <td class="cell-checkbox">
-        <input type="checkbox" data-bind="click: $parent.selectBalance,
-                                          attr: {id: 'balance_' + deal_id}"/></td>
-      <td data-bind="text: tag"></td>
-      <td data-bind="text: entity"></td>
-      <td data-bind="text: resource"></td>
-      <td data-bind="text: place"></td>
-      <td data-bind=
-            "text: type == 'debit' ? ($parent.mu() == 'natural' ? amount : value) : ''"></td>
-      <td data-bind=
-            "text: type == 'credit' ? ($parent.mu() == 'natural' ? amount : value) : ''"></td>
-    </tr>
+  <tr>
+    <td class="tree-actions-by-wb"
+        data-bind="click: $parent.expandTree">
+      <div class="ui-corner-all ui-state-hover">
+        <span class="ui-icon ui-icon-circle-plus"></span>
+      </div>
+    </td>
+    <td colspan="6" data-bind="text: group_value"></td>
+  </tr>
+  <tr data-bind="attr: {id: 'group_' + group_id}, with: subitems">
+    <td></td>
+    <td colspan="6" class="td-inner-table">
+      <div class="paginate">
+        <span data-bind="text: range"></span> <%= t('views.home.of') %>
+        <span data-bind="text: count"></span>
+        <input type="button" value="<" data-bind="click: prev, disable: page() < 2"/>
+        <input type="button" class="paginate-right" value=">"
+               data-bind="click: next, disable: page()*per_page() >= count()"/>
+      </div>
+      <table class="inner-table">
+        <tbody data-bind="foreach: documents">
+        <tr>
+          <td class="cell-checkbox">
+            <input type="checkbox" data-bind="click: $parent.selectBalance,
+                                          attr: {id: 'balance_' + deal_id}"/>
+          </td>
+          <td data-bind="text: tag"></td>
+          <td data-bind="text: entity"></td>
+          <td data-bind="text: resource"></td>
+          <td data-bind="text: place"></td>
+          <td data-bind=
+              "text: type == 'debit' ? ($parent.mu() == 'natural' ? amount : value) : ''"></td>
+          <td data-bind=
+              "text: type == 'credit' ? ($parent.mu() == 'natural' ? amount : value) : ''"></td>
+        </tr>
+        </tbody>
+      </table>
+    </td>
+  </tr>
   </tbody>
 </table>

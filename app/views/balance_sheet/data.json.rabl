@@ -13,9 +13,9 @@ child(@balances => :objects) do
   node(:date) { |balance| balance.start.strftime('%Y-%m-%d') }
   node(:tag) { |balance| balance.deal.tag }
   node(:entity) { |balance| balance.deal.entity.name }
-  node(:resource) { |balance| balance.deal.give.resource.tag }
-  node(:place) { |balance| balance.deal.give.place.tag }
-  node(:type) { |balance| balance.side == Balance::PASSIVE ? 'debit' : 'credit' }
+  node(:resource) { |balance| balance.deal.give.resource.tag }#TODO: show resource by side
+  node(:place) { |balance| balance.deal.give.place.tag }#TODO: show place by side
+  node(:type) { |balance| balance.side == Balance::PASSIVE ? 'debit' : 'credit' } #TODO change
   node(:amount) { |balance| balance.amount.to_s }
   node(:value) { |balance| balance.value.to_s }
 end

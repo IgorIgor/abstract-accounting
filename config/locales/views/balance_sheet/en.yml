@@ -13,3 +13,7 @@ en:
       total: "Total"
       report_on_selected: Report on selected
       place: Place
+      group_none: No grouping
+      group_place: Place
+      group_resource: Tag
+      group_entity: Entity

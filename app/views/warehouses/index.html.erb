@@ -15,8 +15,7 @@
 
 <% if current_user.root? %>
   <div class='actions'>
-    <select id="warehouse_group" size="1"
-            data-bind="value: group_by">
+    <select id="warehouse_group" size="1" data-bind="value: group_by">
       <option value=""><%=t 'views.warehouses.group_none' %></option>
       <option value="place"><%=t 'views.warehouses.group_place' %></option>
       <option value="tag"><%=t 'views.warehouses.group_tag' %></option>

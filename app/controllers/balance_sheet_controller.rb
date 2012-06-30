@@ -22,4 +22,23 @@ class BalanceSheetController < ActionController::Base
         paginate(page: params[:page] || 1, per_page: params[:per_page]).
         all(include: [deal: [:entity, give: [:resource]]])
   end
+
+  def group
+    respond_to do |format|
+      format.html { render :group, layout: false }
+      format.json do
+        scope = BalanceSheet
+        scope = scope.resource(params[:resource]) if params[:resource]
+        scope = scope.entity(params[:entity]) if params[:entity]
+        scope = scope.place_id(params[:place_id]) if params[:place_id]
+        scope = scope.date(params[:date].nil? ? DateTime.now : Date.parse(params[:date]))
+        @balances_nogroup = scope.clone
+        scope = scope.group_by(params[:group_by]) if params[:group_by]
+        @balances = scope.
+            paginate(page: params[:page] || 1, per_page: params[:per_page]).
+            all(include: [deal: [:entity, give: [:resource]]])
+        @group_by = params[:group_by]
+      end
+    end
+  end
 end

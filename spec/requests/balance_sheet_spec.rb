@@ -269,4 +269,410 @@ feature "BalanceSheet", %q{
       find(:xpath, ".//tr[2]//td[6]").should have_content('')
     end
   end
+
+  scenario 'grouping balance sheet', js: true do
+    per_page = Settings.root.per_page
+
+    wb = build(:waybill)
+    wb2 = build(:waybill)
+
+    3.times do |i|
+      wb.add_item(tag: "resource##{i}", mu: "mu##{i}", price: 100+i, amount: 10+i)
+    end
+
+    wb.save!
+    wb.apply
+
+    (0..per_page).each { |i|
+      wb2.add_item(tag: "resource##{i}", mu: "mu##{i}", price: 500+i, amount: 50+i)
+    }
+
+    wb2.save!
+    wb2.apply
+
+    page_login
+    page.find('#btn_slide_conditions').click
+    page.find('#balance_sheet a').click
+    current_hash.should eq('balance_sheet')
+
+    within('#container_documents table tbody') do
+      #page.all('tr').count.should eq(per_page)
+      page.should have_selector('tr', count: per_page)
+    end
+
+    select(I18n.t('views.balance_sheet.group_place'), from: 'balance_sheet_group')
+
+    places = BalanceSheet.group_by('place').date(DateTime.now).
+        all(include: [deal: [:entity, give: [:resource]]])
+    places.length.should eq(4)
+
+    within('#container_documents table tbody') do
+      sleep(1)
+      page.should have_selector('tr', count: places.count, visible: true)
+      page.should have_content(wb.storekeeper_place.tag)
+      page.should have_content(wb2.storekeeper_place.tag)
+      page.should have_content(wb.distributor_place.tag)
+      page.should have_content(wb2.distributor_place.tag)
+      page.should have_selector(:xpath,
+                                ".//tr//td[@class='tree-actions-by-wb']
+                        //div[@class='ui-corner-all ui-state-hover']
+                        //span[@class='ui-icon ui-icon-circle-plus']", count: 4)
+      find(:xpath,
+           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+
+      balances = BalanceSheet.
+          place_id(wb.distributor_place.id).
+          date( DateTime.now).
+          all(include: [deal: [:entity, give: [:resource]]])
+
+      within("#group_#{wb.distributor_place.id}") do
+        page.should have_selector("td[@class='td-inner-table']")
+
+        within("div[@class='paginate']") do
+          within("span[@data-bind='text: range']") do
+            page.should have_content("1-#{balances.length}")
+          end
+          within("span[@data-bind='text: count']") do
+            page.should have_content("#{balances.length}")
+          end
+          find_button('<')[:disabled].should eq('true')
+          find_button('>')[:disabled].should eq('true')
+        end
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: balances.length)
+          balances.each_with_index do |balance, idx|
+            within(:xpath, ".//tr[#{idx + 1}]") do
+              page.should have_content(balance.deal.tag)
+              page.should have_content(balance.deal.entity.name)
+              page.should have_content(balance.deal.give.resource.tag)
+              page.should have_content(balance.deal.give.place.tag)
+              if Balance::PASSIVE == balance.side
+                find(:xpath, ".//td[5]").should have_content('')
+              else
+                find(:xpath, ".//td[4]").should have_content('')
+              end
+              page.should have_content(balance.amount)
+            end
+          end
+        end
+      end
+      find(:xpath,
+           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+      page.find("#group_#{wb2.storekeeper_place.id}").visible?.should_not be_true
+
+      find(:xpath,
+           ".//tr[5]//td[@class='tree-actions-by-wb']").click
+      balances = BalanceSheet.
+          place_id(wb2.distributor_place.id).
+          date( DateTime.now).
+          all(include: [deal: [:entity, give: [:resource]]])
+
+      within("#group_#{wb2.distributor_place.id}") do
+        page.should have_selector("td[@class='td-inner-table']")
+
+        within("div[@class='paginate']") do
+          within("span[@data-bind='text: range']") do
+            page.should have_content("1-#{per_page}")
+          end
+          within("span[@data-bind='text: count']") do
+            page.should have_content("#{balances.length}")
+          end
+          find_button('<')[:disabled].should eq('true')
+          find_button('>')[:disabled].should eq('false')
+        end
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: per_page)
+          per_page.times do |i|
+            within(:xpath, ".//tr[#{i + 1}]") do
+              page.should have_content(balances[i].deal.tag)
+              page.should have_content(balances[i].deal.entity.name)
+              page.should have_content(balances[i].deal.give.resource.tag)
+              page.should have_content(balances[i].deal.give.place.tag)
+              if Balance::PASSIVE == balances[i].side
+                find(:xpath, ".//td[5]").should have_content('')
+              else
+                find(:xpath, ".//td[4]").should have_content('')
+              end
+              page.should have_content(balances[i].amount)
+            end
+          end
+        end
+        within("div[@class='paginate']") do
+          click_button('>')
+          find_button('<')[:disabled].should eq('false')
+          find_button('>')[:disabled].should eq('true')
+        end
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: 1)
+          within(:xpath, ".//tr[1]") do
+            page.should have_content(balances[per_page].deal.tag)
+            page.should have_content(balances[per_page].deal.entity.name)
+            page.should have_content(balances[per_page].deal.give.resource.tag)
+            page.should have_content(balances[per_page].deal.give.place.tag)
+            if Balance::PASSIVE == balances[per_page].side
+              find(:xpath, ".//td[5]").should have_content('')
+            else
+              find(:xpath, ".//td[4]").should have_content('')
+            end
+            page.should have_content(balances[per_page].amount)
+          end
+        end
+        within("div[@class='paginate']") do
+          click_button('<')
+          find_button('>')[:disabled].should eq('false')
+          find_button('<')[:disabled].should eq('true')
+        end
+      end
+      find(:xpath,
+           ".//tr[5]//td[@class='tree-actions-by-wb']").click
+      page.find("#group_#{wb2.storekeeper_place.id}").visible?.should_not be_true
+    end
+
+
+    select(I18n.t('views.balance_sheet.group_resource'), from: 'balance_sheet_group')
+
+    resources = BalanceSheet.group_by('resource').
+        date( DateTime.now).
+        all(include: [deal: [:entity, give: [:resource]]])
+    resources.length.should eq(per_page + 2)
+
+    within("div[@class='paginate']") do
+      within("span[@data-bind='text: range']") do
+        page.should have_content("1-#{per_page}")
+      end
+      within("span[@data-bind='text: count']") do
+        page.should have_content("#{per_page + 2}")
+      end
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
+      click_button('>')
+      find_button('<')[:disabled].should eq('false')
+      find_button('>')[:disabled].should eq('true')
+      within("span[@data-bind='text: range']") do
+        page.should have_content("#{per_page + 1}-#{per_page + 2}")
+      end
+      within("span[@data-bind='text: count']") do
+        page.should have_content("#{per_page + 2}")
+      end
+    end
+
+    within('#container_documents table tbody') do
+      sleep(1)
+      page.should have_selector('tr', count: resources.count - per_page, visible: true)
+      2.times do |i|
+        page.should have_content(resources[per_page + i][:group_column])
+      end
+      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions-by-wb']
+          //div[@class='ui-corner-all ui-state-hover']
+          //span[@class='ui-icon ui-icon-circle-plus']", count: 2)
+    end
+
+    within("div[@class='paginate']") do
+      click_button('<')
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('false')
+    end
+
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: per_page, visible: true)
+      per_page.times do |i|
+        page.should have_content(resources[i][:group_column])
+      end
+      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions-by-wb']
+          //div[@class='ui-corner-all ui-state-hover']
+          //span[@class='ui-icon ui-icon-circle-plus']", count: per_page)
+      find(:xpath,
+           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+
+      balances = BalanceSheet.
+          resource(id: resources[0][:group_id], type: resources[0][:group_type]).
+          date( DateTime.now).
+          all(include: [deal: [:entity, give: [:resource]]])
+
+      within("#group_#{resources[0][:group_id]}") do
+        page.should have_selector("td[@class='td-inner-table']")
+
+        within("div[@class='paginate']") do
+          within("span[@data-bind='text: range']") do
+            page.should have_content("1-#{per_page}")
+          end
+          within("span[@data-bind='text: count']") do
+            page.should have_content("#{balances.length}")
+          end
+          find_button('<')[:disabled].should eq('true')
+          find_button('>')[:disabled].should eq('false')
+        end
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: per_page)
+          per_page.times do |i|
+            within(:xpath, ".//tr[#{i + 1}]") do
+              page.should have_content(balances[i].deal.tag)
+              page.should have_content(balances[i].deal.entity.name)
+              page.should have_content(balances[i].deal.give.resource.tag)
+              page.should have_content(balances[i].deal.give.place.tag)
+              if Balance::PASSIVE == balances[i].side
+                find(:xpath, ".//td[5]").should have_content('')
+              else
+                find(:xpath, ".//td[4]").should have_content('')
+              end
+              page.should have_content(balances[i].amount)
+            end
+          end
+        end
+        within("div[@class='paginate']") do
+          click_button('>')
+          find_button('<')[:disabled].should eq('false')
+          find_button('>')[:disabled].should eq('true')
+          within("span[@data-bind='text: range']") do
+            page.should have_content("#{per_page + 1}-#{balances.length}")
+          end
+          within("span[@data-bind='text: count']") do
+            page.should have_content("#{balances.length}")
+          end
+        end
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: balances.length - per_page)
+          (balances.length - per_page).times do |i|
+            within(:xpath, ".//tr[#{i + 1}]") do
+              page.should have_content(balances[i + per_page].deal.tag)
+              page.should have_content(balances[i + per_page].deal.entity.name)
+              page.should have_content(balances[i + per_page].deal.give.resource.tag)
+              page.should have_content(balances[i + per_page].deal.give.place.tag)
+              if Balance::PASSIVE == balances[i + per_page].side
+                find(:xpath, ".//td[5]").should have_content('')
+              else
+                find(:xpath, ".//td[4]").should have_content('')
+              end
+              page.should have_content(balances[i + per_page].amount)
+            end
+          end
+        end
+        within("div[@class='paginate']") do
+          click_button('<')
+          find_button('<')[:disabled].should eq('true')
+          find_button('>')[:disabled].should eq('false')
+        end
+      end
+      find(:xpath,
+           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+      page.find("#group_#{resources[0][:group_id]}").visible?.should_not be_true
+    end
+
+    select(I18n.t('views.balance_sheet.group_entity'), from: 'balance_sheet_group')
+
+    entities = BalanceSheet.group_by('entity').
+        date( DateTime.now).
+        all(include: [deal: [:entity, give: [:resource]]])
+    entities.length.should eq(4)
+
+    within("div[@class='paginate']") do
+      within("span[@data-bind='text: range']") do
+        page.should have_content("1-#{entities.length}")
+      end
+      within("span[@data-bind='text: count']") do
+        page.should have_content("#{entities.length}")
+      end
+      find_button('<')[:disabled].should eq('true')
+      find_button('>')[:disabled].should eq('true')
+    end
+
+    within('#container_documents table tbody') do
+      sleep(1)
+      page.should have_selector('tr', count: entities.length, visible: true)
+      entities.each do |entity|
+        page.should have_content(entity[:group_column])
+      end
+      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions-by-wb']
+          //div[@class='ui-corner-all ui-state-hover']
+          //span[@class='ui-icon ui-icon-circle-plus']", count: entities.length)
+      find(:xpath,
+           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+
+      balances = BalanceSheet.
+          entity(id: entities[0][:group_id], type: entities[0][:group_type]).
+          date( DateTime.now).
+          all(include: [deal: [:entity, give: [:resource]]])
+
+      within("#group_#{entities[0][:group_id]}") do
+        page.should have_selector("td[@class='td-inner-table']")
+
+        within("div[@class='paginate']") do
+          within("span[@data-bind='text: range']") do
+            page.should have_content("1-#{balances.length}")
+          end
+          within("span[@data-bind='text: count']") do
+            page.should have_content("#{balances.length}")
+          end
+          find_button('<')[:disabled].should eq('true')
+          find_button('>')[:disabled].should eq('true')
+        end
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: balances.length)
+          balances.each_with_index do |balance, idx|
+            within(:xpath, ".//tr[#{idx + 1}]") do
+              page.should have_content(balance.deal.tag)
+              page.should have_content(balance.deal.entity.name)
+              page.should have_content(balance.deal.give.resource.tag)
+              page.should have_content(balance.deal.give.place.tag)
+              if Balance::PASSIVE == balance.side
+                find(:xpath, ".//td[5]").should have_content('')
+              else
+                find(:xpath, ".//td[4]").should have_content('')
+              end
+              page.should have_content(balance.amount)
+            end
+          end
+        end
+      end
+      find(:xpath,
+           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+      page.find("#group_#{entities[0][:group_id]}").visible?.should_not be_true
+    end
+
+    select(I18n.t('views.balance_sheet.group_place'), from: 'balance_sheet_group')
+
+    balances = BalanceSheet.
+        place_id(wb.storekeeper_place.id).
+        date( DateTime.now).
+        all(include: [deal: [:entity, give: [:resource]]])
+
+    within('#container_documents table tbody') do
+      find(:xpath,
+           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+      within("#group_#{wb.distributor_place.id}") do
+        page.should have_selector("td[@class='td-inner-table']")
+        within("table[@class='inner-table'] tbody") do
+          check("balance_#{balances[0].id}")
+        end
+      end
+    end
+    click_button(I18n.t('views.balance_sheet.report_on_selected'))
+    page.should have_xpath("//li[@id='transcripts' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 1)
+    end
+
+    click_link I18n.t('views.home.balance_sheet')
+    select(I18n.t('views.balance_sheet.group_place'), from: 'balance_sheet_group')
+
+    within('#container_documents table tbody') do
+      find(:xpath,
+           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+
+      within("#group_#{wb.distributor_place.id}") do
+        page.should have_selector("td[@class='td-inner-table']")
+        within("table[@class='inner-table'] tbody") do
+          check("balance_#{balances[0].id}")
+          check("balance_#{balances[1].id}")
+        end
+      end
+    end
+    click_button(I18n.t('views.balance_sheet.report_on_selected'))
+    page.should have_xpath("//li[@id='general_ledger' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 4)
+    end
+  end
 end

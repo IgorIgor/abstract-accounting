@@ -13,3 +13,7 @@ ru:
       total: "Итого"
       report_on_selected: Отчет по выбранным
       place: Место
+      group_none: Без группировки
+      group_place: По месту
+      group_resource: По названию
+      group_entity: По лицу

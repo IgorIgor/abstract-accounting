@@ -24,19 +24,20 @@ class HomeController < ApplicationController
   end
 
   def inbox
-    render "home/documents", :layout => false
-  end
-
-  def inbox_data
-    types = user_documents
-    @versions = []
-    @count = 0
-    unless types.empty?
-      scoped_versions = VersionEx.lasts.by_type(user_documents).by_user(current_user).
-          filter(params[:like])
-      @versions = scoped_versions.paginate(page: params[:page], per_page: params[:per_page]).
-          all()#include: [item: [:versions, :storekeeper]])
-      @count = scoped_versions.count
+    respond_to do |format|
+      format.html { render "home/documents", :layout => false }
+      format.json do
+        types = user_documents
+        @versions = []
+        @count = 0
+        unless types.empty?
+          scoped_versions = VersionEx.lasts.by_type(user_documents).by_user(current_user).
+              filter(params[:like])
+          @versions = scoped_versions.paginate(page: params[:page], per_page: params[:per_page]).
+              all()#include: [item: [:versions, :storekeeper]])
+          @count = scoped_versions.count
+        end
+      end
     end
   end
 end

@@ -1,7 +1,7 @@
 $ ->
   class self.InboxViewModel extends FolderViewModel
     constructor: (data) ->
-      @url = '/inbox_data.json'
+      @url = '/inbox.json'
 
       @filter =
         waybill:

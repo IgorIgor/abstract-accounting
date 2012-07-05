@@ -195,6 +195,28 @@ describe Waybill do
       deal.rate.should eq(1.0)
       deal.isOffBalance.should be_false
     end
+
+    wb = build(:waybill)
+    wb.add_item(tag: 'roofer', mu: 'm2', amount: 100, price: 10.0)
+    wb.add_item(tag: 'roofer', mu: 'm2', amount: 120.34, price: 10.0)
+    wb.add_item(tag: 'roofer', mu: 'm2', amount: 128.4, price: 10.0)
+    lambda { wb.save } .should change(Deal, :count).by(3)
+
+    deal = Deal.find(wb.deal)
+    deal.entity.should eq(wb.storekeeper)
+    deal.isOffBalance.should be_true
+
+    wb.items.each do |i|
+      deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
+      deal.should_not be_nil
+      deal.rate.should eq(1 / i.price)
+      deal.isOffBalance.should be_false
+
+      deal = i.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+      deal.should_not be_nil
+      deal.rate.should eq(1.0)
+      deal.isOffBalance.should be_false
+    end
   end
 
   it 'should create rules' do
@@ -230,6 +252,20 @@ describe Waybill do
       wb.distributor_place, wb.distributor).should eq(rule.from)
     wb.items[1].warehouse_deal(nil, wb.storekeeper_place,
       wb.storekeeper).should eq(rule.to)
+
+    wb = build(:waybill)
+    wb.add_item(tag: 'roofer', mu: 'm2', amount: 100, price: 10.0)
+    wb.add_item(tag: 'roofer', mu: 'm2', amount: 120.34, price: 10.0)
+    wb.add_item(tag: 'roofer', mu: 'm2', amount: 128.4, price: 10.0)
+    lambda { wb.save } .should change(Rule, :count).by(3)
+
+    wb.deal.rules.each_with_index do |rule, idx|
+      rule.rate.should eq(wb.items[idx].amount)
+      wb.items[idx].warehouse_deal(Chart.first.currency, wb.distributor_place,
+                                   wb.distributor).should eq(rule.from)
+      wb.items[idx].warehouse_deal(nil, wb.storekeeper_place,
+                                   wb.storekeeper).should eq(rule.to)
+    end
   end
 
   it 'should change state' do
@@ -462,10 +498,6 @@ end
 describe ItemsValidator do
   it 'should not validate' do
     wb = build(:waybill)
-    wb.add_item(tag: 'roof', mu: 'm2', amount: 1, price: 10.0)
-    wb.add_item(tag: 'roof', mu: 'm2', amount: 1, price: 10.0)
-    wb.should be_invalid
-    wb.items.clear
     wb.add_item(tag: '', mu: 'm2', amount: 1, price: 10.0)
     wb.should be_invalid
     wb.items.clear

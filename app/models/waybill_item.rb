@@ -8,7 +8,12 @@
 # Please see ./COPYING for details
 
 class WaybillItem
-  attr_reader :resource, :amount, :price
+  attr_reader :amount, :price
+
+  def resource
+    return @resource if !@resource || !@resource.new_record?
+    Asset.find_by_tag_and_mu(@resource.tag, @resource.mu) or @resource
+  end
 
   def exp_amount
     return 0.0 unless self.resource

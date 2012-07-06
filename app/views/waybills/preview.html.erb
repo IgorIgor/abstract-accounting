@@ -170,6 +170,7 @@
         <th class="waybill-entry-mu"><%=t 'views.waybills.measure' %></th>
         <th class="waybill-entry-count"><%=t 'views.waybills.count' %></th>
         <th class="waybill-entry-price"><%=t 'views.waybills.price' %></th>
+        <th class="waybill-entry-sum"><%=t 'views.waybills.sum' %></th>
         <!-- ko ifnot: readonly -->
         <th class="table-actions"></th>
         <!-- /ko -->
@@ -209,6 +210,7 @@
                                     $parent.object.items.indexOf($data) +
                                     ' <%=t 'views.waybills.price' %>'}" />
         </td>
+        <td data-bind="text: sum"></td>
         <!-- ko ifnot: $parent.readonly -->
         <td class="table-actions">
           <label data-bind="click: $parent.removeResource"></label>
@@ -216,6 +218,14 @@
         <!-- /ko -->
       </tr>
       </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2"><%=t 'views.waybills.total' %></td>
+          <td data-bind="text: totalAmount"></td>
+          <td></td>
+          <td data-bind="text: totalSum"></td>
+        </tr>
+      </tfoot>
     </table>
     <input type="button" value="<%= t('views.waybills.add') %>"
            data-bind="click: addResource, disable: readonly"/>

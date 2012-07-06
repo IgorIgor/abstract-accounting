@@ -16,6 +16,8 @@ ru:
       measure: "Ед. изм."
       count: "Количество"
       price: "Цена"
+      sum: "Сумма"
+      total: Итого
       save: "Сохранить"
       back: "Назад"
       draft: "Черновик"

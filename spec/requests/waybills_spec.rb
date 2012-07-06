@@ -113,6 +113,11 @@ feature "waybill", %q{
 
       page.should have_xpath("//table")
       page.should_not have_selector("table tbody tr")
+      page.should have_selector("table tfoot tr")
+      page.should have_xpath("//table//tfoot//tr//td[contains(.//text()," +
+                                 "'#{I18n.t('views.waybills.total')}')]")
+      page.find(:xpath, "//table//tfoot//tr//td[2]").text.should eq("0")
+      page.find(:xpath, "//table//tfoot//tr//td[4]").text.should eq("0")
       page.find(:xpath, "//fieldset[@class='with-legend']" +
           "//input[@value='#{I18n.t('views.waybills.add')}']").click
       page.should have_xpath("//table//tbody//tr")
@@ -126,6 +131,13 @@ feature "waybill", %q{
       page.find("#mu_0")["value"].should eq("mu")
       page.find("#count_0")["value"].should eq("0")
       page.find("#price_0")["value"].should eq("0")
+      page.find(:xpath, "//table//tbody//tr[1]//td[5]").text.should eq("0.00")
+      fill_in("count_0", :with => "2")
+      fill_in("price_0", :with => "4")
+      fill_in("mu_0", :with => "mu1")
+      page.find(:xpath, "//table//tbody//tr[1]//td[5]").text.should eq("8.00")
+      page.find(:xpath, "//table//tfoot//tr//td[2]").text.should eq("2")
+      page.find(:xpath, "//table//tfoot//tr//td[4]").text.should eq("8")
       page.find("table tbody tr td[@class='table-actions'] label").click
       page.has_no_selector?("#tag_0").should be_true
       page.has_no_selector?("#mu_0").should be_true
@@ -144,10 +156,22 @@ feature "waybill", %q{
 
       page.find(:xpath, "//fieldset[@class='with-legend']" +
           "//input[@value='#{I18n.t('views.waybills.add')}']").click
-      fill_in("tag_0", :with => "tag_1")
-      fill_in("mu_0", :with => "RUB")
       fill_in("count_0", :with => "10")
       fill_in("price_0", :with => "100")
+      fill_in("tag_0", :with => "tag_1")
+      fill_in("mu_0", :with => "RUB")
+      page.find(:xpath, "//table//tbody//tr[1]//td[5]").text.should eq("1000.00")
+      page.find(:xpath, "//table//tfoot//tr//td[2]").text.should eq("10")
+      page.find(:xpath, "//table//tfoot//tr//td[4]").text.should eq("1000")
+      page.find(:xpath, "//fieldset[@class='with-legend']" +
+          "//input[@value='#{I18n.t('views.waybills.add')}']").click
+      fill_in("count_1", :with => "2.34")
+      fill_in("price_1", :with => "2.35")
+      fill_in("tag_1", :with => "tag_2")
+      fill_in("mu_1", :with => "RUB2")
+      page.find(:xpath, "//table//tbody//tr[2]//td[5]").text.should eq("5.50")
+      page.find(:xpath, "//table//tfoot//tr//td[2]").text.should eq("12.34")
+      page.find(:xpath, "//table//tfoot//tr//td[4]").text.should eq("1005.5")
     end
     lambda do
       page.find(:xpath, "//div[@class='actions']" +
@@ -189,6 +213,17 @@ feature "waybill", %q{
         find("#mu_0")[:value].should eq(Waybill.first.items[0].resource.mu)
         find("#count_0")[:value].should eq(Waybill.first.items[0].amount.to_i.to_s)
         find("#price_0")[:value].should eq(Waybill.first.items[0].price.to_i.to_s)
+        page.find(:xpath, "//table//tbody//tr[1]//td[5]").text.should eq(
+          "%.2f" % (Waybill.first.items[0].amount * Waybill.first.items[0].price))
+        page.find(:xpath, "//table//tbody//tr[2]//td[5]").text.should eq(
+          "%.2f" % (Waybill.first.items[1].amount * Waybill.first.items[1].price))
+        page.find(:xpath, "//table//tfoot//tr//td[2]").text.should eq(
+          "%.2f" % (Waybill.first.items.inject(0) { |mem, item| mem += item.amount }))
+        page.find(:xpath, "//table//tfoot//tr//td[4]").text.should eq(
+          (Waybill.first.items.inject(0) do |mem, item|
+            mem += item.amount * item.price
+            mem.accounting_norm
+          end).to_s)
       end
     end
 

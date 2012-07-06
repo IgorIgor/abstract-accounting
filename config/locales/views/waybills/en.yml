@@ -16,6 +16,8 @@ en:
       measure: "Measure"
       count: "Count"
       price: "Price"
+      sum: "Sum"
+      total: Total
       save: "Save"
       back: "Back"
       draft: "Draft"

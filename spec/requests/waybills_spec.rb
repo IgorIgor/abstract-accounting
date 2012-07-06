@@ -9,6 +9,54 @@
 
 require 'spec_helper'
 
+def show_waybill(waybill)
+  current_hash.should eq("documents/waybills/" + waybill.id.to_s)
+
+  page.should have_selector("span[@id='page-title']")
+  within('#page-title') do
+    page.should have_content("#{I18n.t('views.waybills.page_title_show')}")
+  end
+
+  within("#container_documents form") do
+    find("#created")[:value].should eq(waybill.created.strftime("%d.%m.%Y"))
+    find("#waybill_document_id")[:value].should eq(waybill.document_id)
+    find("#waybill_entity")[:value].should eq(waybill.distributor.name)
+    find("#waybill_ident_name")[:value].should eq(waybill.distributor.identifier_name)
+    find("#waybill_ident_value")[:value].should eq(waybill.distributor.identifier_value)
+    find("#distributor_place")[:value].should eq(waybill.distributor_place.tag)
+    find("#storekeeper_entity")[:value].should eq(waybill.storekeeper.tag)
+    find("#storekeeper_place")[:value].should eq(waybill.storekeeper_place.tag)
+
+    find("#created")[:disabled].should eq("true")
+    find("#waybill_document_id")[:disabled].should eq("true")
+    find("#waybill_entity")[:disabled].should eq("true")
+    find("#waybill_ident_name")[:disabled].should eq("true")
+    find("#waybill_ident_value")[:disabled].should eq("true")
+    find("#distributor_place")[:disabled].should eq("true")
+    find("#storekeeper_entity")[:disabled].should eq("true")
+    find("#storekeeper_place")[:disabled].should eq("true")
+
+    within("table tbody") do
+      waybill.items.each_with_index do |item, idx|
+        find("#tag_#{idx}")[:value].should eq(item.resource.tag)
+        find("#mu_#{idx}")[:value].should eq(item.resource.mu)
+        find("#count_#{idx}")[:value].to_f.should eq(item.amount)
+        find("#price_#{idx}")[:value].to_f.should eq(item.price)
+        page.find(:xpath, "//table//tbody//tr[#{idx + 1}]//td[5]").text.to_f.should eq(
+          (item.amount * item.price).accounting_norm)
+      end
+      page.find(:xpath, "//table//tfoot//tr//td[2]").text.to_f.should eq(
+        (waybill.items.inject(0) { |mem, item| mem += item.amount }))
+      page.find(:xpath, "//table//tfoot//tr//td[4]").text.to_f.should eq(
+        (waybill.items.inject(0) do |mem, item|
+          mem += item.amount * item.price
+          mem.accounting_norm
+        end))
+    end
+  end
+
+end
+
 feature "waybill", %q{
   As an user
   I want to manage waybills
@@ -181,50 +229,7 @@ feature "waybill", %q{
 
     page.find(:xpath, "//td[@class='cell-title' and " +
                   "contains(.//text(), '#{Waybill.name}')]").click
-    current_hash.should eq("documents/waybills/" + Waybill.first.id.to_s)
-
-    page.should have_selector("span[@id='page-title']")
-    within('#page-title') do
-      page.should have_content("#{I18n.t('views.waybills.page_title_show')}")
-    end
-
-    within("#container_documents form") do
-      find("#created")[:value].should eq(Waybill.first.created.strftime("%d.%m.%Y"))
-      find("#waybill_document_id")[:value].should eq(Waybill.first.document_id)
-      find("#waybill_entity")[:value].should eq(Waybill.first.distributor.name)
-      find("#waybill_ident_name")[:value].should eq(Waybill.first.distributor.identifier_name)
-      find("#waybill_ident_value")[:value].should eq(Waybill.first.distributor.identifier_value)
-      find("#distributor_place")[:value].should eq(Waybill.first.distributor_place.tag)
-      find("#storekeeper_entity")[:value].should eq(Waybill.first.storekeeper.tag)
-      find("#storekeeper_place")[:value].should eq(Waybill.first.storekeeper_place.tag)
-
-      find("#created")[:disabled].should eq("true")
-      find("#waybill_document_id")[:disabled].should eq("true")
-      find("#waybill_entity")[:disabled].should eq("true")
-      find("#waybill_ident_name")[:disabled].should eq("true")
-      find("#waybill_ident_value")[:disabled].should eq("true")
-      find("#distributor_place")[:disabled].should eq("true")
-      find("#storekeeper_entity")[:disabled].should eq("true")
-      find("#storekeeper_place")[:disabled].should eq("true")
-
-      within("table tbody") do
-        find("#tag_0")[:value].should eq(Waybill.first.items[0].resource.tag)
-        find("#mu_0")[:value].should eq(Waybill.first.items[0].resource.mu)
-        find("#count_0")[:value].should eq(Waybill.first.items[0].amount.to_i.to_s)
-        find("#price_0")[:value].should eq(Waybill.first.items[0].price.to_i.to_s)
-        page.find(:xpath, "//table//tbody//tr[1]//td[5]").text.should eq(
-          "%.2f" % (Waybill.first.items[0].amount * Waybill.first.items[0].price))
-        page.find(:xpath, "//table//tbody//tr[2]//td[5]").text.should eq(
-          "%.2f" % (Waybill.first.items[1].amount * Waybill.first.items[1].price))
-        page.find(:xpath, "//table//tfoot//tr//td[2]").text.should eq(
-          "%.2f" % (Waybill.first.items.inject(0) { |mem, item| mem += item.amount }))
-        page.find(:xpath, "//table//tfoot//tr//td[4]").text.should eq(
-          (Waybill.first.items.inject(0) do |mem, item|
-            mem += item.amount * item.price
-            mem.accounting_norm
-          end).to_s)
-      end
-    end
+    show_waybill(Waybill.first)
 
     PaperTrail.enabled = false
   end
@@ -451,5 +456,9 @@ feature "waybill", %q{
       find_button('<')[:disabled].should eq('true')
       find_button('>')[:disabled].should eq('false')
     end
+
+    page.find(:xpath, "//table//tbody//td[contains(.//text(),"+
+        " '#{Waybill.first.document_id}')]").click
+    show_waybill(Waybill.first)
   end
 end

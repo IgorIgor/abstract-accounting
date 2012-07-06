@@ -9,6 +9,42 @@
 
 require 'spec_helper'
 
+def show_allocation(allocation)
+
+  current_hash.should eq("documents/allocations/#{allocation.id}")
+
+  page.should have_selector("span[@id='page-title']")
+  within('#page-title') do
+    page.should have_content(
+      "#{I18n.t('views.allocations.page_title_show')}")
+  end
+
+  within("#container_documents form") do
+    find("#created")[:value].should eq(allocation.created.strftime("%d.%m.%Y"))
+    find("#storekeeper_entity")[:value].should eq(allocation.storekeeper.tag)
+    find("#storekeeper_place")[:value].should eq(allocation.storekeeper_place.tag)
+    find("#foreman_entity")[:value].should eq(allocation.foreman.tag)
+    find("#foreman_place")[:value].should eq(allocation.foreman_place.tag)
+    find("#state")[:value].should eq(I18n.t('views.statable.inwork'))
+
+    find("#created")[:disabled].should be_true
+    find("#storekeeper_entity")[:disabled].should be_true
+    find("#storekeeper_place")[:disabled].should be_true
+    find("#foreman_entity")[:disabled].should be_true
+    find("#foreman_place")[:disabled].should be_true
+    find("#state")[:disabled].should be_true
+  end
+
+  within("#selected-resources tbody") do
+    all(:xpath, './/tr').count.should eq(allocation.items.count)
+    all(:xpath, './/tr').each_with_index do |tr, idx|
+      tr.should have_content(allocation.items[idx].resource.tag)
+      tr.should have_content(allocation.items[idx].resource.mu)
+      tr.find(:xpath, './/input')[:value].to_f.should eq(allocation.items[idx].amount)
+    end
+  end
+end
+
 feature 'allocation', %q{
   As an user
   I want to view allocations
@@ -393,38 +429,7 @@ feature 'allocation', %q{
 
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Allocation - #{wb.storekeeper.tag}')]").click
-    current_hash.should eq("documents/allocations/#{ds.id}")
-
-    page.should have_selector("span[@id='page-title']")
-    within('#page-title') do
-      page.should have_content(
-        "#{I18n.t('views.allocations.page_title_show')}")
-    end
-
-    within("#container_documents form") do
-      #find("#created")[:value].should eq(ds.created.strftime("%m/%d/%Y"))
-      find("#storekeeper_entity")[:value].should eq(ds.storekeeper.tag)
-      find("#storekeeper_place")[:value].should eq(ds.storekeeper_place.tag)
-      find("#foreman_entity")[:value].should eq(ds.foreman.tag)
-      find("#foreman_place")[:value].should eq(ds.foreman_place.tag)
-      find("#state")[:value].should eq(I18n.t('views.statable.inwork'))
-
-      find("#created")[:disabled].should be_true
-      find("#storekeeper_entity")[:disabled].should be_true
-      find("#storekeeper_place")[:disabled].should be_true
-      find("#foreman_entity")[:disabled].should be_true
-      find("#foreman_place")[:disabled].should be_true
-      find("#state")[:disabled].should be_true
-    end
-
-    within("#selected-resources tbody") do
-      all(:xpath, './/tr').count.should eq(5)
-      all(:xpath, './/tr').each_with_index {|tr, idx|
-        tr.should have_content("resource##{idx}")
-        tr.should have_content("mu#{idx}")
-        tr.find(:xpath, './/input')[:value].should eq("#{10+idx}")
-      }
-    end
+    show_allocation(ds)
 
     PaperTrail.enabled = false
   end
@@ -640,5 +645,8 @@ feature 'allocation', %q{
       find_button('<')[:disabled].should eq('true')
       find_button('>')[:disabled].should eq('false')
     end
+
+    page.find(:xpath, "//table//tbody//tr[1]").click
+    show_allocation(Allocation.first)
   end
 end

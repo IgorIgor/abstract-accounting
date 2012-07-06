@@ -9,6 +9,7 @@
 
 object false
 child(@allocations => :objects) do
+  attributes :id
   node(:created) { |allocation| allocation.created.strftime('%Y-%m-%d') }
   node(:storekeeper) { |allocation| allocation.storekeeper.tag }
   node(:storekeeper_place) { |allocation| allocation.storekeeper_place.tag }

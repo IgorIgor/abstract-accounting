@@ -9,6 +9,66 @@
 
 require 'spec_helper'
 
+def table_with_paginate(scope, per_page)
+  items = scope.paginate(page: 1, per_page: per_page).all(include: {item: :versions})
+
+  if block_given?
+    within('#container_documents table tbody') do
+      items.each { |item| yield(item, page) }
+    end
+  end
+
+  items_count = scope.count
+
+  page.all("div[@class='paginate']").each do |control|
+    within("span[@data-bind='text: range']") do
+      control.should have_content("1-#{per_page}")
+    end
+
+    within("span[@data-bind='text: count']") do
+      control.should have_content(items_count)
+    end
+
+    find_button('<')[:disabled].should eq('true')
+    find_button('>')[:disabled].should eq('false')
+  end
+
+  within("#container_documents table tbody") do
+    page.should have_selector('tr', count: per_page)
+  end
+
+  click_button('>')
+
+  items = scope.paginate(page: 2, per_page: @per_page).all(include: {item: :versions})
+
+  within("#container_documents table tbody") do
+    page.should have_selector('tr', count: items_count / per_page >= 2 ?
+      per_page : items_count - per_page)
+
+    if block_given?
+      items.each { |item| yield(item, page) }
+    end
+  end
+
+  page.all("div[@class='paginate']").each do |control|
+    within("span[@data-bind='text: range']") do
+      control.should have_content("#{per_page+1}-#{
+        items_count / per_page >= 2 ? 2 * per_page : items_count}")
+    end
+
+    within("span[@data-bind='text: count']") do
+      control.should have_content(items_count)
+    end
+
+    find_button('<')[:disabled].should eq('false')
+    if items_count / per_page > 2
+      find_button('>')[:disabled].should eq('false')
+    else
+      find_button('>')[:disabled].should eq('true')
+    end
+  end
+end
+
 feature "single page application", %q{
   As an user
   I want to work with single page
@@ -79,76 +139,14 @@ feature "single page application", %q{
     page.find('#slide_menu_conditions').visible?.should eq(true)
     page.should have_xpath("//div[@id='arrow_conditions' and @class='arrow-up-slide']")
 
-    versions = VersionEx.lasts.by_type([ Waybill.name, Allocation.name ]).
-      paginate(page: 1, per_page: @per_page).
-      all(include: {item: :versions})
-
-    within('#container_documents table tbody') do
-      versions.each do |version|
-        page.should have_content(version.item.class.name)
-        page.should have_content(version.item.storekeeper.tag)
-        page.should have_content(version.item.versions.first.created_at.
-                                     strftime('%Y-%m-%d'))
-        page.should have_content(version.item.versions.last.created_at.
-                                     strftime('%Y-%m-%d'))
-      end
-    end
-
-    items_count = @waybills.count + @allocations.count
-
-    page.all("div[@class='paginate']").each do |control|
-      within("span[@data-bind='text: range']") do
-        control.should have_content("1-#{@per_page}")
-      end
-
-      within("span[@data-bind='text: count']") do
-        control.should have_content(items_count)
-      end
-
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
-    end
-
-    within("#container_documents table tbody") do
-      page.should have_selector('tr', count: @per_page)
-    end
-
-    click_button('>')
-
-    versions = VersionEx.lasts.by_type([ Waybill.name, Allocation.name ]).
-      paginate(page: 2, per_page: @per_page).
-      all(include: {item: :versions})
-
-    within("#container_documents table tbody") do
-      page.should have_selector('tr', count: items_count / @per_page >= 2 ?
-        @per_page : items_count - @per_page)
-
-      versions.each do |version|
-        page.should have_content(version.item.class.name)
-        page.should have_content(version.item.storekeeper.tag)
-        page.should have_content(version.item.versions.first.created_at.
+    table_with_paginate(VersionEx.lasts.by_type([ Waybill.name, Allocation.name ]),
+                        @per_page) do |item, element|
+      element.should have_content(item.item.class.name)
+      element.should have_content(item.item.storekeeper.tag)
+      element.should have_content(item.item.versions.first.created_at.
                                    strftime('%Y-%m-%d'))
-        page.should have_content(version.item.versions.last.created_at.
+      element.should have_content(item.item.versions.last.created_at.
                                    strftime('%Y-%m-%d'))
-      end
-    end
-
-    page.all("div[@class='paginate']").each do |control|
-      within("span[@data-bind='text: range']") do
-        control.should have_content("#{@per_page+1}-#{
-          items_count / @per_page >= 2 ? 2 * @per_page : items_count}")
-      end
-
-      within("span[@data-bind='text: count']") do
-        control.should have_content(items_count)
-      end
-
-      find_button('<')[:disabled].should eq('false')
-      if items_count / @per_page > 2
-        find_button('>')[:disabled].should eq('false')
-      else
-        find_button('>')[:disabled].should eq('true')
-      end
     end
 
     page.find("#show-filter").click
@@ -344,5 +342,72 @@ feature "single page application", %q{
       end
     end
     click_link I18n.t('views.home.logout')
+  end
+
+  scenario 'visit archive page', js: true do
+    page_login
+    visit home_index_path
+    current_path.should eq(home_index_path)
+    page.find("a[@href='#archive']").click
+
+    current_hash.should eq("archive")
+    page.should have_selector("div[@id='container_documents'] table")
+    page.find_by_id("archive")[:class].should eq("sidebar-selected")
+
+    table_with_paginate(VersionEx.lasts.by_type([ Waybill.name, Allocation.name ]),
+                        @per_page) do |item, element|
+      element.should have_content(item.item.class.name)
+      element.should have_content(item.item.storekeeper.tag)
+      element.should have_content(item.item.versions.first.created_at.
+                                   strftime('%Y-%m-%d'))
+      element.should have_content(item.item.versions.last.created_at.
+                                   strftime('%Y-%m-%d'))
+    end
+
+    page.find("#show-filter").click
+
+    within('#filter-area') do
+      page.should have_content(I18n.t('views.waybills.created_at'))
+      page.should have_content(I18n.t('views.waybills.document_id'))
+      page.should have_content(I18n.t('views.statable.state'))
+      page.should have_content(I18n.t('views.waybills.distributor'))
+      page.should have_content(I18n.t('views.waybills.ident_name'))
+      page.should have_content(I18n.t('views.waybills.ident_value'))
+      page.should have_content(I18n.t('views.waybills.distributor_place'))
+      page.should have_content(I18n.t('views.waybills.storekeeper'))
+      page.should have_content(I18n.t('views.waybills.storekeeper_place'))
+
+      select(I18n.t('views.statable.applied'), from: 'filter-w-state')
+      fill_in('filter-w-created', with: '2')
+      fill_in('filter-w-document', with: @waybills[0].document_id)
+      fill_in('filter-w-distributor', with: @waybills[0].distributor.name)
+      select(I18n.t('views.waybills.ident_name_' +
+        @waybills[0].distributor.identifier_name), from: 'filter-w-ident-name')
+      fill_in('filter-w-ident-value', with: @waybills[0].distributor.
+                                              identifier_value)
+      fill_in('filter-w-distributor-place', with: @waybills[0].
+                                                    distributor_place.tag)
+      fill_in('filter-w-storekeeper', with: @waybills[0].storekeeper.tag)
+      fill_in('filter-w-storekeeper-place', with: @waybills[0].
+                                                    storekeeper_place.tag)
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    click_link I18n.t('views.home.logout')
+
+    user = create(:user)
+    VersionEx.where{item_type.in([Waybill.name, Allocation.name])}.delete_all
+    page_login
+
+    within('#container_documents table') do
+      page.should have_selector('tbody tr', count: 1)
+      page.should have_content(user.class.name)
+      page.should have_content(user.entity.tag)
+      page.should have_content(user.versions.first.created_at.
+                                 strftime('%Y-%m-%d'))
+      page.should have_content(user.versions.last.created_at.
+                                 strftime('%Y-%m-%d'))
+    end
   end
 end

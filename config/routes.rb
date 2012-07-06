@@ -10,6 +10,7 @@
 Abstract::Application.routes.draw do
   get "home/index"
   get "inbox" => "home#inbox"
+  get "archive" => "home#archive"
 
   resources :user_sessions
   get "login" => "user_sessions#new", :as => "login"

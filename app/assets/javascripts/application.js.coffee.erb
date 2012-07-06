@@ -191,7 +191,17 @@ $ ->
               toggleSelect('inbox')
               $('#container_documents').html(form)
               ko.cleanNode($('#main').get(0))
-              ko.applyBindings(new InboxViewModel(objects), $('#main').get(0))
+              ko.applyBindings(new DocumentsViewModel(objects, 'inbox'), $('#main').get(0))
+            )
+          )
+        )
+        this.get('#archive', ->
+          $.get('/archive', {}, (form) ->
+            $.getJSON('/archive.json', {}, (objects) ->
+              toggleSelect('archive')
+              $('#container_documents').html(form)
+              ko.cleanNode($('#main').get(0))
+              ko.applyBindings(new DocumentsViewModel(objects, 'archive'), $('#main').get(0))
             )
           )
         )

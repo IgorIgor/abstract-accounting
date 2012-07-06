@@ -189,8 +189,7 @@ feature "waybill", %q{
     end
 
     within("#container_documents form") do
-      #TODO
-      #find("#created")[:value].should eq(Waybill.first.created.strftime("%m/%d/%Y"))
+      find("#created")[:value].should eq(Waybill.first.created.strftime("%d.%m.%Y"))
       find("#waybill_document_id")[:value].should eq(Waybill.first.document_id)
       find("#waybill_entity")[:value].should eq(Waybill.first.distributor.name)
       find("#waybill_ident_name")[:value].should eq(Waybill.first.distributor.identifier_name)

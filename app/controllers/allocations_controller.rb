@@ -74,8 +74,8 @@ class AllocationsController < ApplicationController
       format.html { render :show, layout: false }
       format.json
       format.pdf {
-        render pdf: 'allocation',
-               template: 'allocations/show.html.erb',
+        render pdf: 'allocations.show.html.erb',
+               :formats => [:html],
                encoding: 'utf-8',
                layout: false
       }

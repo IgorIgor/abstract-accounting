@@ -210,12 +210,33 @@ feature 'allocation', %q{
 
         page.find("td[@class='allocation-tree-actions-by-wb']").click
         within('table') do
-          wbs[0].items.each_with_index do |item, idx|
-            tr = page.all('tbody tr')[idx]
-            tr.should have_content(item.resource.tag)
-            tr.should have_content(item.resource.mu)
-            tr.should have_content(item.amount.to_i)
+          per_page.times do |i|
+            tr = page.all('tbody tr')[i]
+            tr.should have_content(wbs[0].items[i].resource.tag)
+            tr.should have_content(wbs[0].items[i].resource.mu)
+            tr.should have_content(wbs[0].items[i].amount.to_i)
           end
+        end
+
+        within("div[@class='paginate']") do
+          within("span[@data-bind='text: range']") do
+            page.should have_content("1-#{per_page}")
+          end
+          within("span[@data-bind='text: count']") do
+            page.should have_content("#{wbs[0].items.length}")
+          end
+          find_button('<')[:disabled].should eq('true')
+          find_button('>')[:disabled].should eq('false')
+          click_button('>')
+          find_button('<')[:disabled].should eq('false')
+          find_button('>')[:disabled].should eq('true')
+        end
+
+        within('table') do
+          tr = page.all('tbody tr')[0]
+          tr.should have_content(wbs[0].items[per_page].resource.tag)
+          tr.should have_content(wbs[0].items[per_page].resource.mu)
+          tr.should have_content(wbs[0].items[per_page].amount.to_i)
         end
       end
 
@@ -265,7 +286,7 @@ feature 'allocation', %q{
         end
         within('tbody') do
           if wbs.count - 1 > 0
-            page.should have_selector('tr', count: wbs.count - 1)
+            page.should have_selector('tr', count: wbs.count - 1, visible: true)
           else
             page.should_not have_selector('tr')
           end
@@ -281,11 +302,11 @@ feature 'allocation', %q{
           end
         end
 
-        wb.items.each do |item|
-          if item.resource.tag != "resource#0"
-            page.should have_content(item.resource.tag)
-            page.should have_content(item.resource.mu)
-            page.should have_content(item.amount.to_i)
+        per_page.times do |i|
+          if wb.items[i].resource.tag != "resource#0"
+            page.should have_content(wb.items[i].resource.tag)
+            page.should have_content(wb.items[i].resource.mu)
+            page.should have_content(wb.items[i].amount.to_i)
           end
         end
       end

@@ -117,7 +117,17 @@ class WaybillsController < ApplicationController
   end
 
   def resources
-    @resources = Waybill.find(params[:id]).items
+    waybill = Waybill.find(params[:id])
+    @resources = []
+    if params[:all]
+      @resources = waybill.items
+    else
+      page = params[:page].nil? ? 1 : params[:page].to_i
+      per_page = params[:per_page].nil? ?
+          Settings.root.per_page.to_i : params[:per_page].to_i
+      @resources = waybill.items[(page - 1) * per_page, per_page]
+    end
+    @count = waybill.items.count
   end
 
   def apply

@@ -183,7 +183,36 @@ $ ->
         @range(@rangeGenerate())
       )
 
-  class self.GroupedViewModel extends FolderViewModel
+  class self.TreeViewModel extends FolderViewModel
+    constructor: (data) ->
+      super(data)
+      for object in @documents()
+        object.subitems = ko.observable(null)
+
+    getPaginateData: =>
+      $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
+        for object in data.objects
+          object.subitems = ko.observable(null)
+        @documents(data.objects)
+        @count(data.count)
+        @range(@rangeGenerate())
+      )
+
+    expandTree: (object, event) =>
+      el = $(event.target).find('span')
+      el = $(event.target) unless el.length
+      el.toggleClass('ui-icon-circle-plus')
+      el.toggleClass('ui-icon-circle-minus')
+
+      if object.subitems() == null
+        params = @generateChildrenParams(object)
+        $.getJSON(@generateItemsUrl(object), params, (data) =>
+          object.subitems(@createChildrenViewModel(data, params, object))
+        )
+      else
+        object.subitems(null)
+
+  class self.GroupedViewModel extends TreeViewModel
     constructor: (data, report, filter) ->
       @route = report
       @url = "/#{@route}/group.json"
@@ -196,39 +225,15 @@ $ ->
         per_page: @per_page
         group_by: @group_by()
 
-      for object in @documents()
-        object.subitems = ko.observable(null)
-
       @group_by.subscribe(@groupBy)
 
-    getPaginateData: =>
-      $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
-        for object in data.objects
-          object.subitems = ko.observable(null)
-        @documents(data.objects)
-        @count(data.count)
-        @range(@rangeGenerate())
-      )
+    generateItemsUrl: (object) => "/#{@route}/data.json"
 
     groupBy: =>
       if @group_by() == ''
         location.hash = "##{@route}"
       else
         location.hash = "##{@route}?group_by=#{@group_by()}"
-
-    expandTree: (object, event) =>
-      el = $(event.target).find('span')
-      el = $(event.target) unless el.length
-      el.toggleClass('ui-icon-circle-plus')
-      el.toggleClass('ui-icon-circle-minus')
-
-      if object.subitems() == null
-        params = @generateChildrenParams(object)
-        $.getJSON("/#{@route}/data.json", params, (data) =>
-          object.subitems(@createChildrenViewModel(data, params))
-        )
-      else
-        object.subitems(null)
 
   class HomeViewModel
     constructor: ->

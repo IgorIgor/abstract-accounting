@@ -29,3 +29,9 @@ ru:
       page_title_show: "Просмотр накладной"
       ident_name_MSRN: "ОГРН"
       ident_name_VATIN: "ИНН"
+      resource:
+        tag: Название
+        mu: Ед. изм
+        amount: Количество
+        price: Цена
+        sum: Сумма

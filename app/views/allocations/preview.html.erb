@@ -249,9 +249,16 @@
       <td data-bind="text: storekeeper_place"></td>
     </tr>
     <!-- ko if: resources.show -->
-    <tr>
+    <tr data-bind="with: resources_view_model">
       <td></td>
       <td colspan="6">
+        <div class="paginate">
+          <span data-bind="text: range"></span> <%= t('views.home.of') %>
+          <span data-bind="text: count"></span>
+          <input type="button" value="<" data-bind="click: prev, disable: page() < 2"/>
+          <input type="button" class="paginate-right" value=">"
+                 data-bind="click: next, disable: page()*per_page() >= count()"/>
+        </div>
         <table>
           <thead>
           <tr>
@@ -260,7 +267,7 @@
             <th class="available-resources-amount"><%= t 'views.allocations.amount' %></th>
           </tr>
           </thead>
-          <tbody data-bind="foreach: resources.items">
+          <tbody data-bind="foreach: documents">
           <tr>
             <td data-bind="text: tag"></td>
             <td data-bind="text: mu"></td>

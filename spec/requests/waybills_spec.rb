@@ -425,7 +425,7 @@ feature "waybill", %q{
     end
 
     within("#container_documents table tbody") do
-      page.should have_selector('tr', count: per_page)
+      page.should have_selector('tr', count: per_page, visible: true)
     end
 
     within("div[@class='paginate']") do
@@ -445,7 +445,7 @@ feature "waybill", %q{
     waybills = Waybill.limit(per_page).offset(per_page)
     within('#container_documents table tbody') do
       count_on_page = count - per_page > per_page ? per_page : count - per_page
-      page.should have_selector('tr', count: count_on_page)
+      page.should have_selector('tr', count: count_on_page, visible: true)
       waybills.each do |waybill|
         page.should have_content(waybill.created.strftime('%Y-%m-%d'))
         page.should have_content(waybill.document_id)
@@ -544,5 +544,129 @@ feature "waybill", %q{
     end
 
     PaperTrail.enabled = false
+  end
+
+  scenario "views waybill's resources'", js: true do
+    per_page = Settings.root.per_page
+
+    wb = build(:waybill)
+    wb2 = build(:waybill)
+
+    3.times do |i|
+      wb.add_item(tag: "resource##{i}", mu: "mu##{i}", price: 100+i, amount: 10+i)
+    end
+
+    wb.save!
+    wb.apply
+
+    (0..per_page).each { |i|
+      wb2.add_item(tag: "resource##{i}", mu: "mu##{i}", price: 500+i, amount: 50+i)
+    }
+
+    wb2.save!
+    wb2.apply
+
+    page_login
+    page.find('#btn_slide_lists').click
+    page.find('#deals').click
+    page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
+        "not(contains(@style, 'display: none'))]/li[@id='waybills']/a").click
+    current_hash.should eq('waybills')
+    page.should have_xpath("//ul[@id='slide_menu_lists']" +
+                               "/ul[@id='slide_menu_deals']" +
+                               "/li[@id='waybills' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 2, visible: true)
+      page.should have_content(wb.created.strftime('%Y-%m-%d'))
+      page.should have_content(wb.document_id)
+      page.should have_content(wb.distributor.name)
+      page.should have_content(wb.storekeeper.tag)
+      page.should have_content(wb.storekeeper_place.tag)
+      state =
+          case wb.state
+            when Statable::UNKNOWN then I18n.t('views.statable.unknown')
+            when Statable::INWORK then I18n.t('views.statable.inwork')
+            when Statable::CANCELED then I18n.t('views.statable.canceled')
+            when Statable::APPLIED then I18n.t('views.statable.applied')
+          end
+      page.should have_content(state)
+
+      page.should have_content(wb2.created.strftime('%Y-%m-%d'))
+      page.should have_content(wb2.document_id)
+      page.should have_content(wb2.distributor.name)
+      page.should have_content(wb2.storekeeper.tag)
+      page.should have_content(wb2.storekeeper_place.tag)
+      state =
+          case wb2.state
+            when Statable::UNKNOWN then I18n.t('views.statable.unknown')
+            when Statable::INWORK then I18n.t('views.statable.inwork')
+            when Statable::CANCELED then I18n.t('views.statable.canceled')
+            when Statable::APPLIED then I18n.t('views.statable.applied')
+          end
+      page.should have_content(state)
+
+      page.should have_selector(:xpath,
+                                ".//tr//td[@class='tree-actions-by-wb']
+                        //div[@class='ui-corner-all ui-state-hover']
+                        //span[@class='ui-icon ui-icon-circle-plus']", count: 2)
+      find(:xpath,
+           ".//tr[3]//td[@class='tree-actions-by-wb']").click
+
+      resources2 = wb2.items
+      resources2.length.should eq(per_page + 1)
+
+      within("#resource_#{wb2.id}") do
+        page.should have_selector("td[@class='td-inner-table']")
+
+        within("div[@class='paginate']") do
+          within("span[@data-bind='text: range']") do
+            page.should have_content("1-#{per_page}")
+          end
+          within("span[@data-bind='text: count']") do
+            page.should have_content("#{resources2.length}")
+          end
+          find_button('<')[:disabled].should eq('true')
+          find_button('>')[:disabled].should eq('false')
+        end
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: 10)
+          per_page.times do |i|
+            within(:xpath, ".//tr[#{i + 1}]") do
+              page.should have_content(resources2[i].resource.tag)
+              page.should have_content(resources2[i].resource.mu)
+              page.should have_content(resources2[i].amount)
+              page.should have_content(resources2[i].price)
+              page.should have_content(resources2[i].price *
+                                           resources2[i].amount)
+            end
+          end
+        end
+        within("div[@class='paginate']") do
+          click_button('>')
+          find_button('<')[:disabled].should eq('false')
+          find_button('>')[:disabled].should eq('true')
+        end
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: 1)
+          within(:xpath, ".//tr[1]") do
+            page.should have_content(resources2[per_page].resource.tag)
+            page.should have_content(resources2[per_page].resource.mu)
+            page.should have_content(resources2[per_page].amount)
+            page.should have_content(resources2[per_page].price)
+            page.should have_content(resources2[per_page].price *
+                                         resources2[per_page].amount)
+          end
+        end
+        within("div[@class='paginate']") do
+          click_button('<')
+          find_button('>')[:disabled].should eq('false')
+          find_button('<')[:disabled].should eq('true')
+        end
+      end
+      find(:xpath,
+           ".//tr[3]//td[@class='tree-actions-by-wb']").click
+      page.find("#resource_#{wb2.id}").visible?.should_not be_true
+    end
   end
 end

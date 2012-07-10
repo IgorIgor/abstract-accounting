@@ -29,3 +29,9 @@ en:
       page_title_show: "Show waybill"
       ident_name_MSRN: "MSRN"
       ident_name_VATIN: "VATIN"
+      resource:
+        tag: Tag
+        mu: Mu
+        amount: Amount
+        price: Price
+        sum: Sum

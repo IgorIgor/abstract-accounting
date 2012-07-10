@@ -56,8 +56,8 @@ $ ->
             @object.items.push(resource)
         @getPaginateData()
       else
-        $.getJSON("/waybills/#{waybill.id}/resources.json", null, (items) =>
-          for resource in items
+        $.getJSON("/waybills/#{waybill.id}/resources.json", {all: true}, (items) =>
+          for resource in items.objects
             exist = $.grep(@object.items(), (r) -> return r.id == resource.id)[0]
             if exist
               exist.waybill_id = waybill.id
@@ -112,7 +112,11 @@ $ ->
           obj.resources =
             show: ko.observable(false)
             items: ko.observableArray([]) if @availableMode()
+          unless @availableMode() == '0'
+            obj.resources_view_model = ko.observable(null)
+
           @availableResources.push(obj)
+
 
         @per_page(data.per_page)
         @count(data.count)
@@ -138,11 +142,12 @@ $ ->
 
       data.resources.show(
         if data.resources.show()
+          data.resources_view_model(null)
           false
         else
           unless data.resources.items().length
             $.getJSON("/waybills/#{data.id}/resources.json", null, (items) =>
-              data.resources.items(items)
+              data.resources_view_model(new WaybillResourcesViewModel(items, {}, data))
             )
           true
       )

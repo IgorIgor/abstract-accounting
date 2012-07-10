@@ -45,10 +45,11 @@ class Txn < ActiveRecord::Base
       if self.fact.from.update_by_txn(self)
         balance = self.fact.from.balance
         old_balance_value *= -1 if !balance.nil? && old_balance_side != balance.side
-        if balance.nil? || balance.side == Balance::ACTIVE
+        if (balance.nil? && old_balance_side == Balance::ACTIVE) ||
+            (balance && balance.side == Balance::ACTIVE)
           self.value = old_balance_value - (balance.nil? ? 0.0 : balance.value)
         else
-          self.value = balance.value - old_balance_value
+          self.value = (balance.nil? ? 0.0 : balance.value) - old_balance_value
         end
       else
         return false

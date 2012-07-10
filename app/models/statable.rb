@@ -51,7 +51,8 @@ module Statable
                          day: DateTime.current.change(hour: 12), to: self.deal)
       return false if fact.nil?
       self.state = APPLIED
-      return false if self.class.after_apply_callback && !send(self.class.after_apply_callback, fact)
+      return false if self.class.after_apply_callback &&
+                      !send(self.class.after_apply_callback, fact)
       return self.save
     end
     false

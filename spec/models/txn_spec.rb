@@ -820,4 +820,64 @@ describe Txn do
     Txn.count.should eq(20)
     Txn.on_date(DateTime.civil(2011, 11, 27, 12, 0, 0) - 1).count.should eq(17)
   end
+
+  it "should undo balance" do
+    shipment = create(:deal,
+                      :give => build(:deal_give, :resource => Asset.create(tag: "HAHA")),
+                      :take => build(:deal_take, :resource => Asset.find_by_tag("HAHA")),
+                      :rate => 1.0, isOffBalance: true)
+    sale = create(:deal,
+                  :give => build(:deal_give, :resource => @rub),
+                  :take => build(:deal_take, :resource => @aasii),
+                  :rate => 1 / 25.0)
+    store = create(:deal,
+                   :give => build(:deal_give, :resource => @aasii),
+                   :take => build(:deal_take, :resource => @aasii),
+                   :rate => 1.0)
+    shipment.rules.create(tag: "#{shipment.tag}; rule1",
+              from: sale, to: store, fact_side: false,
+              change_side: true, rate: 100)
+    fact = create(:fact, :day => DateTime.now.change(hour: 12, min: 0, sec: 0),
+                  :from => nil, :to => shipment, :resource => @aasii, :amount => 1.0)
+    Txn.create!(fact: fact)
+    shipment1 = create(:deal,
+                      :give => build(:deal_give, :resource => Asset.create(tag: "HAHA1")),
+                      :take => build(:deal_take, :resource => Asset.find_by_tag("HAHA1")),
+                      :rate => 1.0, isOffBalance: true)
+    store2 = create(:deal,
+                   :give => build(:deal_give, :resource => @aasii),
+                   :take => build(:deal_take, :resource => @aasii),
+                   :rate => 1.0)
+    shipment1.rules.create(tag: "#{shipment1.tag}; rule1",
+              from: sale, to: store2, fact_side: false,
+              change_side: true, rate: 50)
+    fact = create(:fact, :day => DateTime.now.change(hour: 12, min: 0, sec: 0),
+                  :from => nil, :to => shipment1, :resource => @aasii, :amount => 1.0)
+    Txn.create!(fact: fact)
+    shipment2 = create(:deal,
+                      :give => build(:deal_give, :resource => Asset.create(tag: "HAHA2")),
+                      :take => build(:deal_take, :resource => Asset.find_by_tag("HAHA2")),
+                      :rate => 1.0, isOffBalance: true)
+    sale2 = create(:deal,
+                  :give => build(:deal_give, :resource => @rub),
+                  :take => build(:deal_take, :resource => @aasii),
+                  :rate => 1 / 20.0)
+    shipment2.rules.create(tag: "#{shipment2.tag}; rule1",
+              from: sale2, to: store, fact_side: false,
+              change_side: true, rate: 100)
+    fact = create(:fact, :day => DateTime.now.change(hour: 12, min: 0, sec: 0),
+                  :from => nil, :to => shipment2, :resource => @aasii, :amount => 1.0)
+    Txn.create!(fact: fact)
+    sale.state.amount.should eq(3750.0)
+    sale.balance.value.should eq(3750.0)
+    store.state.amount.should eq(200.0)
+    store.balance.value.should eq(4500.0)
+    fact = create(:fact, :day => DateTime.now.change(hour: 12, min: 0, sec: 0),
+                  :from => nil, :to => shipment, :resource => @aasii, :amount => -1.0)
+    Txn.create!(fact: fact)
+    store.state.amount.should eq(100.0)
+    store.balance.value.should eq(2000.0)
+    sale.state.amount.should eq(1250.0)
+    sale.balance.value.should eq(1250.0)
+  end
 end

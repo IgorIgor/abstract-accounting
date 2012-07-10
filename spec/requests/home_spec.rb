@@ -139,6 +139,21 @@ feature "single page application", %q{
     page.find('#slide_menu_conditions').visible?.should eq(true)
     page.should have_xpath("//div[@id='arrow_conditions' and @class='arrow-up-slide']")
 
+
+    page.should have_xpath("//ul//li[@id='users']")
+    page.should have_xpath("//ul//li[@id='groups']")
+    page.should have_xpath("//ul//li[@id='assets']")
+    page.should have_xpath("//ul//li[@id='entities']")
+    page.should have_xpath("//ul//li[@id='places']")
+    page.should have_xpath("//ul//div[@id='arrow_actions']")
+    page.should have_xpath("//ul//li[@id='waybills']")
+    page.should have_xpath("//ul//li[@id='allocations']")
+    page.should have_xpath("//ul//li[@id='warehouses']")
+    page.should have_xpath("//ul//li[@id='general_ledger']")
+    page.should have_xpath("//ul//li[@id='balance_sheet']")
+    page.should have_xpath("//ul//li[@id='transcripts']")
+    page.should have_xpath("//div//a[@href='#settings']")
+
     table_with_paginate(VersionEx.lasts.by_type([ Waybill.name, Allocation.name ]),
                         @per_page) do |item, element|
       element.should have_content(item.item.class.name)
@@ -252,6 +267,23 @@ feature "single page application", %q{
     page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
     page.should_not have_xpath("//div[@id='container_documents']//table//tbody//tr")
     page.should_not have_xpath("//ul[@id='documents_list']//li")
+
+    page.should have_xpath("//div[@class='slider']")
+    page.should have_xpath("//div[@id='arrow_lists' and @class='arrow-down-slide']")
+    page.should_not have_xpath("//ul//li[@id='users']")
+    page.should_not have_xpath("//ul//li[@id='groups']")
+    page.should_not have_xpath("//ul//li[@id='assets']")
+    page.should_not have_xpath("//ul//li[@id='entities']")
+    page.should_not have_xpath("//ul//li[@id='places']")
+    page.should_not have_xpath("//ul//div[@id='arrow_actions']")
+    page.should have_xpath("//ul//li[@id='waybills']")
+    page.should have_xpath("//ul//li[@id='allocations']")
+    page.should have_xpath("//ul//li[@id='warehouses']")
+    page.should_not have_xpath("//ul//li[@id='general_ledger']")
+    page.should_not have_xpath("//ul//li[@id='balance_sheet']")
+    page.should_not have_xpath("//ul//li[@id='transcripts']")
+    page.should_not have_xpath("//div//a[@href='#settings']")
+
     click_link I18n.t('views.home.logout')
 
     credential = create(:credential, user: user, document_type: Waybill.name)

@@ -1,10 +1,11 @@
 <div id="header">
   <div class="div-logout"><%= link_to t('views.home.logout'), :logout %></div>
-  <div class="div-logout"><a href="#settings"><%=t 'views.home.settings' %></a>
-  </div>
+  <% if current_user.root? %>
+    <div class="div-logout"><a href="#settings"><%=t 'views.home.settings' %></a></div>
+  <% end %>
   <div>
     <span>
-      <%= current_user.kind_of?(RootUser) ? current_user.email : current_user.entity.tag %>
+      <%= current_user.root? ? current_user.email : current_user.entity.tag %>
     </span>
   </div>
 </div>
@@ -57,20 +58,29 @@
         <%=t 'views.home.lists' %>
       </a>
       <ul id="slide_menu_lists" class="slide_menu" style="display: none;">
-        <li id="users"><a href="#users"><%=t 'views.home.users' %></a></li>
-        <li id="groups"><a href="#groups"><%=t 'views.home.groups' %></a></li>
-        <li id="assets"><a href="#assets"><%=t 'views.home.assets' %></a></li>
-        <li id="entities"><a href="#entities"><%=t 'views.home.entities' %></a></li>
-        <li id="places"><a href="#places"><%=t 'views.home.places' %></a></li>
-        <div class="slide_action">
-          <div id="arrow_actions" class="arrow-expand arrow-right-expand"></div>
-          <a href="#deals" id="deals" class="btn_slide_action"
-             data-bind="click: expand"><%=t 'views.home.deals' %></a>
-        </div>
-        <ul id="slide_menu_deals" class="slide_menu" style="display: none;">
+        <% if current_user.root? %>
+          <li id="users"><a href="#users"><%=t 'views.home.users' %></a></li>
+          <li id="groups"><a href="#groups"><%=t 'views.home.groups' %></a></li>
+          <li id="assets"><a href="#assets"><%=t 'views.home.assets' %></a></li>
+          <li id="entities"><a href="#entities"><%=t 'views.home.entities' %></a></li>
+          <li id="places"><a href="#places"><%=t 'views.home.places' %></a></li>
+          <div class="slide_action">
+            <div id="arrow_actions" class="arrow-expand arrow-right-expand"></div>
+            <a href="#deals" id="deals" class="btn_slide_action"
+               data-bind="click: expand"><%=t 'views.home.deals' %></a>
+          </div>
+          <ul id="slide_menu_deals" class="slide_menu" style="display: none;">
+            <li id="waybills"><a href="#waybills"><%=t 'views.home.waybills' %></a></li>
+            <li id="allocations">
+              <a href="#allocations"><%=t 'views.home.allocations' %></a>
+            </li>
+          </ul>
+        <% else %>
           <li id="waybills"><a href="#waybills"><%=t 'views.home.waybills' %></a></li>
-          <li id="allocations"><a href="#allocations"><%=t 'views.home.allocations' %></a></li>
-        </ul>
+          <li id="allocations">
+            <a href="#allocations"><%=t 'views.home.allocations' %></a>
+          </li>
+        <% end %>
       </ul>
     </div>
 
@@ -83,15 +93,17 @@
         <li id="warehouses">
           <a href="#warehouses"><%=t 'views.home.warehouses' %></a>
         </li>
-        <li id="general_ledger">
-          <a href="#general_ledger"><%=t 'views.home.general_ledger' %></a>
-        </li>
-        <li id="balance_sheet">
-          <a href="#balance_sheet"><%=t 'views.home.balance_sheet' %></a>
-        </li>
-        <li id="transcripts">
-          <a href="#transcripts"><%=t 'views.home.transcripts' %></a>
-        </li>
+        <% if current_user.root? %>
+          <li id="general_ledger">
+            <a href="#general_ledger"><%=t 'views.home.general_ledger' %></a>
+          </li>
+          <li id="balance_sheet">
+            <a href="#balance_sheet"><%=t 'views.home.balance_sheet' %></a>
+          </li>
+          <li id="transcripts">
+            <a href="#transcripts"><%=t 'views.home.transcripts' %></a>
+          </li>
+        <% end %>
       </ul>
     </div>
   </div>

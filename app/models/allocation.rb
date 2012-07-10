@@ -29,6 +29,17 @@ class Allocation < ActiveRecord::Base
   include WarehouseDeal
   act_as_warehouse_deal from: :storekeeper, to: :foreman, item: :find
 
+  class << self
+    def by_storekeeper(entity)
+      joins{deal}.
+          where{(deal.entity_id == entity.id) & (deal.entity_type == entity.class.name)}
+    end
+    def by_storekeeper_place(place)
+      joins{deal.give}.
+          where{deal.give.place_id == place.id}
+    end
+  end
+
   validates_with AllocationItemsValidator
 
   before_item_save :do_before_item_save

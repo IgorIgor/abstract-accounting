@@ -238,6 +238,108 @@ describe Allocation do
     roof_deal.state.amount.should eq(594.0)
     nails_deal.state.amount.should eq(1190.0)
   end
+
+  it "should filter by storekeeper" do
+    moscow = create(:place)
+    minsk = create(:place)
+    ivanov = create(:entity)
+    petrov = create(:entity)
+
+    wb1 = build(:waybill, storekeeper: ivanov,
+                          storekeeper_place: moscow)
+    wb1.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+    wb1.add_item(tag: 'nails', mu: 'pcs', amount: 700, price: 1.0)
+    wb1.save!
+    wb1.apply
+
+    db1 = build(:allocation, storekeeper: ivanov,
+                            storekeeper_place: moscow)
+    db1.add_item(tag: 'roof', mu: 'rm', amount: 5)
+    db1.add_item(tag: 'nails', mu: 'pcs', amount: 10)
+    db1.save!
+
+    wb2 = build(:waybill, storekeeper: ivanov,
+                                  storekeeper_place: moscow)
+    wb2.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1.0)
+    wb2.add_item(tag: 'nails', mu: 'kg', amount: 10, price: 150.0)
+    wb2.add_item(tag: 'roof', mu: 'rm', amount: 50, price: 100.0)
+    wb2.save!
+    wb2.apply
+
+    db2 = build(:allocation, storekeeper: ivanov,
+                            storekeeper_place: moscow)
+    db2.add_item(tag: 'roof', mu: 'rm', amount: 5)
+    db2.add_item(tag: 'nails', mu: 'pcs', amount: 10)
+    db2.save!
+
+    wb3 = build(:waybill, storekeeper: petrov,
+                                  storekeeper_place: minsk)
+    wb3.add_item(tag: 'roof', mu: 'rm', amount: 500, price: 120.0)
+    wb3.add_item(tag: 'nails', mu: 'kg', amount: 300, price: 150.0)
+    wb3.save!
+    wb3.apply
+
+    db3 = build(:allocation, storekeeper: petrov,
+                            storekeeper_place: minsk)
+    db3.add_item(tag: 'roof', mu: 'rm', amount: 5)
+    db3.add_item(tag: 'nails', mu: 'kg', amount: 10)
+    db3.save!
+
+    Allocation.by_storekeeper(ivanov).should =~ [db1, db2]
+    Allocation.by_storekeeper(petrov).should =~ [db3]
+    Allocation.by_storekeeper(create(:entity)).all.should be_empty
+  end
+
+  it "should filter by storekeeper place" do
+    moscow = create(:place)
+    minsk = create(:place)
+    ivanov = create(:entity)
+    petrov = create(:entity)
+
+    wb1 = build(:waybill, storekeeper: ivanov,
+                          storekeeper_place: moscow)
+    wb1.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+    wb1.add_item(tag: 'nails', mu: 'pcs', amount: 700, price: 1.0)
+    wb1.save!
+    wb1.apply
+
+    db1 = build(:allocation, storekeeper: ivanov,
+                            storekeeper_place: moscow)
+    db1.add_item(tag: 'roof', mu: 'rm', amount: 5)
+    db1.add_item(tag: 'nails', mu: 'pcs', amount: 10)
+    db1.save!
+
+    wb2 = build(:waybill, storekeeper: ivanov,
+                                  storekeeper_place: moscow)
+    wb2.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1.0)
+    wb2.add_item(tag: 'nails', mu: 'kg', amount: 10, price: 150.0)
+    wb2.add_item(tag: 'roof', mu: 'rm', amount: 50, price: 100.0)
+    wb2.save!
+    wb2.apply
+
+    db2 = build(:allocation, storekeeper: ivanov,
+                            storekeeper_place: moscow)
+    db2.add_item(tag: 'roof', mu: 'rm', amount: 5)
+    db2.add_item(tag: 'nails', mu: 'pcs', amount: 10)
+    db2.save!
+
+    wb3 = build(:waybill, storekeeper: petrov,
+                                  storekeeper_place: minsk)
+    wb3.add_item(tag: 'roof', mu: 'rm', amount: 500, price: 120.0)
+    wb3.add_item(tag: 'nails', mu: 'kg', amount: 300, price: 150.0)
+    wb3.save!
+    wb3.apply
+
+    db3 = build(:allocation, storekeeper: petrov,
+                            storekeeper_place: minsk)
+    db3.add_item(tag: 'roof', mu: 'rm', amount: 5)
+    db3.add_item(tag: 'nails', mu: 'kg', amount: 10)
+    db3.save!
+
+    Allocation.by_storekeeper_place(moscow).should =~ [db1, db2]
+    Allocation.by_storekeeper_place(minsk).should =~ [db3]
+    Allocation.by_storekeeper_place(create(:place)).all.should be_empty
+  end
 end
 
 describe AllocationItemsValidator do

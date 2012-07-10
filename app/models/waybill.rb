@@ -31,7 +31,8 @@ class Waybill < ActiveRecord::Base
   validates_uniqueness_of :document_id
   validates_with ItemsValidator
 
-  after_apply :do_after_apply
+  after_apply :do_apply_txn
+  after_reverse :do_apply_txn
   before_item_save :do_before_item_save
 
   def self.in_warehouse(attrs = {})
@@ -93,7 +94,7 @@ class Waybill < ActiveRecord::Base
     super(initialize_warehouse_attrs(attrs))
   end
 
-  def do_after_apply(fact)
+  def do_apply_txn(fact)
     if fact
       return !Txn.create(fact: fact).nil?
     end

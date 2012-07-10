@@ -393,6 +393,144 @@ describe Waybill do
     balance.start.should eq(DateTime.current.change(hour: 12))
   end
 
+  it 'should create fact after disable' do
+    wb = build(:waybill)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
+    wb.save.should be_true
+    wb.apply.should be_true
+
+    state = wb.items.first.warehouse_deal(Chart.first.currency,
+      wb.distributor_place, wb.distributor).state
+    state.side.should eq("passive")
+    state.amount.should eq(500 * 10.0)
+    state.start.should eq(DateTime.current.change(hour: 12))
+
+    state = wb.items.first.warehouse_deal(nil, wb.storekeeper_place,
+      wb.storekeeper).state
+    state.side.should eq("active")
+    state.amount.should eq(500.0)
+    state.start.should eq(DateTime.current.change(hour: 12))
+
+    wb_old = wb
+    wb = build(:waybill, distributor: wb.distributor,
+                                 distributor_place: wb.distributor_place,
+                                 storekeeper: wb.storekeeper,
+                                 storekeeper_place: wb.storekeeper_place)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 100, price: 10.0)
+    wb.add_item(tag: 'hammer', mu: 'th', amount: 500, price: 100.0)
+    wb.save.should be_true
+    wb.apply.should be_true
+
+    state = wb.items[0].warehouse_deal(Chart.first.currency,
+      wb.distributor_place, wb.distributor).state
+    state.side.should eq("passive")
+    state.amount.should eq(5000 + 100 * 10.0)
+    state.start.should eq(DateTime.current.change(hour: 12))
+
+    state = wb.items[0].warehouse_deal(nil, wb.storekeeper_place,
+      wb.storekeeper).state
+    state.side.should eq("active")
+    state.amount.should eq(500 + 100)
+    state.start.should eq(DateTime.current.change(hour: 12))
+
+    state = wb.items[1].warehouse_deal(Chart.first.currency,
+      wb.distributor_place, wb.distributor).state
+    state.side.should eq("passive")
+    state.amount.should eq(500 * 100)
+    state.start.should eq(DateTime.current.change(hour: 12))
+
+    state = wb.items[1].warehouse_deal(nil, wb.storekeeper_place,
+      wb.storekeeper).state
+    state.side.should eq("active")
+    state.amount.should eq(500.0)
+    state.start.should eq(DateTime.current.change(hour: 12))
+
+    wb.cancel.should be_true
+    wb.state.should eq(Statable::REVERSED)
+
+    state = wb_old.items.first.warehouse_deal(Chart.first.currency,
+                                              wb_old.distributor_place,
+                                              wb_old.distributor).state
+    state.side.should eq("passive")
+    state.amount.should eq(500 * 10.0)
+    state.start.should eq(DateTime.current.change(hour: 12))
+
+    state = wb_old.items.first.warehouse_deal(nil, wb_old.storekeeper_place,
+                                              wb_old.storekeeper).state
+    state.side.should eq("active")
+    state.amount.should eq(500.0)
+    state.start.should eq(DateTime.current.change(hour: 12))
+  end
+
+  it 'should create txn after disable' do
+    wb = build(:waybill)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
+    wb.save.should be_true
+    wb.apply.should be_true
+
+    balance = wb.items.first.warehouse_deal(Chart.first.currency,
+                                          wb.distributor_place, wb.distributor).balance
+    balance.side.should eq("passive")
+    balance.amount.should eq(500 * 10.0)
+    balance.start.should eq(DateTime.current.change(hour: 12))
+
+    balance = wb.items.first.warehouse_deal(nil, wb.storekeeper_place,
+                                          wb.storekeeper).balance
+    balance.side.should eq("active")
+    balance.amount.should eq(500.0)
+    balance.start.should eq(DateTime.current.change(hour: 12))
+
+    wb_old = wb
+    wb = build(:waybill, distributor: wb.distributor,
+                       distributor_place: wb.distributor_place,
+                       storekeeper: wb.storekeeper,
+                       storekeeper_place: wb.storekeeper_place)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 100, price: 10.0)
+    wb.add_item(tag: 'hammer', mu: 'th', amount: 500, price: 100.0)
+    wb.save.should be_true
+    wb.apply.should be_true
+
+    balance = wb.items[0].warehouse_deal(Chart.first.currency,
+                                       wb.distributor_place, wb.distributor).balance
+    balance.side.should eq("passive")
+    balance.amount.should eq(5000 + 100 * 10.0)
+    balance.start.should eq(DateTime.current.change(hour: 12))
+
+    balance = wb.items[0].warehouse_deal(nil, wb.storekeeper_place,
+                                       wb.storekeeper).balance
+    balance.side.should eq("active")
+    balance.amount.should eq((500 + 100))
+    balance.start.should eq(DateTime.current.change(hour: 12))
+
+    balance = wb.items[1].warehouse_deal(Chart.first.currency,
+                                       wb.distributor_place, wb.distributor).balance
+    balance.side.should eq("passive")
+    balance.amount.should eq(500 * 100)
+    balance.start.should eq(DateTime.current.change(hour: 12))
+
+    balance = wb.items[1].warehouse_deal(nil, wb.storekeeper_place,
+                                       wb.storekeeper).balance
+    balance.side.should eq("active")
+    balance.amount.should eq(500)
+    balance.start.should eq(DateTime.current.change(hour: 12))
+
+    wb.cancel.should be_true
+    wb.state.should eq(Statable::REVERSED)
+
+    balance = wb_old.items.first.warehouse_deal(Chart.first.currency,
+                                                wb_old.distributor_place,
+                                                wb_old.distributor).balance
+    balance.side.should eq("passive")
+    balance.amount.should eq(500 * 10.0)
+    balance.start.should eq(DateTime.current.change(hour: 12))
+
+    balance = wb_old.items.first.warehouse_deal(nil, wb_old.storekeeper_place,
+                                                wb_old.storekeeper).balance
+    balance.side.should eq("active")
+    balance.amount.should eq(500.0)
+    balance.start.should eq(DateTime.current.change(hour: 12))
+  end
+
   it 'should show in warehouse' do
     moscow = create(:place, tag: 'Moscow')
     minsk = create(:place, tag: 'Minsk')

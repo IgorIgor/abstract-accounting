@@ -17,10 +17,15 @@ module Statable
       after_initialize :state_initialize
       before_save :state_change
       class_attribute :after_apply_callback
+      class_attribute :after_reverse_callback
     end
 
     def after_apply(callback)
       self.after_apply_callback = callback
+    end
+
+    def after_reverse(callback)
+      self.after_reverse_callback = callback
     end
   end
 
@@ -28,6 +33,7 @@ module Statable
   INWORK = 1
   CANCELED = 2
   APPLIED = 3
+  REVERSED = 4
 
   def state_initialize
     self.state = UNKNOWN if self.new_record?
@@ -40,6 +46,14 @@ module Statable
   def cancel
     if self.state == INWORK
       self.state = CANCELED
+      return self.save
+    elsif self.state == APPLIED
+      fact = Fact.create(amount: -1.0, resource: self.deal.give.resource,
+                         day: DateTime.current.change(hour: 12), to: self.deal)
+      return false if fact.nil?
+      self.state = REVERSED
+      return false if self.class.after_reverse_callback &&
+                      !send(self.class.after_reverse_callback, fact)
       return self.save
     end
     false

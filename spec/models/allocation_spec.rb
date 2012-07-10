@@ -211,6 +211,33 @@ describe Allocation do
     roof_deal.state.amount.should eq(594.0)
     nails_deal.state.amount.should eq(1190.0)
   end
+
+  it 'should create facts by rules after disable' do
+    db = build(:allocation, storekeeper: @wb.storekeeper,
+                            storekeeper_place: @wb.storekeeper_place)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 5)
+    db.add_item(tag: 'nails', mu: 'pcs', amount: 10)
+
+    roof_deal = db.items[0].warehouse_deal(nil, db.storekeeper_place,
+      db.storekeeper)
+    nails_deal = db.items[1].warehouse_deal(nil, db.storekeeper_place,
+      db.storekeeper)
+
+    roof_deal.state.amount.should eq(594.0)
+    nails_deal.state.amount.should eq(1190.0)
+
+    db.save.should be_true
+    expect { db.apply } .should change(Fact, :count).by(3)
+
+    roof_deal.state.amount.should eq(589.0)
+    nails_deal.state.amount.should eq(1180.0)
+
+    expect { db.cancel } .should change(Fact, :count).by(3)
+    db.state.should eq(Statable::REVERSED)
+
+    roof_deal.state.amount.should eq(594.0)
+    nails_deal.state.amount.should eq(1190.0)
+  end
 end
 
 describe AllocationItemsValidator do

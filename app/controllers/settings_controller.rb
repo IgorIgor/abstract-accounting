@@ -33,7 +33,7 @@ class SettingsController < ApplicationController
       end
       render text: "success"
     rescue
-      render json: chart.errors.messages
+      render json: chart.errors.full_messages
     end
   end
 end

@@ -631,6 +631,66 @@ describe Waybill do
     Waybill.in_warehouse.include?(wb3).should be_false
     Waybill.in_warehouse.include?(wb4).should be_false
   end
+
+  it "should filter by storekeeper" do
+    moscow = create(:place)
+    minsk = create(:place)
+    ivanov = create(:entity)
+    petrov = create(:entity)
+
+    wb1 = build(:waybill, storekeeper: ivanov,
+                                  storekeeper_place: moscow)
+    wb1.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+    wb1.add_item(tag: 'nails', mu: 'pcs', amount: 700, price: 1.0)
+    wb1.save!
+
+    wb2 = build(:waybill, storekeeper: ivanov,
+                                  storekeeper_place: moscow)
+    wb2.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1.0)
+    wb2.add_item(tag: 'nails', mu: 'kg', amount: 10, price: 150.0)
+    wb2.add_item(tag: 'roof', mu: 'rm', amount: 50, price: 100.0)
+    wb2.save!
+
+    wb3 = build(:waybill, storekeeper: petrov,
+                                  storekeeper_place: minsk)
+    wb3.add_item(tag: 'roof', mu: 'rm', amount: 500, price: 120.0)
+    wb3.add_item(tag: 'nails', mu: 'kg', amount: 300, price: 150.0)
+    wb3.save!
+
+    Waybill.by_storekeeper(ivanov).should =~ [wb1, wb2]
+    Waybill.by_storekeeper(petrov).should =~ [wb3]
+    Waybill.by_storekeeper(create(:entity)).all.should be_empty
+  end
+
+  it "should filter by storekeeper place" do
+    moscow = create(:place)
+    minsk = create(:place)
+    ivanov = create(:entity)
+    petrov = create(:entity)
+
+    wb1 = build(:waybill, storekeeper: ivanov,
+                                  storekeeper_place: moscow)
+    wb1.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+    wb1.add_item(tag: 'nails', mu: 'pcs', amount: 700, price: 1.0)
+    wb1.save!
+
+    wb2 = build(:waybill, storekeeper: ivanov,
+                                  storekeeper_place: moscow)
+    wb2.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1.0)
+    wb2.add_item(tag: 'nails', mu: 'kg', amount: 10, price: 150.0)
+    wb2.add_item(tag: 'roof', mu: 'rm', amount: 50, price: 100.0)
+    wb2.save!
+
+    wb3 = build(:waybill, storekeeper: petrov,
+                                  storekeeper_place: minsk)
+    wb3.add_item(tag: 'roof', mu: 'rm', amount: 500, price: 120.0)
+    wb3.add_item(tag: 'nails', mu: 'kg', amount: 300, price: 150.0)
+    wb3.save!
+
+    Waybill.by_storekeeper_place(moscow).should =~ [wb1, wb2]
+    Waybill.by_storekeeper_place(minsk).should =~ [wb3]
+    Waybill.by_storekeeper_place(create(:place)).all.should be_empty
+  end
 end
 
 describe ItemsValidator do

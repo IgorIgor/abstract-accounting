@@ -27,6 +27,17 @@ class Waybill < ActiveRecord::Base
                         to: :storekeeper,
                         item: :find_or_initialize
 
+  class << self
+    def by_storekeeper(entity)
+      joins{deal}.
+          where{(deal.entity_id == entity.id) & (deal.entity_type == entity.class.name)}
+    end
+    def by_storekeeper_place(place)
+      joins{deal.take}.
+          where{deal.take.place_id == place.id}
+    end
+  end
+
   validates_presence_of :document_id
   validates_uniqueness_of :document_id
   validates_with ItemsValidator

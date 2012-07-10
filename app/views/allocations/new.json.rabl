@@ -23,6 +23,12 @@ child(@allocation => :allocation) do
     allocation.foreman_place.nil? ? nil : allocation.foreman_place.id
   end
 end
+node(:can_apply) do
+  @allocation.state == Statable::INWORK
+end
+node(:can_cancel) do
+  @allocation.state == Statable::APPLIED || @allocation.state == Statable::INWORK
+end
 child(Entity.new => :foreman) { attributes :tag }
 child(Place.new => :foreman_place) { attributes :tag }
 storekeeper = @allocation.storekeeper

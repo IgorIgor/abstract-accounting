@@ -342,6 +342,22 @@ feature "waybill", %q{
     page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.waybills.cancel')}' and contains(@style, 'display: none')]")
     find_field('state').value.should eq(I18n.t('views.statable.canceled'))
+    click_link I18n.t('views.home.logout')
+
+    wb = build(:waybill)
+    wb.add_item(tag: "test resource", mu: "test mu", amount: 100, price: 10)
+    wb.save!
+    wb.apply
+
+    page_login
+    visit("#documents/waybills/#{wb.id}")
+    click_button(I18n.t('views.waybills.cancel'))
+    page.should have_selector("#inbox[@class='sidebar-selected']")
+    visit("#documents/waybills/#{wb.id}")
+    page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
+        'views.waybills.cancel')}' and contains(@style, 'display: none')]")
+    find_field('state').value.should eq(I18n.t('views.statable.reversed'))
+    click_link I18n.t('views.home.logout')
 
     PaperTrail.enabled = false
   end

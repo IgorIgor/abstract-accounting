@@ -20,6 +20,12 @@ child(@allocation => :allocation) do
     waybill.storekeeper_place.nil? ? nil : waybill.storekeeper_place.id
   end
 end
+node(:can_apply) do
+  @allocation.state == Statable::INWORK
+end
+node(:can_cancel) do
+  @allocation.state == Statable::APPLIED || @allocation.state == Statable::INWORK
+end
 child(@allocation.storekeeper => :storekeeper) { attributes :tag }
 child(@allocation.storekeeper_place => :storekeeper_place) { attributes :tag }
 child(@allocation.foreman => :foreman) { attributes :tag }

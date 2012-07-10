@@ -26,6 +26,12 @@ child(@waybill => :waybill) do
     waybill.distributor_place.nil? ? nil : waybill.distributor_place.id
   end
 end
+node(:can_apply) do
+  @waybill.state == Statable::INWORK
+end
+node(:can_cancel) do
+  @waybill.state == Statable::APPLIED || @waybill.state == Statable::INWORK
+end
 child(@waybill.distributor => :distributor) do
   attributes :name, :identifier_name, :identifier_value
 end

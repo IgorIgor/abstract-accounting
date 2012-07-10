@@ -475,14 +475,32 @@ feature 'allocation', %q{
 
     page_login
 
-    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Allocation - #{wb.storekeeper.tag}')]").click
+    visit("#documents/allocations/#{ds.id}")
     click_button(I18n.t('views.allocations.cancel'))
     page.should have_selector("#inbox[@class='sidebar-selected']")
-    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Allocation - #{wb.storekeeper.tag}')]").click
+    visit("#documents/allocations/#{ds.id}")
     page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.allocations.cancel')}' and contains(@style, 'display: none')]")
+    find_field('state').value.should eq(I18n.t('views.statable.canceled'))
+    click_link I18n.t('views.home.logout')
+
+    ds = build(:allocation, storekeeper: wb.storekeeper,
+                            storekeeper_place: wb.storekeeper_place)
+    ds.add_item(tag: "test resource", mu: "test mu", amount: 10)
+    ds.save!
+    ds.apply
+
+    page_login
+
+    visit("#documents/allocations/#{ds.id}")
+    click_button(I18n.t('views.allocations.cancel'))
+    page.should have_selector("#inbox[@class='sidebar-selected']")
+    visit("#documents/allocations/#{ds.id}")
+    page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
+        'views.allocations.cancel')}' and contains(@style, 'display: none')]")
+    find_field('state').value.should eq(I18n.t('views.statable.reversed'))
+    click_link I18n.t('views.home.logout')
+
     PaperTrail.enabled = false
   end
 

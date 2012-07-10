@@ -101,8 +101,19 @@ class WaybillsController < ApplicationController
     per_page = params[:per_page].nil? ?
         Settings.root.per_page.to_i : params[:per_page].to_i
 
-    @waybills = Waybill.limit(per_page).offset((page - 1) * per_page)
-    @count = Waybill.count
+    scope = Waybill
+    unless current_user.root?
+      credential = current_user.credentials(:force_update).
+                                where{document_type == Waybill.name}.first
+      if credential
+        scope = scope.by_storekeeper(current_user.entity).
+                      by_storekeeper_place(credential.place)
+      else
+        scope = scope.where{id == nil}
+      end
+    end
+    @waybills = scope.limit(per_page).offset((page - 1) * per_page)
+    @count = scope.count
   end
 
   def resources

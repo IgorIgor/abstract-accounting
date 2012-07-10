@@ -477,4 +477,72 @@ feature "waybill", %q{
         " '#{Waybill.first.document_id}')]").click
     show_waybill(Waybill.first)
   end
+
+  scenario "storekeeper should view only items created by him", js: true do
+    PaperTrail.enabled = true
+
+    Waybill.delete_all
+    password = "password"
+    user = create(:user, password: password)
+    credential = create(:credential, user: user, document_type: Waybill.name)
+    page_login user.email, password
+
+    12.times do |i|
+      wb = build(:waybill, storekeeper: i % 2 == 0 ? user.entity : create(:entity),
+                 storekeeper_place: i % 4 == 0 ? credential.place : create(:place))
+      wb.add_item(tag: "test resource##{i}", mu: "test mu", amount: 200+i, price: 100+i)
+      wb.save!
+    end
+
+    waybills = Waybill.by_storekeeper(user.entity).by_storekeeper_place(credential.place)
+    waybills.count.should eq(3)
+    waybills_not_visible = Waybill.where{id.not_in(waybills.select(:id))}
+
+    page.find('#btn_slide_lists').click
+    page.find(:xpath, "//ul//li[@id='waybills']/a").click
+
+    current_hash.should eq('waybills')
+    page.should have_xpath("//ul//li[@id='waybills' and @class='sidebar-selected']")
+
+    within('#container_documents table') do
+      within('tbody') do
+        waybills.each do |waybill|
+          page.should have_content(waybill.created.strftime('%Y-%m-%d'))
+          page.should have_content(waybill.document_id)
+          page.should have_content(waybill.distributor.name)
+          page.should have_content(waybill.storekeeper.tag)
+          page.should have_content(waybill.storekeeper_place.tag)
+          state =
+            case waybill.state
+              when Statable::UNKNOWN then I18n.t('views.statable.unknown')
+              when Statable::INWORK then I18n.t('views.statable.inwork')
+              when Statable::CANCELED then I18n.t('views.statable.canceled')
+              when Statable::APPLIED then I18n.t('views.statable.applied')
+            end
+          page.should have_content(state)
+        end
+        waybills_not_visible.each do |waybill|
+          page.should_not have_content(waybill.document_id)
+          page.should_not have_content(waybill.distributor.name)
+        end
+      end
+    end
+    click_link I18n.t('views.home.logout')
+
+    password = "password"
+    user = create(:user, password: password, entity: Waybill.first.storekeeper)
+    page_login user.email, password
+
+    page.find('#btn_slide_lists').click
+    page.find(:xpath, "//ul//li[@id='waybills']/a").click
+
+    current_hash.should eq('waybills')
+    page.should have_xpath("//ul//li[@id='waybills' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      page.should_not have_selector("tr")
+    end
+
+    PaperTrail.enabled = false
+  end
 end

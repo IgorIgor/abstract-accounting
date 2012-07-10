@@ -28,6 +28,7 @@ describe User do
     User.new.root?.should be_false
     should have_many(:credentials)
     should have_and_belong_to_many(:groups)
+    should have_one(:managed_group).class_name(Group)
   end
 
   it "should authenticate from config" do

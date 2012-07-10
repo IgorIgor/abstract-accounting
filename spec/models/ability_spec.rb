@@ -16,7 +16,26 @@ describe Ability do
     Ability.new(user).should_not be_able_to(:manage, :all)
     Ability.new(nil).should_not be_able_to(:manage, :all)
     Ability.new(RootUser.new).should be_able_to(:manage, :all)
-    Ability.new(user).should be_able_to(:read, :all)
-    Ability.new(nil).should_not be_able_to(:read, :all)
+
+    subordinate1 = create(:user)
+    create(:credential, user: subordinate1, document_type: Entity.name)
+
+    Ability.new(subordinate1).should be_able_to(:manage, Entity)
+
+    subordinate2 = create(:user)
+    create(:credential, user: subordinate2, document_type: Asset.name)
+
+    Ability.new(subordinate2).should be_able_to(:manage, Asset)
+
+    boss = create(:user)
+    group = create(:group, manager: boss)
+    group.user_ids = [subordinate1.id, subordinate2.id]
+
+    Ability.new(boss).should be_able_to(:manage, Entity)
+    Ability.new(boss).should be_able_to(:manage, Asset)
+
+    create(:credential, user: boss, document_type: Money.name)
+
+    Ability.new(boss).should be_able_to(:manage, Money)
   end
 end

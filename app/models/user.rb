@@ -20,6 +20,7 @@ class User < ActiveRecord::Base
   belongs_to :entity
   has_many :credentials
   has_and_belongs_to_many :groups
+  has_one :managed_group, class_name: Group, foreign_key: :manager_id
 
   def self.authenticate(email, password, *credentials)
     if "root@localhost" == email &&

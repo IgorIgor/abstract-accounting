@@ -87,8 +87,20 @@ class AllocationsController < ApplicationController
     per_page = params[:per_page].nil? ?
         Settings.root.per_page.to_i : params[:per_page].to_i
 
-    @allocations = Allocation.limit(per_page).offset((page - 1) * per_page)
-    @count = Allocation.count
+    scope = Allocation
+    unless current_user.root?
+      credential = current_user.credentials(:force_update).
+                                where{document_type == Waybill.name}.first
+      if credential
+        scope = scope.by_storekeeper(current_user.entity).
+                      by_storekeeper_place(credential.place)
+      else
+        scope = scope.where{id == nil}
+      end
+    end
+
+    @allocations = scope.limit(per_page).offset((page - 1) * per_page)
+    @count = scope.count
   end
 
   def apply

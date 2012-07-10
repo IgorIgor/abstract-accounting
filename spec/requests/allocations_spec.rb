@@ -667,4 +667,77 @@ feature 'allocation', %q{
     page.find(:xpath, "//table//tbody//tr[1]").click
     show_allocation(Allocation.first)
   end
+
+  scenario "storekeeper should view only items created by him", js: true do
+    PaperTrail.enabled = true
+
+    Waybill.delete_all
+    password = "password"
+    user = create(:user, password: password)
+    credential = create(:credential, user: user, document_type: Waybill.name)
+    page_login user.email, password
+
+    12.times do |i|
+      wb = build(:waybill, storekeeper: i % 2 == 0 ? user.entity : create(:entity),
+                       storekeeper_place: i % 4 == 0 ? credential.place : create(:place))
+      wb.add_item(tag: "test resource##{i}", mu: "test mu", amount: 200+i, price: 100+i)
+      wb.save!
+      wb.apply
+
+      ds = build(:allocation, storekeeper: wb.storekeeper,
+                 storekeeper_place: wb.storekeeper_place)
+      ds.add_item(tag: "test resource##{i}", mu: "test mu", amount: 10)
+      ds.save!
+    end
+
+    allocations = Allocation.by_storekeeper(user.entity).
+                             by_storekeeper_place(credential.place)
+    allocations.count.should eq(3)
+    allocations_not_visible = Allocation.where{id.not_in(allocations.select(:id))}
+
+    page.find('#btn_slide_lists').click
+    page.find(:xpath, "//ul//li[@id='allocations']/a").click
+
+    current_hash.should eq('allocations')
+    page.should have_xpath("//ul//li[@id='allocations' and @class='sidebar-selected']")
+
+    within('#container_documents table') do
+      within('tbody') do
+        allocations.each do |allocation|
+          page.should have_content(allocation.created.strftime('%Y-%m-%d'))
+          page.should have_content(allocation.storekeeper.tag)
+          page.should have_content(allocation.storekeeper_place.tag)
+          page.should have_content(allocation.foreman.tag)
+          state =
+            case allocation.state
+              when Statable::UNKNOWN then I18n.t('views.statable.unknown')
+              when Statable::INWORK then I18n.t('views.statable.inwork')
+              when Statable::CANCELED then I18n.t('views.statable.canceled')
+              when Statable::APPLIED then I18n.t('views.statable.applied')
+            end
+          page.should have_content(state)
+        end
+        allocations_not_visible.each do |allocation|
+          page.should_not have_content(allocation.foreman.tag)
+        end
+      end
+    end
+    click_link I18n.t('views.home.logout')
+
+    password = "password"
+    user = create(:user, password: password, entity: Waybill.first.storekeeper)
+    page_login user.email, password
+
+    page.find('#btn_slide_lists').click
+    page.find(:xpath, "//ul//li[@id='allocations']/a").click
+
+    current_hash.should eq('allocations')
+    page.should have_xpath("//ul//li[@id='allocations' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      page.should_not have_selector("tr")
+    end
+
+    PaperTrail.enabled = false
+  end
 end

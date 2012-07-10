@@ -17,7 +17,7 @@ class ApplicationController < ActionController::Base
 
   alias_method :sorcery_auto_login, :auto_login
   def auto_login(user)
-    ((session[:root] = true && @current_user = user) if user.root?) || sorcery_auto_login(user)
+    (((session[:root] = true) && (@current_user = user)) if user.root?) || sorcery_auto_login(user)
   end
 
   alias_method :sorcery_remember_me!, :remember_me!

@@ -153,7 +153,7 @@ feature 'warehouses', %q{
   scenario "user without root credentials should see only his data", js: true do
     password = "password"
     user = create(:user, password: password)
-    credential = create(:credential, user: user, document_type: Warehouse.name)
+    credential = create(:credential, user: user, document_type: Waybill.name)
 
     wb = build(:waybill)
     5.times do |i|
@@ -243,7 +243,7 @@ feature 'warehouses', %q{
     current_hash.should eq('warehouses')
 
     within('#container_documents table tbody') do
-      page.all('tr').count.should eq(per_page)
+      page.should have_selector("tr", count: per_page)
     end
 
     select(I18n.t('views.warehouses.group_place'), from: 'warehouse_group')
@@ -432,5 +432,18 @@ feature 'warehouses', %q{
            ".//tr[1]//td[@class='distribution-tree-actions-by-wb']").click
       page.find("#group_#{resource.id}").visible?.should_not be_true
     end
+  end
+
+  scenario "none root user should not see grouping filter", js: true do
+    password = "password"
+    user = create(:user, password: password)
+    credential = create(:credential, user: user, document_type: Waybill.name)
+    page_login(user.email, password)
+
+    page.find('#btn_slide_conditions').click
+    page.find('#warehouses a').click
+    current_hash.should eq('warehouses')
+
+    page.should_not have_xpath("//select[@id='warehouse_group']")
   end
 end

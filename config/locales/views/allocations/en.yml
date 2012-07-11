@@ -29,3 +29,7 @@ en:
       distributor: Distributor
       storekeeper: Storekeeper
       storekeeper_place: Place
+      resource:
+        tag: Name
+        mu: MU
+        amount: Amount

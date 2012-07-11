@@ -67,6 +67,7 @@ Abstract::Application.routes.draw do
     member do
       get 'apply'
       get 'cancel'
+      get 'resources'
     end
   end
   resources :general_ledger, only: [:index] do

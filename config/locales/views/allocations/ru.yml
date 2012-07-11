@@ -29,3 +29,7 @@ ru:
       distributor: Поставщик
       storekeeper: Кладовщик
       storekeeper_place: Объект
+      resource:
+        tag: Название
+        mu: Ед. изм.
+        amount: Кол-во

@@ -638,7 +638,7 @@ feature 'allocation', %q{
     end
 
     within("#container_documents table tbody") do
-      page.should have_selector('tr', count: per_page)
+      page.should have_selector('tr', count: per_page, visible: true)
     end
 
     within("div[@class='paginate']") do
@@ -658,7 +658,7 @@ feature 'allocation', %q{
     allocations = Allocation.limit(per_page).offset(per_page)
     within('#container_documents table tbody') do
       count_on_page = count - per_page > per_page ? per_page : count - per_page
-      page.should have_selector('tr', count: count_on_page)
+      page.should have_selector('tr', count: count_on_page, visible: true)
       allocations.each do |allocation|
         page.should have_content(allocation.created.strftime('%Y-%m-%d'))
         page.should have_content(allocation.storekeeper.tag)
@@ -685,7 +685,7 @@ feature 'allocation', %q{
       find_button('>')[:disabled].should eq('false')
     end
 
-    page.find(:xpath, "//table//tbody//tr[1]").click
+    page.find(:xpath, "//table//tbody//tr[1]//td[2]").click
     show_allocation(Allocation.first)
   end
 
@@ -760,5 +760,105 @@ feature 'allocation', %q{
     end
 
     PaperTrail.enabled = false
+  end
+
+  scenario "views allocation's resources'", js: true do
+    per_page = Settings.root.per_page
+
+    wb = build(:waybill)
+    (per_page + 1).times do |i|
+      wb.add_item(tag: "resource##{i}", mu: "mu##{i}", amount: 200+i, price: 100+i)
+    end
+    wb.save!
+    wb.apply
+
+    ds = build(:allocation, storekeeper: wb.storekeeper,
+               storekeeper_place: wb.storekeeper_place)
+    (per_page + 1).times do |i|
+      ds.add_item(tag: "resource##{i}", mu: "mu##{i}", amount: 100)
+    end
+    ds.save!
+
+    allocation = Allocation.first
+
+    page_login
+    page.find('#btn_slide_lists').click
+    page.find('#deals').click
+    page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
+        "not(contains(@style, 'display: none'))]/li[@id='allocations']/a").click
+
+    current_hash.should eq('allocations')
+    page.should have_xpath("//ul[@id='slide_menu_lists']" +
+                           "/ul[@id='slide_menu_deals']" +
+                           "/li[@id='allocations' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      page.should have_content(allocation.created.strftime('%Y-%m-%d'))
+      page.should have_content(allocation.storekeeper.tag)
+      page.should have_content(allocation.storekeeper_place.tag)
+      page.should have_content(allocation.foreman.tag)
+      state =
+          case allocation.state
+            when Statable::UNKNOWN then I18n.t('views.statable.unknown')
+            when Statable::INWORK then I18n.t('views.statable.inwork')
+            when Statable::CANCELED then I18n.t('views.statable.canceled')
+            when Statable::APPLIED then I18n.t('views.statable.applied')
+          end
+      page.should have_content(state)
+
+      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions-by-wb']
+                        //div[@class='ui-corner-all ui-state-hover']
+                        //span[@class='ui-icon ui-icon-circle-plus']", count: 1)
+      find(:xpath,
+           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+
+      resources = allocation.items
+      resources.length.should eq(per_page + 1)
+
+      within("#resource_#{allocation.id}") do
+        page.should have_selector("td[@class='td-inner-table']")
+
+        within("div[@class='paginate']") do
+          within("span[@data-bind='text: range']") do
+            page.should have_content("1-#{per_page}")
+          end
+          within("span[@data-bind='text: count']") do
+            page.should have_content("#{resources.length}")
+          end
+          find_button('<')[:disabled].should eq('true')
+          find_button('>')[:disabled].should eq('false')
+        end
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: per_page)
+          per_page.times do |i|
+            within(:xpath, ".//tr[#{i + 1}]") do
+              page.should have_content(resources[i].resource.tag)
+              page.should have_content(resources[i].resource.mu)
+              page.should have_content(resources[i].amount.to_i)
+            end
+          end
+        end
+        within("div[@class='paginate']") do
+          click_button('>')
+          find_button('<')[:disabled].should eq('false')
+          find_button('>')[:disabled].should eq('true')
+        end
+        within("table[@class='inner-table'] tbody") do
+          page.should have_selector('tr', count: 1)
+          within(:xpath, ".//tr[1]") do
+            page.should have_content(resources[per_page].resource.tag)
+            page.should have_content(resources[per_page].resource.mu)
+            page.should have_content(resources[per_page].amount.to_i)
+          end
+        end
+        within("div[@class='paginate']") do
+          click_button('<')
+          find_button('>')[:disabled].should eq('false')
+          find_button('<')[:disabled].should eq('true')
+        end
+      end
+      find(:xpath, ".//tr[1]//td[@class='tree-actions-by-wb']").click
+      page.find("#resource_#{allocation.id}").visible?.should_not be_true
+    end
   end
 end

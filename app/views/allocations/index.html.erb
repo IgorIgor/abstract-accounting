@@ -1,6 +1,7 @@
 <table>
   <thead>
     <tr>
+      <th></th>
       <th><%=t 'views.allocations.created_at' %></th>
       <th><%=t 'views.allocations.storekeeper' %></th>
       <th><%=t 'views.allocations.storekeeper_place' %></th>
@@ -9,12 +10,45 @@
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">
-    <tr data-bind="click: $parent.show">
-      <td data-bind="text: created"></td>
-      <td data-bind="text: storekeeper"></td>
-      <td data-bind="text: storekeeper_place"></td>
-      <td data-bind="text: foreman"></td>
-      <td data-bind="text: state"></td>
+    <tr>
+      <td class="tree-actions-by-wb" data-bind="click: $parent.expandTree">
+        <div class="ui-corner-all ui-state-hover">
+          <span class="ui-icon ui-icon-circle-plus"></span>
+        </div>
+      </td>
+      <td data-bind="text: created, click: $parent.show"></td>
+      <td data-bind="text: storekeeper, click: $parent.show"></td>
+      <td data-bind="text: storekeeper_place, click: $parent.show"></td>
+      <td data-bind="text: foreman, click: $parent.show"></td>
+      <td data-bind="text: state, click: $parent.show"></td>
+    </tr>
+    <tr data-bind="attr: {id: 'resource_' + id}, with: subitems">
+      <td></td>
+      <td colspan="6" class="td-inner-table">
+        <div class="paginate">
+          <span data-bind="text: range"></span> <%= t('views.home.of') %>
+          <span data-bind="text: count"></span>
+          <input type="button" value="<" data-bind="click: prev, disable: page() < 2"/>
+          <input type="button" class="paginate-right" value=">"
+                 data-bind="click: next, disable: page()*per_page() >= count()"/>
+        </div>
+        <table class="inner-table">
+          <thead>
+          <tr>
+            <th><%=t 'views.allocations.resource.tag' %></th>
+            <th><%=t 'views.allocations.resource.mu' %></th>
+            <th><%=t 'views.allocations.resource.amount' %></th>
+          </tr>
+          </thead>
+          <tbody data-bind="foreach: documents">
+          <tr>
+            <td data-bind="text: tag"></td>
+            <td data-bind="text: mu"></td>
+            <td data-bind="text: amount"></td>
+          </tr>
+          </tbody>
+        </table>
+      </td>
     </tr>
   </tbody>
 </table>

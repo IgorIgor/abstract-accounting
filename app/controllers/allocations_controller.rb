@@ -121,4 +121,13 @@ class AllocationsController < ApplicationController
     end
   end
 
+  def resources
+    allocation = Allocation.find(params[:id])
+    page = params[:page].nil? ? 1 : params[:page].to_i
+    per_page = params[:per_page].nil? ?
+        Settings.root.per_page.to_i : params[:per_page].to_i
+    @resources = allocation.items[(page - 1) * per_page, per_page]
+    @count = allocation.items.count
+  end
+
 end

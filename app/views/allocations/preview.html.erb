@@ -154,7 +154,8 @@
       <td data-bind="text: exp_amount"></td>
       <!-- /ko -->
       <td>
-        <input type="text" size="8"
+        <input type="text" size="8" name='<%= t 'views.allocations.amount' %>'
+               rule="required_num"
                data-bind="value: amount, disable: $parent.readonly" />
       </td>
     </tr>

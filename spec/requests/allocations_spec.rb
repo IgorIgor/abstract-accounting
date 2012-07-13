@@ -378,6 +378,32 @@ feature 'allocation', %q{
     within("#container_documents") do
       page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
       page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
+
+      within('#selected-resources') do
+        fill_in I18n.t('views.allocations.amount'), :with => 0
+      end
+    end
+
+    click_button(I18n.t('views.allocations.save'))
+    within('#container_documents') do
+      within('#container_notification') do
+        page.should have_content("#{I18n.t('views.allocations.amount')} : #{I18n.t(
+            'errors.messages.greater_than', count: 0)}")
+      end
+      within('#selected-resources') do
+        fill_in I18n.t('views.allocations.amount'), :with => -1
+      end
+    end
+
+    click_button(I18n.t('views.allocations.save'))
+    within('#container_documents') do
+      within('#container_notification') do
+        page.should have_content("#{I18n.t('views.allocations.amount')} : #{I18n.t(
+            'errors.messages.greater_than', count: 0)}")
+      end
+      within('#selected-resources') do
+        fill_in I18n.t('views.allocations.amount'), :with => 0.37
+      end
     end
 
     lambda {

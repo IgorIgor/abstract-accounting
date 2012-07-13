@@ -274,9 +274,29 @@ feature "waybill", %q{
                         }']").click
       fill_in("tag_0", :with => "tag_1")
       fill_in("mu_0", :with => "RUB")
-      fill_in("count_0", :with => "10")
+      fill_in("count_0", :with => "0")
       fill_in("price_0", :with => "100")
+
+
+      page.find(:xpath, "//div[@class='actions']//input[@value='#{
+                          I18n.t('views.waybills.save')
+                        }']").click
+
+      within("#container_notification") do
+        page.should have_content("#{I18n.t('views.waybills.count')} : #{I18n.t(
+            'errors.messages.greater_than', count: 0)}")
+      end
+
+      fill_in("count_0", :with => "-1")
+
+      within("#container_notification") do
+        page.should have_content("#{I18n.t('views.waybills.count')} : #{I18n.t(
+            'errors.messages.greater_than', count: 0)}")
+      end
+
+      fill_in("count_0", :with => "0.37")
     end
+
     lambda do
       page.find(:xpath, "//div[@class='actions']//input[@value='#{
                           I18n.t('views.waybills.save')

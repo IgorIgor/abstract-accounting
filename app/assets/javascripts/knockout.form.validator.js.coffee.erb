@@ -1,3 +1,5 @@
+$.validator.addMethod('min_strict', (value, el, param) -> value > param )
+
 init_rules = ->
   $("input[rule='required']").each ->
     $(this).rules('add', {
@@ -9,10 +11,10 @@ init_rules = ->
   $("input[rule='required_num']").each ->
     $(this).rules('add', {
       required: true
-      min: 1
+      min_strict: 0
       messages: {
         required: "#{$(this).attr('name')} : <%= I18n.t('errors.messages.blank') %>"
-        min: "#{$(this).attr('name')} : <%= I18n.t('errors.messages.greater_than_or_equal_to', count: 1) %>"
+        min_strict: "#{$(this).attr('name')} : <%= I18n.t('errors.messages.greater_than', count: 0) %>"
       }
     })
   $("input[rule='email']").each ->

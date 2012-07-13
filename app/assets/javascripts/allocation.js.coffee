@@ -114,9 +114,7 @@ $ ->
             items: ko.observableArray([]) if @availableMode()
           unless @availableMode() == '0'
             obj.resources_view_model = ko.observable(null)
-
           @availableResources.push(obj)
-
 
         @per_page(data.per_page)
         @count(data.count)

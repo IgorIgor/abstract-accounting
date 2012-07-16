@@ -691,6 +691,79 @@ describe Waybill do
     Waybill.by_storekeeper_place(minsk).should =~ [wb3]
     Waybill.by_storekeeper_place(create(:place)).all.should be_empty
   end
+
+  it 'should sort waybills' do
+    moscow = create(:place, tag: 'Moscow1')
+    kiev = create(:place, tag: 'Kiev1')
+    amsterdam = create(:place, tag: 'Amsterdam1')
+    ivanov = create(:entity, tag: 'Ivanov1')
+    petrov = create(:entity, tag: 'Petrov1')
+    antonov = create(:entity, tag: 'Antonov1')
+
+    wb1 = build(:waybill, created: Date.new(2011,11,11), document_id: 1,
+                distributor: petrov, storekeeper: antonov,
+                storekeeper_place: moscow)
+    wb1.add_item(tag: 'roof', mu: 'rm', amount: 1, price: 120.0)
+    wb1.save!
+    wb1.apply
+
+    wb2 = build(:waybill, created: Date.new(2011,11,12), document_id: 3,
+                distributor: antonov, storekeeper: ivanov,
+                storekeeper_place: kiev)
+    wb2.add_item(tag: 'roof', mu: 'rm', amount: 1, price: 120.0)
+    wb2.save!
+
+    wb3 = build(:waybill, created: Date.new(2011,11,13), document_id: 2,
+                distributor: ivanov, storekeeper: petrov,
+                storekeeper_place: amsterdam)
+    wb3.add_item(tag: 'roof', mu: 'rm', amount: 1, price: 120.0)
+    wb3.save!
+    wb3.apply
+
+    wbs = Waybill.order_by(field: 'created', type: 'acs').all
+    wbs_test = Waybill.order('created').all
+    wbs.should eq(wbs_test)
+    wbs = Waybill.order_by(field: 'created', type: 'desc').all
+    wbs_test = Waybill.order('created DESC').all
+    wbs.should eq(wbs_test)
+
+    wbs = Waybill.order_by(field: 'document_id', type: 'acs').all
+    wbs_test = Waybill.order('document_id').all
+    wbs.should eq(wbs_test)
+    wbs = Waybill.order_by(field: 'document_id', type: 'desc').all
+    wbs_test = Waybill.order('document_id DESC').all
+    wbs.should eq(wbs_test)
+
+    wbs = Waybill.order_by(field: 'distributor', type: 'acs').all
+    wbs_test = Waybill.joins{deal.rules.from.entity(LegalEntity)}.
+        group('waybills.id').order('legal_entities.name').all
+    wbs.should eq(wbs_test)
+    wbs = Waybill.order_by(field: 'distributor', type: 'desc').all
+    wbs_test = Waybill.joins{deal.rules.from.entity(LegalEntity)}.
+        group('waybills.id').order('legal_entities.name DESC').all
+    wbs.should eq(wbs_test)
+
+    wbs = Waybill.order_by(field: 'storekeeper', type: 'acs').all
+    wbs_test = Waybill.joins{deal.entity(Entity)}.order('entities.tag').all
+    wbs.should eq(wbs_test)
+    wbs = Waybill.order_by(field: 'storekeeper', type: 'desc').all
+    wbs_test = Waybill.joins{deal.entity(Entity)}.order('entities.tag DESC').all
+    wbs.should eq(wbs_test)
+
+    wbs = Waybill.order_by(field: 'storekeeper_place', type: 'acs').all
+    wbs_test = Waybill.joins{deal.take.place}.order('places.tag').all
+    wbs.should eq(wbs_test)
+    wbs = Waybill.order_by(field: 'storekeeper_place', type: 'desc').all
+    wbs_test = Waybill.joins{deal.take.place}.order('places.tag DESC').all
+    wbs.should eq(wbs_test)
+
+    wbs = Waybill.order_by(field: 'state', type: 'acs').all
+    wbs_test = Waybill.order('state').all
+    wbs.should eq(wbs_test)
+    wbs = Waybill.order_by(field: 'state', type: 'desc').all
+    wbs_test = Waybill.order('state DESC').all
+    wbs.should eq(wbs_test)
+  end
 end
 
 describe ItemsValidator do

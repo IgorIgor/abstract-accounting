@@ -112,6 +112,7 @@ class WaybillsController < ApplicationController
         scope = scope.where{id == nil}
       end
     end
+    scope = scope.order_by(params[:order]) if params[:order]
     @waybills = scope.limit(per_page).offset((page - 1) * per_page)
     @count = scope.count
   end

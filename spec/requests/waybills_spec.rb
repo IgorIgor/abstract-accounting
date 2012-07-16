@@ -57,6 +57,22 @@ def show_waybill(waybill)
 
 end
 
+def should_present_waybill(waybill)
+  page.should have_content(waybill.created.strftime('%Y-%m-%d'))
+  page.should have_content(waybill.document_id)
+  page.should have_content(waybill.distributor.name)
+  page.should have_content(waybill.storekeeper.tag)
+  page.should have_content(waybill.storekeeper_place.tag)
+  state =
+      case waybill.state
+        when Statable::UNKNOWN then I18n.t('views.statable.unknown')
+        when Statable::INWORK then I18n.t('views.statable.inwork')
+        when Statable::CANCELED then I18n.t('views.statable.canceled')
+        when Statable::APPLIED then I18n.t('views.statable.applied')
+      end
+  page.should have_content(state)
+end
+
 feature "waybill", %q{
   As an user
   I want to manage waybills
@@ -416,19 +432,7 @@ feature "waybill", %q{
 
       within('tbody') do
         waybills.each do |waybill|
-          page.should have_content(waybill.created.strftime('%Y-%m-%d'))
-          page.should have_content(waybill.document_id)
-          page.should have_content(waybill.distributor.name)
-          page.should have_content(waybill.storekeeper.tag)
-          page.should have_content(waybill.storekeeper_place.tag)
-          state =
-            case waybill.state
-              when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-              when Statable::INWORK then I18n.t('views.statable.inwork')
-              when Statable::CANCELED then I18n.t('views.statable.canceled')
-              when Statable::APPLIED then I18n.t('views.statable.applied')
-            end
-          page.should have_content(state)
+          should_present_waybill(waybill)
         end
       end
     end
@@ -467,19 +471,7 @@ feature "waybill", %q{
       count_on_page = count - per_page > per_page ? per_page : count - per_page
       page.should have_selector('tr', count: count_on_page, visible: true)
       waybills.each do |waybill|
-        page.should have_content(waybill.created.strftime('%Y-%m-%d'))
-        page.should have_content(waybill.document_id)
-        page.should have_content(waybill.distributor.name)
-        page.should have_content(waybill.storekeeper.tag)
-        page.should have_content(waybill.storekeeper_place.tag)
-        state =
-            case waybill.state
-              when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-              when Statable::INWORK then I18n.t('views.statable.inwork')
-              when Statable::CANCELED then I18n.t('views.statable.canceled')
-              when Statable::APPLIED then I18n.t('views.statable.applied')
-            end
-        page.should have_content(state)
+        should_present_waybill(waybill)
       end
     end
 
@@ -598,33 +590,10 @@ feature "waybill", %q{
 
     within('#container_documents table tbody') do
       page.should have_selector('tr', count: 2, visible: true)
-      page.should have_content(wb.created.strftime('%Y-%m-%d'))
-      page.should have_content(wb.document_id)
-      page.should have_content(wb.distributor.name)
-      page.should have_content(wb.storekeeper.tag)
-      page.should have_content(wb.storekeeper_place.tag)
-      state =
-          case wb.state
-            when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-            when Statable::INWORK then I18n.t('views.statable.inwork')
-            when Statable::CANCELED then I18n.t('views.statable.canceled')
-            when Statable::APPLIED then I18n.t('views.statable.applied')
-          end
-      page.should have_content(state)
 
-      page.should have_content(wb2.created.strftime('%Y-%m-%d'))
-      page.should have_content(wb2.document_id)
-      page.should have_content(wb2.distributor.name)
-      page.should have_content(wb2.storekeeper.tag)
-      page.should have_content(wb2.storekeeper_place.tag)
-      state =
-          case wb2.state
-            when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-            when Statable::INWORK then I18n.t('views.statable.inwork')
-            when Statable::CANCELED then I18n.t('views.statable.canceled')
-            when Statable::APPLIED then I18n.t('views.statable.applied')
-          end
-      page.should have_content(state)
+      should_present_waybill(wb)
+
+      should_present_waybill(wb2)
 
       page.should have_selector(:xpath,
                                 ".//tr//td[@class='tree-actions-by-wb']
@@ -687,6 +656,93 @@ feature "waybill", %q{
       find(:xpath,
            ".//tr[3]//td[@class='tree-actions-by-wb']").click
       page.find("#resource_#{wb2.id}").visible?.should_not be_true
+    end
+  end
+
+  scenario 'sort waybills', js: true do
+    moscow = create(:place, tag: 'Moscow')
+    kiev = create(:place, tag: 'Kiev')
+    amsterdam = create(:place, tag: 'Amsterdam')
+    ivanov = create(:entity, tag: 'Ivanov')
+    petrov = create(:entity, tag: 'Petrov')
+    antonov = create(:entity, tag: 'Antonov')
+    ivanov_legal = create(:legal_entity, name: 'Ivanov')
+    petrov_legal = create(:legal_entity, name: 'Petrov')
+    antonov_legal = create(:legal_entity, name: 'Antonov')
+
+    wb1 = build(:waybill, created: Date.new(2011,11,11), document_id: 1,
+                distributor: petrov_legal, storekeeper: antonov,
+                storekeeper_place: moscow)
+    wb1.add_item(tag: 'roof', mu: 'rm', amount: 1, price: 120.0)
+    wb1.save!
+    wb1.apply
+
+    wb2 = build(:waybill, created: Date.new(2011,11,12), document_id: 3,
+                distributor: antonov_legal, storekeeper: ivanov,
+                storekeeper_place: kiev)
+    wb2.add_item(tag: 'roof', mu: 'rm', amount: 1, price: 120.0)
+    wb2.save!
+
+    wb3 = build(:waybill, created: Date.new(2011,11,13), document_id: 2,
+                distributor: ivanov_legal, storekeeper: petrov,
+                storekeeper_place: amsterdam)
+    wb3.add_item(tag: 'roof', mu: 'rm', amount: 1, price: 120.0)
+    wb3.save!
+    wb3.apply
+
+    page_login
+    page.find('#btn_slide_lists').click
+    page.find('#deals').click
+    page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
+        "not(contains(@style, 'display: none'))]/li[@id='waybills']/a").click
+
+    current_hash.should eq('waybills')
+    page.should have_xpath("//ul[@id='slide_menu_lists']" +
+                           "/ul[@id='slide_menu_deals']" +
+                           "/li[@id='waybills' and @class='sidebar-selected']")
+
+    within('#container_documents table') do
+
+      test_order = lambda do |field, type|
+        waybills = Waybill.order_by(field: field, type: type).all
+        count = Waybill.count
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                   "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                   "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+        within('tbody') do
+          page.should have_selector('tr', count: count, visible: true)
+          [1,3,5].each_with_index do |num, i|
+            within(:xpath, ".//tr[#{num}]") do
+              should_present_waybill(waybills[i])
+             end
+          end
+        end
+      end
+
+      test_order.call('created','asc')
+      test_order.call('created','desc')
+
+      test_order.call('document_id','asc')
+      test_order.call('document_id','desc')
+
+      test_order.call('distributor','asc')
+      test_order.call('distributor','desc')
+
+      test_order.call('storekeeper','asc')
+      test_order.call('storekeeper','desc')
+
+      test_order.call('storekeeper_place','asc')
+      test_order.call('storekeeper_place','desc')
+
+      test_order.call('state','asc')
+      test_order.call('state','desc')
     end
   end
 end

@@ -2,12 +2,24 @@
   <thead>
     <tr>
       <th></th>
-      <th><%=t 'views.waybills.created_at' %></th>
-      <th><%=t 'views.waybills.document_id' %></th>
-      <th><%=t 'views.waybills.distributor' %></th>
-      <th><%=t 'views.waybills.storekeeper' %></th>
-      <th><%=t 'views.waybills.storekeeper_place' %></th>
-      <th><%=t 'views.statable.state' %></th>
+      <th id="created" data-bind="click: sortBy">
+        <%=t 'views.waybills.created_at' %><span></span>
+      </th>
+      <th id="document_id" data-bind="click: sortBy">
+        <%=t 'views.waybills.document_id' %><span></span>
+      </th>
+      <th id="distributor" data-bind="click: sortBy">
+        <%=t 'views.waybills.distributor' %><span></span>
+      </th>
+      <th id="storekeeper" data-bind="click: sortBy">
+        <%=t 'views.waybills.storekeeper' %><span></span>
+      </th>
+      <th id="storekeeper_place" data-bind="click: sortBy">
+        <%=t 'views.waybills.storekeeper_place' %><span></span>
+      </th>
+      <th id="state" data-bind="click: sortBy">
+        <%=t 'views.statable.state' %><span></span>
+      </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">

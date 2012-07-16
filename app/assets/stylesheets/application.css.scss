@@ -179,6 +179,12 @@ input[type=text], input[type=password] {
         background: $table_head_background;
         padding-top: 4px;
         color: $table_head_title;
+
+        span.ui-icon {
+          display: inline-block;
+          margin-left: 2px;
+          vertical-align: text-bottom;
+        }
       }
 
       tr {

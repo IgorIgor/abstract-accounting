@@ -46,6 +46,33 @@ class Waybill < ActiveRecord::Base
   after_reverse :do_apply_txn
   before_item_save :do_before_item_save
 
+  def self.order_by(attrs = {})
+    field = nil
+    scope = self
+    case attrs[:field]
+      when 'distributor'
+        scope = scope.joins{deal.rules.from.entity(LegalEntity)}.
+            group('waybills.id')
+        field = 'legal_entities.name'
+      when 'storekeeper'
+        scope = scope.joins{deal.entity(Entity)}
+        field = 'entities.tag'
+      when 'storekeeper_place'
+        scope = scope.joins{deal.take.place}
+        field = 'places.tag'
+      else
+        field = attrs[:field] if attrs[:field]
+    end
+    unless field.nil?
+      if attrs[:type] == 'desc'
+        scope = scope.order("#{field} DESC")
+      else
+        scope = scope.order("#{field}")
+      end
+    end
+    scope
+  end
+
   def self.in_warehouse(attrs = {})
     condition = ''
     if attrs.has_key?(:where)

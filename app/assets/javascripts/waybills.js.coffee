@@ -5,6 +5,8 @@ $ ->
 
       super(data)
 
+      @orders = {}
+
       @params =
         page: @page
         per_page: @per_page
@@ -18,6 +20,32 @@ $ ->
 
     createChildrenViewModel: (data, params, object) =>
       new WaybillResourcesViewModel(data, params, object)
+
+    sortBy: (object, event) =>
+      el = $(event.target).find('span')
+      el = $(event.target) unless el.length
+
+      key = "#{event.target.id}"
+      if @orders[key]?
+        @orders[key] = !@orders[key]
+        el.toggleClass('ui-icon ui-icon-triangle-1-s')
+        el.toggleClass('ui-icon ui-icon-triangle-1-n')
+      else
+        @orders = {}
+        @orders[key] = true
+        $(event.target).siblings().find('span').removeClass('ui-icon ui-icon-triangle-1-n ui-icon-triangle-1-s')
+        el.addClass('ui-icon ui-icon-triangle-1-s')
+
+      if @orders[key] == true
+        @params =
+          order:
+            type: 'asc'
+      else
+        @params =
+          order:
+            type: 'desc'
+      @params['order']['field'] = key
+      @getPaginateData()
 
   class self.WaybillResourcesViewModel extends FolderViewModel
     constructor: (data, params, object) ->

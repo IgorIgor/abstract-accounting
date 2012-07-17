@@ -36,15 +36,17 @@ describe Balance do
   end
 
   it "should filter by resource" do
-    3.times do |i|
-      create(:balance, deal:
+    6.times do |i|
+      create(:balance, side: i % 2 == 0 ? Balance::PASSIVE : Balance::ACTIVE, deal:
           create(:deal, give:
               build(:deal_give, resource: Asset.find_or_create_by_tag("asset#{i}")),
                         take:
-              build(:deal_take, resource: Asset.find_or_create_by_tag("asset#{2 - i}"))))
+              build(:deal_take, resource: Asset.find_or_create_by_tag("asset#{5 - i}"))))
     end
     Balance.joins(:give).joins(:take).
-        with_resource(Asset.find_or_create_by_tag("asset0").id).count.should eq(2)
+        with_resource(Asset.find_by_tag("asset0").id, Asset).count.should eq(2)
+    Balance.joins(:give).joins(:take).
+        with_resource(Asset.find_by_tag("asset1").id, Asset).count.should eq(0)  #passive - give, active - take
   end
 
   it "should filter by entity" do
@@ -52,18 +54,21 @@ describe Balance do
       create(:balance, deal: create(:deal, entity:
           Entity.find_or_create_by_tag("entity#{i == 2 ? 0 : i}")))
     end
-    Balance.joins(:deal).with_entity(Entity.find_by_tag("entity0").id).count.should eq(2)
+    Balance.joins(:deal).with_entity(Entity.find_by_tag("entity0").id, Entity).
+        count.should eq(2)
   end
 
   it "should filter by place" do
-    3.times do |i|
-      create(:balance, deal:
+    6.times do |i|
+      create(:balance, side: i % 2 == 0 ? Balance::PASSIVE : Balance::ACTIVE, deal:
           create(:deal, give:
               build(:deal_give, place: Place.find_or_create_by_tag("place#{i}")),
                         take:
-              build(:deal_take, place: Place.find_or_create_by_tag("place#{2 - i}"))))
+              build(:deal_take, place: Place.find_or_create_by_tag("place#{5 - i}"))))
     end
     Balance.joins(:give).joins(:take).
-        with_place(Place.find_or_create_by_tag("place0").id).count.should eq(2)
+        with_place(Place.find_by_tag("place0").id).count.should eq(2)
+    Balance.joins(:give).joins(:take).
+        with_place(Place.find_by_tag("place1").id).count.should eq(0)
   end
 end

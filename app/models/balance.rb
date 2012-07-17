@@ -26,22 +26,37 @@ class Balance < ActiveRecord::Base
   scope :active, where(:side => Balance::ACTIVE)
 
   class << self
-    def with_resource(id)
-      where{(give.resource_id == id) | (take.resource_id == id)}
+    def with_resource(id, type)
+      type_i = type.instance_of?(Class) ? type.name : type
+      where do
+        ((give.resource_id == id) & (give.resource_type == type_i) &
+            (side == Balance::PASSIVE)) |
+          ((take.resource_id == id) & (take.resource_type == type_i) &
+              (side == Balance::ACTIVE))
+      end
     end
 
-    def with_entity(id)
-      where{deal.entity_id == id}
+    def with_entity(id, type)
+      type_i = type.instance_of?(Class) ? type.name : type
+      where{(deal.entity_id == id) & (deal.entity_type == type_i)}
     end
 
     def with_place(id)
-      where{(give.place_id == id) | (take.place_id == id)}
+      where{((give.place_id == id) & (side == Balance::PASSIVE)) |
+            ((take.place_id == id) & (side == Balance::ACTIVE))}
     end
 
     def in_time_frame(start, stop)
       where("balances.start < :stop AND (balances.paid > :start OR balances.paid IS NULL)",
             :start => DateTime.civil(start.year, start.month, start.day, 0, 0, 0),
             :stop => DateTime.civil(stop.year, stop.month, stop.day, 13, 0, 0))
+    end
+
+    def paginate(params = {})
+      page = params[:page].nil? ? 1 : params[:page].to_i
+      per_page = params[:per_page].nil? ?
+          Settings.root.per_page.to_i : params[:per_page].to_i
+      limit(per_page).offset((page - 1) * per_page)
     end
   end
 

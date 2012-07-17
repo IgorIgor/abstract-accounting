@@ -340,6 +340,94 @@ describe Allocation do
     Allocation.by_storekeeper_place(minsk).should =~ [db3]
     Allocation.by_storekeeper_place(create(:place)).all.should be_empty
   end
+
+  it 'should sort allocations' do
+    moscow = create(:place, tag: 'Moscow1')
+    kiev = create(:place, tag: 'Kiev1')
+    amsterdam = create(:place, tag: 'Amsterdam1')
+    ivanov = create(:entity, tag: 'Ivanov1')
+    petrov = create(:entity, tag: 'Petrov1')
+    antonov = create(:entity, tag: 'Antonov1')
+    pupkin = create(:entity, tag: 'Pupkin')
+
+    wb1 = build(:waybill, created: Date.new(2011,11,11), document_id: 11,
+                distributor: petrov, storekeeper: ivanov,
+                storekeeper_place: moscow)
+    wb1.add_item(tag: 'foo', mu: 'rm', amount: 100, price: 120.0)
+    wb1.save!
+    wb1.apply
+
+    wb2 = build(:waybill, created: Date.new(2011,11,12), document_id: 13,
+                distributor: ivanov, storekeeper: pupkin,
+                storekeeper_place: kiev)
+    wb2.add_item(tag: 'foo', mu: 'rm', amount: 100, price: 120.0)
+    wb2.save!
+    wb2.apply
+
+    wb3 = build(:waybill, created: Date.new(2011,11,13), document_id: 12,
+                distributor: pupkin, storekeeper: antonov,
+                storekeeper_place: amsterdam)
+    wb3.add_item(tag: 'foo', mu: 'rm', amount: 100, price: 120.0)
+    wb3.save!
+    wb3.apply
+
+    al1 = build(:allocation, created: Date.new(2011,11,11),
+                storekeeper: wb1.storekeeper, storekeeper_place: wb1.storekeeper_place,
+                foreman: pupkin)
+    al1.add_item(tag: 'foo', mu: 'rm', amount: 33)
+    al1.save!
+    al1.apply
+
+    al2 = build(:allocation, created: Date.new(2011,11,12),
+                storekeeper: wb2.storekeeper, storekeeper_place: wb2.storekeeper_place,
+                foreman: antonov)
+    al2.add_item(tag: 'foo', mu: 'rm', amount: 33)
+    al2.save!
+
+    al3 = build(:allocation, created: Date.new(2011,11,13),
+                storekeeper: wb3.storekeeper, storekeeper_place: wb3.storekeeper_place,
+                foreman: ivanov)
+    al3.add_item(tag: 'foo', mu: 'rm', amount: 33)
+    al3.save!
+    al3.apply
+
+    als = Allocation.order_by({field: 'created', type: 'acs'}).all
+    als_test = Allocation.order('created').all
+    als.should eq(als_test)
+    als = Allocation.order_by({field: 'created', type: 'desc'}).all
+    als_test = Allocation.order('created DESC').all
+    als.should eq(als_test)
+
+    als = Allocation.order_by({field: 'storekeeper', type: 'acs'}).all
+    als_test = Allocation.joins{deal.entity(Entity)}.order('entities.tag').all
+    als.should eq(als_test)
+    als = Allocation.order_by({field: 'storekeeper', type: 'desc'}).all
+    als_test = Allocation.joins{deal.entity(Entity)}.order('entities.tag DESC').all
+    als.should eq(als_test)
+
+    als = Allocation.order_by({field: 'storekeeper_place', type: 'acs'}).all
+    als_test = Allocation.joins{deal.give.place}.order('places.tag').all
+    als.should eq(als_test)
+    als = Allocation.order_by({field: 'storekeeper_place', type: 'desc'}).all
+    als_test = Allocation.joins{deal.give.place}.order('places.tag DESC').all
+    als.should eq(als_test)
+
+    als = Allocation.order_by({field: 'foreman', type: 'acs'}).all
+    als_test = Allocation.joins{deal.rules.to.entity(Entity)}.
+        group('allocations.id').order('entities.tag').all
+    als.should eq(als_test)
+    als = Allocation.order_by({field: 'foreman', type: 'desc'}).all
+    als_test = Allocation.joins{deal.rules.to.entity(Entity)}.
+        group('allocations.id').order('entities.tag DESC').all
+    als.should eq(als_test)
+
+    als = Allocation.order_by({field: 'state', type: 'acs'}).all
+    als_test = Allocation.order('state').all
+    als.should eq(als_test)
+    als = Allocation.order_by({field: 'state', type: 'desc'}).all
+    als_test = Allocation.order('state DESC').all
+    als.should eq(als_test)
+  end
 end
 
 describe AllocationItemsValidator do

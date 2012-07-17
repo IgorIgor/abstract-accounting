@@ -44,6 +44,33 @@ class Allocation < ActiveRecord::Base
 
   before_item_save :do_before_item_save
 
+  def self.order_by(attrs = {})
+    field = nil
+    scope = self
+    case attrs[:field]
+      when 'storekeeper'
+        scope = scope.joins{deal.entity(Entity)}
+        field = 'entities.tag'
+      when 'storekeeper_place'
+        scope = scope.joins{deal.give.place}
+        field = 'places.tag'
+      when 'foreman'
+        scope = scope.joins{deal.rules.to.entity(Entity)}.
+            group('allocations.id')
+        field = 'entities.tag'
+      else
+        field = attrs[:field] if attrs[:field]
+    end
+    unless field.nil?
+      if attrs[:type] == 'desc'
+        scope = scope.order("#{field} DESC")
+      else
+        scope = scope.order("#{field}")
+      end
+    end
+    scope
+  end
+
   def document_id
     Allocation.last.nil? ? 1 : Allocation.last.id + 1
   end

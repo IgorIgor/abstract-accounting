@@ -45,6 +45,21 @@ def show_allocation(allocation)
   end
 end
 
+def should_present_allocation(allocation)
+  page.should have_content(allocation.created.strftime('%Y-%m-%d'))
+  page.should have_content(allocation.storekeeper.tag)
+  page.should have_content(allocation.storekeeper_place.tag)
+  page.should have_content(allocation.foreman.tag)
+  state =
+      case allocation.state
+        when Statable::UNKNOWN then I18n.t('views.statable.unknown')
+        when Statable::INWORK then I18n.t('views.statable.inwork')
+        when Statable::CANCELED then I18n.t('views.statable.canceled')
+        when Statable::APPLIED then I18n.t('views.statable.applied')
+      end
+  page.should have_content(state)
+end
+
 feature 'allocation', %q{
   As an user
   I want to view allocations
@@ -636,18 +651,7 @@ feature 'allocation', %q{
 
       within('tbody') do
         allocations.each do |allocation|
-          page.should have_content(allocation.created.strftime('%Y-%m-%d'))
-          page.should have_content(allocation.storekeeper.tag)
-          page.should have_content(allocation.storekeeper_place.tag)
-          page.should have_content(allocation.foreman.tag)
-          state =
-            case allocation.state
-              when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-              when Statable::INWORK then I18n.t('views.statable.inwork')
-              when Statable::CANCELED then I18n.t('views.statable.canceled')
-              when Statable::APPLIED then I18n.t('views.statable.applied')
-            end
-          page.should have_content(state)
+          should_present_allocation(allocation)
         end
       end
     end
@@ -686,18 +690,7 @@ feature 'allocation', %q{
       count_on_page = count - per_page > per_page ? per_page : count - per_page
       page.should have_selector('tr', count: count_on_page, visible: true)
       allocations.each do |allocation|
-        page.should have_content(allocation.created.strftime('%Y-%m-%d'))
-        page.should have_content(allocation.storekeeper.tag)
-        page.should have_content(allocation.storekeeper_place.tag)
-        page.should have_content(allocation.foreman.tag)
-        state =
-          case allocation.state
-            when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-            when Statable::INWORK then I18n.t('views.statable.inwork')
-            when Statable::CANCELED then I18n.t('views.statable.canceled')
-            when Statable::APPLIED then I18n.t('views.statable.applied')
-          end
-        page.should have_content(state)
+        should_present_allocation(allocation)
       end
     end
 
@@ -819,18 +812,7 @@ feature 'allocation', %q{
                            "/li[@id='allocations' and @class='sidebar-selected']")
 
     within('#container_documents table tbody') do
-      page.should have_content(allocation.created.strftime('%Y-%m-%d'))
-      page.should have_content(allocation.storekeeper.tag)
-      page.should have_content(allocation.storekeeper_place.tag)
-      page.should have_content(allocation.foreman.tag)
-      state =
-          case allocation.state
-            when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-            when Statable::INWORK then I18n.t('views.statable.inwork')
-            when Statable::CANCELED then I18n.t('views.statable.canceled')
-            when Statable::APPLIED then I18n.t('views.statable.applied')
-          end
-      page.should have_content(state)
+      should_present_allocation(allocation)
 
       page.should have_selector(:xpath, ".//tr//td[@class='tree-actions-by-wb']
                         //div[@class='ui-corner-all ui-state-hover']
@@ -885,6 +867,114 @@ feature 'allocation', %q{
       end
       find(:xpath, ".//tr[1]//td[@class='tree-actions-by-wb']").click
       page.find("#resource_#{allocation.id}").visible?.should_not be_true
+    end
+  end
+
+  scenario 'sort allocations', js: true do
+    moscow = create(:place, tag: 'Moscow')
+    kiev = create(:place, tag: 'Kiev')
+    amsterdam = create(:place, tag: 'Amsterdam')
+    ivanov = create(:entity, tag: 'Ivanov')
+    petrov = create(:entity, tag: 'Petrov')
+    antonov = create(:entity, tag: 'Antonov')
+    ivanov_legal = create(:legal_entity, name: 'Ivanov')
+    petrov_legal = create(:legal_entity, name: 'Petrov')
+    antonov_legal = create(:legal_entity, name: 'Antonov')
+
+    wb1 = build(:waybill, created: Date.new(2011,11,11), document_id: 1,
+                distributor: petrov_legal, storekeeper: antonov,
+                storekeeper_place: moscow)
+    wb1.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+    wb1.save!
+    wb1.apply
+
+    wb2 = build(:waybill, created: Date.new(2011,11,12), document_id: 3,
+                distributor: antonov_legal, storekeeper: ivanov,
+                storekeeper_place: kiev)
+    wb2.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+    wb2.save!
+    wb2.apply
+
+    wb3 = build(:waybill, created: Date.new(2011,11,13), document_id: 2,
+                distributor: ivanov_legal, storekeeper: petrov,
+                storekeeper_place: amsterdam)
+    wb3.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+    wb3.save!
+    wb3.apply
+
+    al1 = build(:allocation, created: Date.new(2011,11,11),
+                storekeeper: wb1.storekeeper,
+                storekeeper_place: wb1.storekeeper_place,
+                foreman: ivanov)
+    al1.add_item(tag: 'roof', mu: 'rm', amount: 15)
+    al1.save!
+    al1.apply
+
+    al2 = build(:allocation, created: Date.new(2011,11,12),
+                storekeeper: wb2.storekeeper,
+                storekeeper_place: wb2.storekeeper_place,
+                foreman: petrov)
+    al2.add_item(tag: 'roof', mu: 'rm', amount: 16)
+    al2.save!
+
+    al3 = build(:allocation, created: Date.new(2011,11,13),
+                storekeeper: wb3.storekeeper,
+                storekeeper_place: wb3.storekeeper_place,
+                foreman: antonov)
+    al3.add_item(tag: 'roof', mu: 'rm', amount: 17)
+    al3.save!
+    al3.apply
+
+    page_login
+    page.find('#btn_slide_lists').click
+    page.find('#deals').click
+    page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
+        "not(contains(@style, 'display: none'))]/li[@id='allocations']/a").click
+
+    current_hash.should eq('allocations')
+    page.should have_xpath("//ul[@id='slide_menu_lists']" +
+                           "/ul[@id='slide_menu_deals']" +
+                           "/li[@id='allocations' and @class='sidebar-selected']")
+
+    within('#container_documents table') do
+
+      test_order = lambda do |field, type|
+        allocations = Allocation.order_by(field: field, type: type).all
+        count = Allocation.count
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                   "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                   "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+        within('tbody') do
+          page.should have_selector('tr', count: count, visible: true)
+          [1,3,5].each_with_index do |num, i|
+            within(:xpath, ".//tr[#{num}]") do
+              should_present_allocation(allocations[i])
+            end
+          end
+        end
+      end
+
+      test_order.call('created','asc')
+      test_order.call('created','desc')
+
+      test_order.call('storekeeper','asc')
+      test_order.call('storekeeper','desc')
+
+      test_order.call('storekeeper_place','asc')
+      test_order.call('storekeeper_place','desc')
+
+      test_order.call('foreman','asc')
+      test_order.call('foreman','desc')
+
+      test_order.call('state','asc')
+      test_order.call('state','desc')
     end
   end
 end

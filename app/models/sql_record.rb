@@ -32,6 +32,11 @@ class SqlRecord
     self
   end
 
+  builder :from do |sql|
+    @sql = sql
+    self
+  end
+
   def initialize()
     @sql = ""
   end

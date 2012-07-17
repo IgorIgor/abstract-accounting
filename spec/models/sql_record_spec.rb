@@ -55,6 +55,13 @@ describe SqlRecord do
     end
   end
 
+  describe "#from" do
+    it "should save from to sql" do
+      sql = Asset.select(:tag).to_sql
+      SqlRecord.from(Asset.select(:tag).to_sql).to_sql.should eq(sql)
+    end
+  end
+
   describe "#select" do
     it "should raise error on empty sql" do
       expect { SqlRecord.new.select("some") }.should raise_error

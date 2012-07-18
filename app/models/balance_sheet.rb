@@ -40,10 +40,11 @@ class BalanceSheet < Array
   filter_attr :resource
   filter_attr :entity
   filter_attr :place_id
+  filter_attr :group_by
 
   getter :all do |options = {}|
     build_scopes
-    if self.resource_value || self.entity_value || self.place_id_value
+    if self.resource_value || self.entity_value || self.place_id_value || self.group_by_value
       scope = @balance_scope
       scope = scope.paginate(self.paginate_value) if self.paginate_value
       scope.each do |o|
@@ -63,8 +64,8 @@ class BalanceSheet < Array
 
   getter :db_count do
     build_scopes
-    if self.resource_value || self.entity_value || self.place_id_value
-      @balance_scope.count
+    if self.resource_value || self.entity_value || self.place_id_value || self.group_by_value
+      SqlRecord.from(@balance_scope.to_sql).count
     else
       SqlRecord.union(@balance_scope.select(:id).to_sql, @income_scope.select(:id).to_sql).
           count
@@ -106,6 +107,28 @@ class BalanceSheet < Array
       if self.place_id_value
         @balance_scope = @balance_scope.joins(:take).joins(:give).
             with_place(self.place_id_value)
+      end
+      if self.group_by_value
+        case self.group_by_value
+          when 'place'
+            @balance_scope = @balance_scope.joins{deal.give.place}.
+                select("places.id AS group_id, places.tag AS group_column, 'Place' AS group_type").
+                group('terms.place_id')
+          when 'resource'
+            @balance_scope = @balance_scope.
+                select("terms.resource_id AS group_id, terms.resource_type AS group_type, CASE WHEN terms.resource_type='Asset' THEN assets.tag ELSE money.alpha_code END AS group_column").
+                joins(:deal => :give).
+                joins("LEFT JOIN assets ON terms.resource_id = assets.id AND terms.resource_type = 'Asset'").
+                joins("LEFT JOIN money ON terms.resource_id = money.id AND terms.resource_type = 'Money'").
+                group('terms.resource_id, terms.resource_type')
+          when 'entity'
+            @balance_scope = @balance_scope.
+                select('deals.entity_id AS group_id, deals.entity_type AS group_type, CASE WHEN deals.entity_type="Entity" THEN entities.tag ELSE legal_entities.name END AS group_column').
+                joins(:deal).
+                joins("LEFT JOIN entities on deals.entity_id = entities.id AND deals.entity_type = 'Entity'").
+                joins("LEFT JOIN legal_entities on deals.entity_id = legal_entities.id AND deals.entity_type = 'LegalEntity'").
+                group('deals.entity_id, deals.entity_type')
+        end
       end
       @scopes_updated = true
     end

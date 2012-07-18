@@ -169,4 +169,12 @@ describe BalanceSheet do
       BalanceSheet.paginate(page: 1, per_page: 3).db_count.should eq(Balance.count)
     end
   end
+
+  describe "#group_by with  type" do
+    it "should have filter attribute" do
+      BalanceSheet.group_by('place').db_count.should eq(9)
+      BalanceSheet.group_by('entity').db_count.should eq(5)
+      BalanceSheet.group_by('resource').db_count.should eq(9)
+    end
+  end
 end

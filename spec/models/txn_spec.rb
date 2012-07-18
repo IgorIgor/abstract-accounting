@@ -771,39 +771,40 @@ describe Txn do
     bs.to_a.should =~ Balance.in_time_frame(DateTime.civil(2011, 11, 27, 12, 0, 0),
                                             DateTime.civil(2011, 11, 26, 12, 0, 0))
 
-    bs = BalanceSheet.resource_id(@rub.id).date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
-    bs.count.should eq(5)
-    bs.db_count.should eq(5)
-    bs.assets.should eq(159920.0)
-    bs.liabilities.should eq(242000.0)
-
-    bs = BalanceSheet.resource_id(@rub.id).all
-    bs.count.should eq(5)
-    bs.db_count.should eq(5)
-    bs.assets.should eq(173900.0)
-    bs.liabilities.should eq(242000.0)
-
-    bs = BalanceSheet.entity_id(@bank.entity_id).
+    bs = BalanceSheet.resource(id: @rub.id, type: @rub.class.name).
         date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
     bs.count.should eq(1)
     bs.db_count.should eq(1)
     bs.assets.should eq(87920.0)
     bs.liabilities.should eq(0.0)
 
-    bs = BalanceSheet.entity_id(@bank.entity_id).all
+    bs = BalanceSheet.resource(id: @rub.id, type: @rub.class.name).all
     bs.count.should eq(1)
     bs.db_count.should eq(1)
     bs.assets.should eq(101900.0)
     bs.liabilities.should eq(0.0)
 
-    bs = BalanceSheet.place_id(@bank.give.place_id).
+    bs = BalanceSheet.entity(id: @bank.entity_id, type: @bank.entity.class.name).
         date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
     bs.count.should eq(1)
     bs.db_count.should eq(1)
     bs.assets.should eq(87920.0)
     bs.liabilities.should eq(0.0)
 
-    bs = BalanceSheet.place_id(@bank.give.place_id).all
+    bs = BalanceSheet.entity(id: @bank.entity_id, type: @bank.entity.class.name).all
+    bs.count.should eq(1)
+    bs.db_count.should eq(1)
+    bs.assets.should eq(101900.0)
+    bs.liabilities.should eq(0.0)
+
+    bs = BalanceSheet.place_id(@bank.take.place_id).
+        date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
+    bs.count.should eq(1)
+    bs.db_count.should eq(1)
+    bs.assets.should eq(87920.0)
+    bs.liabilities.should eq(0.0)
+
+    bs = BalanceSheet.place_id(@bank.take.place_id).all
     bs.count.should eq(1)
     bs.db_count.should eq(1)
     bs.assets.should eq(101900.0)

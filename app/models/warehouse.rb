@@ -95,6 +95,13 @@ class Warehouse
         end
       end
 
+      order_by = ''
+      if attrs[:order_by]
+        type = ''
+        type = 'DESC' if attrs[:order_by][:type] == 'desc'
+        order_by = "ORDER BY #{attrs[:order_by][:field]} #{type}"
+      end
+
       "
       SELECT #{select} FROM (
         SELECT place, storekeeper_place_id as place_id, asset_id, tag,
@@ -130,6 +137,7 @@ class Warehouse
           GROUP BY places.id, terms.resource_id
         )
         GROUP BY #{group_by}
+        #{order_by}
       ) as warehouse
       WHERE warehouse.real_amount > 0.0 AND warehouse.exp_amount > 0.0 #{condition}"
     end

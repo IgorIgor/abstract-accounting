@@ -11,11 +11,15 @@
   <thead>
   <tr>
     <th></th>
-    <th class="warehouse-place"><%=t 'views.warehouses.place' %></th>
-    <th class="warehouse-tag"><%=t 'views.warehouses.tag' %></th>
-    <th class="warehouse-mu"><%=t 'views.warehouses.mu' %></th>
-    <th class="warehouse-rel-amount"><%=t 'views.warehouses.real_amount' %></th>
-    <th class="warehouse-exp-amount"><%=t 'views.warehouses.expectation_amount' %></th>
+    <th id="place" class="warehouse-place"><%=t 'views.warehouses.place' %></th>
+    <th id="tag" class="warehouse-tag"><%=t 'views.warehouses.tag' %></th>
+    <th id="mu" class="warehouse-mu"><%=t 'views.warehouses.mu' %></th>
+    <th id="real_amount" class="warehouse-rel-amount">
+      <%=t 'views.warehouses.real_amount' %>
+    </th>
+    <th id="expectation_amount" class="warehouse-exp-amount">
+      <%=t 'views.warehouses.expectation_amount' %>
+    </th>
   </tr>
   </thead>
   <tbody data-bind="foreach: documents">

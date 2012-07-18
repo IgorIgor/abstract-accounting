@@ -9,6 +9,24 @@
 
 require 'spec_helper'
 
+def should_have_header
+  within('thead tr') do
+    page.should have_content(I18n.t('views.warehouses.place'))
+    page.should have_content(I18n.t('views.warehouses.tag'))
+    page.should have_content(I18n.t('views.warehouses.real_amount'))
+    page.should have_content(I18n.t('views.warehouses.expectation_amount'))
+    page.should have_content(I18n.t('views.warehouses.mu'))
+  end
+end
+
+def should_present_warehouse(warehouse)
+  page.should have_content(warehouse.place)
+  page.should have_content(warehouse.tag)
+  page.should have_content(warehouse.real_amount.to_i)
+  page.should have_content(warehouse.exp_amount.to_i)
+  page.should have_content(warehouse.mu)
+end
+
 feature 'warehouses', %q{
   As an user
   I want to view warehouses
@@ -34,13 +52,7 @@ feature 'warehouses', %q{
     current_hash.should eq('warehouses')
 
     within('#container_documents table') do
-      within('thead tr') do
-        page.should have_content(I18n.t('views.warehouses.place'))
-        page.should have_content(I18n.t('views.warehouses.tag'))
-        page.should have_content(I18n.t('views.warehouses.real_amount'))
-        page.should have_content(I18n.t('views.warehouses.expectation_amount'))
-        page.should have_content(I18n.t('views.warehouses.mu'))
-      end
+      should_have_header
       page.should have_selector("tbody[@data-bind='foreach: documents']")
       page.all('tbody tr').count.should eq(per_page)
     end
@@ -117,12 +129,9 @@ feature 'warehouses', %q{
     count = Warehouse.count
     (0..(count/per_page).ceil).each { |p|
       wh[p*per_page...p*per_page+per_page].each_with_index { |w, i|
-        tr = page.all('#container_documents table tbody tr')[i]
-        tr.should have_content(w.tag)
-        tr.should have_content(w.place)
-        tr.should have_content(w.real_amount.to_i)
-        tr.should have_content(w.exp_amount.to_i)
-        tr.should have_content(w.mu)
+        within(:xpath, "//div[@id='container_documents']//table//tbody//tr[#{i + 1}]") do
+          should_present_warehouse(w)
+        end
       }
 
       click_button('>')
@@ -134,12 +143,9 @@ feature 'warehouses', %q{
 
     (count/per_page).ceil.downto(0).each { |p|
       wh[p*per_page...p*per_page+per_page].each_with_index { |w, i|
-        tr = page.all('#container_documents table tbody tr')[i]
-        tr.should have_content(w.tag)
-        tr.should have_content(w.place)
-        tr.should have_content(w.real_amount.to_i)
-        tr.should have_content(w.exp_amount.to_i)
-        tr.should have_content(w.mu)
+        within(:xpath, "//div[@id='container_documents']//table//tbody//tr[#{i + 1}]") do
+          should_present_warehouse(w)
+        end
       }
 
       click_button('<')
@@ -168,13 +174,7 @@ feature 'warehouses', %q{
     current_hash.should eq('warehouses')
 
     within('#container_documents table') do
-      within('thead tr') do
-        page.should have_content(I18n.t('views.warehouses.place'))
-        page.should have_content(I18n.t('views.warehouses.tag'))
-        page.should have_content(I18n.t('views.warehouses.real_amount'))
-        page.should have_content(I18n.t('views.warehouses.expectation_amount'))
-        page.should have_content(I18n.t('views.warehouses.mu'))
-      end
+      should_have_header
       page.should have_selector("tbody[@data-bind='foreach: documents']")
       within('tbody') do
         page.should_not have_selector("tr")
@@ -197,13 +197,7 @@ feature 'warehouses', %q{
     resources = Warehouse.all(where: { storekeeper_id: { equal: user.entity_id },
                                        storekeeper_place_id: { equal: credential.place_id } })
     within('#container_documents table') do
-      within('thead tr') do
-        page.should have_content(I18n.t('views.warehouses.place'))
-        page.should have_content(I18n.t('views.warehouses.tag'))
-        page.should have_content(I18n.t('views.warehouses.real_amount'))
-        page.should have_content(I18n.t('views.warehouses.expectation_amount'))
-        page.should have_content(I18n.t('views.warehouses.mu'))
-      end
+      should_have_header
       page.should have_selector("tbody[@data-bind='foreach: documents']")
       within('tbody') do
         resources.each do |r|
@@ -445,5 +439,74 @@ feature 'warehouses', %q{
     current_hash.should eq('warehouses')
 
     page.should_not have_xpath("//select[@id='warehouse_group']")
+  end
+
+  scenario 'sort warehouses', js: true do
+    moscow = create(:place, tag: 'Moscow')
+    kiev = create(:place, tag: 'Kiev')
+    amsterdam = create(:place, tag: 'Amsterdam')
+
+    wb1 = build(:waybill, storekeeper_place: moscow)
+    wb1.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 10.0)
+    wb1.save!
+    wb1.apply
+
+    wb2 = build(:waybill, storekeeper_place: kiev)
+    wb2.add_item(tag: 'foo', mu: 'hex', amount: 200, price: 40.0)
+    wb2.save!
+    wb2.apply
+
+    wb3 = build(:waybill, storekeeper_place: amsterdam)
+    wb3.add_item(tag: 'bar', mu: 'ant', amount: 300, price: 20.0)
+    wb3.save!
+    wb3.apply
+
+    page_login
+    page.find('#btn_slide_conditions').click
+    page.find('#warehouses a').click
+    current_hash.should eq('warehouses')
+    page.should have_xpath("//ul[@id='slide_menu_conditions']" +
+                           "/li[@id='warehouses' and @class='sidebar-selected']")
+
+    within('#container_documents table') do
+
+      test_order = lambda do |field, type|
+        warehouses = Warehouse.all(order_by: { field: field, type: type })
+        count = Warehouse.count
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                   "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                   "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+        within('tbody') do
+          page.should have_selector('tr', count: count)
+          count.times do |i|
+            within(:xpath, ".//tr[#{i + 1}]") do
+              should_present_warehouse(warehouses[i])
+            end
+          end
+        end
+      end
+
+      test_order.call('place','asc')
+      test_order.call('place','desc')
+
+      test_order.call('tag','asc')
+      test_order.call('tag','desc')
+
+      test_order.call('mu','asc')
+      test_order.call('mu','desc')
+
+      test_order.call('real_amount','asc')
+      test_order.call('real_amount','desc')
+
+      test_order.call('exp_amount','asc')
+      test_order.call('exp_amount','desc')
+    end
   end
 end

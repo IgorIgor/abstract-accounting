@@ -377,5 +377,50 @@ describe Warehouse do
     wh.select{ |w| (w[:value] == resorce.tag) &&
         (w[:id] == resorce.id) }.should_not be_empty
     Warehouse.count({group_by: 'tag'}).should eq(wh.length)
+
+    wh = Warehouse.all(order_by: { field: 'place', type: 'asc' })
+    (wh.count - 1).times do |i|
+      wh[i].place.should be <= wh[i + 1].place
+    end
+    wh = Warehouse.all(order_by: { field: 'place', type: 'desc' })
+    (wh.count - 1).times do |i|
+      wh[i].place.should be >= wh[i + 1].place
+    end
+
+    wh = Warehouse.all(order_by: { field: 'tag', type: 'asc' })
+    (wh.count - 1).times do |i|
+      wh[i].tag.should be <= wh[i + 1].tag
+    end
+    wh = Warehouse.all(order_by: { field: 'tag', type: 'desc' })
+    (wh.count - 1).times do |i|
+      wh[i].tag.should be >= wh[i + 1].tag
+    end
+
+    wh = Warehouse.all(order_by: { field: 'mu', type: 'asc' })
+    (wh.count - 1).times do |i|
+      wh[i].mu.should be <= wh[i + 1].mu
+    end
+    wh = Warehouse.all(order_by: { field: 'mu', type: 'desc' })
+    (wh.count - 1).times do |i|
+      wh[i].mu.should be >= wh[i + 1].mu
+    end
+
+    wh = Warehouse.all(order_by: { field: 'real_amount', type: 'asc' })
+    (wh.count - 1).times do |i|
+      wh[i].real_amount.should be <= wh[i + 1].real_amount
+    end
+    wh = Warehouse.all(order_by: { field: 'real_amount', type: 'desc' })
+    (wh.count - 1).times do |i|
+      wh[i].real_amount.should be >= wh[i + 1].real_amount
+    end
+
+    wh = Warehouse.all(order_by: { field: 'exp_amount', type: 'asc' })
+    (wh.count - 1).times do |i|
+      wh[i].exp_amount.should be <= wh[i + 1].exp_amount
+    end
+    wh = Warehouse.all(order_by: { field: 'exp_amount', type: 'desc' })
+    (wh.count - 1).times do |i|
+      wh[i].exp_amount.should be >= wh[i + 1].exp_amount
+    end
   end
 end

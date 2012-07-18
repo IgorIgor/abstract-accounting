@@ -43,6 +43,8 @@ class WarehousesController < ApplicationController
 
     attrs[:where] = params[:where] if params[:where]
 
+    attrs[:order_by] = params[:order] if params[:order]
+
     @warehouse = Warehouse.all(attrs)
     @count = Warehouse.count(attrs)
   end

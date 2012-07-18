@@ -99,15 +99,17 @@ describe BalanceSheet do
     end
   end
 
-  describe "#resource_id" do
+  describe "#resource" do
     it "should have filter attribute" do
-      BalanceSheet.resource_id(1).resource_id_value.should eq(1)
+      BalanceSheet.resource(id: 1, type: Asset.name).resource_value.
+          should eq(id: 1, type: Asset.name)
     end
   end
 
-  describe "#entity_id" do
+  describe "#entity" do
     it "should have filter attribute" do
-      BalanceSheet.entity_id(1).entity_id_value.should eq(1)
+      BalanceSheet.entity(id: 1, type: Entity.name).entity_value.
+          should eq(id: 1, type: Entity.name)
     end
   end
 

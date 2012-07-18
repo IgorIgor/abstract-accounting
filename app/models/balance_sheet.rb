@@ -44,7 +44,9 @@ class BalanceSheet < Array
   getter :all do |options = {}|
     build_scopes
     if self.resource_value || self.entity_value || self.place_id_value
-      @balance_scope.each do |o|
+      scope = @balance_scope
+      scope = scope.paginate(self.paginate_value) if self.paginate_value
+      scope.each do |o|
         self << o
       end
     else

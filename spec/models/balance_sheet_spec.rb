@@ -152,6 +152,15 @@ describe BalanceSheet do
       BalanceSheet.paginate(page: 1, per_page: 3).all.count.should eq(3)
       BalanceSheet.paginate(page: 2, per_page: 3).all.count.should eq(1)
     end
+
+    it "should paginate balances" do
+      entity = create(:entity)
+      5.times { create(:balance, deal: create(:deal, entity: entity)) }
+      BalanceSheet.entity(id: entity.id, type: entity.class.name).
+          paginate(page: 1, per_page: 3).all.count.should eq(3)
+      BalanceSheet.entity(id: entity.id, type: entity.class.name).
+          paginate(page: 2, per_page: 3).all.count.should eq(2)
+    end
   end
 
   describe "#db_count" do

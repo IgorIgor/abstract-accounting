@@ -117,6 +117,10 @@ div.filter-area {
     float: left;
     width: 12px;
     height: 100%;
+    cursor: pointer;
+  }
+  .arrow-expand:hover{
+    background-color: #c0c0c0;
   }
 
   .arrow-right-expand{

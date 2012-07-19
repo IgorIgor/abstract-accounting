@@ -401,15 +401,21 @@ $ ->
 
       location.hash = 'inbox' if $('#main').length
 
-    expand: =>
+    expand: (object, event) =>
+      toggle = true
       if $('#slide_menu_deals').is(":visible")
-        $('#arrow_actions').removeClass('arrow-down-expand')
-        $('#arrow_actions').addClass('arrow-right-expand')
+        if event.target.id == 'arrow_actions'
+          $('#arrow_actions').removeClass('arrow-down-expand')
+          $('#arrow_actions').addClass('arrow-right-expand')
+        else
+          toggle = false
+          location.hash = $('#deals').attr('href')
       else
-        location.hash = $('#deals').attr('href')
+        if event.target.id == 'deals'
+          location.hash = $('#deals').attr('href')
         $('#arrow_actions').removeClass('arrow-right-expand')
         $('#arrow_actions').addClass('arrow-down-expand')
-      $("#slide_menu_deals").slideToggle()
+      $("#slide_menu_deals").slideToggle() if toggle
 
     slideConditions: =>
       if $('#slide_menu_conditions').is(":visible")

@@ -65,7 +65,8 @@
           <li id="entities"><a href="#entities"><%=t 'views.home.entities' %></a></li>
           <li id="places"><a href="#places"><%=t 'views.home.places' %></a></li>
           <div class="slide_action">
-            <div id="arrow_actions" class="arrow-expand arrow-right-expand"></div>
+            <div id="arrow_actions" class="arrow-expand arrow-right-expand"
+                 data-bind="click: expand"></div>
             <a href="#deals" id="deals" class="btn_slide_action"
                data-bind="click: expand"><%=t 'views.home.deals' %></a>
           </div>

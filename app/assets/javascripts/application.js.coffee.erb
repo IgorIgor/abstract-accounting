@@ -390,6 +390,8 @@ $ ->
                     new WaybillsViewModel(data)
                   when 'allocations'
                     new AllocationsViewModel(data)
+                  when 'quote'
+                    new QuoteViewModel(data)
 
                 $('#container_documents').html(form)
                 ko.cleanNode($('#main').get(0))

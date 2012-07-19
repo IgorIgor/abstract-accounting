@@ -1,0 +1,6 @@
+ru:
+  views:
+    quote:
+      resource: Ресурс
+      date: Дата
+      rate: Курс

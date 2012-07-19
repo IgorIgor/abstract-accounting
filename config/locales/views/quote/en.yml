@@ -1,0 +1,6 @@
+en:
+  views:
+    quote:
+      resource: Resource
+      date: Date
+      rate: Rate

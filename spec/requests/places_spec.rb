@@ -98,7 +98,7 @@ feature 'places', %q{
                   give: build(:deal_give, place: place),
                   take: build(:deal_take, place: place2),
                   rate: 10)
-    create(:balance, deal: deal)
+    create(:balance, side: Balance::PASSIVE, deal: deal)
 
     page_login
     page.find('#btn_slide_lists').click

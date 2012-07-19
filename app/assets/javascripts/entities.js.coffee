@@ -15,5 +15,5 @@ $ ->
         $('#arrow_conditions').addClass('arrow-up-slide')
         $("#slide_menu_conditions").slideDown()
       params =
-        entity_id: object.id
+        entity: { id: object.id, type: "Entity" }
       location.hash = "#balance_sheet?#{$.param(params)}"

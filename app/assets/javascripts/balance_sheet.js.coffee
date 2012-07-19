@@ -15,15 +15,15 @@ $ ->
       @mu = ko.observable('natural')
       @total_debit = ko.observable(data.total_debit)
       @total_credit = ko.observable(data.total_credit)
-      @resource_id = ko.observable()
-      @entity_id = ko.observable()
+      @resource = ko.observable()
+      @entity = ko.observable()
       @place_id = ko.observable()
       @selected_balances = []
       @selected = ko.observable(false)
 
       unless $.isEmptyObject(params)
-        @resource_id(params.resource_id) if params.resource_id
-        @entity_id(params.entity_id) if params.entity_id
+        @resource(params.resource) if params.resource
+        @entity(params.entity) if params.entity
         @place_id(params.place_id) if params.place_id
 
       super(data)
@@ -32,8 +32,8 @@ $ ->
         date: @balances_date().toString()
         page: @page
         per_page: @per_page
-        resource_id: @resource_id()
-        entity_id: @entity_id()
+        resource: @resource()
+        entity: @entity()
         place_id: @place_id()
 
     filter: =>
@@ -41,8 +41,8 @@ $ ->
         date: @balances_date().toString()
         page: @page
         per_page: @per_page
-        resource_id: @resource_id()
-        entity_id: @entity_id()
+        resource: @resource()
+        entity: @entity()
         place_id: @place_id()
       $.getJSON(@url, normalizeHash(@params), (data) =>
         @documents(data.objects)

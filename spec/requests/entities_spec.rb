@@ -106,7 +106,8 @@ feature 'entities', %q{
     within('#container_documents table tbody') do
       page.find(:xpath, ".//tr[1]/td[1]").click
     end
-    current_hash.should eq("balance_sheet?entity_id=#{entity.id}")
+    current_hash.should eq("balance_sheet?entity%5Bid%5D=#{entity.id}&"+
+                                   "entity%5Btype%5D=#{entity.class.name}")
     find('#slide_menu_conditions').visible?.should be_true
     within('#container_documents table tbody') do
       page.should have_selector('tr', count: 1)

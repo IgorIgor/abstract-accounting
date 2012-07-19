@@ -101,7 +101,7 @@ feature 'assets', %q{
                    give: build(:deal_give, resource: res),
                    take: build(:deal_take, resource: res2),
                    rate: 10)
-    create(:balance, deal: deal)
+    create(:balance, side: Balance::PASSIVE, deal: deal)
 
     page_login
     page.find('#btn_slide_lists').click
@@ -113,7 +113,8 @@ feature 'assets', %q{
     within('#container_documents table tbody') do
       page.find(:xpath, ".//tr[1]/td[1]").click
     end
-    current_hash.should eq("balance_sheet?resource_id=#{res.id}")
+    current_hash.should eq("balance_sheet?resource%5Bid%5D=#{res.id}&"+
+                               "resource%5Btype%5D=#{res.class.name}")
     find('#slide_menu_conditions').visible?.should be_true
     within('#container_documents table tbody') do
       page.should have_selector('tr', count: 1)

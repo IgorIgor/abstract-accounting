@@ -142,7 +142,7 @@ feature "single page application", %q{
 
     page.should have_xpath("//ul//li[@id='users']")
     page.should have_xpath("//ul//li[@id='groups']")
-    page.should have_xpath("//ul//li[@id='assets']")
+    page.should have_xpath("//ul//li[@id='resources']")
     page.should have_xpath("//ul//li[@id='entities']")
     page.should have_xpath("//ul//li[@id='places']")
     page.should have_xpath("//ul//div[@id='arrow_actions']")

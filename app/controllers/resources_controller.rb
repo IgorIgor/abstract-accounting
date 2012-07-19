@@ -7,7 +7,7 @@
 #
 # Please see ./COPYING for details
 
-class AssetsController < ApplicationController
+class ResourcesController < ApplicationController
   def index
     render 'index', layout: false
   end
@@ -16,7 +16,7 @@ class AssetsController < ApplicationController
     page = params[:page].nil? ? 1 : params[:page].to_i
     per_page = params[:per_page].nil? ?
         Settings.root.per_page.to_i : params[:per_page].to_i
-    @assets = Asset.limit(per_page).offset((page - 1) * per_page).all
-    @count = Asset.count
+    @resources = Resource.all(page: page, per_page: per_page)
+    @count = Resource.count
   end
 end

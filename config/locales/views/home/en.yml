@@ -25,7 +25,7 @@ en:
       users: 'Users'
       group: 'Group'
       groups: 'Groups'
-      assets: 'Assets'
+      resources: Resources
       entities: 'Entities'
       places: 'Places'
       deals: 'Deals'

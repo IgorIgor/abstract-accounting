@@ -1,0 +1,6 @@
+ru:
+  views:
+    resources:
+      tag: "Название"
+      ext_info: Расширенная информация
+      type: Тип

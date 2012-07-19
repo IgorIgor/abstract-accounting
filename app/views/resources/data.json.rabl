@@ -8,8 +8,12 @@
 # Please see ./COPYING for details
 
 object false
-child(@assets => :objects) do
-  attributes :id, :tag, :mu
+child(@resources => :objects) do
+  attributes :id, :tag, :ext_info
+  node(:klass) { |resource| resource.type }
+  node(:type) do |resource|
+    I18n.t("activerecord.models.#{resource.type.tableize.singularize}")
+  end
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

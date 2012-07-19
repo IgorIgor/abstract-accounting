@@ -1,7 +1,7 @@
 $ ->
-  class self.AssetsViewModel extends FolderViewModel
+  class self.ResourcesViewModel extends FolderViewModel
     constructor: (data) ->
-      @url = '/assets/data.json'
+      @url = '/resources/data.json'
       super(data)
 
       @params =
@@ -14,5 +14,5 @@ $ ->
         $('#arrow_conditions').addClass('arrow-up-slide')
         $("#slide_menu_conditions").slideDown()
       params =
-        resource: { id: object.id, type: "Asset" }
+        resource: { id: object.id, type: object.klass }
       location.hash = "#balance_sheet?#{$.param(params)}"

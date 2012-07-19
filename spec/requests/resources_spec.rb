@@ -21,25 +21,33 @@ feature 'assets', %q{
   scenario 'view assets', js: true do
     per_page = Settings.root.per_page
     (per_page + 1).times { create(:asset) }
-    assets = Asset.limit(per_page)
-    count = Asset.count
+    create(:money)
+
+    resources = Resource.all(page: 1, per_page: per_page)
+    count = Resource.count
+
     page_login
     page.find('#btn_slide_lists').click
-    click_link I18n.t('views.home.assets')
-    current_hash.should eq('assets')
+    click_link I18n.t('views.home.resources')
+    current_hash.should eq('resources')
     page.should have_xpath("//ul[@id='slide_menu_lists']"+
-                            "//li[@id='assets' and @class='sidebar-selected']")
+                            "//li[@id='resources' and @class='sidebar-selected']")
 
     within('#container_documents table') do
       within('thead tr') do
-        page.should have_content(I18n.t('views.assets.tag'))
-        page.should have_content(I18n.t('views.assets.mu'))
+        page.should have_content(I18n.t('views.resources.tag'))
+        page.should have_content(I18n.t('views.resources.ext_info'))
+        page.should have_content(I18n.t('views.resources.type'))
       end
 
       within('tbody') do
-        assets.each do |asset|
-          page.should have_content(asset.tag)
-          page.should have_content(asset.mu)
+        resources.each_with_index do |res, i|
+          within(:xpath, ".//tr[#{i + 1}]") do
+            page.should have_content(res.tag)
+            page.should have_content(res.ext_info)
+            page.should have_content(
+              I18n.t("activerecord.models.#{res.type.tableize.singularize}"))
+          end
         end
       end
     end
@@ -73,13 +81,19 @@ feature 'assets', %q{
       find_button('<')[:disabled].should eq('false')
     end
 
-    assets = Asset.limit(per_page).offset(per_page)
+
+    resources = Resource.all(page: 2, per_page: per_page)
+
     within('#container_documents table tbody') do
       count_on_page = count - per_page > per_page ? per_page : count - per_page
       page.should have_selector('tr', count: count_on_page)
-      assets.each do |asset|
-        page.should have_content(asset.tag)
-        page.should have_content(asset.mu)
+      resources.each_with_index do |res, i|
+        within(:xpath, ".//tr[#{i + 1}]") do
+          page.should have_content(res.tag)
+          page.should have_content(res.ext_info)
+          page.should have_content(
+            I18n.t("activerecord.models.#{res.type.tableize.singularize}"))
+        end
       end
     end
 
@@ -105,10 +119,10 @@ feature 'assets', %q{
 
     page_login
     page.find('#btn_slide_lists').click
-    click_link I18n.t('views.home.assets')
-    current_hash.should eq('assets')
+    click_link I18n.t('views.home.resources')
+    current_hash.should eq('resources')
     page.should have_xpath("//ul[@id='slide_menu_lists']"+
-                           "//li[@id='assets' and @class='sidebar-selected']")
+                           "//li[@id='resources' and @class='sidebar-selected']")
 
     within('#container_documents table tbody') do
       page.find(:xpath, ".//tr[1]/td[1]").click

@@ -1,7 +1,9 @@
 en:
   activerecord:
     models:
+      asset: Asset
       group: Group
+      money: Money
       waybill: Waybill
     attributes:
       group:

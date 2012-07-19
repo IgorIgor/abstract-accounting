@@ -1,0 +1,6 @@
+en:
+  views:
+    resources:
+      tag: "Tag"
+      ext_info: Ext. information
+      type: Type

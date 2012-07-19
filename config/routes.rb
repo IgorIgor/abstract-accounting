@@ -108,7 +108,7 @@ Abstract::Application.routes.draw do
   end
   resources :comments, only: [:create, :index]
 
-  resources :assets, only: :index do
+  resources :resources, only: :index do
     collection do
       get 'data'
     end

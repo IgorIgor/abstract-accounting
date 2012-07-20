@@ -188,67 +188,18 @@ feature "user", %q{
     page.should have_xpath("//ul[@id='slide_menu_lists']"+
      	                     "//li[@id='users' and @class='sidebar-selected']")
 
-    within('#container_documents table') do
-      within('thead tr') do
-        page.should have_content(I18n.t('views.users.email'))
-        page.should have_content(I18n.t('views.users.user_name'))
-      end
+    titles = [I18n.t('views.users.email'), I18n.t('views.users.user_name')]
 
-      within('tbody') do
-        users.each do |user|
-          page.should have_content(user.entity.tag)
-          page.should have_content(user.email)
-        end
-      end
+    check_header("#container_documents table", titles)
+    check_content("#container_documents table", users) do |user|
+      [user.entity.tag, user.email]
     end
 
-    within("div[@class='paginate']") do
-      find("span[@data-bind='text: range']").
-          should have_content("1-#{per_page}")
-
-      find("span[@data-bind='text: count']").
-          should have_content(count.to_s)
-
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
-    end
-
-    within("#container_documents table tbody") do
-      page.should have_selector('tr', count: per_page)
-    end
-
-    within("div[@class='paginate']") do
-      click_button('>')
-
-      to_range = count > (per_page * 2) ? per_page * 2 : count
-
-      find("span[@data-bind='text: range']").
-          should have_content("#{per_page + 1}-#{to_range}")
-
-      find("span[@data-bind='text: count']").
-          should have_content(count.to_s)
-
-      find_button('<')[:disabled].should eq('false')
-    end
-
+    check_paginate("div[@class='paginate']", count, per_page)
+    next_page("div[@class='paginate']")
     users = User.limit(per_page).offset(per_page)
-    within('#container_documents table tbody') do
-      count_on_page = count - per_page > per_page ? per_page : count - per_page
-      page.should have_selector('tr', count: count_on_page)
-      users.each do |user|
-        page.should have_content(user.entity.tag)
-        page.should have_content(user.email)
-      end
-    end
-
-    within("div[@class='paginate']") do
-      click_button('<')
-
-      find("span[@data-bind='text: range']").
-          should have_content("1-#{per_page}")
-
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
+    check_content("#container_documents table", users) do |user|
+      [user.entity.tag, user.email]
     end
   end
 

@@ -45,19 +45,18 @@ def show_allocation(allocation)
   end
 end
 
-def should_present_allocation(allocation)
-  page.should have_content(allocation.created.strftime('%Y-%m-%d'))
-  page.should have_content(allocation.storekeeper.tag)
-  page.should have_content(allocation.storekeeper_place.tag)
-  page.should have_content(allocation.foreman.tag)
-  state =
-      case allocation.state
-        when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-        when Statable::INWORK then I18n.t('views.statable.inwork')
-        when Statable::CANCELED then I18n.t('views.statable.canceled')
-        when Statable::APPLIED then I18n.t('views.statable.applied')
-      end
-  page.should have_content(state)
+def should_present_allocation(allocations)
+  check_group_content("#container_documents table", allocations) do |allocation|
+    state =
+        case allocation.state
+          when Statable::UNKNOWN then I18n.t('views.statable.unknown')
+          when Statable::INWORK then I18n.t('views.statable.inwork')
+          when Statable::CANCELED then I18n.t('views.statable.canceled')
+          when Statable::APPLIED then I18n.t('views.statable.applied')
+        end
+    [allocation.created.strftime('%Y-%m-%d'), allocation.storekeeper.tag,
+     allocation.storekeeper_place.tag, allocation.foreman.tag, state]
+  end
 end
 
 feature 'allocation', %q{
@@ -139,48 +138,44 @@ feature 'allocation', %q{
       check_autocomplete("foreman_entity", items, :tag)
     end
 
+    unless page.find("#storekeeper_entity").value == wb.storekeeper.tag
+      fill_in_autocomplete('storekeeper_entity', wb.storekeeper.tag)
+    end
+
+    wh = Warehouse.
+        all(per_page: per_page, page: 1,
+            where: { storekeeper_id: { equal: wb.storekeeper.id },
+                     storekeeper_place_id: { equal: wb.storekeeper_place.id }})
+    count = Warehouse.
+        count(where: { storekeeper_id: { equal: wb.storekeeper.id },
+                       storekeeper_place_id: { equal: wb.storekeeper_place.id }})
+
+    check_content("#available-resources", wh) do |w|
+      [w.tag, w.mu, w.real_amount.to_i]
+    end
+
+    next_page("#available-resources div[@class='paginate']")
+
+    within("#available-resources div[@class='paginate']") do
+      find_button('>')[:disabled].should eq('true')
+    end
+
+    wh = Warehouse.
+        all(per_page: per_page, page: 2,
+            where: { storekeeper_id: { equal: wb.storekeeper.id },
+                     storekeeper_place_id: { equal: wb.storekeeper_place.id }})
+
+    check_content("#available-resources", wh) do |w|
+      [w.tag, w.mu, w.real_amount.to_i]
+    end
+
+    prev_page("#available-resources div[@class='paginate']")
+
+    within("#selected-resources") do
+      page.should_not have_selector('tbody tr')
+    end
+
     within("#container_documents") do
-      unless page.find("#storekeeper_entity").value == wb.storekeeper.tag
-        fill_in_autocomplete('storekeeper_entity', wb.storekeeper.tag)
-      end
-
-
-      wh = Warehouse.all(where: { storekeeper_id: {
-                                    equal: wb.storekeeper.id },
-                                  storekeeper_place_id: {
-                                    equal: wb.storekeeper_place.id }})
-      count = Warehouse.count(where: { storekeeper_id: {
-                                         equal: wb.storekeeper.id },
-                                      storekeeper_place_id: {
-                                         equal: wb.storekeeper_place.id }})
-      (0..(count/per_page).ceil).each do |p|
-        wh[p*per_page...p*per_page+per_page].each_with_index do |w, i|
-          tr = page.all('#available-resources tbody tr')[i]
-          tr.should have_content(w.tag)
-          tr.should have_content(w.mu)
-          tr.should have_content(w.real_amount.to_i)
-        end
-        click_button('>')
-      end
-
-      within("div[@class='paginate']") do
-        find_button('>')[:disabled].should eq('true')
-      end
-
-      (count/per_page).ceil.downto(0).each do |p|
-        wh[p*per_page...p*per_page+per_page].each_with_index do |w, i|
-          tr = page.all('#available-resources tbody tr')[i]
-          tr.should have_content(w.tag)
-          tr.should have_content(w.mu)
-          tr.should have_content(w.real_amount.to_i)
-        end
-        click_button('<')
-      end
-
-      within("#selected-resources") do
-        page.should_not have_selector('tbody tr')
-      end
-
       (0..count-1).each do |i|
         page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
         if i < count - 1
@@ -194,157 +189,133 @@ feature 'allocation', %q{
         end
         page.should have_selector('#selected-resources tbody tr', count: 1+i)
       end
+    end
 
-      within("#available-resources") do
-        page.all('tbody tr').each_with_index { |tr, i|
-          tr.find("td input[@type='text']")[:value].should eq("#{100+i}")
-        }
+    within("#available-resources") do
+      page.all('tbody tr').each_with_index { |tr, i|
+        tr.find("td input[@type='text']")[:value].should eq("#{100+i}")
+      }
+    end
+
+    wb2 = build(:waybill)
+    wb2.add_item(tag: "resource_2", mu: "mu_2", amount: 100, price: 10)
+    wb2.save!
+    wb2.apply
+
+    wbs = Waybill.
+        in_warehouse(where: { storekeeper_id: { equal: wb.storekeeper.id },
+                              storekeeper_place_id: { equal: wb.storekeeper_place.id }})
+
+    page.find('#mode-waybills').click
+
+    check_content("#available-resources-by-wb", wbs) do |w|
+      [w.document_id, w.created.strftime('%Y-%m-%d'), w.distributor.name,
+       w.storekeeper.tag, w.storekeeper_place.tag]
+    end
+
+    page.find("#available-resources-by-wb td[@class='allocation-tree-actions-by-wb']").click
+
+    items = wbs[0].items[0, per_page]
+    count = wbs[0].items.length
+
+    check_content("#available-resources-by-wb table", items) do |item|
+      [item.resource.tag, item.resource.mu, item.amount.to_i]
+    end
+
+    check_paginate("#available-resources-by-wb div[@class='paginate']", count, per_page)
+
+    next_page("#available-resources-by-wb div[@class='paginate']")
+
+    items = wbs[0].items[per_page, per_page]
+
+    check_content("#available-resources-by-wb table", items) do |item|
+      [item.resource.tag, item.resource.mu, item.amount.to_i]
+    end
+
+    check_content("#selected-resources", wb.items) do |item|
+      [item.resource.tag, item.resource.mu, item.amount.to_i]
+    end
+
+    page.find('#mode-resources-by-wb').click
+    page.should have_no_selector('#available-resources-by-wb')
+
+    (0..count-1).each do |i|
+      page.find("#selected-resources tbody tr td[@class='allocation-actions'] span").click
+      if i < count-1
+        page.should have_selector('#selected-resources tbody tr', count: count-i-1)
+        page.should have_selector('#available-resources tbody tr', count: 1+i)
+      else
+        page.should_not have_selector('#selected-resources tbody tr')
       end
+    end
 
-      wb2 = build(:waybill)
-      wb2.add_item(tag: "resource_2", mu: "mu_2", amount: 100, price: 10)
-      wb2.save!
-      wb2.apply
+    wb3 = build(:waybill, storekeeper: wb.storekeeper,
+                storekeeper_place: wb.storekeeper_place)
+    wb3.add_item(tag: 'resource#0', mu: 'mu0', amount: 27, price: 10)
+    wb3.save!
+    wb3.apply.should be_true
 
-      wbs = Waybill.in_warehouse(where: { storekeeper_id: {
-                                            equal: wb.storekeeper.id },
-                                          storekeeper_place_id: {
-                                            equal: wb.storekeeper_place.id }})
+    wbs = Waybill.
+        in_warehouse(where: { storekeeper_id: { equal: wb.storekeeper.id },
+                              storekeeper_place_id: { equal: wb.storekeeper_place.id }})
 
-      page.find('#mode-waybills').click
-      page.should have_no_selector('#available-resources')
-      within('#available-resources-by-wb') do
-        wbs.each_with_index do |w, idx|
-          tr = page.all('tbody tr')[idx]
-          tr.should have_content(w.document_id)
-          tr.should have_content(w.created.strftime('%Y-%m-%d'))
-          tr.should have_content(w.distributor.name)
-          tr.should have_content(w.storekeeper.tag)
-          tr.should have_content(w.storekeeper_place.tag)
-        end
-
-        page.find("td[@class='allocation-tree-actions-by-wb']").click
-        within('table') do
-          per_page.times do |i|
-            tr = page.all('tbody tr')[i]
-            tr.should have_content(wbs[0].items[i].resource.tag)
-            tr.should have_content(wbs[0].items[i].resource.mu)
-            tr.should have_content(wbs[0].items[i].amount.to_i)
-          end
-        end
-
-        within("div[@class='paginate']") do
-          within("span[@data-bind='text: range']") do
-            page.should have_content("1-#{per_page}")
-          end
-          within("span[@data-bind='text: count']") do
-            page.should have_content("#{wbs[0].items.length}")
-          end
-          find_button('<')[:disabled].should eq('true')
-          find_button('>')[:disabled].should eq('false')
-          click_button('>')
-          find_button('<')[:disabled].should eq('false')
-          find_button('>')[:disabled].should eq('true')
-        end
-
-        within('table') do
-          tr = page.all('tbody tr')[0]
-          tr.should have_content(wbs[0].items[per_page].resource.tag)
-          tr.should have_content(wbs[0].items[per_page].resource.mu)
-          tr.should have_content(wbs[0].items[per_page].amount.to_i)
+    page.find('#mode-waybills').click
+    page.should have_no_selector('#available-resources')
+    within('#available-resources-by-wb') do
+      page.all('tbody tr').each do |tr|
+        if tr.has_content?(wb.document_id) &&
+           tr.has_content?(wb.created.strftime('%Y-%m-%d')) &&
+           tr.has_content?(wb.distributor.name) &&
+           tr.has_content?(wb.storekeeper.tag) &&
+           tr.has_content?(wb.storekeeper_place.tag)
+          tr.find("td[@class='allocation-actions-by-wb'] span").click
         end
       end
-
-      within('#selected-resources tbody') do
-        wb.items.each do |item|
-          page.should have_content(item.resource.tag)
-          page.should have_content(item.resource.mu)
-          page.should have_content(item.amount.to_i)
-        end
-      end
-
-      page.find('#mode-resources-by-wb').click
-      page.should have_no_selector('#available-resources-by-wb')
-
-      (0..count-1).each do |i|
-        page.find("#selected-resources tbody tr td[@class='allocation-actions'] span").click
-        if i < count-1
-          page.should have_selector('#selected-resources tbody tr', count: count-i-1)
-          page.should have_selector('#available-resources tbody tr', count: 1+i)
+      within('tbody') do
+        if wbs.count - 1 > 0
+          page.should have_selector('tr', count: wbs.count - 1, visible: true)
         else
-          page.should_not have_selector('#selected-resources tbody tr')
+          page.should_not have_selector('tr')
+        end
+      end
+    end
+
+    within('#selected-resources tbody') do
+      page.all('tbody tr').each do |tr|
+        if tr.has_content?('resource#0') &&
+           tr.has_content?('mu0') &&
+           tr.has_content?('127')
+          tr.find('input')[:value].should eq('100')
         end
       end
 
-      wb3 = build(:waybill, storekeeper: wb.storekeeper,
-                                    storekeeper_place: wb.storekeeper_place)
-      wb3.add_item(tag: 'resource#0', mu: 'mu0', amount: 27, price: 10)
-      wb3.save!
-      wb3.apply.should be_true
-
-      wbs = Waybill.in_warehouse(where: { storekeeper_id: {
-                                            equal: wb.storekeeper.id },
-                                          storekeeper_place_id: {
-                                            equal: wb.storekeeper_place.id }})
-
-      page.find('#mode-waybills').click
-      page.should have_no_selector('#available-resources')
-      within('#available-resources-by-wb') do
-        page.all('tbody tr').each do |tr|
-          if tr.has_content?(wb.document_id) &&
-             tr.has_content?(wb.created.strftime('%Y-%m-%d')) &&
-             tr.has_content?(wb.distributor.name) &&
-             tr.has_content?(wb.storekeeper.tag) &&
-             tr.has_content?(wb.storekeeper_place.tag)
-            tr.find("td[@class='allocation-actions-by-wb'] span").click
-          end
-        end
-        within('tbody') do
-          if wbs.count - 1 > 0
-            page.should have_selector('tr', count: wbs.count - 1, visible: true)
-          else
-            page.should_not have_selector('tr')
-          end
+      per_page.times do |i|
+        if wb.items[i].resource.tag != "resource#0"
+          page.should have_content(wb.items[i].resource.tag)
+          page.should have_content(wb.items[i].resource.mu)
+          page.should have_content(wb.items[i].amount.to_i)
         end
       end
+    end
 
-      within('#selected-resources tbody') do
-        page.all('tbody tr').each do |tr|
-          if tr.has_content?('resource#0') &&
-             tr.has_content?('mu0') &&
-             tr.has_content?('127')
-            tr.find('input')[:value].should eq('100')
-          end
-        end
-
-        per_page.times do |i|
-          if wb.items[i].resource.tag != "resource#0"
-            page.should have_content(wb.items[i].resource.tag)
-            page.should have_content(wb.items[i].resource.mu)
-            page.should have_content(wb.items[i].amount.to_i)
-          end
+    within('#available-resources-by-wb') do
+      page.all('tbody tr').each do |tr|
+        if tr.has_content?(wb3.document_id) &&
+           tr.has_content?(wb3.created.strftime('%Y-%m-%d')) &&
+           tr.has_content?(wb3.distributor.name) &&
+           tr.has_content?(wb3.storekeeper.tag) &&
+           tr.has_content?(wb3.storekeeper_place.tag)
+          tr.find("td[@class='allocation-actions-by-wb'] span").click
         end
       end
+    end
 
-      within('#available-resources-by-wb') do
-        page.all('tbody tr').each do |tr|
-          if tr.has_content?(wb3.document_id) &&
-             tr.has_content?(wb3.created.strftime('%Y-%m-%d')) &&
-             tr.has_content?(wb3.distributor.name) &&
-             tr.has_content?(wb3.storekeeper.tag) &&
-             tr.has_content?(wb3.storekeeper_place.tag)
-            tr.find("td[@class='allocation-actions-by-wb'] span").click
-          end
-        end
-      end
-
-      within('#selected-resources') do
-        page.all('tbody tr').each do |tr|
-          if tr.has_content?('resource#0') &&
-             tr.has_content?('mu0') &&
-             tr.has_content?('127')
-            tr.find('input')[:value].should eq('127')
-          end
+    within('#selected-resources') do
+      page.all('tbody tr').each do |tr|
+        if tr.has_content?('resource#0') &&
+           tr.has_content?('mu0') &&
+           tr.has_content?('127')
+          tr.find('input')[:value].should eq('127')
         end
       end
     end
@@ -640,69 +611,18 @@ feature 'allocation', %q{
       "/ul[@id='slide_menu_deals']" +
       "/li[@id='allocations' and @class='sidebar-selected']")
 
-    within('#container_documents table') do
-      within('thead tr') do
-        page.should have_content(I18n.t('views.allocations.created_at'))
-        page.should have_content(I18n.t('views.allocations.storekeeper'))
-        page.should have_content(I18n.t('views.allocations.storekeeper_place'))
-        page.should have_content(I18n.t('views.allocations.foreman'))
-        page.should have_content(I18n.t('views.statable.state'))
-      end
-
-      within('tbody') do
-        allocations.each do |allocation|
-          should_present_allocation(allocation)
-        end
-      end
-    end
-
-    within("div[@class='paginate']") do
-      find("span[@data-bind='text: range']").
-          should have_content("1-#{per_page}")
-
-      find("span[@data-bind='text: count']").
-          should have_content(count.to_s)
-
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
-    end
-
-    within("#container_documents table tbody") do
-      page.should have_selector('tr', count: per_page, visible: true)
-    end
-
-    within("div[@class='paginate']") do
-      click_button('>')
-
-      to_range = count > (per_page * 2) ? per_page * 2 : count
-
-      find("span[@data-bind='text: range']").
-          should have_content("#{per_page + 1}-#{to_range}")
-
-      find("span[@data-bind='text: count']").
-          should have_content(count.to_s)
-
-      find_button('<')[:disabled].should eq('false')
-    end
-
+    titles = [I18n.t('views.allocations.created_at'),
+              I18n.t('views.allocations.storekeeper'),
+              I18n.t('views.allocations.storekeeper_place'),
+              I18n.t('views.allocations.foreman'),
+              I18n.t('views.statable.state')]
+    check_header("#container_documents table", titles)
+    should_present_allocation(allocations)
+    check_paginate("div[@class='paginate']", count, per_page)
+    next_page("div[@class='paginate']")
     allocations = Allocation.limit(per_page).offset(per_page)
-    within('#container_documents table tbody') do
-      count_on_page = count - per_page > per_page ? per_page : count - per_page
-      page.should have_selector('tr', count: count_on_page, visible: true)
-      allocations.each do |allocation|
-        should_present_allocation(allocation)
-      end
-    end
-
-    within("div[@class='paginate']") do
-      click_button('<')
-
-      find("span[@data-bind='text: range']").
-          should have_content("1-#{per_page}")
-
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
-    end
+    should_present_allocation(allocations)
+    prev_page("div[@class='paginate']")
 
     page.find(:xpath, "//table//tbody//tr[1]//td[2]").click
     show_allocation(Allocation.first)
@@ -811,60 +731,34 @@ feature 'allocation', %q{
                            "/ul[@id='slide_menu_deals']" +
                            "/li[@id='allocations' and @class='sidebar-selected']")
 
-    within('#container_documents table tbody') do
-      should_present_allocation(allocation)
+    should_present_allocation([allocation])
 
+    within('#container_documents table tbody') do
       page.should have_selector(:xpath, ".//tr//td[@class='tree-actions-by-wb']
                         //div[@class='ui-corner-all ui-state-hover']
                         //span[@class='ui-icon ui-icon-circle-plus']", count: 1)
       find(:xpath,
            ".//tr[1]//td[@class='tree-actions-by-wb']").click
+    end
 
-      resources = allocation.items
-      resources.length.should eq(per_page + 1)
+    count = allocation.items.count
+    resources = allocation.items[0, per_page]
+    count.should eq(per_page + 1)
 
-      within("#resource_#{allocation.id}") do
-        page.should have_selector("td[@class='td-inner-table']")
+    check_paginate("#resource_#{allocation.id} div[@class='paginate']",
+                   count, per_page)
+    check_content("#resource_#{allocation.id} table[@class='inner-table']",
+                  resources) do |res|
+      [res.resource.tag, res.resource.mu, res.amount.to_i]
+    end
+    next_page("#resource_#{allocation.id} div[@class='paginate']")
+    resources = allocation.items[per_page, per_page]
+    check_content("#resource_#{allocation.id} table[@class='inner-table']",
+                  resources) do |res|
+      [res.resource.tag, res.resource.mu, res.amount.to_i]
+    end
 
-        within("div[@class='paginate']") do
-          within("span[@data-bind='text: range']") do
-            page.should have_content("1-#{per_page}")
-          end
-          within("span[@data-bind='text: count']") do
-            page.should have_content("#{resources.length}")
-          end
-          find_button('<')[:disabled].should eq('true')
-          find_button('>')[:disabled].should eq('false')
-        end
-        within("table[@class='inner-table'] tbody") do
-          page.should have_selector('tr', count: per_page)
-          per_page.times do |i|
-            within(:xpath, ".//tr[#{i + 1}]") do
-              page.should have_content(resources[i].resource.tag)
-              page.should have_content(resources[i].resource.mu)
-              page.should have_content(resources[i].amount.to_i)
-            end
-          end
-        end
-        within("div[@class='paginate']") do
-          click_button('>')
-          find_button('<')[:disabled].should eq('false')
-          find_button('>')[:disabled].should eq('true')
-        end
-        within("table[@class='inner-table'] tbody") do
-          page.should have_selector('tr', count: 1)
-          within(:xpath, ".//tr[1]") do
-            page.should have_content(resources[per_page].resource.tag)
-            page.should have_content(resources[per_page].resource.mu)
-            page.should have_content(resources[per_page].amount.to_i)
-          end
-        end
-        within("div[@class='paginate']") do
-          click_button('<')
-          find_button('>')[:disabled].should eq('false')
-          find_button('<')[:disabled].should eq('true')
-        end
-      end
+    within('#container_documents table tbody') do
       find(:xpath, ".//tr[1]//td[@class='tree-actions-by-wb']").click
       page.find("#resource_#{allocation.id}").visible?.should_not be_true
     end
@@ -936,11 +830,9 @@ feature 'allocation', %q{
                            "/ul[@id='slide_menu_deals']" +
                            "/li[@id='allocations' and @class='sidebar-selected']")
 
-    within('#container_documents table') do
-
-      test_order = lambda do |field, type|
-        allocations = Allocation.order_by(field: field, type: type).all
-        count = Allocation.count
+    test_order = lambda do |field, type|
+      allocations = Allocation.order_by(field: field, type: type).all
+      within('#container_documents table') do
         within('thead tr') do
           page.find("##{field}").click
           if type == 'asc'
@@ -951,30 +843,23 @@ feature 'allocation', %q{
                                    "/span[@class='ui-icon ui-icon-triangle-1-n']")
           end
         end
-        within('tbody') do
-          page.should have_selector('tr', count: count, visible: true)
-          [1,3,5].each_with_index do |num, i|
-            within(:xpath, ".//tr[#{num}]") do
-              should_present_allocation(allocations[i])
-            end
-          end
-        end
       end
-
-      test_order.call('created','asc')
-      test_order.call('created','desc')
-
-      test_order.call('storekeeper','asc')
-      test_order.call('storekeeper','desc')
-
-      test_order.call('storekeeper_place','asc')
-      test_order.call('storekeeper_place','desc')
-
-      test_order.call('foreman','asc')
-      test_order.call('foreman','desc')
-
-      test_order.call('state','asc')
-      test_order.call('state','desc')
+      should_present_allocation(allocations)
     end
+
+    test_order.call('created','asc')
+    test_order.call('created','desc')
+
+    test_order.call('storekeeper','asc')
+    test_order.call('storekeeper','desc')
+
+    test_order.call('storekeeper_place','asc')
+    test_order.call('storekeeper_place','desc')
+
+    test_order.call('foreman','asc')
+    test_order.call('foreman','desc')
+
+    test_order.call('state','asc')
+    test_order.call('state','desc')
   end
 end

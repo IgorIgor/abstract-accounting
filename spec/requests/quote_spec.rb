@@ -9,12 +9,6 @@
 
 require 'spec_helper'
 
-def should_present_quote(quote)
-  page.should have_content(quote.money.alpha_code)
-  page.should have_content(quote.day.strftime('%Y-%m-%d'))
-  page.should have_content(quote.rate.to_i)
-end
-
 feature 'quote', %q{
   As an user
   I want to view quote
@@ -36,68 +30,19 @@ feature 'quote', %q{
     page.should have_xpath("//ul[@id='slide_menu_lists']" +
                            "/li[@id='quote' and @class='sidebar-selected']")
 
-    within('#container_documents table') do
-      within('thead tr') do
-        page.should have_content(I18n.t('views.quote.resource'))
-        page.should have_content(I18n.t('views.quote.date'))
-        page.should have_content(I18n.t('views.quote.rate'))
-      end
+    titles = [I18n.t('views.quote.resource'), I18n.t('views.quote.date'),
+              I18n.t('views.quote.rate')]
 
-      within('tbody') do
-        page.should have_selector('tr', count: per_page)
-        quote.each_with_index do |q, i|
-          within(:xpath, ".//tr[#{i + 1}]") do
-            should_present_quote(q)
-          end
-        end
-      end
+    check_header("#container_documents table", titles)
+    check_content("#container_documents table", quote) do |item|
+      [item.money.alpha_code, item.day.strftime('%Y-%m-%d'), item.rate.to_i]
     end
 
-    within("div[@class='paginate']") do
-      find("span[@data-bind='text: range']").
-          should have_content("1-#{per_page}")
-
-      find("span[@data-bind='text: count']").
-          should have_content(count.to_s)
-
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
-    end
-
-    within("div[@class='paginate']") do
-      click_button('>')
-
-      to_range = count > (per_page * 2) ? per_page * 2 : count
-
-      find("span[@data-bind='text: range']").
-          should have_content("#{per_page + 1}-#{to_range}")
-
-      find("span[@data-bind='text: count']").
-          should have_content(count.to_s)
-
-      find_button('<')[:disabled].should eq('false')
-    end
-
+    check_paginate("div[@class='paginate']", count, per_page)
+    next_page("div[@class='paginate']")
     quote = Quote.limit(per_page).offset(per_page)
-    within('#container_documents table tbody') do
-      count_on_page = count - per_page > per_page ? per_page : count - per_page
-
-      page.should have_selector('tr', count: count_on_page)
-      quote.each_with_index do |q, i|
-        within(:xpath, ".//tr[#{i + 1}]") do
-          should_present_quote(q)
-        end
-      end
-    end
-
-    within("div[@class='paginate']") do
-      click_button('<')
-
-      find("span[@data-bind='text: range']").
-          should have_content("1-#{per_page}")
-
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
+    check_content("#container_documents table", quote) do |item|
+      [item.money.alpha_code, item.day.strftime('%Y-%m-%d'), item.rate.to_i]
     end
   end
 end

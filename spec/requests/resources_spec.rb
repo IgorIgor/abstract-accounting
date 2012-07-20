@@ -33,78 +33,23 @@ feature 'assets', %q{
     page.should have_xpath("//ul[@id='slide_menu_lists']"+
                             "//li[@id='resources' and @class='sidebar-selected']")
 
-    within('#container_documents table') do
-      within('thead tr') do
-        page.should have_content(I18n.t('views.resources.tag'))
-        page.should have_content(I18n.t('views.resources.ext_info'))
-        page.should have_content(I18n.t('views.resources.type'))
-      end
+    titles = [I18n.t('views.resources.tag'), I18n.t('views.resources.ext_info'),
+              I18n.t('views.resources.type')]
 
-      within('tbody') do
-        resources.each_with_index do |res, i|
-          within(:xpath, ".//tr[#{i + 1}]") do
-            page.should have_content(res.tag)
-            page.should have_content(res.ext_info)
-            page.should have_content(
-              I18n.t("activerecord.models.#{res.type.tableize.singularize}"))
-          end
-        end
-      end
+    check_header("#container_documents table", titles)
+
+    check_content("#container_documents table", resources) do |res|
+      [res.tag, res.ext_info, I18n.t("activerecord.models.#{res.type.tableize.singularize}")]
     end
 
-    within("div[@class='paginate']") do
-      find("span[@data-bind='text: range']").
-          should have_content("1-#{per_page}")
-
-      find("span[@data-bind='text: count']").
-          should have_content(count.to_s)
-
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
-    end
-
-    within("#container_documents table tbody") do
-      page.should have_selector('tr', count: per_page)
-    end
-
-    within("div[@class='paginate']") do
-      click_button('>')
-
-      to_range = count > (per_page * 2) ? per_page * 2 : count
-
-      find("span[@data-bind='text: range']").
-          should have_content("#{per_page + 1}-#{to_range}")
-
-      find("span[@data-bind='text: count']").
-          should have_content(count.to_s)
-
-      find_button('<')[:disabled].should eq('false')
-    end
+    check_paginate("div[@class='paginate']", count, per_page)
+    next_page("div[@class='paginate']")
 
 
     resources = Resource.all(page: 2, per_page: per_page)
 
-    within('#container_documents table tbody') do
-      count_on_page = count - per_page > per_page ? per_page : count - per_page
-      page.should have_selector('tr', count: count_on_page)
-      resources.each_with_index do |res, i|
-        within(:xpath, ".//tr[#{i + 1}]") do
-          page.should have_content(res.tag)
-          page.should have_content(res.ext_info)
-          page.should have_content(
-            I18n.t("activerecord.models.#{res.type.tableize.singularize}"))
-        end
-      end
-    end
-
-    within("div[@class='paginate']") do
-      click_button('<')
-
-      find("span[@data-bind='text: range']").
-          should have_content("1-#{per_page}")
-
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
+    check_content("#container_documents table", resources) do |res|
+      [res.tag, res.ext_info, I18n.t("activerecord.models.#{res.type.tableize.singularize}")]
     end
   end
 

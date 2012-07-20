@@ -57,20 +57,19 @@ def show_waybill(waybill)
 
 end
 
-def should_present_waybill(waybill)
-  page.should have_content(waybill.created.strftime('%Y-%m-%d'))
-  page.should have_content(waybill.document_id)
-  page.should have_content(waybill.distributor.name)
-  page.should have_content(waybill.storekeeper.tag)
-  page.should have_content(waybill.storekeeper_place.tag)
-  state =
-      case waybill.state
-        when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-        when Statable::INWORK then I18n.t('views.statable.inwork')
-        when Statable::CANCELED then I18n.t('views.statable.canceled')
-        when Statable::APPLIED then I18n.t('views.statable.applied')
-      end
-  page.should have_content(state)
+def should_present_waybill(waybills)
+  check_group_content('#container_documents table', waybills) do |waybill|
+    state =
+        case waybill.state
+          when Statable::UNKNOWN then I18n.t('views.statable.unknown')
+          when Statable::INWORK then I18n.t('views.statable.inwork')
+          when Statable::CANCELED then I18n.t('views.statable.canceled')
+          when Statable::APPLIED then I18n.t('views.statable.applied')
+        end
+    [waybill.created.strftime('%Y-%m-%d'), waybill.document_id,
+     waybill.distributor.name, waybill.storekeeper.tag,
+     waybill.storekeeper_place.tag, state]
+  end
 end
 
 feature "waybill", %q{
@@ -420,70 +419,20 @@ feature "waybill", %q{
       "/ul[@id='slide_menu_deals']" +
       "/li[@id='waybills' and @class='sidebar-selected']")
 
-    within('#container_documents table') do
-      within('thead tr') do
-        page.should have_content(I18n.t('views.waybills.created_at'))
-        page.should have_content(I18n.t('views.waybills.document_id'))
-        page.should have_content(I18n.t('views.waybills.distributor'))
-        page.should have_content(I18n.t('views.waybills.storekeeper'))
-        page.should have_content(I18n.t('views.waybills.storekeeper_place'))
-        page.should have_content(I18n.t('views.statable.state'))
-      end
-
-      within('tbody') do
-        waybills.each do |waybill|
-          should_present_waybill(waybill)
-        end
-      end
-    end
-
-    within("div[@class='paginate']") do
-      find("span[@data-bind='text: range']").
-          should have_content("1-#{per_page}")
-
-      find("span[@data-bind='text: count']").
-          should have_content(count.to_s)
-
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
-    end
-
-    within("#container_documents table tbody") do
-      page.should have_selector('tr', count: per_page, visible: true)
-    end
-
-    within("div[@class='paginate']") do
-      click_button('>')
-
-      to_range = count > (per_page * 2) ? per_page * 2 : count
-
-      find("span[@data-bind='text: range']").
-          should have_content("#{per_page + 1}-#{to_range}")
-
-      find("span[@data-bind='text: count']").
-          should have_content(count.to_s)
-
-      find_button('<')[:disabled].should eq('false')
-    end
+    titles = [I18n.t('views.waybills.created_at'),
+              I18n.t('views.waybills.document_id'),
+              I18n.t('views.waybills.distributor'),
+              I18n.t('views.waybills.storekeeper'),
+              I18n.t('views.waybills.storekeeper_place'),
+              I18n.t('views.statable.state')]
+    check_header('#container_documents table', titles)
+    should_present_waybill(waybills)
+    check_paginate("div[@class='paginate']", count, per_page)
+    next_page("div[@class='paginate']")
 
     waybills = Waybill.limit(per_page).offset(per_page)
-    within('#container_documents table tbody') do
-      count_on_page = count - per_page > per_page ? per_page : count - per_page
-      page.should have_selector('tr', count: count_on_page, visible: true)
-      waybills.each do |waybill|
-        should_present_waybill(waybill)
-      end
-    end
-
-    within("div[@class='paginate']") do
-      click_button('<')
-
-      find("span[@data-bind='text: range']").
-          should have_content("1-#{per_page}")
-
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
-    end
+    should_present_waybill(waybills)
+    prev_page("div[@class='paginate']")
 
     page.find(:xpath, "//table//tbody//td[contains(.//text(),"+
         " '#{Waybill.first.document_id}')]").click
@@ -588,73 +537,30 @@ feature "waybill", %q{
                                "/ul[@id='slide_menu_deals']" +
                                "/li[@id='waybills' and @class='sidebar-selected']")
 
+    should_present_waybill([wb, wb2])
     within('#container_documents table tbody') do
-      page.should have_selector('tr', count: 2, visible: true)
-
-      should_present_waybill(wb)
-
-      should_present_waybill(wb2)
-
-      page.should have_selector(:xpath,
-                                ".//tr//td[@class='tree-actions-by-wb']
+      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions-by-wb']
                         //div[@class='ui-corner-all ui-state-hover']
                         //span[@class='ui-icon ui-icon-circle-plus']", count: 2)
-      find(:xpath,
-           ".//tr[3]//td[@class='tree-actions-by-wb']").click
+      find(:xpath, ".//tr[3]//td[@class='tree-actions-by-wb']").click
+    end
+    resources2 = wb2.items[0, per_page]
+    count = wb2.items.count
+    count.should eq(per_page + 1)
 
-      resources2 = wb2.items
-      resources2.length.should eq(per_page + 1)
-
-      within("#resource_#{wb2.id}") do
-        page.should have_selector("td[@class='td-inner-table']")
-
-        within("div[@class='paginate']") do
-          within("span[@data-bind='text: range']") do
-            page.should have_content("1-#{per_page}")
-          end
-          within("span[@data-bind='text: count']") do
-            page.should have_content("#{resources2.length}")
-          end
-          find_button('<')[:disabled].should eq('true')
-          find_button('>')[:disabled].should eq('false')
-        end
-        within("table[@class='inner-table'] tbody") do
-          page.should have_selector('tr', count: 10)
-          per_page.times do |i|
-            within(:xpath, ".//tr[#{i + 1}]") do
-              page.should have_content(resources2[i].resource.tag)
-              page.should have_content(resources2[i].resource.mu)
-              page.should have_content(resources2[i].amount)
-              page.should have_content(resources2[i].price)
-              page.should have_content(resources2[i].price *
-                                           resources2[i].amount)
-            end
-          end
-        end
-        within("div[@class='paginate']") do
-          click_button('>')
-          find_button('<')[:disabled].should eq('false')
-          find_button('>')[:disabled].should eq('true')
-        end
-        within("table[@class='inner-table'] tbody") do
-          page.should have_selector('tr', count: 1)
-          within(:xpath, ".//tr[1]") do
-            page.should have_content(resources2[per_page].resource.tag)
-            page.should have_content(resources2[per_page].resource.mu)
-            page.should have_content(resources2[per_page].amount)
-            page.should have_content(resources2[per_page].price)
-            page.should have_content(resources2[per_page].price *
-                                         resources2[per_page].amount)
-          end
-        end
-        within("div[@class='paginate']") do
-          click_button('<')
-          find_button('>')[:disabled].should eq('false')
-          find_button('<')[:disabled].should eq('true')
-        end
-      end
-      find(:xpath,
-           ".//tr[3]//td[@class='tree-actions-by-wb']").click
+    check_paginate("#resource_#{wb2.id} div[@class='paginate']", count, per_page)
+    check_content("#resource_#{wb2.id} table[@class='inner-table']", resources2) do |res|
+      [res.resource.tag, res.resource.mu, res.amount.to_i, res.price.to_i,
+       (res.price * res.amount).to_i]
+    end
+    next_page("#resource_#{wb2.id} div[@class='paginate']")
+    resources2 = wb2.items[per_page, per_page]
+    check_content("#resource_#{wb2.id} table[@class='inner-table']", resources2) do |res|
+      [res.resource.tag, res.resource.mu, res.amount.to_i, res.price.to_i,
+       (res.price * res.amount).to_i]
+    end
+    within('#container_documents table tbody') do
+      find(:xpath, ".//tr[3]//td[@class='tree-actions-by-wb']").click
       page.find("#resource_#{wb2.id}").visible?.should_not be_true
     end
   end
@@ -701,11 +607,9 @@ feature "waybill", %q{
                            "/ul[@id='slide_menu_deals']" +
                            "/li[@id='waybills' and @class='sidebar-selected']")
 
-    within('#container_documents table') do
-
-      test_order = lambda do |field, type|
-        waybills = Waybill.order_by(field: field, type: type).all
-        count = Waybill.count
+    test_order = lambda do |field, type|
+      waybills = Waybill.order_by(field: field, type: type).all
+      within('#container_documents table') do
         within('thead tr') do
           page.find("##{field}").click
           if type == 'asc'
@@ -716,33 +620,26 @@ feature "waybill", %q{
                                    "/span[@class='ui-icon ui-icon-triangle-1-n']")
           end
         end
-        within('tbody') do
-          page.should have_selector('tr', count: count, visible: true)
-          [1,3,5].each_with_index do |num, i|
-            within(:xpath, ".//tr[#{num}]") do
-              should_present_waybill(waybills[i])
-             end
-          end
-        end
       end
-
-      test_order.call('created','asc')
-      test_order.call('created','desc')
-
-      test_order.call('document_id','asc')
-      test_order.call('document_id','desc')
-
-      test_order.call('distributor','asc')
-      test_order.call('distributor','desc')
-
-      test_order.call('storekeeper','asc')
-      test_order.call('storekeeper','desc')
-
-      test_order.call('storekeeper_place','asc')
-      test_order.call('storekeeper_place','desc')
-
-      test_order.call('state','asc')
-      test_order.call('state','desc')
+      should_present_waybill(waybills)
     end
+
+    test_order.call('created','asc')
+    test_order.call('created','desc')
+
+    test_order.call('document_id','asc')
+    test_order.call('document_id','desc')
+
+    test_order.call('distributor','asc')
+    test_order.call('distributor','desc')
+
+    test_order.call('storekeeper','asc')
+    test_order.call('storekeeper','desc')
+
+    test_order.call('storekeeper_place','asc')
+    test_order.call('storekeeper_place','desc')
+
+    test_order.call('state','asc')
+    test_order.call('state','desc')
   end
 end

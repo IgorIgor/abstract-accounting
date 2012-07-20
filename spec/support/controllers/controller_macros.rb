@@ -60,6 +60,103 @@ module ControllerMacros
       all(:xpath, './/li//a')[0].click
     end
   end
+
+  def check_header(table_selector, items)
+    within(table_selector) do
+      within('thead tr') do
+        items.each do |item|
+          #page.has_content?(item).should eq(true)
+          page.should have_content(item)
+        end
+      end
+    end
+  end
+
+  def check_content(table_selector, items, count_per_item = 1)
+    within(table_selector) do
+      within('tbody') do
+        page.should have_selector('tr', count: count_per_item * items.count, visible: true)
+        items.each_with_index do |item, i|
+          count_per_item.times do |idx|
+            within(:xpath, ".//tr[#{i * count_per_item + idx + 1}]") do
+              content = yield(item, i * count_per_item + idx)
+              content.each do |field|
+                page.should have_content(field)
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  def check_group_content(table_selector, items)
+    within(table_selector) do
+      within('tbody') do
+        page.should have_selector('tr', count: items.count, visible: true)
+        items.each_with_index do |item, i|
+          within(:xpath, ".//tr[#{i * 2 + 1}]") do
+            content = yield(item)
+            content.each do |field|
+              page.should have_content(field)
+            end
+          end
+        end
+      end
+    end
+  end
+
+  def check_paginate(paginate_selector, count_all, per_page)
+    within(paginate_selector) do
+      if count_all < per_page
+        per_page = count_all
+      end
+      find("span[@data-bind='text: range']").
+          should have_content("1-#{per_page}")
+
+      find("span[@data-bind='text: count']").should have_content(count_all.to_s)
+
+      find_button('<')[:disabled].should eq('true')
+      if count_all > per_page
+        find_button('>')[:disabled].should eq('false')
+      else
+        find_button('>')[:disabled].should eq('true')
+      end
+
+      if count_all > per_page
+        click_button('>')
+
+        to_range = count_all > (per_page * 2) ? per_page * 2 : count_all
+
+        find("span[@data-bind='text: range']").
+            should have_content("#{per_page + 1}-#{to_range}")
+
+        find("span[@data-bind='text: count']").
+            should have_content(count_all.to_s)
+
+        find_button('<')[:disabled].should eq('false')
+        click_button('<')
+
+        find("span[@data-bind='text: range']").
+            should have_content("1-#{per_page}")
+
+        find_button('<')[:disabled].should eq('true')
+        find_button('>')[:disabled].should eq('false')
+      end
+    end
+  end
+
+  def next_page(paginate_selector)
+    within(paginate_selector) do
+      click_button('>')
+    end
+  end
+
+  def prev_page(paginate_selector)
+    within(paginate_selector) do
+      click_button('<')
+    end
+  end
 end
 
 RSpec.configure do |config|

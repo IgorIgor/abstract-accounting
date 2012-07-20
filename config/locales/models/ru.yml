@@ -2,7 +2,9 @@ ru:
   activerecord:
     models:
       asset: Ресурс
+      entity: Лицо
       group: Группа
+      legal_entity: Юр. лицо
       money: Деньги
       waybill: Накладная
     attributes:

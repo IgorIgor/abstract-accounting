@@ -21,8 +21,11 @@ feature 'entities', %q{
   scenario 'view entities', js: true do
     per_page = Settings.root.per_page
     (per_page + 1).times { create(:entity) }
-    entities = Entity.limit(per_page)
-    count = Entity.count
+    create(:legal_entity)
+
+    entities = SubjectOfLaw.all(page: 1, per_page: per_page)
+    count = SubjectOfLaw.count
+
     page_login
     page.find('#btn_slide_lists').click
     click_link I18n.t('views.home.entities')
@@ -33,11 +36,16 @@ feature 'entities', %q{
     within('#container_documents table') do
       within('thead tr') do
         page.should have_content(I18n.t('views.entities.tag'))
+        page.should have_content(I18n.t('views.entities.type'))
       end
 
       within('tbody') do
-        entities.each do |entity|
-          page.should have_content(entity.tag)
+        entities.each_with_index do |entity, i|
+          within(:xpath, ".//tr[#{i + 1}]") do
+            page.should have_content(entity.tag)
+            page.should have_content(
+              I18n.t("activerecord.models.#{entity.type.tableize.singularize}"))
+          end
         end
       end
     end
@@ -71,12 +79,17 @@ feature 'entities', %q{
       find_button('<')[:disabled].should eq('false')
     end
 
-    entities = Entity.limit(per_page).offset(per_page)
+    entities = SubjectOfLaw.all(page: 2, per_page: per_page)
+
     within('#container_documents table tbody') do
       count_on_page = count - per_page > per_page ? per_page : count - per_page
       page.should have_selector('tr', count: count_on_page)
-      entities.each do |entity|
-        page.should have_content(entity.tag)
+      entities.each_with_index do |entity, i|
+        within(:xpath, ".//tr[#{i + 1}]") do
+          page.should have_content(entity.tag)
+          page.should have_content(
+            I18n.t("activerecord.models.#{entity.type.tableize.singularize}"))
+        end
       end
     end
 

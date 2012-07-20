@@ -2,3 +2,4 @@ ru:
   views:
     entities:
       tag: "Имя"
+      type: Тип

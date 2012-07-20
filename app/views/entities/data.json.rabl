@@ -10,6 +10,10 @@
 object false
 child(@entities => :objects) do
   attributes :id, :tag
+  node(:klass) { |entity| entity.type }
+  node(:type) do |entity|
+    I18n.t("activerecord.models.#{entity.type.tableize.singularize}")
+  end
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

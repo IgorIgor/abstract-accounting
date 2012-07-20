@@ -2,11 +2,13 @@
   <thead>
     <tr>
       <th><%= t 'views.entities.tag' %></th>
+      <th><%= t 'views.entities.type' %></th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">
     <tr>
       <td data-bind="text: tag, click: $parent.showBalances"></td>
+      <td data-bind="text: type, click: $parent.showBalances"></td>
     </tr>
   </tbody>
 </table>

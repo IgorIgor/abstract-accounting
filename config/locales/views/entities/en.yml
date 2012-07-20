@@ -2,3 +2,4 @@ en:
   views:
     entities:
       tag: "Tag"
+      type: Type

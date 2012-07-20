@@ -7,8 +7,7 @@
 #
 # Please see ./COPYING for details
 
-class Resource < Combined
-  klasses [Asset, Money]
-  combined_attribute :tag, Asset: :tag, Money: :alpha_code
-  combined_attribute :ext_info, Asset: :mu, Money: :num_code
+class SubjectOfLaw < Combined
+  klasses [Entity, LegalEntity]
+  combined_attribute :tag, Entity: :tag, LegalEntity: :name
 end

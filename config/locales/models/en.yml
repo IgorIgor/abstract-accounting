@@ -2,7 +2,9 @@ en:
   activerecord:
     models:
       asset: Asset
+      entity: Entity
       group: Group
+      legal_entity: Legal entity
       money: Money
       waybill: Waybill
     attributes:

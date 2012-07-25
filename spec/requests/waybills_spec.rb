@@ -426,6 +426,38 @@ feature "waybill", %q{
               I18n.t('views.waybills.storekeeper_place'),
               I18n.t('views.statable.state')]
     check_header('#container_documents table', titles)
+
+    page.find("#show-filter").click
+    within('#filter-area') do
+      titles.each do |title|
+        page.should have_content(title)
+      end
+
+      fill_in('filter_created_at', with: waybills[3].created.strftime('%Y-%m-%d'))
+      fill_in('filter_document_id', with: waybills[3].document_id)
+      fill_in('filter_distributor', with: waybills[3].distributor.name)
+      fill_in('filter_storekeeper', with: waybills[3].storekeeper.tag)
+      fill_in('filter_storekeeper_place', with: waybills[3].storekeeper_place.tag)
+      select(I18n.t('views.statable.inwork'), from: 'filter_state')
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    should_present_waybill([waybills[3]])
+    check_paginate("div[@class='paginate']", 1, 1)
+
+    page.find("#show-filter").click
+    within('#filter-area') do
+      fill_in('filter_created_at', with: '')
+      fill_in('filter_document_id', with: '')
+      fill_in('filter_distributor', with: '')
+      fill_in('filter_storekeeper', with: '')
+      fill_in('filter_storekeeper_place', with: '')
+      select('', from: 'filter_state')
+
+      click_button(I18n.t('views.home.search'))
+    end
+
     should_present_waybill(waybills)
     check_paginate("div[@class='paginate']", count, per_page)
     next_page("div[@class='paginate']")

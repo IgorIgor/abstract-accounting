@@ -3,9 +3,18 @@ $ ->
     constructor: (data) ->
       @url = '/waybills/data.json'
 
+      @filter =
+        created: ko.observable('')
+        document_id: ko.observable('')
+        distributor: ko.observable('')
+        storekeeper: ko.observable('')
+        storekeeper_place: ko.observable('')
+        state: ko.observable('')
+
       super(data)
 
       @params =
+        search: @filter
         page: @page
         per_page: @per_page
 

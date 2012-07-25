@@ -73,6 +73,33 @@ class Waybill < ActiveRecord::Base
     scope
   end
 
+  def self.search(attrs = {})
+    scope = attrs.keys.inject(scoped) do |mem, key|
+      case key
+        when 'distributor'
+          mem.joins{deal.rules.from.entity(LegalEntity)}.group{waybills.id}
+        when 'storekeeper'
+          mem.joins{deal.entity(Entity)}
+        when 'storekeeper_place'
+          mem.joins{deal.take.place}
+        else
+          mem
+      end
+    end
+    attrs.inject(scope) do |mem, (key, value)|
+      case key
+        when 'distributor'
+          mem.where{lower(deal.rules.from.entity.name).like(lower("%#{value}%"))}
+        when 'storekeeper'
+          mem.where{lower(deal.entity.tag).like(lower("%#{value}%"))}
+        when 'storekeeper_place'
+          mem.where{lower(deal.take.place.tag).like(lower("%#{value}%"))}
+        else
+          mem.where{lower(__send__(key)).like(lower("%#{value}%"))}
+      end
+    end
+  end
+
   def self.in_warehouse(attrs = {})
     condition = ''
     if attrs.has_key?(:where)

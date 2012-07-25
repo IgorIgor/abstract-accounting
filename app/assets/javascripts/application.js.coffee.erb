@@ -200,13 +200,11 @@ $ ->
         el.addClass('ui-icon ui-icon-triangle-1-s')
 
       if @orders[key] == true
-        @params =
-          order:
-            type: 'asc'
+        @params['order'] = {}
+        @params['order']['type'] = 'asc'
       else
-        @params =
-          order:
-            type: 'desc'
+        @params['order'] = {}
+        @params['order']['type'] = 'desc'
       @params['order']['field'] = key
       @getPaginateData()
 

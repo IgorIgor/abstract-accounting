@@ -1,3 +1,25 @@
+<div id="filter-area" class="filter-area">
+  <label><%=t 'views.waybills.created_at' %></label>
+  <input type="text" id="filter_created_at" data-bind="value: filter.created"/>
+  <label><%=t 'views.waybills.document_id' %></label>
+  <input type="text" id="filter_document_id" data-bind="value: filter.document_id"/>
+  <label><%=t 'views.waybills.distributor' %></label>
+  <input type="text" id="filter_distributor" data-bind="value: filter.distributor"/>
+  <label><%=t 'views.waybills.storekeeper' %></label>
+  <input type="text" id="filter_storekeeper" data-bind="value: filter.storekeeper"/>
+  <label><%=t 'views.waybills.storekeeper_place' %></label>
+  <input type="text" id="filter_storekeeper_place" data-bind="value: filter.storekeeper_place"/>
+  <label><%=t 'views.statable.state' %></label>
+  <select id="filter_state" data-bind="value: filter.state">
+    <option value=""></option>
+    <option value="1"><%=t 'views.statable.inwork' %></option>
+    <option value="2"><%=t 'views.statable.canceled' %></option>
+    <option value="3"><%=t 'views.statable.applied' %></option>
+  </select>
+  <input type="button" value="<%=t 'views.home.search' %>"
+         data-bind="click: filterData"/>
+</div>
+
 <table>
   <thead>
     <tr>

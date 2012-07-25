@@ -764,6 +764,40 @@ describe Waybill do
     wbs_test = Waybill.order('state DESC').all
     wbs.should eq(wbs_test)
   end
+
+  it 'should filter waybills' do
+    wb = build(:waybill)
+    wb.add_item(tag: 'roof_1', mu: 'rm_1', amount: 100, price: 120.0)
+    wb.add_item(tag: 'roof_3', mu: 'rm_1', amount: 100, price: 120.0)
+    wb.save
+    wb.apply
+    wb2 = build(:waybill, distributor: wb.distributor)
+    wb2.add_item(tag: 'roof_2', mu: 'rm_2', amount: 100, price: 120.0)
+    wb2.save
+
+    Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d'), 'document_id' => wb.document_id,
+                     'distributor' => wb.distributor.name, 'storekeeper' => wb.storekeeper.tag,
+                     'storekeeper_place' => wb.storekeeper_place.tag }).include?(wb).should be_true
+    Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d'), 'document_id' => wb.document_id,
+                     'distributor' => wb.distributor.name, 'storekeeper' => wb.storekeeper.tag,
+                     'storekeeper_place' => wb.storekeeper_place.tag }).include?(wb2).should be_false
+    Waybill.search({ 'created' => wb2.created.strftime('%Y-%m-%d'), 'document_id' => wb2.document_id,
+                     'distributor' => wb2.distributor.name, 'storekeeper' => wb2.storekeeper.tag,
+                     'storekeeper_place' => wb2.storekeeper_place.tag }).include?(wb2).should be_true
+    Waybill.search({ 'created' => wb2.created.strftime('%Y-%m-%d'), 'document_id' => wb2.document_id,
+                     'distributor' => wb2.distributor.name, 'storekeeper' => wb2.storekeeper.tag,
+                     'storekeeper_place' => wb2.storekeeper_place.tag }).include?(wb).should be_false
+
+    Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d') }).include?(wb).should be_true
+    Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d') }).include?(wb2).should be_true
+
+    Waybill.search({ 'state' => Waybill::APPLIED }).include?(wb).should be_true
+    Waybill.search({ 'created' => Waybill::APPLIED }).include?(wb2).should be_false
+
+    Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d'), 'document_id' => wb.document_id,
+                     'distributor' => wb.distributor.name, 'storekeeper' => wb.storekeeper.tag,
+                     'storekeeper_place' => wb.storekeeper_place.tag }).length.should eq(1)
+  end
 end
 
 describe ItemsValidator do

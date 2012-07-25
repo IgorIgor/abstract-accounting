@@ -66,25 +66,25 @@ feature "GeneralLedger", %q{
       end
     end
     check_paginate("div[@class='paginate']", gl_count, per_page)
-    #next_page("div[@class='paginate']")
-    #
-    #gl = GeneralLedger.paginate(page: 2).all
-    #check_content("#container_documents table", gl, 2) do |txn, i|
-    #  if i % 2 == 0
-    #    [txn.fact.day.strftime('%Y-%m-%d'),
-    #     txn.fact.amount.to_s,
-    #     txn.fact.resource.tag,
-    #     txn.fact.to.tag,
-    #     txn.value,
-    #     txn.earnings]
-    #  elsif txn.fact.from
-    #    [txn.fact.from.tag,
-    #     txn.value,
-    #     txn.earnings]
-    #  else
-    #    []
-    #  end
-    #end
+    next_page("div[@class='paginate']")
+
+    gl = GeneralLedger.paginate(page: 2).all
+    check_content("#container_documents table", gl, 2) do |txn, i|
+      if i % 2 == 0
+        [txn.fact.day.strftime('%Y-%m-%d'),
+         txn.fact.amount.to_s,
+         txn.fact.resource.tag,
+         txn.fact.to.tag,
+         txn.value,
+         txn.earnings]
+      elsif txn.fact.from
+        [txn.fact.from.tag,
+         txn.value,
+         txn.earnings]
+      else
+        []
+      end
+    end
 
     GeneralLedger.paginate(page: 1).all.each do |txn|
       txn.fact.update_attributes(day: 1.months.since.change(day: 13))

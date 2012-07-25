@@ -23,6 +23,7 @@ $ ->
         date: @date().toString()
 
     filter: =>
+      @page(1)
       @params =
         date: @date().toString()
         page: @page

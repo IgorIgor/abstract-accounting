@@ -428,6 +428,103 @@ describe Allocation do
     als_test = Allocation.order('state DESC').all
     als.should eq(als_test)
   end
+
+  it 'should search allocations' do
+    moscow = create(:place)
+    kiev = create(:place)
+    amsterdam = create(:place)
+    ivanov = create(:entity)
+    petrov = create(:entity)
+    antonov = create(:entity)
+    pupkin = create(:entity)
+
+    wb1 = build(:waybill, created: Date.new(2011,12,11), document_id: 111,
+                distributor: petrov, storekeeper: ivanov,
+                storekeeper_place: moscow)
+    wb1.add_item(tag: '2foo', mu: 'rm', amount: 100, price: 120.0)
+    wb1.add_item(tag: '2foo2', mu: 'rm2', amount: 100, price: 120.0)
+    wb1.save!
+    wb1.apply
+
+    wb2 = build(:waybill, created: Date.new(2011,12,12), document_id: 131,
+                distributor: ivanov, storekeeper: pupkin,
+                storekeeper_place: kiev)
+    wb2.add_item(tag: '2foo', mu: 'rm', amount: 100, price: 120.0)
+    wb2.save!
+    wb2.apply
+
+    wb3 = build(:waybill, created: Date.new(2011,12,13), document_id: 121,
+                distributor: pupkin, storekeeper: antonov,
+                storekeeper_place: amsterdam)
+    wb3.add_item(tag: '2foo', mu: 'rm', amount: 100, price: 120.0)
+    wb3.save!
+    wb3.apply
+
+    al1 = build(:allocation, created: Date.new(2011,12,11),
+                storekeeper: wb1.storekeeper, storekeeper_place: wb1.storekeeper_place,
+                foreman: pupkin)
+    al1.add_item(tag: '2foo', mu: 'rm', amount: 33)
+    al1.add_item(tag: '2foo2', mu: 'rm2', amount: 33)
+    al1.save!
+    al1.apply
+
+    al2 = build(:allocation, created: Date.new(2011,12,12),
+                storekeeper: wb2.storekeeper, storekeeper_place: wb2.storekeeper_place,
+                foreman: antonov)
+    al2.add_item(tag: '2foo', mu: 'rm', amount: 33)
+    al2.save!
+
+    al3 = build(:allocation, created: Date.new(2011,12,13),
+                storekeeper: wb3.storekeeper, storekeeper_place: wb3.storekeeper_place,
+                foreman: ivanov)
+    al3.add_item(tag: '2foo', mu: 'rm', amount: 33)
+    al3.save!
+    al3.apply
+
+    Allocation.search({"created" => al1.created.strftime('%Y-%m-%d')}).should =~ [al1]
+    Allocation.search({"created" => al1.created.strftime('%Y-%m-%d')[0, 4]}).
+        should =~ Allocation.
+        where{lower(created).like(lower("%#{al1.created.strftime('%Y-%m-%d')[0, 4]}%"))}
+    Allocation.search({"created" => DateTime.now.strftime('%Y-%m-%d')}).should be_empty
+
+    Allocation.search({"state" => Statable::INWORK}).should =~ Allocation.
+        where{state == Statable::INWORK}
+    Allocation.search({"state" => Statable::UNKNOWN}).should be_empty
+
+    Allocation.search({"storekeeper" => al1.storekeeper.tag}).should =~ [al1]
+    Allocation.search({"storekeeper" => al1.storekeeper.tag[0, 4]}).
+        should =~ Allocation.joins{deal.entity(Entity)}.
+        where{lower(deal.entity.tag).like(lower("%#{al1.storekeeper.tag[0, 4]}%"))}
+    Allocation.search({"storekeeper" => create(:entity).tag}).should be_empty
+
+    Allocation.search({"foreman" => al1.foreman.tag}).should =~ [al1]
+    Allocation.search({"foreman" => al1.foreman.tag[0, 4]}).
+        should =~ Allocation.joins{deal.rules.to.entity(Entity)}.
+        where{lower(deal.rules.to.entity.tag).like(lower("%#{al1.foreman.tag[0, 4]}%"))}.
+        group{id}
+    Allocation.search({"foreman" => create(:entity).tag}).should be_empty
+
+    Allocation.search({"storekeeper_place" => al1.storekeeper_place.tag}).should =~ [al1]
+    Allocation.search({"storekeeper_place" => al1.storekeeper_place.tag[0, 4]}).
+        should =~ Allocation.joins{deal.give.place}.
+        where{lower(deal.give.place.tag).like(lower("%#{al1.storekeeper_place.tag[0, 4]}%"))}
+    Allocation.search({"storekeeper_place" => create(:place).tag}).should be_empty
+
+    Allocation.search({"resource" => al1.items[1].resource.tag}).should =~ [al1]
+    Allocation.search({"resource" => al1.items[0].resource.tag}).
+        should =~ Allocation.joins{deal.rules.from.give.resource(Asset)}.
+        where do
+          lower(deal.rules.from.give.resource.tag).
+              like(lower("%#{al1.items[0].resource.tag}%"))
+        end.group{allocations.id}
+    Allocation.search({"resource" => create(:asset).tag}).should be_empty
+
+    Allocation.search({"resource" => al1.items[0].resource.tag,
+                       "created" => al2.created.strftime('%Y-%m-%d')}).should =~ [al2]
+
+    Allocation.search({"foreman" => al2.foreman.tag,
+                       "storekeeper" => al2.storekeeper.tag}).should =~ [al2]
+  end
 end
 
 describe AllocationItemsValidator do

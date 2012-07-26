@@ -71,6 +71,37 @@ class Allocation < ActiveRecord::Base
     scope
   end
 
+  def self.search(attrs = {})
+    scope = attrs.keys.inject(scoped) do |mem, key|
+      case key
+        when 'foreman'
+          mem.joins{deal.rules.to.entity(Entity)}.group{allocations.id}
+        when 'storekeeper'
+          mem.joins{deal.entity(Entity)}
+        when 'storekeeper_place'
+          mem.joins{deal.give.place}
+        when 'resource'
+          mem.joins{deal.rules.from.give.resource(Asset)}.group{allocations.id}
+        else
+          mem
+      end
+    end
+    attrs.inject(scope) do |mem, (key, value)|
+      case key
+        when 'foreman'
+          mem.where{lower(deal.rules.to.entity.tag).like(lower("%#{value}%"))}
+        when 'storekeeper'
+          mem.where{lower(deal.entity.tag).like(lower("%#{value}%"))}
+        when 'storekeeper_place'
+          mem.where{lower(deal.give.place.tag).like(lower("%#{value}%"))}
+        when 'resource'
+          mem.where{lower(deal.rules.from.give.resource.tag).like(lower("%#{value}%"))}
+        else
+          mem.where{lower(__send__(key)).like(lower("%#{value}%"))}
+      end
+    end
+  end
+
   def document_id
     Allocation.last.nil? ? 1 : Allocation.last.id + 1
   end

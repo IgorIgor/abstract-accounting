@@ -34,32 +34,27 @@ feature "BalanceSheet", %q{
     current_hash.should eq('balance_sheet')
     page.should have_xpath("//li[@id='balance_sheet' and @class='sidebar-selected']")
 
-    within('#container_documents table') do
-      within('thead tr') do
-        page.should have_content(I18n.t('views.balance_sheet.deal'))
-        page.should have_content(I18n.t('views.balance_sheet.entity'))
-        page.should have_content(I18n.t('views.balance_sheet.resource'))
-        page.should have_content(I18n.t('views.balance_sheet.place'))
-        page.should have_content(I18n.t('views.balance_sheet.debit'))
-        page.should have_content(I18n.t('views.balance_sheet.credit'))
+    titles = [
+        I18n.t('views.balance_sheet.deal'),
+        I18n.t('views.balance_sheet.entity'),
+        I18n.t('views.balance_sheet.resource'),
+        I18n.t('views.balance_sheet.place'),
+        I18n.t('views.balance_sheet.debit'),
+        I18n.t('views.balance_sheet.credit')
+    ]
+    check_header("#container_documents table", titles)
+    check_content("#container_documents table", bs) do |balance|
+      if Balance::PASSIVE == balance.side
+        find(:xpath, ".//td[5]").should have_content('')
+      else
+        find(:xpath, ".//td[4]").should have_content('')
       end
-
-      within('tbody') do
-        bs.each_with_index do |balance, idx|
-          within(:xpath, ".//tr[#{idx + 1}]") do
-            page.should have_content(balance.deal.tag)
-            page.should have_content(balance.deal.entity.name)
-            page.should have_content(balance.deal.give.resource.tag)
-            page.should have_content(balance.deal.give.place.tag)
-            if Balance::PASSIVE == balance.side
-              find(:xpath, ".//td[5]").should have_content('')
-            else
-              find(:xpath, ".//td[4]").should have_content('')
-            end
-            page.should have_content(balance.amount)
-          end
-        end
-      end
+      [balance.deal.tag,
+       balance.deal.entity.name,
+       balance.deal.give.resource.tag,
+       balance.deal.give.place.tag,
+       balance.amount
+      ]
     end
 
     within("div[@id='main'] div[@id='container_documents'] table tfoot tr") do
@@ -67,43 +62,25 @@ feature "BalanceSheet", %q{
       page.should have_content(bs.assets.to_s)
     end
 
-    within("div[@class='paginate']") do
-      find("span[@data-bind='text: range']").
-          should have_content("1-#{per_page}")
-
-      find("span[@data-bind='text: count']").
-          should have_content(bs_count.to_s)
-
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
-    end
-
-    within("#container_documents table tbody") do
-      page.should have_selector('tr', count: per_page)
-    end
-
-    within("div[@class='paginate']") do
-      click_button('>')
-
-      to_range = (bs_count > per_page * 2) ? per_page * 2 : bs_count
-
-      find("span[@data-bind='text: range']").
-          should have_content("#{per_page + 1}-#{to_range}")
-
-      find("span[@data-bind='text: count']").
-          should have_content(bs_count.to_s)
-
-      find_button('<')[:disabled].should eq('false')
-      click_button('<')
-
-      find("span[@data-bind='text: range']").
-          should have_content("1-#{per_page}")
-
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
+    check_paginate("div[@class='paginate']", bs_count, per_page)
+    next_page("div[@class='paginate']")
+    bs = BalanceSheet.paginate(page: 2).all
+    check_content("#container_documents table", bs) do |balance|
+      if Balance::PASSIVE == balance.side
+        find(:xpath, ".//td[5]").should have_content('')
+      else
+        find(:xpath, ".//td[4]").should have_content('')
+      end
+      [balance.deal.tag,
+       balance.deal.entity.name,
+       balance.deal.give.resource.tag,
+       balance.deal.give.place.tag,
+       balance.amount
+      ]
     end
 
     date = DateTime.now.change(day: 10, hour: 12, min: 0, sec: 0).prev_month
+    bs = BalanceSheet.paginate(page: 1).all
     half = (per_page / 2).round
     half.times do |i|
       bs[i].update_attributes(start: date)
@@ -116,50 +93,41 @@ feature "BalanceSheet", %q{
 
     bs = BalanceSheet.date(date).all
     bs_count = BalanceSheet.date(date).db_count
-    to_range = (bs_count > per_page) ? per_page : bs_count
-    within("#container_documents table tbody") do
-      bs.each do |item|
-        page.should have_content(item.deal.tag)
-      end
-    end
-
-    within("div[@class='paginate']") do
-      find("span[@data-bind='text: range']").
-          should have_content("1-#{to_range}")
-
-      find("span[@data-bind='text: count']").
-          should have_content(bs_count.to_s)
-
-      find_button('<')[:disabled].should eq('true')
-      if bs_count > per_page
-        find_button('>')[:disabled].should eq('false')
+    check_content("#container_documents table", bs) do |balance|
+      if Balance::PASSIVE == balance.side
+        find(:xpath, ".//td[5]").should have_content('')
       else
-        find_button('>')[:disabled].should eq('true')
+        find(:xpath, ".//td[4]").should have_content('')
       end
+      [balance.deal.tag,
+       balance.deal.entity.name,
+       balance.deal.give.resource.tag,
+       balance.deal.give.place.tag,
+       balance.amount
+      ]
     end
 
-    within("#container_documents table tbody") do
-      page.should have_selector('tr', count: to_range)
+    within("div[@id='main'] div[@id='container_documents'] table tfoot tr") do
+      page.should have_content(bs.liabilities.to_s)
+      page.should have_content(bs.assets.to_s)
     end
+
+    check_paginate("div[@class='paginate']", bs_count, per_page)
 
     within("div[@id='container_documents']")  do
       choose('natural_mu')
     end
 
-    within("div[@id='main'] div[@id='container_documents'] table tbody") do
-      5.times do |i|
-        page.should have_content(bs[i].amount)
-      end
+    check_content("#container_documents table", bs) do |balance|
+      [balance.amount]
     end
 
     within("div[@id='container_documents']")  do
       choose('currency_mu')
     end
 
-    within("div[@id='main'] div[@id='container_documents'] table tbody") do
-      bs.each do |item|
-        page.should have_content(item.value)
-      end
+    check_content("#container_documents table", bs) do |balance|
+      [balance.value]
     end
 
     within("div[@id='main'] div[@id='container_documents'] table tfoot tr") do
@@ -189,13 +157,18 @@ feature "BalanceSheet", %q{
     current_hash.should eq('balance_sheet')
     page.should have_xpath("//li[@id='balance_sheet' and @class='sidebar-selected']")
 
-    within('#container_documents table tbody') do
-      within(:xpath, ".//tr[1]") do
-        page.should have_content(share.tag)
-        page.should have_content(share.entity.name)
-        page.should have_content(share.give.resource.tag)
-        page.should have_content(share.give.place.tag)
+    check_content("#container_documents table", [share.balance, bank.balance]) do |balance|
+      if Balance::PASSIVE == balance.side
+        find(:xpath, ".//td[5]").should have_content('')
+      else
+        find(:xpath, ".//td[4]").should have_content('')
       end
+      [balance.deal.tag,
+       balance.deal.entity.name,
+       balance.deal.give.resource.tag,
+       balance.deal.give.place.tag,
+       balance.amount
+      ]
     end
 
     check("balance_#{share.balance.id}")
@@ -204,18 +177,17 @@ feature "BalanceSheet", %q{
     page.should have_xpath("//li[@id='transcripts' and @class='sidebar-selected']")
     find_field('deal_tag').value.should have_content(share.tag)
 
+    check_content("#container_documents table", [txn]) do |t|
+      if share.id == t.fact.to.id
+        page.find(:xpath, ".//td[3]").should have_content(t.fact.amount)
+        [t.fact.day.strftime('%Y-%m-%d'), t.fact.from.tag]
+      else
+        page.find(:xpath, ".//td[4]").should have_content(txn.fact.amount)
+        [t.fact.day.strftime('%Y-%m-%d'), t.fact.to.tag]
+      end
+    end
     within('#container_documents table tbody') do
       page.should have_selector('tr', count: 1)
-      page.should have_content(txn.fact.day.strftime('%Y-%m-%d'))
-      if share.id == txn.fact.to.id
-        page.find(:xpath, ".//tr[1]//td[3]").
-            should have_content(txn.fact.amount)
-        page.should have_content(txn.fact.from.tag)
-      else
-        page.find(:xpath, ".//tr[1]//td[4]").
-            should have_content(txn.fact.amount)
-        page.should have_content(txn.fact.to.tag)
-      end
     end
   end
 
@@ -240,13 +212,18 @@ feature "BalanceSheet", %q{
     current_hash.should eq('balance_sheet')
     page.should have_xpath("//li[@id='balance_sheet' and @class='sidebar-selected']")
 
-    within('#container_documents table tbody') do
-      within(:xpath, ".//tr[1]") do
-        page.should have_content(share.tag)
-        page.should have_content(share.entity.name)
-        page.should have_content(share.give.resource.tag)
-        page.should have_content(share.give.place.tag)
+    check_content("#container_documents table", [share.balance, bank.balance]) do |balance|
+      if Balance::PASSIVE == balance.side
+        find(:xpath, ".//td[5]").should have_content('')
+      else
+        find(:xpath, ".//td[4]").should have_content('')
       end
+      [balance.deal.tag,
+       balance.deal.entity.name,
+       balance.deal.give.resource.tag,
+       balance.deal.give.place.tag,
+       balance.amount
+      ]
     end
 
     check("balance_#{share.balance.id}")
@@ -255,18 +232,21 @@ feature "BalanceSheet", %q{
 
     page.should have_xpath("//li[@id='general_ledger' and @class='sidebar-selected']")
 
-    within('#container_documents table tbody') do
-      page.should have_selector('tr', count: 2)
-      page.should have_content(txn.fact.day.strftime('%Y-%m-%d'))
-      page.should have_content(txn.fact.amount.to_s)
-      page.should have_content(txn.fact.resource.tag)
-      page.should have_content(txn.fact.from.tag)
-      page.should have_content(txn.fact.to.tag)
-      page.should have_content(txn.value)
-      page.should have_content(txn.earnings)
-
-      find(:xpath, ".//tr[1]//td[7]").should have_content('')
-      find(:xpath, ".//tr[2]//td[6]").should have_content('')
+    check_content("#container_documents table", [txn], 2) do |t, i|
+      if i % 2 == 0
+        [t.fact.day.strftime('%Y-%m-%d'),
+         t.fact.amount.to_s,
+         t.fact.resource.tag,
+         t.fact.to.tag,
+         t.value,
+         t.earnings]
+      elsif txn.fact.from
+        [t.fact.from.tag,
+         t.value,
+         t.earnings]
+      else
+        []
+      end
     end
   end
 
@@ -296,7 +276,6 @@ feature "BalanceSheet", %q{
     current_hash.should eq('balance_sheet')
 
     within('#container_documents table tbody') do
-      #page.all('tr').count.should eq(per_page)
       page.should have_selector('tr', count: per_page)
     end
 
@@ -325,36 +304,22 @@ feature "BalanceSheet", %q{
           date( DateTime.now).
           all(include: [deal: [:entity, give: [:resource]]])
 
-      within("#group_#{wb.distributor_place.id}") do
-        page.should have_selector("td[@class='td-inner-table']")
 
-        within("div[@class='paginate']") do
-          within("span[@data-bind='text: range']") do
-            page.should have_content("1-#{balances.length}")
-          end
-          within("span[@data-bind='text: count']") do
-            page.should have_content("#{balances.length}")
-          end
-          find_button('<')[:disabled].should eq('true')
-          find_button('>')[:disabled].should eq('true')
+      check_paginate("#group_#{wb.distributor_place.id} div[@class='paginate']",
+                     balances.count, per_page)
+      check_content("#group_#{wb.distributor_place.id} table[@class='inner-table']",
+                    balances) do |balance|
+        if Balance::PASSIVE == balance.side
+          find(:xpath, ".//td[5]").should have_content('')
+        else
+          find(:xpath, ".//td[4]").should have_content('')
         end
-        within("table[@class='inner-table'] tbody") do
-          page.should have_selector('tr', count: balances.length)
-          balances.each_with_index do |balance, idx|
-            within(:xpath, ".//tr[#{idx + 1}]") do
-              page.should have_content(balance.deal.tag)
-              page.should have_content(balance.deal.entity.name)
-              page.should have_content(balance.deal.give.resource.tag)
-              page.should have_content(balance.deal.give.place.tag)
-              if Balance::PASSIVE == balance.side
-                find(:xpath, ".//td[5]").should have_content('')
-              else
-                find(:xpath, ".//td[4]").should have_content('')
-              end
-              page.should have_content(balance.amount)
-            end
-          end
-        end
+        [balance.deal.tag,
+         balance.deal.entity.name,
+         balance.deal.give.resource.tag,
+         balance.deal.give.place.tag,
+         balance.amount
+        ]
       end
       find(:xpath,
            ".//tr[1]//td[@class='tree-actions-by-wb']").click
@@ -364,65 +329,48 @@ feature "BalanceSheet", %q{
            ".//tr[5]//td[@class='tree-actions-by-wb']").click
       balances = BalanceSheet.
           place_id(wb2.distributor_place.id).
+          paginate(page: 1, per_page: per_page).
           date( DateTime.now).
           all(include: [deal: [:entity, give: [:resource]]])
 
-      within("#group_#{wb2.distributor_place.id}") do
-        page.should have_selector("td[@class='td-inner-table']")
-
-        within("div[@class='paginate']") do
-          within("span[@data-bind='text: range']") do
-            page.should have_content("1-#{per_page}")
-          end
-          within("span[@data-bind='text: count']") do
-            page.should have_content("#{balances.length}")
-          end
-          find_button('<')[:disabled].should eq('true')
-          find_button('>')[:disabled].should eq('false')
+      check_paginate("#group_#{wb2.distributor_place.id} div[@class='paginate']",
+                     balances.db_count, per_page)
+      check_content("#group_#{wb2.distributor_place.id} table[@class='inner-table']",
+                    balances) do |balance|
+        if Balance::PASSIVE == balance.side
+          find(:xpath, ".//td[5]").should have_content('')
+        else
+          find(:xpath, ".//td[4]").should have_content('')
         end
-        within("table[@class='inner-table'] tbody") do
-          page.should have_selector('tr', count: per_page)
-          per_page.times do |i|
-            within(:xpath, ".//tr[#{i + 1}]") do
-              page.should have_content(balances[i].deal.tag)
-              page.should have_content(balances[i].deal.entity.name)
-              page.should have_content(balances[i].deal.give.resource.tag)
-              page.should have_content(balances[i].deal.give.place.tag)
-              if Balance::PASSIVE == balances[i].side
-                find(:xpath, ".//td[5]").should have_content('')
-              else
-                find(:xpath, ".//td[4]").should have_content('')
-              end
-              page.should have_content(balances[i].amount)
-            end
-          end
-        end
-        within("div[@class='paginate']") do
-          click_button('>')
-          find_button('<')[:disabled].should eq('false')
-          find_button('>')[:disabled].should eq('true')
-        end
-        within("table[@class='inner-table'] tbody") do
-          page.should have_selector('tr', count: 1)
-          within(:xpath, ".//tr[1]") do
-            page.should have_content(balances[per_page].deal.tag)
-            page.should have_content(balances[per_page].deal.entity.name)
-            page.should have_content(balances[per_page].deal.give.resource.tag)
-            page.should have_content(balances[per_page].deal.give.place.tag)
-            if Balance::PASSIVE == balances[per_page].side
-              find(:xpath, ".//td[5]").should have_content('')
-            else
-              find(:xpath, ".//td[4]").should have_content('')
-            end
-            page.should have_content(balances[per_page].amount)
-          end
-        end
-        within("div[@class='paginate']") do
-          click_button('<')
-          find_button('>')[:disabled].should eq('false')
-          find_button('<')[:disabled].should eq('true')
-        end
+        [balance.deal.tag,
+         balance.deal.entity.name,
+         balance.deal.give.resource.tag,
+         balance.deal.give.place.tag,
+         balance.amount
+        ]
       end
+      next_page("#group_#{wb2.distributor_place.id} div[@class='paginate']")
+      balances = BalanceSheet.
+          place_id(wb2.distributor_place.id).
+          paginate(page: 2, per_page: per_page).
+          date( DateTime.now).
+          all(include: [deal: [:entity, give: [:resource]]])
+
+      check_content("#group_#{wb2.distributor_place.id} table[@class='inner-table']",
+                    balances) do |balance|
+        if Balance::PASSIVE == balance.side
+          find(:xpath, ".//td[5]").should have_content('')
+        else
+          find(:xpath, ".//td[4]").should have_content('')
+        end
+        [balance.deal.tag,
+         balance.deal.entity.name,
+         balance.deal.give.resource.tag,
+         balance.deal.give.place.tag,
+         balance.amount
+        ]
+      end
+      prev_page("#group_#{wb2.distributor_place.id} div[@class='paginate']")
       find(:xpath,
            ".//tr[5]//td[@class='tree-actions-by-wb']").click
       page.find("#group_#{wb2.storekeeper_place.id}").visible?.should_not be_true
@@ -436,25 +384,8 @@ feature "BalanceSheet", %q{
         all(include: [deal: [:entity, give: [:resource]]])
     resources.length.should eq(per_page + 2)
 
-    within("div[@class='paginate']") do
-      within("span[@data-bind='text: range']") do
-        page.should have_content("1-#{per_page}")
-      end
-      within("span[@data-bind='text: count']") do
-        page.should have_content("#{per_page + 2}")
-      end
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
-      click_button('>')
-      find_button('<')[:disabled].should eq('false')
-      find_button('>')[:disabled].should eq('true')
-      within("span[@data-bind='text: range']") do
-        page.should have_content("#{per_page + 1}-#{per_page + 2}")
-      end
-      within("span[@data-bind='text: count']") do
-        page.should have_content("#{per_page + 2}")
-      end
-    end
+    check_paginate("div[@class='paginate']", resources.count, per_page)
+    next_page("div[@class='paginate']")
 
     within('#container_documents table tbody') do
       sleep(1)
@@ -467,11 +398,7 @@ feature "BalanceSheet", %q{
           //span[@class='ui-icon ui-icon-circle-plus']", count: 2)
     end
 
-    within("div[@class='paginate']") do
-      click_button('<')
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
-    end
+    prev_page("div[@class='paginate']")
 
     within('#container_documents table tbody') do
       page.should have_selector('tr', count: per_page, visible: true)
@@ -489,70 +416,38 @@ feature "BalanceSheet", %q{
           date( DateTime.now).
           all(include: [deal: [:entity, give: [:resource]]])
 
-      within("#group_#{resources[0][:group_id]}") do
-        page.should have_selector("td[@class='td-inner-table']")
-
-        within("div[@class='paginate']") do
-          within("span[@data-bind='text: range']") do
-            page.should have_content("1-#{per_page}")
-          end
-          within("span[@data-bind='text: count']") do
-            page.should have_content("#{balances.length}")
-          end
-          find_button('<')[:disabled].should eq('true')
-          find_button('>')[:disabled].should eq('false')
+      check_paginate("#group_#{resources[0][:group_id]} div[@class='paginate']",
+                     balances.db_count, per_page)
+      check_content("#group_#{resources[0][:group_id]} table[@class='inner-table']",
+                    balances[0, per_page]) do |balance|
+        if Balance::PASSIVE == balance.side
+          find(:xpath, ".//td[5]").should have_content('')
+        else
+          find(:xpath, ".//td[4]").should have_content('')
         end
-        within("table[@class='inner-table'] tbody") do
-          page.should have_selector('tr', count: per_page)
-          per_page.times do |i|
-            within(:xpath, ".//tr[#{i + 1}]") do
-              page.should have_content(balances[i].deal.tag)
-              page.should have_content(balances[i].deal.entity.name)
-              page.should have_content(balances[i].deal.give.resource.tag)
-              page.should have_content(balances[i].deal.give.place.tag)
-              if Balance::PASSIVE == balances[i].side
-                find(:xpath, ".//td[5]").should have_content('')
-              else
-                find(:xpath, ".//td[4]").should have_content('')
-              end
-              page.should have_content(balances[i].amount)
-            end
-          end
-        end
-        within("div[@class='paginate']") do
-          click_button('>')
-          find_button('<')[:disabled].should eq('false')
-          find_button('>')[:disabled].should eq('true')
-          within("span[@data-bind='text: range']") do
-            page.should have_content("#{per_page + 1}-#{balances.length}")
-          end
-          within("span[@data-bind='text: count']") do
-            page.should have_content("#{balances.length}")
-          end
-        end
-        within("table[@class='inner-table'] tbody") do
-          page.should have_selector('tr', count: balances.length - per_page)
-          (balances.length - per_page).times do |i|
-            within(:xpath, ".//tr[#{i + 1}]") do
-              page.should have_content(balances[i + per_page].deal.tag)
-              page.should have_content(balances[i + per_page].deal.entity.name)
-              page.should have_content(balances[i + per_page].deal.give.resource.tag)
-              page.should have_content(balances[i + per_page].deal.give.place.tag)
-              if Balance::PASSIVE == balances[i + per_page].side
-                find(:xpath, ".//td[5]").should have_content('')
-              else
-                find(:xpath, ".//td[4]").should have_content('')
-              end
-              page.should have_content(balances[i + per_page].amount)
-            end
-          end
-        end
-        within("div[@class='paginate']") do
-          click_button('<')
-          find_button('<')[:disabled].should eq('true')
-          find_button('>')[:disabled].should eq('false')
-        end
+        [balance.deal.tag,
+         balance.deal.entity.name,
+         balance.deal.give.resource.tag,
+         balance.deal.give.place.tag,
+         balance.amount
+        ]
       end
+      next_page("#group_#{resources[0][:group_id]} div[@class='paginate']")
+      check_content("#group_#{resources[0][:group_id]} table[@class='inner-table']",
+                    balances[per_page, balances.length - per_page]) do |balance|
+        if Balance::PASSIVE == balance.side
+          find(:xpath, ".//td[5]").should have_content('')
+        else
+          find(:xpath, ".//td[4]").should have_content('')
+        end
+        [balance.deal.tag,
+         balance.deal.entity.name,
+         balance.deal.give.resource.tag,
+         balance.deal.give.place.tag,
+         balance.amount
+        ]
+      end
+      prev_page("#group_#{resources[0][:group_id]} div[@class='paginate']")
       find(:xpath,
            ".//tr[1]//td[@class='tree-actions-by-wb']").click
       page.find("#group_#{resources[0][:group_id]}").visible?.should_not be_true
@@ -565,16 +460,8 @@ feature "BalanceSheet", %q{
         all(include: [deal: [:entity, give: [:resource]]])
     entities.length.should eq(4)
 
-    within("div[@class='paginate']") do
-      within("span[@data-bind='text: range']") do
-        page.should have_content("1-#{entities.length}")
-      end
-      within("span[@data-bind='text: count']") do
-        page.should have_content("#{entities.length}")
-      end
-      find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('true')
-    end
+
+    check_paginate("div[@class='paginate']", entities.count, per_page)
 
     within('#container_documents table tbody') do
       sleep(1)
@@ -593,36 +480,21 @@ feature "BalanceSheet", %q{
           date( DateTime.now).
           all(include: [deal: [:entity, give: [:resource]]])
 
-      within("#group_#{entities[0][:group_id]}") do
-        page.should have_selector("td[@class='td-inner-table']")
-
-        within("div[@class='paginate']") do
-          within("span[@data-bind='text: range']") do
-            page.should have_content("1-#{balances.length}")
-          end
-          within("span[@data-bind='text: count']") do
-            page.should have_content("#{balances.length}")
-          end
-          find_button('<')[:disabled].should eq('true')
-          find_button('>')[:disabled].should eq('true')
+      check_paginate("#group_#{entities[0][:group_id]} div[@class='paginate']",
+                     balances.db_count, per_page)
+      check_content("#group_#{entities[0][:group_id]} table[@class='inner-table']",
+                    balances) do |balance|
+        if Balance::PASSIVE == balance.side
+          find(:xpath, ".//td[5]").should have_content('')
+        else
+          find(:xpath, ".//td[4]").should have_content('')
         end
-        within("table[@class='inner-table'] tbody") do
-          page.should have_selector('tr', count: balances.length)
-          balances.each_with_index do |balance, idx|
-            within(:xpath, ".//tr[#{idx + 1}]") do
-              page.should have_content(balance.deal.tag)
-              page.should have_content(balance.deal.entity.name)
-              page.should have_content(balance.deal.give.resource.tag)
-              page.should have_content(balance.deal.give.place.tag)
-              if Balance::PASSIVE == balance.side
-                find(:xpath, ".//td[5]").should have_content('')
-              else
-                find(:xpath, ".//td[4]").should have_content('')
-              end
-              page.should have_content(balance.amount)
-            end
-          end
-        end
+        [balance.deal.tag,
+         balance.deal.entity.name,
+         balance.deal.give.resource.tag,
+         balance.deal.give.place.tag,
+         balance.amount
+        ]
       end
       find(:xpath,
            ".//tr[1]//td[@class='tree-actions-by-wb']").click

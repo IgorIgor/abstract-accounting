@@ -143,6 +143,7 @@ $ ->
         location.hash = "#balance_sheet?group_by=#{@group_by()}"
 
     filter: =>
+      @page(1)
       @params =
         date: @balances_date().toString()
         page: @page

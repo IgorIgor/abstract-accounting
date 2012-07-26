@@ -30,6 +30,7 @@ ru:
       ident_name_MSRN: "ОГРН"
       ident_name_VATIN: "ИНН"
       resource:
+        name: Название ресурса
         tag: Название
         mu: Ед. изм
         amount: Количество

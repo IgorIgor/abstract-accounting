@@ -438,6 +438,7 @@ feature "waybill", %q{
       fill_in('filter_distributor', with: waybills[3].distributor.name)
       fill_in('filter_storekeeper', with: waybills[3].storekeeper.tag)
       fill_in('filter_storekeeper_place', with: waybills[3].storekeeper_place.tag)
+      fill_in('filter_resource_name', with: waybills[3].items[0].resource.tag)
       select(I18n.t('views.statable.inwork'), from: 'filter_state')
 
       click_button(I18n.t('views.home.search'))
@@ -454,6 +455,7 @@ feature "waybill", %q{
       fill_in('filter_storekeeper', with: '')
       fill_in('filter_storekeeper_place', with: '')
       select('', from: 'filter_state')
+      fill_in('filter_resource_name', with: '')
 
       click_button(I18n.t('views.home.search'))
     end

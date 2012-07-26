@@ -30,6 +30,7 @@ en:
       ident_name_MSRN: "MSRN"
       ident_name_VATIN: "VATIN"
       resource:
+        name: Resource name
         tag: Tag
         mu: Mu
         amount: Amount

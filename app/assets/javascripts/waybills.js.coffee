@@ -10,6 +10,7 @@ $ ->
         storekeeper: ko.observable('')
         storekeeper_place: ko.observable('')
         state: ko.observable('')
+        resource_name: ko.observable('')
 
       super(data)
 

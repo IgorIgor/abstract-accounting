@@ -797,6 +797,9 @@ describe Waybill do
     Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d'), 'document_id' => wb.document_id,
                      'distributor' => wb.distributor.name, 'storekeeper' => wb.storekeeper.tag,
                      'storekeeper_place' => wb.storekeeper_place.tag }).length.should eq(1)
+
+    Waybill.search({ 'resource_name' => 'roof_1' }).include?(wb).should be_true
+    Waybill.search({ 'resource_name' => 'roof_1' }).include?(wb2).should be_false
   end
 end
 

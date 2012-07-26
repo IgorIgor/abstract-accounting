@@ -82,6 +82,8 @@ class Waybill < ActiveRecord::Base
           mem.joins{deal.entity(Entity)}
         when 'storekeeper_place'
           mem.joins{deal.take.place}
+        when 'resource_name'
+          mem.joins{deal.rules.from.take.resource(Asset)}
         else
           mem
       end
@@ -94,6 +96,8 @@ class Waybill < ActiveRecord::Base
           mem.where{lower(deal.entity.tag).like(lower("%#{value}%"))}
         when 'storekeeper_place'
           mem.where{lower(deal.take.place.tag).like(lower("%#{value}%"))}
+        when 'resource_name'
+          mem.where{lower(deal.rules.from.take.resource.tag).like(lower("%#{value}%"))}
         else
           mem.where{lower(__send__(key)).like(lower("%#{value}%"))}
       end

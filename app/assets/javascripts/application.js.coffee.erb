@@ -184,6 +184,10 @@ $ ->
         @range(@rangeGenerate())
       )
 
+    clearFilter: =>
+      for attr, value of @filter
+        value('')
+
     sortBy: (object, event) =>
       el = $(event.target).find('span')
       el = $(event.target) unless el.length

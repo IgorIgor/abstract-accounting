@@ -448,14 +448,25 @@ feature "waybill", %q{
     check_paginate("div[@class='paginate']", 1, 1)
 
     page.find("#show-filter").click
+
     within('#filter-area') do
-      fill_in('filter_created_at', with: '')
-      fill_in('filter_document_id', with: '')
-      fill_in('filter_distributor', with: '')
-      fill_in('filter_storekeeper', with: '')
-      fill_in('filter_storekeeper_place', with: '')
-      select('', from: 'filter_state')
-      fill_in('filter_resource_name', with: '')
+      find('#filter_created_at')['value'].should eq(waybills[3].created.strftime('%Y-%m-%d'))
+      find('#filter_document_id')['value'].should eq(waybills[3].document_id)
+      find('#filter_distributor')['value'].should eq(waybills[3].distributor.name)
+      find('#filter_storekeeper')['value'].should eq(waybills[3].storekeeper.tag)
+      find('#filter_storekeeper_place')['value'].should eq(waybills[3].storekeeper_place.tag)
+      find('#filter_state')['value'].should eq('1')
+      find('#filter_resource_name')['value'].should eq(waybills[3].items[0].resource.tag)
+
+      page.find("#clear_filter").click
+
+      find('#filter_created_at')['value'].should eq('')
+      find('#filter_document_id')['value'].should eq('')
+      find('#filter_distributor')['value'].should eq('')
+      find('#filter_storekeeper')['value'].should eq('')
+      find('#filter_storekeeper_place')['value'].should eq('')
+      find('#filter_state')['value'].should eq('')
+      find('#filter_resource_name')['value'].should eq('')
 
       click_button(I18n.t('views.home.search'))
     end

@@ -20,6 +20,7 @@
   <input type="text" id="filter_resource_name" data-bind="value: filter.resource_name"/>
   <input type="button" value="<%=t 'views.home.search' %>"
          data-bind="click: filterData"/>
+  <a href="#" id="clear_filter" data-bind="click: clearFilter"><%=t 'views.home.clear_filter' %></a>
 </div>
 
 <table>

@@ -30,6 +30,7 @@ ru:
       storekeeper: Кладовщик
       storekeeper_place: Объект
       resource:
+        name: Название ресурса
         tag: Название
         mu: Ед. изм.
         amount: Кол-во

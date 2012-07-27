@@ -30,6 +30,7 @@ en:
       storekeeper: Storekeeper
       storekeeper_place: Place
       resource:
+        name: Resource name
         tag: Name
         mu: MU
         amount: Amount

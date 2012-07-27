@@ -47,6 +47,10 @@ $table-border: solid 1px #d8d8d8;
     tr{
       cursor: default;
 
+      th.allocation-tree-actions-by-wb{
+        cursor: pointer;
+      }
+
       td{
         height: 26px;
         padding: 1px;
@@ -95,14 +99,29 @@ $table-border: solid 1px #d8d8d8;
 
   .available-resources-tag{
     width: 60%;
+    padding: 2px;
+
+    input[type=text]{
+      width: 100%
+    }
   }
 
   .available-resources-mu{
     width: 15%;
+    padding: 2px;
+
+    input[type=text]{
+      width: 100%
+    }
   }
 
   .available-resources-exp-amount{
     width: 21%;
+    padding: 2px;
+
+    input[type=text]{
+      width: 100%
+    }
   }
 
   .selected-resources-tag{

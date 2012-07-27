@@ -91,3 +91,9 @@ $ ->
         else
           @warehouse(new WaybillsViewModel(data, @params))
       )
+
+    search_area: =>
+      $('#resource_filter').toggle()
+      unless $('#resource_filter').is(":visible")
+        @warehouse().clearFilter()
+        @warehouse().filterData()

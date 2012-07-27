@@ -167,6 +167,10 @@
   <!-- ko if: availableMode() == '0' -->
   <table id="available-resources" data-bind="with: warehouse">
     <caption>
+      <div id="search_available_resources" class="ui-corner-all ui-state-hover search-button"
+           data-bind="click: $parent.search_area">
+        <span class="ui-icon ui-icon-search"></span>
+      </div>
       <div class="table-mode">
         <input type="radio" id="mode-resources" name="mode" value="0"
                data-bind="checked: $parent.availableMode"/>
@@ -193,6 +197,24 @@
       </th>
       <th id="exp_amount" class="available-resources-exp-amount" data-bind="click: sortBy">
         <%= t 'views.allocations.expectation_amount' %><span></span>
+      </th>
+    </tr>
+    <tr id="resource_filter" style="display: none">
+      <th class="allocation-tree-actions-by-wb" >
+        <div id="filtrate" class="ui-corner-all ui-state-hover"
+             data-bind="click: filterData">
+          <span class="ui-icon ui-icon-play"></span>
+        </div>
+      </th>
+      <th class="available-resources-tag">
+        <input type="text" id="resource_filter_tag" data-bind="value: filter.tag" />
+      </th>
+      <th class="available-resources-mu">
+        <input type="text" id="resource_filter_mu" data-bind="value: filter.mu" />
+      </th>
+      <th class="available-resources-exp-amount">
+        <input type="text" id="resource_filter_exp_amount"
+               data-bind="value: filter.exp_amount" />
       </th>
     </tr>
     </thead>

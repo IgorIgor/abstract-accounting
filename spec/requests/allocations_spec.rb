@@ -160,6 +160,60 @@ feature 'allocation', %q{
       [w.tag, w.mu, w.real_amount.to_i]
     end
 
+    wh_tag = Warehouse.
+        all(per_page: per_page, page: 1,
+            where: { storekeeper_id: { equal: wb.storekeeper.id },
+                     storekeeper_place_id: { equal: wb.storekeeper_place.id }},
+            where: { tag: { like: '1'}})
+    wh_mu = Warehouse.
+        all(per_page: per_page, page: 1,
+            where: { storekeeper_id: { equal: wb.storekeeper.id },
+                     storekeeper_place_id: { equal: wb.storekeeper_place.id }},
+            where: { mu: { like: '1'}})
+    wh_exp_amount = Warehouse.
+        all(per_page: per_page, page: 1,
+            where: { storekeeper_id: { equal: wb.storekeeper.id },
+                     storekeeper_place_id: { equal: wb.storekeeper_place.id }},
+            where: { exp_amount: { like: '2'}})
+
+    page.find('#search_available_resources').click
+    page.should have_selector("table[@id='available-resources'] thead tr[@id='resource_filter']")
+
+    within('#available-resources') do
+      within("thead tr[@id='resource_filter']") do
+        fill_in 'resource_filter_tag', with: '1'
+      end
+      page.find('#filtrate').click
+
+      page.all('tbody tr').each_with_index { |tr, i|
+        tr.find("td[@data-bind='text: tag']").should have_content(wh_tag[i].tag)
+      }
+
+      within("thead tr[@id='resource_filter']") do
+        fill_in 'resource_filter_tag', with: ''
+        fill_in 'resource_filter_mu', with: '1'
+      end
+      page.find('#filtrate').click
+
+      page.all('tbody tr').each_with_index { |tr, i|
+        tr.find("td[@data-bind='text: mu']").should have_content(wh_mu[i].mu)
+      }
+
+      within("thead tr[@id='resource_filter']") do
+        fill_in 'resource_filter_mu', with: ''
+        fill_in 'resource_filter_exp_amount', with: '2'
+      end
+      page.find('#filtrate').click
+
+      page.all('tbody tr').each_with_index { |tr, i|
+        tr.find("td[@data-bind='text: exp_amount']").
+            should have_content(wh_exp_amount[i].exp_amount.to_i)
+      }
+    end
+    page.find('#search_available_resources').click
+    page.should_not have_selector("#available-resources thead tr[@id='resource_filter']",
+                                  visible: true)
+
     next_page("#available-resources div[@class='paginate']")
 
     within("#available-resources div[@class='paginate']") do
@@ -269,11 +323,7 @@ feature 'allocation', %q{
     page.should have_no_selector('#available-resources')
     within('#available-resources-by-wb') do
       page.all('tbody tr').each do |tr|
-        if tr.has_content?(wb.document_id) &&
-           tr.has_content?(wb.created.strftime('%Y-%m-%d')) &&
-           tr.has_content?(wb.distributor.name) &&
-           tr.has_content?(wb.storekeeper.tag) &&
-           tr.has_content?(wb.storekeeper_place.tag)
+        if tr.has_content?(wb.document_id)
           tr.find("td[@class='allocation-actions-by-wb'] span").click
         end
       end

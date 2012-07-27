@@ -98,10 +98,11 @@ class AllocationsController < ApplicationController
         scope = scope.where{id == nil}
       end
     end
-    scope_count = scope
+    scope = scope.search(params[:search]) if params[:search]
+    @count = scope.count
+    @count = @count.count unless @count.instance_of? Fixnum
     scope = scope.order_by(params[:order]) if params[:order]
     @allocations = scope.limit(per_page).offset((page - 1) * per_page)
-    @count = scope_count.count
   end
 
   def apply

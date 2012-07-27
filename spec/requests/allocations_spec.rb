@@ -113,7 +113,7 @@ feature 'allocation', %q{
       page.should have_no_selector('#available-resources tbody tr')
 
       6.times.collect { create(:place) }
-      items = Place.find(:all, order: :tag, limit: 5)
+      items = Place.all(order: :tag, limit: 5)
       check_autocomplete("foreman_place", items, :tag)
 
       3.times do
@@ -617,6 +617,38 @@ feature 'allocation', %q{
               I18n.t('views.allocations.foreman'),
               I18n.t('views.statable.state')]
     check_header("#container_documents table", titles)
+
+    page.find("#show-filter").click
+    within('#filter-area') do
+      titles.each do |title|
+        page.should have_content(title)
+      end
+
+      fill_in('filter_created_at', with: allocations[3].created.strftime('%Y-%m-%d'))
+      fill_in('filter_foreman', with: allocations[3].foreman.tag)
+      fill_in('filter_storekeeper', with: allocations[3].storekeeper.tag)
+      fill_in('filter_storekeeper_place', with: allocations[3].storekeeper_place.tag)
+      fill_in('filter_resource', with: allocations[3].items[0].resource.tag)
+      select(I18n.t('views.statable.inwork'), from: 'filter_state')
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    should_present_allocation([allocations[3]])
+    check_paginate("div[@class='paginate']", 1, 1)
+
+    page.find("#show-filter").click
+    within('#filter-area') do
+      fill_in('filter_created_at', with: "")
+      fill_in('filter_foreman', with: "")
+      fill_in('filter_storekeeper', with: "")
+      fill_in('filter_storekeeper_place', with: "")
+      fill_in('filter_resource', with: "")
+      select('', from: 'filter_state')
+
+      click_button(I18n.t('views.home.search'))
+    end
+
     should_present_allocation(allocations)
     check_paginate("div[@class='paginate']", count, per_page)
     next_page("div[@class='paginate']")

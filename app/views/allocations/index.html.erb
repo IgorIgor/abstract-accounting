@@ -1,4 +1,4 @@
-<div id="filter-area" class="filter-area">
+<% content_for :search  do %>
   <label><%=t 'views.allocations.created_at' %></label>
   <input type="text" id="filter_created_at" data-bind="value: filter.created"/>
   <label><%=t 'views.allocations.foreman' %></label>
@@ -16,9 +16,7 @@
   </select>
   <label><%=t 'views.allocations.resource.name' %></label>
   <input type="text" id="filter_resource" data-bind="value: filter.resource"/>
-  <input type="button" value="<%=t 'views.home.search' %>"
-         data-bind="click: filterData"/>
-</div>
+<% end %>
 
 <table>
   <thead>

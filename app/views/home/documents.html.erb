@@ -1,87 +1,85 @@
-<div id="filter-area" class="filter-area">
-  <div class="tabs" data-bind="tabs: { current: 0 }">
-  	<ul>
-      <li><a><%=t 'views.home.waybill' %></a></li>
-      <li><a><%=t 'views.home.allocation' %></a></li>
-  	</ul>
-  	<div class="tab">
-      <label><%=t 'views.waybills.created_at' %></label>
-      <input type="text" id="filter-w-created"
-             data-bind="value: filter.waybill.created"/>
+<% content_for :search  do %>
+  <!--<div class="tabs" data-bind="tabs: { current: 0 }">-->
+  	<!--<ul>-->
+      <!--<li><a><%=t 'views.home.waybill' %></a></li>-->
+      <!--<li><a><%=t 'views.home.allocation' %></a></li>-->
+  	<!--</ul>-->
+  	<!--<div class="tab">-->
+      <!--<label><%=t 'views.waybills.created_at' %></label>-->
+      <!--<input type="text" id="filter-w-created"-->
+             <!--data-bind="value: filter.waybill.created"/>-->
 
-      <label><%=t 'views.waybills.document_id' %></label>
-      <input type="text" id="filter-w-document"
-             data-bind="value: filter.waybill.document_id"/>
+      <!--<label><%=t 'views.waybills.document_id' %></label>-->
+      <!--<input type="text" id="filter-w-document"-->
+             <!--data-bind="value: filter.waybill.document_id"/>-->
 
-      <label><%=t 'views.statable.state' %></label>
-      <select id="filter-w-state" data-bind="value: filter.waybill.state">
-        <option value=""></option>
-        <option value="1"><%=t 'views.statable.inwork' %></option>
-        <option value="2"><%=t 'views.statable.canceled' %></option>
-        <option value="3"><%=t 'views.statable.applied' %></option>
-      </select>
+      <!--<label><%=t 'views.statable.state' %></label>-->
+      <!--<select id="filter-w-state" data-bind="value: filter.waybill.state">-->
+        <!--<option value=""></option>-->
+        <!--<option value="1"><%=t 'views.statable.inwork' %></option>-->
+        <!--<option value="2"><%=t 'views.statable.canceled' %></option>-->
+        <!--<option value="3"><%=t 'views.statable.applied' %></option>-->
+      <!--</select>-->
 
-      <label><%=t 'views.waybills.distributor' %></label>
-      <input type="text" id="filter-w-distributor"
-             data-bind="value: filter.waybill.distributor.legal_entity.name"/>
+      <!--<label><%=t 'views.waybills.distributor' %></label>-->
+      <!--<input type="text" id="filter-w-distributor"-->
+             <!--data-bind="value: filter.waybill.distributor.legal_entity.name"/>-->
 
-      <label><%=t 'views.waybills.ident_name' %></label>
-      <select id="filter-w-ident-name"
-              data-bind="value: filter.waybill.distributor.legal_entity.identifier_name">
-        <option value=""></option>
-        <option value="MSRN"><%=t 'views.waybills.ident_name_MSRN' %></option>
-        <option value="VATIN"><%=t 'views.waybills.ident_name_VATIN' %></option>
-      </select>
+      <!--<label><%=t 'views.waybills.ident_name' %></label>-->
+      <!--<select id="filter-w-ident-name"-->
+              <!--data-bind="value: filter.waybill.distributor.legal_entity.identifier_name">-->
+        <!--<option value=""></option>-->
+        <!--<option value="MSRN"><%=t 'views.waybills.ident_name_MSRN' %></option>-->
+        <!--<option value="VATIN"><%=t 'views.waybills.ident_name_VATIN' %></option>-->
+      <!--</select>-->
 
-      <label><%=t 'views.waybills.ident_value' %></label>
-      <input type="text" id="filter-w-ident-value"
-             data-bind="value: filter.waybill.distributor.legal_entity.identifier_value"/>
+      <!--<label><%=t 'views.waybills.ident_value' %></label>-->
+      <!--<input type="text" id="filter-w-ident-value"-->
+             <!--data-bind="value: filter.waybill.distributor.legal_entity.identifier_value"/>-->
 
-      <label><%=t 'views.waybills.distributor_place' %></label>
-      <input type="text" id="filter-w-distributor-place"
-             data-bind="value: filter.waybill.distributor_place.place.tag"/>
+      <!--<label><%=t 'views.waybills.distributor_place' %></label>-->
+      <!--<input type="text" id="filter-w-distributor-place"-->
+             <!--data-bind="value: filter.waybill.distributor_place.place.tag"/>-->
 
-      <label><%=t 'views.waybills.storekeeper' %></label>
-      <input type="text" id="filter-w-storekeeper"
-             data-bind="value: filter.waybill.storekeeper.entity.tag"/>
+      <!--<label><%=t 'views.waybills.storekeeper' %></label>-->
+      <!--<input type="text" id="filter-w-storekeeper"-->
+             <!--data-bind="value: filter.waybill.storekeeper.entity.tag"/>-->
 
-      <label><%=t 'views.waybills.storekeeper_place' %></label>
-      <input type="text" id="filter-w-storekeeper-place"
-             data-bind="value: filter.waybill.storekeeper_place.place.tag"/>
-  	</div>
-  	<div class="tab">
-      <label><%=t 'views.allocations.created_at' %></label>
-      <input type="text" id="filter-a-created"
-             data-bind="value: filter.allocation.created"/>
+      <!--<label><%=t 'views.waybills.storekeeper_place' %></label>-->
+      <!--<input type="text" id="filter-w-storekeeper-place"-->
+             <!--data-bind="value: filter.waybill.storekeeper_place.place.tag"/>-->
+  	<!--</div>-->
+  	<!--<div class="tab">-->
+      <!--<label><%=t 'views.allocations.created_at' %></label>-->
+      <!--<input type="text" id="filter-a-created"-->
+             <!--data-bind="value: filter.allocation.created"/>-->
 
-      <label><%=t 'views.statable.state' %></label>
-      <select id="filter-a-state" data-bind="value: filter.allocation.state">
-        <option value=""></option>
-        <option value="1"><%=t 'views.statable.inwork' %></option>
-        <option value="2"><%=t 'views.statable.canceled' %></option>
-        <option value="3"><%=t 'views.statable.applied' %></option>
-      </select>
+      <!--<label><%=t 'views.statable.state' %></label>-->
+      <!--<select id="filter-a-state" data-bind="value: filter.allocation.state">-->
+        <!--<option value=""></option>-->
+        <!--<option value="1"><%=t 'views.statable.inwork' %></option>-->
+        <!--<option value="2"><%=t 'views.statable.canceled' %></option>-->
+        <!--<option value="3"><%=t 'views.statable.applied' %></option>-->
+      <!--</select>-->
 
-      <label><%=t 'views.allocations.storekeeper' %></label>
-      <input type="text" id="filter-a-storekeeper"
-             data-bind="value: filter.allocation.storekeeper.entity.tag"/>
+      <!--<label><%=t 'views.allocations.storekeeper' %></label>-->
+      <!--<input type="text" id="filter-a-storekeeper"-->
+             <!--data-bind="value: filter.allocation.storekeeper.entity.tag"/>-->
 
-      <label><%=t 'views.allocations.storekeeper_place' %></label>
-      <input type="text" id="filter-a-storekeeper-place"
-             data-bind="value: filter.allocation.storekeeper_place.place.tag"/>
+      <!--<label><%=t 'views.allocations.storekeeper_place' %></label>-->
+      <!--<input type="text" id="filter-a-storekeeper-place"-->
+             <!--data-bind="value: filter.allocation.storekeeper_place.place.tag"/>-->
 
-      <label><%=t 'views.allocations.foreman' %></label>
-      <input type="text" id="filter-a-foreman"
-             data-bind="value: filter.allocation.foreman.entity.tag"/>
+      <!--<label><%=t 'views.allocations.foreman' %></label>-->
+      <!--<input type="text" id="filter-a-foreman"-->
+             <!--data-bind="value: filter.allocation.foreman.entity.tag"/>-->
 
-      <label><%=t 'views.allocations.foreman_place' %></label>
-      <input type="text" id="filter-a-foreman-place"
-             data-bind="value: filter.allocation.foreman_place.place.tag"/>
-  	</div>
-  </div>
-  <input type="button" value="<%=t 'views.home.search' %>"
-         data-bind="click: filterData"/>
-</div>
+      <!--<label><%=t 'views.allocations.foreman_place' %></label>-->
+      <!--<input type="text" id="filter-a-foreman-place"-->
+             <!--data-bind="value: filter.allocation.foreman_place.place.tag"/>-->
+  	<!--</div>-->
+  <!--</div>-->
+<% end %>
 
 <table>
   <tbody data-bind="foreach: documents">

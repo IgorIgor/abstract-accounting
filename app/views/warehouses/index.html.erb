@@ -1,4 +1,4 @@
-<div id="filter-area" class="filter-area">
+<% content_for :search  do %>
   <label><%=t 'views.warehouses.place' %></label>
   <input type="text" id="filter-place" data-bind="value: filter.place"/>
   <label><%=t 'views.warehouses.tag' %></label>
@@ -9,9 +9,7 @@
   <input type="text" id="filter-exp-amount" data-bind="value: filter.exp_amount"/>
   <label><%=t 'views.warehouses.mu' %></label>
   <input type="text" id="filter-mu" data-bind="value: filter.mu"/>
-  <input type="button" value="<%=t 'views.home.search' %>"
-         data-bind="click: filterData"/>
-</div>
+<% end %>
 
 <% if current_user.root? %>
   <div class='actions'>

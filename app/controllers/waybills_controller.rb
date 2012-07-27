@@ -11,7 +11,7 @@ class WaybillsController < ApplicationController
   layout 'comments'
 
   def index
-    render 'index', layout: false
+    render 'index', layout: "data_with_filter"
   end
 
   def preview

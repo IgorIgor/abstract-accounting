@@ -1,5 +1,5 @@
 $ ->
-  class self.DealsViewModel extends FolderViewModel
+  class self.DealsViewModel extends TreeViewModel
     constructor: (data, canSelect = false) ->
       @url = '/deals/data.json'
       @canSelect = ko.observable(canSelect)
@@ -27,3 +27,19 @@ $ ->
       else
         filter["date_to"] = filter["date_from"] = date
         location.hash = "transcripts?#{$.param(filter)}"
+
+    generateItemsUrl: (object) => "/deals/#{object.id}/rules.json"
+
+    generateChildrenParams: (object) => {}
+
+    createChildrenViewModel: (data, params, object) =>
+      new DealRulesViewModel(data, params, object)
+
+  class self.DealRulesViewModel extends FolderViewModel
+    constructor: (data, params, object) ->
+      @url = "/deals/#{object.id}/rules.json"
+      super(data)
+
+      @params =
+        page: @page
+        per_page: @per_page

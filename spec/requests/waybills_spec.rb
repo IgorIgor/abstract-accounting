@@ -584,10 +584,10 @@ feature "waybill", %q{
 
     should_present_waybill([wb, wb2])
     within('#container_documents table tbody') do
-      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions-by-wb']
+      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions']
                         //div[@class='ui-corner-all ui-state-hover']
                         //span[@class='ui-icon ui-icon-circle-plus']", count: 2)
-      find(:xpath, ".//tr[3]//td[@class='tree-actions-by-wb']").click
+      find(:xpath, ".//tr[3]//td[@class='tree-actions']").click
     end
     resources2 = wb2.items[0, per_page]
     count = wb2.items.count
@@ -605,7 +605,7 @@ feature "waybill", %q{
        (res.price * res.amount).to_i]
     end
     within('#container_documents table tbody') do
-      find(:xpath, ".//tr[3]//td[@class='tree-actions-by-wb']").click
+      find(:xpath, ".//tr[3]//td[@class='tree-actions']").click
       page.find("#resource_#{wb2.id}").visible?.should_not be_true
     end
   end

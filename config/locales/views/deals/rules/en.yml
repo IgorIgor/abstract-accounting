@@ -1,0 +1,8 @@
+en:
+  views:
+    rules:
+      tag: Tag
+      from: From
+      to: To
+      resource: Resource
+      rate: Rate

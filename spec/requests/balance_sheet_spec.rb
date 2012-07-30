@@ -293,11 +293,11 @@ feature "BalanceSheet", %q{
       page.should have_content(wb.distributor_place.tag)
       page.should have_content(wb2.distributor_place.tag)
       page.should have_selector(:xpath,
-                                ".//tr//td[@class='tree-actions-by-wb']
+                                ".//tr//td[@class='tree-actions']
                         //div[@class='ui-corner-all ui-state-hover']
                         //span[@class='ui-icon ui-icon-circle-plus']", count: 4)
       find(:xpath,
-           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+           ".//tr[1]//td[@class='tree-actions']").click
 
       balances = BalanceSheet.
           place_id(wb.distributor_place.id).
@@ -322,11 +322,11 @@ feature "BalanceSheet", %q{
         ]
       end
       find(:xpath,
-           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+           ".//tr[1]//td[@class='tree-actions']").click
       page.find("#group_#{wb2.storekeeper_place.id}").visible?.should_not be_true
 
       find(:xpath,
-           ".//tr[5]//td[@class='tree-actions-by-wb']").click
+           ".//tr[5]//td[@class='tree-actions']").click
       balances = BalanceSheet.
           place_id(wb2.distributor_place.id).
           paginate(page: 1, per_page: per_page).
@@ -372,7 +372,7 @@ feature "BalanceSheet", %q{
       end
       prev_page("#group_#{wb2.distributor_place.id} div[@class='paginate']")
       find(:xpath,
-           ".//tr[5]//td[@class='tree-actions-by-wb']").click
+           ".//tr[5]//td[@class='tree-actions']").click
       page.find("#group_#{wb2.storekeeper_place.id}").visible?.should_not be_true
     end
 
@@ -393,7 +393,7 @@ feature "BalanceSheet", %q{
       2.times do |i|
         page.should have_content(resources[per_page + i][:group_column])
       end
-      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions-by-wb']
+      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions']
           //div[@class='ui-corner-all ui-state-hover']
           //span[@class='ui-icon ui-icon-circle-plus']", count: 2)
     end
@@ -405,11 +405,11 @@ feature "BalanceSheet", %q{
       per_page.times do |i|
         page.should have_content(resources[i][:group_column])
       end
-      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions-by-wb']
+      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions']
           //div[@class='ui-corner-all ui-state-hover']
           //span[@class='ui-icon ui-icon-circle-plus']", count: per_page)
       find(:xpath,
-           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+           ".//tr[1]//td[@class='tree-actions']").click
 
       balances = BalanceSheet.
           resource(id: resources[0][:group_id], type: resources[0][:group_type]).
@@ -449,7 +449,7 @@ feature "BalanceSheet", %q{
       end
       prev_page("#group_#{resources[0][:group_id]} div[@class='paginate']")
       find(:xpath,
-           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+           ".//tr[1]//td[@class='tree-actions']").click
       page.find("#group_#{resources[0][:group_id]}").visible?.should_not be_true
     end
 
@@ -469,11 +469,11 @@ feature "BalanceSheet", %q{
       entities.each do |entity|
         page.should have_content(entity[:group_column])
       end
-      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions-by-wb']
+      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions']
           //div[@class='ui-corner-all ui-state-hover']
           //span[@class='ui-icon ui-icon-circle-plus']", count: entities.length)
       find(:xpath,
-           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+           ".//tr[1]//td[@class='tree-actions']").click
 
       balances = BalanceSheet.
           entity(id: entities[0][:group_id], type: entities[0][:group_type]).
@@ -497,7 +497,7 @@ feature "BalanceSheet", %q{
         ]
       end
       find(:xpath,
-           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+           ".//tr[1]//td[@class='tree-actions']").click
       page.find("#group_#{entities[0][:group_id]}").visible?.should_not be_true
     end
 
@@ -510,7 +510,7 @@ feature "BalanceSheet", %q{
 
     within('#container_documents table tbody') do
       find(:xpath,
-           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+           ".//tr[1]//td[@class='tree-actions']").click
       within("#group_#{wb.distributor_place.id}") do
         page.should have_selector("td[@class='td-inner-table']")
         within("table[@class='inner-table'] tbody") do
@@ -530,7 +530,7 @@ feature "BalanceSheet", %q{
 
     within('#container_documents table tbody') do
       find(:xpath,
-           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+           ".//tr[1]//td[@class='tree-actions']").click
 
       within("#group_#{wb.distributor_place.id}") do
         page.should have_selector("td[@class='td-inner-table']")

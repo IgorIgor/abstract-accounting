@@ -1,0 +1,8 @@
+ru:
+  views:
+    rules:
+      tag: "Название"
+      from: От
+      to: Куда
+      resource: Ресурс
+      rate: Курс

@@ -91,6 +91,9 @@ Abstract::Application.routes.draw do
     collection do
       get 'data'
     end
+    member do
+      get 'rules'
+    end
   end
   resources :storekeepers, only: [:index]
   resources :users do

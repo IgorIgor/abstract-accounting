@@ -876,11 +876,11 @@ feature 'allocation', %q{
     should_present_allocation([allocation])
 
     within('#container_documents table tbody') do
-      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions-by-wb']
+      page.should have_selector(:xpath, ".//tr//td[@class='tree-actions']
                         //div[@class='ui-corner-all ui-state-hover']
                         //span[@class='ui-icon ui-icon-circle-plus']", count: 1)
       find(:xpath,
-           ".//tr[1]//td[@class='tree-actions-by-wb']").click
+           ".//tr[1]//td[@class='tree-actions']").click
     end
 
     count = allocation.items.count
@@ -901,7 +901,7 @@ feature 'allocation', %q{
     end
 
     within('#container_documents table tbody') do
-      find(:xpath, ".//tr[1]//td[@class='tree-actions-by-wb']").click
+      find(:xpath, ".//tr[1]//td[@class='tree-actions']").click
       page.find("#resource_#{allocation.id}").visible?.should_not be_true
     end
   end

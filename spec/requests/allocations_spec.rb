@@ -59,6 +59,12 @@ def should_present_allocation(allocations)
   end
 end
 
+def should_present_warehouse(warehouse)
+  page.should have_content(warehouse.tag)
+  page.should have_content(warehouse.exp_amount.to_i)
+  page.should have_content(warehouse.mu)
+end
+
 feature 'allocation', %q{
   As an user
   I want to view allocations
@@ -314,6 +320,64 @@ feature 'allocation', %q{
           tr.find('input')[:value].should eq('127')
         end
       end
+    end
+  end
+
+  scenario 'sort resources on allocation creation page', js: true do
+    user = create(:user)
+    credential = create(:credential, user: user, document_type: Allocation.name)
+    wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place)
+    wb.add_item(tag: "roof", mu: "m2", amount: 33, price: 23.5)
+    wb.add_item(tag: "shovel", mu: "th", amount: 28, price: 34.2)
+    wb.add_item(tag: "airbug", mu: "th", amount: 115, price: 1100.56)
+    wb.save!
+    wb.apply
+
+    page_login
+
+    page.find("#btn_create").click
+    page.find("a[@href='#documents/allocations/new']").click
+    current_hash.should eq('documents/allocations/new')
+
+    fill_in_autocomplete('storekeeper_entity', wb.storekeeper.tag)
+
+    within('#available-resources') do
+      test_order = lambda do |field, type|
+        warehouses = Warehouse.
+            all(where: { storekeeper_id: { equal: wb.storekeeper.id },
+                         storekeeper_place_id: { equal: wb.storekeeper_place.id }},
+                order_by: { field: field, type: type })
+        count = Warehouse.
+                count(where: { storekeeper_id: { equal: wb.storekeeper.id },
+                               storekeeper_place_id: { equal: wb.storekeeper_place.id }})
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                   "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                   "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+        within('tbody') do
+          page.should have_selector('tr', count: count)
+          count.times do |i|
+            within(:xpath, ".//tr[#{i + 1}]") do
+              should_present_warehouse(warehouses[i])
+            end
+          end
+        end
+      end
+
+      test_order.call('tag','asc')
+      test_order.call('tag','desc')
+
+      test_order.call('mu','asc')
+      test_order.call('mu','desc')
+
+      test_order.call('exp_amount','asc')
+      test_order.call('exp_amount','desc')
     end
   end
 

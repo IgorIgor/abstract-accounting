@@ -185,10 +185,14 @@
     <thead>
     <tr>
       <th class="allocation-actions"></th>
-      <th class="available-resources-tag"><%= t 'views.allocations.tag' %></th>
-      <th class="available-resources-mu"><%= t 'views.allocations.mu' %></th>
-      <th class="available-resources-exp-amount">
-        <%= t 'views.allocations.expectation_amount' %>
+      <th id="tag" class="available-resources-tag" data-bind="click: sortBy">
+        <%= t 'views.allocations.tag' %><span></span>
+      </th>
+      <th id="mu" class="available-resources-mu" data-bind="click: sortBy">
+        <%= t 'views.allocations.mu' %><span></span>
+      </th>
+      <th id="exp_amount" class="available-resources-exp-amount" data-bind="click: sortBy">
+        <%= t 'views.allocations.expectation_amount' %><span></span>
       </th>
     </tr>
     </thead>

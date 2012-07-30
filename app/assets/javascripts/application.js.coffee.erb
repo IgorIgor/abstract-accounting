@@ -153,7 +153,6 @@ $ ->
         like: @filter
         page: @page
         per_page: @per_page
-      $('.paginate').show()
 
     prev: =>
       @page(@page() - 1)
@@ -281,6 +280,7 @@ $ ->
           $.get('/inbox', {}, (form) ->
             $.getJSON('/inbox.json', {}, (objects) ->
               toggleSelect('inbox')
+              $('.paginate').show()
               $('#container_documents').html(form)
               ko.cleanNode($('#main').get(0))
               ko.applyBindings(new DocumentsViewModel(objects, 'inbox'), $('#main').get(0))
@@ -291,6 +291,7 @@ $ ->
           $.get('/archive', {}, (form) ->
             $.getJSON('/archive.json', {}, (objects) ->
               toggleSelect('archive')
+              $('.paginate').show()
               $('#container_documents').html(form)
               ko.cleanNode($('#main').get(0))
               ko.applyBindings(new DocumentsViewModel(objects, 'archive'), $('#main').get(0))
@@ -363,6 +364,7 @@ $ ->
           if filter.group_by?
             $.get("/#{report}/group",  {}, (form) ->
               $.getJSON("/#{report}/group.json", normalizeHash(filter), (data) ->
+                $('.paginate').show()
                 viewModel = switch report
                               when 'warehouses'
                                 new GroupedWarehouseViewModel(data, filter)
@@ -377,6 +379,7 @@ $ ->
             $.get("/#{report}", {}, (form) ->
               $.getJSON("/#{report}/data.json", normalizeHash(filter), (data) ->
                 toggleSelect(report)
+                $('.paginate').show()
                 viewModel = switch report
                   when 'warehouses'
                     new WarehouseViewModel(data)

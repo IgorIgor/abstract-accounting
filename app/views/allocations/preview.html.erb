@@ -165,16 +165,16 @@
   <!-- ko ifnot: readonly -->
 
   <!-- ko if: availableMode() == '0' -->
-  <table id="available-resources">
+  <table id="available-resources" data-bind="with: warehouse">
     <caption>
       <div class="table-mode">
         <input type="radio" id="mode-resources" name="mode" value="0"
-               data-bind="checked: availableMode"/>
+               data-bind="checked: $parent.availableMode"/>
         <label for="mode-resources">
           <%= t 'views.allocations.by_resource' %>
         </label>
         <input type="radio" id="mode-waybills" name="mode" value="1"
-               data-bind="checked: availableMode"/>
+               data-bind="checked: $parent.availableMode"/>
         <label for="mode-waybills">
           <%= t 'views.allocations.by_waybills' %>
         </label>
@@ -192,10 +192,10 @@
       </th>
     </tr>
     </thead>
-    <tbody data-bind="foreach: availableResources">
+    <tbody data-bind="foreach: documents">
     <tr>
       <td class="allocation-actions">
-        <span class="mini-icon add" data-bind="click: $parent.selectResource"></span>
+        <span class="mini-icon add" data-bind="click: $root.selectResource"></span>
       </td>
       <td data-bind="text: tag"></td>
       <td data-bind="text: mu"></td>
@@ -206,16 +206,16 @@
   <!-- /ko -->
 
   <!-- ko if: availableMode() == '1' -->
-  <table id="available-resources-by-wb">
+  <table id="available-resources-by-wb" data-bind="with: warehouse">
     <caption>
       <div class="table-mode">
         <input type="radio" id="mode-resources-by-wb" name="mode-by-wb"
-               value="0" data-bind="checked: availableMode"/>
+               value="0" data-bind="checked: $parent.availableMode"/>
         <label for="mode-resources-by-wb">
           <%= t 'views.allocations.by_resource' %>
         </label>
         <input type="radio" id="mode-waybills-by-wb" name="mode-by-wb"
-               value="1" data-bind="checked: availableMode"/>
+               value="1" data-bind="checked: $parent.availableMode"/>
         <label for="mode-waybills-by-wb">
           <%= t 'views.allocations.by_waybills' %>
         </label>
@@ -233,12 +233,12 @@
       <th><%= t 'views.allocations.storekeeper_place' %></th>
     </tr>
     </thead>
-    <tbody data-bind="foreach: availableResources">
+    <tbody data-bind="foreach: documents">
     <tr>
       <td class="allocation-actions-by-wb">
-        <span class="mini-icon add" data-bind="click: $parent.selectWaybill"></span>
+        <span class="mini-icon add" data-bind="click: $root.selectWaybill"></span>
       </td>
-      <td data-bind="click: $parent.treeMapping" class="allocation-tree-actions-by-wb">
+      <td data-bind="click: $parent.expandTree" class="allocation-tree-actions-by-wb">
         <div class="ui-corner-all ui-state-hover">
           <span class="ui-icon ui-icon-circle-plus"></span>
         </div>
@@ -249,8 +249,7 @@
       <td data-bind="text: storekeeper"></td>
       <td data-bind="text: storekeeper_place"></td>
     </tr>
-    <!-- ko if: resources.show -->
-    <tr data-bind="with: resources_view_model">
+    <tr data-bind="with: subitems">
       <td></td>
       <td colspan="6">
         <div class="paginate">
@@ -278,7 +277,6 @@
         </table>
       </td>
     </tr>
-    <!-- /ko -->
     </tbody>
   </table>
   <!-- /ko -->

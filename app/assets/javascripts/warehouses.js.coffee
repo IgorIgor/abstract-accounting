@@ -35,7 +35,9 @@ $ ->
         page: @page
         per_page: @per_page
         group_by: @group_by()
-      @params['where'] = params.where if params.where?
+      $.each(params, (key, value) =>
+        @params[key] = value
+      )
 
       @group_by.subscribe(@groupBy)
 

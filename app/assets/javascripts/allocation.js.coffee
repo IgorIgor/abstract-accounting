@@ -3,21 +3,14 @@ $ ->
     constructor: (object, readonly = false) ->
       super(object, 'allocations', readonly)
       @disable_storekeeper = if object.allocation.storekeeper_id then true else false
-      @availableResources = ko.observableArray([])
 
       @url = '/warehouses/data.json'
-
-      @page = ko.observable()
-      @per_page = ko.observable()
-      @count = ko.observable()
-      @range = ko.observable()
+      @warehouse = ko.observable(null)
 
       @params =
         equal:
           storekeeper_id: @object.allocation.storekeeper_id
           storekeeper_place_id: @object.allocation.storekeeper_place_id
-        page: @page
-        per_page: @per_page
 
       @availableMode = ko.observable('0')
       @availableMode.subscribe((val) =>
@@ -28,18 +21,18 @@ $ ->
 
       @loadAvailableResources() unless readonly
 
+    unselectResource: (resource) =>
+      @object.items.remove(resource)
+      @getPaginateData()
+
     selectResource: (resource) =>
       resource.amount = ko.observable(resource.exp_amount)
       @object.items.push(resource)
       @getPaginateData()
 
-    unselectResource: (resource) =>
-      @object.items.remove(resource)
-      @getPaginateData()
-
     selectWaybill: (waybill) =>
-      if waybill.resources.items().length
-        for resource in waybill.resources.items()
+      if waybill.subitems() != null && waybill.subitems().documents.length
+        for resource in waybill.subitems().documents
           exist = $.grep(@object.items(), (r) -> return r.id == resource.id)[0]
           if exist
             exist.waybill_id = waybill.id
@@ -77,26 +70,12 @@ $ ->
 
     loadAvailableResources: (clearSelected = true) =>
       @object.items([]) if clearSelected
-      @availableResources([])
+      @warehouse(null)
       if @object.allocation.storekeeper_id() && @object.allocation.storekeeper_place_id()
-        @page(1)
         @getPaginateData()
-      else
-        @page('')
-        @per_page('')
-        @count(0)
-        @range(@rangeGenerate())
 
     print: =>
       location.href = "allocations/#{@object.id()}.pdf"
-
-    prev: =>
-      @page(@page() - 1)
-      @getPaginateData()
-
-    next: =>
-      @page(@page() + 1)
-      @getPaginateData()
 
     getPaginateData: =>
       if @object.items().length > 0
@@ -107,45 +86,8 @@ $ ->
       else if @params.hasOwnProperty('without')
         delete @params['without']
       $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
-        @availableResources([])
-        for obj in data.objects
-          obj.resources =
-            show: ko.observable(false)
-            items: ko.observableArray([]) if @availableMode()
-          unless @availableMode() == '0'
-            obj.resources_view_model = ko.observable(null)
-          @availableResources.push(obj)
-
-        @per_page(data.per_page)
-        @count(data.count)
-        @range(@rangeGenerate())
-
-        if data.objects.length == 0 && @page() > 1
-          @page(@page() - 1)
-          @getPaginateData()
-      )
-
-    rangeGenerate: =>
-      startRange = if @count() then (@page() - 1)*@per_page() + 1 else 0
-      endRange = (@page() - 1)*@per_page() + @per_page()
-      endRange = @count() if endRange > @count()
-      "#{startRange}-#{endRange}"
-
-    treeMapping: (data, event) =>
-      el = $(event.target).find('span')
-      el = $(event.target) unless el.length
-
-      el.toggleClass('ui-icon-circle-plus')
-      el.toggleClass('ui-icon-circle-minus')
-
-      data.resources.show(
-        if data.resources.show()
-          data.resources_view_model(null)
-          false
+        if @availableMode() == '0'
+          @warehouse(new WarehouseViewModel(data, @params))
         else
-          unless data.resources.items().length
-            $.getJSON("/waybills/#{data.id}/resources.json", null, (items) =>
-              data.resources_view_model(new WaybillResourcesViewModel(items, {}, data))
-            )
-          true
+          @warehouse(new WaybillsViewModel(data, @params))
       )

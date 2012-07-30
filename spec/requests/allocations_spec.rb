@@ -299,12 +299,8 @@ feature 'allocation', %q{
     end
 
     within('#available-resources-by-wb') do
-      page.all('tbody tr').each do |tr|
-        if tr.has_content?(wb3.document_id) &&
-           tr.has_content?(wb3.created.strftime('%Y-%m-%d')) &&
-           tr.has_content?(wb3.distributor.name) &&
-           tr.has_content?(wb3.storekeeper.tag) &&
-           tr.has_content?(wb3.storekeeper_place.tag)
+      all(:xpath, ".//tbody//tr", visible: true).each do |tr|
+        if tr.has_content?(wb3.document_id)
           tr.find("td[@class='allocation-actions-by-wb'] span").click
         end
       end

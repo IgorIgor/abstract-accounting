@@ -1,6 +1,6 @@
 $ ->
   class self.WaybillsViewModel extends TreeViewModel
-    constructor: (data) ->
+    constructor: (data, params = {}) ->
       @url = '/waybills/data.json'
 
       @filter =
@@ -18,6 +18,9 @@ $ ->
         search: @filter
         page: @page
         per_page: @per_page
+      $.each(params, (key, value) =>
+        @params[key] = value
+      )
 
     show: (object) ->
       location.hash = "documents/waybills/#{object.id}"

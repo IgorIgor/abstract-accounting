@@ -55,4 +55,8 @@ class WaybillItem
     end
     deal
   end
+
+  def sum
+    (self.amount * self.price).accounting_norm
+  end
 end

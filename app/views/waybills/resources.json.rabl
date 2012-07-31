@@ -9,13 +9,10 @@
 
 object false
 child(@resources => :objects) do
-  node(:id) { |item| item.resource.id }
-  node(:tag) { |item| item.resource.tag }
-  node(:mu) { |item| item.resource.mu }
-  node(:amount) { |item| item.amount }
-  node(:price) { |item| item.price }
-  node(:sum) { |item| item.price * item.amount }
-  node(:exp_amount) { |item| item.exp_amount }
+  glue :resource do
+    attributes :id, :tag, :mu
+  end
+  attributes :amount, :price, :sum
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

@@ -39,9 +39,11 @@ describe Waybill do
     wb.items[0].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'pcs').first)
     wb.items[0].amount.should eq(1200)
     wb.items[0].price.should eq(1.0)
+    wb.items[0].sum.should eq((wb.items[0].amount * wb.items[0].price).accounting_norm)
     wb.items[1].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'kg').first)
     wb.items[1].amount.should eq(10)
     wb.items[1].price.should eq(150.0)
+    wb.items[1].sum.should eq((wb.items[1].amount * wb.items[1].price).accounting_norm)
 
     asset = create(:asset)
     wb.add_item(tag: asset.tag, mu: asset.mu, amount: 100, price: 12.0)
@@ -50,15 +52,18 @@ describe Waybill do
     wb.items[2].resource.should eq(asset)
     wb.items[2].amount.should eq(100)
     wb.items[2].price.should eq(12.0)
+    wb.items[2].sum.should eq((wb.items[2].amount * wb.items[2].price).accounting_norm)
 
     wb = Waybill.find(wb)
     wb.items.count.should eq(2)
     wb.items[0].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'pcs').first)
     wb.items[0].amount.should eq(1200)
     wb.items[0].price.should eq(1.0)
+    wb.items[0].sum.should eq((wb.items[0].amount * wb.items[0].price).accounting_norm)
     wb.items[1].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'kg').first)
     wb.items[1].amount.should eq(10)
     wb.items[1].price.should eq(150.0)
+    wb.items[1].sum.should eq((wb.items[1].amount * wb.items[1].price).accounting_norm)
   end
 
   it 'should create deals' do

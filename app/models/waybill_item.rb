@@ -57,6 +57,7 @@ class WaybillItem
   end
 
   def sum
-    (self.amount * self.price).accounting_norm
+    sum = self.amount * self.price
+    sum.instance_of?(Float) ? sum.accounting_norm : sum
   end
 end

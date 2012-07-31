@@ -26,6 +26,7 @@ child(@waybills => :objects) do
       I18n.t 'views.statable.applied'
     end
   end
+  node(:sum) { |w| w.sum.to_s }
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

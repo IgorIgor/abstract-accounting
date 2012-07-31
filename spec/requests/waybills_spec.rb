@@ -68,7 +68,7 @@ def should_present_waybill(waybills)
         end
     [waybill.created.strftime('%Y-%m-%d'), waybill.document_id,
      waybill.distributor.name, waybill.storekeeper.tag,
-     waybill.storekeeper_place.tag, state]
+     waybill.storekeeper_place.tag, state, waybill.sum.to_s]
   end
 end
 
@@ -425,7 +425,7 @@ feature "waybill", %q{
               I18n.t('views.waybills.storekeeper'),
               I18n.t('views.waybills.storekeeper_place'),
               I18n.t('views.statable.state')]
-    check_header('#container_documents table', titles)
+    check_header('#container_documents table', titles + [I18n.t('views.waybills.sum')])
 
     page.find("#show-filter").click
     within('#filter-area') do

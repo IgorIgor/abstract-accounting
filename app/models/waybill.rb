@@ -60,6 +60,11 @@ class Waybill < ActiveRecord::Base
       when 'storekeeper_place'
         scope = scope.joins{deal.take.place}
         field = 'places.tag'
+      when 'sum'
+        scope = scope.joins{deal.rules.from}.group{waybills.id}.
+                select("waybills.*").
+                select{sum(deal.rules.rate / deal.rules.from.rate).as(:sum)}
+        field = 'sum'
       else
         field = attrs[:field] if attrs[:field]
     end
@@ -156,6 +161,12 @@ class Waybill < ActiveRecord::Base
 
     Waybill.find(
       ActiveRecord::Base.connection.execute(script).map { |wb| wb['id'] })
+  end
+
+  def sum
+    sum = self.deal.rules.joins{from}.group{rules.deal_id}.
+               select{sum(rules.rate / from.rate).as(:sum)}.first.sum
+    sum.instance_of?(Float) ? sum.accounting_norm : sum
   end
 
   private

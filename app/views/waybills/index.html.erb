@@ -39,6 +39,9 @@
       <th id="storekeeper_place" data-bind="click: sortBy">
         <%=t 'views.waybills.storekeeper_place' %><span></span>
       </th>
+      <th id="sum" data-bind="click: sortBy">
+        <%=t 'views.waybills.sum' %><span></span>
+      </th>
       <th id="state" data-bind="click: sortBy">
         <%=t 'views.statable.state' %><span></span>
       </th>
@@ -56,11 +59,12 @@
       <td data-bind="text: distributor, click: $parent.show"></td>
       <td data-bind="text: storekeeper, click: $parent.show"></td>
       <td data-bind="text: storekeeper_place, click: $parent.show"></td>
+      <td data-bind="text: sum, click: $parent.show"></td>
       <td data-bind="text: state, click: $parent.show"></td>
     </tr>
     <tr data-bind="attr: {id: 'resource_' + id}, with: subitems">
       <td></td>
-      <td colspan="6" class="td-inner-table">
+      <td colspan="7" class="td-inner-table">
         <div class="paginate">
           <span data-bind="text: range"></span> <%= t('views.home.of') %>
           <span data-bind="text: count"></span>

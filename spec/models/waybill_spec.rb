@@ -44,6 +44,7 @@ describe Waybill do
     wb.items[1].amount.should eq(10)
     wb.items[1].price.should eq(150.0)
     wb.items[1].sum.should eq((wb.items[1].amount * wb.items[1].price).accounting_norm)
+    wb.sum.should eq(wb.items.inject(0.0) { |mem, item| mem += item.sum })
 
     asset = create(:asset)
     wb.add_item(tag: asset.tag, mu: asset.mu, amount: 100, price: 12.0)
@@ -53,6 +54,7 @@ describe Waybill do
     wb.items[2].amount.should eq(100)
     wb.items[2].price.should eq(12.0)
     wb.items[2].sum.should eq((wb.items[2].amount * wb.items[2].price).accounting_norm)
+    wb.sum.should eq(wb.items[0, 2].inject(0.0) { |mem, item| mem += item.sum })
 
     wb = Waybill.find(wb)
     wb.items.count.should eq(2)
@@ -64,6 +66,13 @@ describe Waybill do
     wb.items[1].amount.should eq(10)
     wb.items[1].price.should eq(150.0)
     wb.items[1].sum.should eq((wb.items[1].amount * wb.items[1].price).accounting_norm)
+    wb.sum.should eq(wb.items.inject(0.0) { |mem, item| mem += item.sum })
+
+    wb = build(:waybill)
+    wb.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1)
+    wb.add_item(tag: 'nails', mu: 'kg', amount: 10, price: 150)
+    wb.save
+    wb.sum.should eq(wb.items.inject(0.0) { |mem, item| mem += item.sum })
   end
 
   it 'should create deals' do
@@ -725,21 +734,21 @@ describe Waybill do
     wb3.save!
     wb3.apply
 
-    wbs = Waybill.order_by(field: 'created', type: 'acs').all
+    wbs = Waybill.order_by(field: 'created', type: 'asc').all
     wbs_test = Waybill.order('created').all
     wbs.should eq(wbs_test)
     wbs = Waybill.order_by(field: 'created', type: 'desc').all
     wbs_test = Waybill.order('created DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = Waybill.order_by(field: 'document_id', type: 'acs').all
+    wbs = Waybill.order_by(field: 'document_id', type: 'asc').all
     wbs_test = Waybill.order('document_id').all
     wbs.should eq(wbs_test)
     wbs = Waybill.order_by(field: 'document_id', type: 'desc').all
     wbs_test = Waybill.order('document_id DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = Waybill.order_by(field: 'distributor', type: 'acs').all
+    wbs = Waybill.order_by(field: 'distributor', type: 'asc').all
     wbs_test = Waybill.joins{deal.rules.from.entity(LegalEntity)}.
         group('waybills.id').order('legal_entities.name').all
     wbs.should eq(wbs_test)
@@ -748,25 +757,38 @@ describe Waybill do
         group('waybills.id').order('legal_entities.name DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = Waybill.order_by(field: 'storekeeper', type: 'acs').all
+    wbs = Waybill.order_by(field: 'storekeeper', type: 'asc').all
     wbs_test = Waybill.joins{deal.entity(Entity)}.order('entities.tag').all
     wbs.should eq(wbs_test)
     wbs = Waybill.order_by(field: 'storekeeper', type: 'desc').all
     wbs_test = Waybill.joins{deal.entity(Entity)}.order('entities.tag DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = Waybill.order_by(field: 'storekeeper_place', type: 'acs').all
+    wbs = Waybill.order_by(field: 'storekeeper_place', type: 'asc').all
     wbs_test = Waybill.joins{deal.take.place}.order('places.tag').all
     wbs.should eq(wbs_test)
     wbs = Waybill.order_by(field: 'storekeeper_place', type: 'desc').all
     wbs_test = Waybill.joins{deal.take.place}.order('places.tag DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = Waybill.order_by(field: 'state', type: 'acs').all
+    wbs = Waybill.order_by(field: 'state', type: 'asc').all
     wbs_test = Waybill.order('state').all
     wbs.should eq(wbs_test)
     wbs = Waybill.order_by(field: 'state', type: 'desc').all
     wbs_test = Waybill.order('state DESC').all
+    wbs.should eq(wbs_test)
+
+    wbs = Waybill.order_by(field: 'sum', type: 'asc').all
+    wbs_test = Waybill.joins{deal.rules.from}.group{waybills.id}.
+                      select("waybills.*").
+                      select{sum(deal.rules.rate / deal.rules.from.rate).as(:sum)}.
+                      order("sum").all
+    wbs.should eq(wbs_test)
+    wbs = Waybill.order_by(field: 'sum', type: 'desc').all
+    wbs_test = Waybill.joins{deal.rules.from}.group{waybills.id}.
+                      select("waybills.*").
+                      select{sum(deal.rules.rate / deal.rules.from.rate).as(:sum)}.
+                      order("sum DESC").all
     wbs.should eq(wbs_test)
   end
 
@@ -797,7 +819,7 @@ describe Waybill do
     Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d') }).include?(wb2).should be_true
 
     Waybill.search({ 'state' => Waybill::APPLIED }).include?(wb).should be_true
-    Waybill.search({ 'created' => Waybill::APPLIED }).include?(wb2).should be_false
+    Waybill.search({ 'state' => Waybill::APPLIED }).include?(wb2).should be_false
 
     Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d'), 'document_id' => wb.document_id,
                      'distributor' => wb.distributor.name, 'storekeeper' => wb.storekeeper.tag,

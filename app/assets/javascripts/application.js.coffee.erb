@@ -55,6 +55,46 @@ $ ->
   Array.prototype.remove = (value) ->
     this.splice(this.indexOf(value), 1)
 
+  $(document).ajaxStart( ->
+    $('#message_box').text("<%= I18n.t 'views.notifications.load' %>")
+    width = $('#message_box').css('width')
+    width = - width / 2
+    $('#message_box').css({'margin-left': "#{width}", 'left': '50%'})
+    $('#message_box').css('display', 'block')
+  )
+
+  $(document).ajaxStop( ->
+    $('#message_box').css('display', 'none')
+  )
+
+  $(document).ajaxError((e, jqXHR, settings) ->
+    statusErrorMap =
+      "400": "<%= I18n.t 'views.notifications.bad_request' %>"
+      "401": "<%= I18n.t 'views.notifications.unauth' %>"
+      "403": "<%= I18n.t 'views.notifications.forbidden' %>"
+      "500": "<%= I18n.t 'views.notifications.internal_error' %>"
+      "503": "<%= I18n.t 'views.notifications.unavailable' %>"
+    message = "<%= I18n.t 'views.notifications.error' %>"
+    if jqXHR.status
+      message = statusErrorMap[jqXHR.status]
+    else if e == 'parsererror'
+      message = "<%= I18n.t 'views.notifications.parsererror' %>"
+    else if e == 'timeout'
+      message = "<%= I18n.t 'views.notifications.timeout' %>"
+    else if e == 'abort'
+      message = "<%= I18n.t 'views.notifications.abort' %>"
+    $('#message_box').text(message)
+    width = $('#message_box').css('width')
+    width = - width / 2
+    $('#message_box').css({'margin-left': "#{width}", 'left': '50%'})
+    $('#message_box').css({'border-color': "#ec9090", 'background-color': '#ecbbbb'})
+    $('#message_box').css('display', 'block')
+    setTimeout( ->
+      $('#message_box').css('display', 'none')
+      $('#message_box').css({'border-color': "#F0C36D", 'background-color': '#F9EDBE'})
+    5000)
+  )
+
   class self.ObjectViewModel
     constructor: (object, route, readonly = false)->
       @readonly = ko.observable(readonly)

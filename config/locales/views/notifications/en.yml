@@ -1,0 +1,13 @@
+en:
+  views:
+    notifications:
+      load: Loading...
+      timeout: Request Time out
+      error: Unknow Error
+      abort: Request was aborted by the server
+      parsererror: Parsing JSON Request failed
+      bad_request: Server understood the request but request content was invalid
+      unauth: Unauthorised access
+      forbidden: Forbidden resouce can't be accessed
+      internal_error: Internal Server Error
+      unavailable: Service Unavailable

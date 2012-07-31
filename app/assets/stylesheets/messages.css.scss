@@ -1,0 +1,28 @@
+/* Style for overlay and box */
+.message-box{
+  position: fixed;
+
+  top: 10px;
+  margin: 0 auto;
+  border-color: #F0C36D;
+  background-color: #F9EDBE;
+  border: 1px solid transparent;
+  color: #222;
+  padding: 5px 10px;
+
+  border-radius: 2px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -moz-box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  z-index: 900;
+}
+
+.message-box span{
+  font-family: arial,sans-serif;
+  font-size: 80%;
+  font-weight: bold;
+  text-align: center;
+}

@@ -54,7 +54,7 @@ feature "Transcripts", %q{
     page.find('#main').visible?.should_not be_true
     page.find('#container_selection').visible?.should be_true
     within('#container_selection table tbody') do
-      page.find(:xpath, ".//tr[1]/td[1]").click
+      page.find(:xpath, ".//tr[1]/td[2]").click
     end
     page.find('#main').visible?.should be_true
     page.should_not have_selector('#container_selection')
@@ -311,7 +311,7 @@ feature "Transcripts", %q{
     current_hash.should eq('deals')
 
     within('#container_documents') do
-      page.find(:xpath, './/table/tbody/tr[1]/td[1]').click
+      page.find(:xpath, './/table/tbody/tr[1]/td[2]').click
     end
 
     deal = Deal.limit(per_page).first

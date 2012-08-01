@@ -115,6 +115,7 @@ class WaybillsController < ApplicationController
     scope = scope.search(params[:search]) if params[:search]
     @count = scope.count
     @count = @count.length unless @count.instance_of? Fixnum
+    @total = scope.total
     scope = scope.order_by(params[:order]) if params[:order]
     @waybills = scope.limit(per_page).offset((page - 1) * per_page)
   end

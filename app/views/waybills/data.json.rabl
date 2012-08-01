@@ -30,3 +30,4 @@ child(@waybills => :objects) do
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }
+node(:total) { @total }

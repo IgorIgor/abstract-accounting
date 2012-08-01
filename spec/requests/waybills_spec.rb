@@ -427,6 +427,12 @@ feature "waybill", %q{
               I18n.t('views.statable.state')]
     check_header('#container_documents table', titles + [I18n.t('views.waybills.sum')])
 
+
+    page.should have_selector("table tfoot tr")
+    page.should have_xpath("//table//tfoot//tr//td[contains(.//text()," +
+                               "'#{I18n.t('views.waybills.total')}')]")
+    page.find(:xpath, "//table//tfoot//tr//td[2]").text.to_f.should eq(Waybill.total)
+
     page.find("#show-filter").click
     within('#filter-area') do
       titles.each do |title|

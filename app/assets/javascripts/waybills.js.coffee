@@ -2,6 +2,7 @@ $ ->
   class self.WaybillsViewModel extends TreeViewModel
     constructor: (data, params = {}) ->
       @url = '/waybills/data.json'
+      @total = ko.observable(data.total) if data.total?
 
       @filter =
         created: ko.observable('')

@@ -73,6 +73,8 @@ describe Waybill do
     wb.add_item(tag: 'nails', mu: 'kg', amount: 10, price: 150)
     wb.save
     wb.sum.should eq(wb.items.inject(0.0) { |mem, item| mem += item.sum })
+
+    Waybill.total.should eq(Waybill.all.inject(0.0) { |mem, w| mem += w.sum })
   end
 
   it 'should create deals' do

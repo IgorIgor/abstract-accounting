@@ -36,6 +36,11 @@ class Waybill < ActiveRecord::Base
       joins{deal.take}.
           where{deal.take.place_id == place.id}
     end
+
+    def total
+      joins{deal.rules.from}.select{sum(deal.rules.rate/deal.rules.from.rate).as(:total)}.
+          first.total
+    end
   end
 
   validates_presence_of :document_id

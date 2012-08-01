@@ -49,7 +49,8 @@ $ ->
             @object.items.push(resource)
         @getPaginateData()
       else
-        $.getJSON("/waybills/#{waybill.id}/resources.json", {all: true}, (items) =>
+        $.getJSON("/waybills/#{waybill.id}/resources.json", {all: true, exp_amount: true},
+        (items) =>
           for resource in items.objects
             exist = $.grep(@object.items(), (r) -> return r.id == resource.id)[0]
             if exist
@@ -89,6 +90,7 @@ $ ->
         if @availableMode() == '0'
           @warehouse(new WarehouseViewModel(data, @params))
         else
+          @params["exp_amount"] = true
           @warehouse(new WaybillsViewModel(data, @params))
       )
 

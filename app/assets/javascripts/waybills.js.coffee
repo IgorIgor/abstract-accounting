@@ -27,7 +27,10 @@ $ ->
 
     generateItemsUrl: (object) => "/waybills/#{object.id}/resources.json"
 
-    generateChildrenParams: (object) => {}
+    generateChildrenParams: (object) =>
+      params = {}
+      params["exp_amount"] = true if @params.exp_amount?
+      params
 
     createChildrenViewModel: (data, params, object) =>
       new WaybillResourcesViewModel(data, params, object)
@@ -40,3 +43,6 @@ $ ->
       @params =
         page: @page
         per_page: @per_page
+      $.each(params, (key, value) =>
+        @params[key] = value
+      )

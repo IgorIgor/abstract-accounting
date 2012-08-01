@@ -13,6 +13,9 @@ child(@resources => :objects) do
     attributes :id, :tag, :mu
   end
   attributes :amount, :price, :sum
+  if @exp_amount
+    attributes :exp_amount
+  end
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

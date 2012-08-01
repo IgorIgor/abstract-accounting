@@ -121,6 +121,7 @@ class WaybillsController < ApplicationController
 
   def resources
     waybill = Waybill.find(params[:id])
+    @exp_amount = params[:exp_amount]
     @resources = []
     if params[:all]
       @resources = waybill.items

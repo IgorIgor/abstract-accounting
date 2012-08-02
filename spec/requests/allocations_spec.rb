@@ -110,17 +110,15 @@ feature 'allocation', %q{
       page.should have_no_selector('#available-resources tbody tr')
 
       find('#storekeeper_place')[:disabled].should eq("true")
+      find('#foreman_place')[:disabled].should eq("true")
       fill_in('storekeeper_entity', with: 'fail')
       page.has_css?("#storekeeper_entity", value: '').should be_true
       page.should have_no_selector('#available-resources tbody tr')
 
       fill_in('storekeeper_entity', with: 'fail')
       page.has_css?("#storekeeper_place", value: '').should be_true
+      page.has_css?("#foreman_place", value: '').should be_true
       page.should have_no_selector('#available-resources tbody tr')
-
-      6.times.collect { create(:place) }
-      items = Place.all(order: :tag, limit: 5)
-      check_autocomplete("foreman_place", items, :tag)
 
       3.times do
         user = create(:user)
@@ -137,6 +135,9 @@ feature 'allocation', %q{
       end
       find("#storekeeper_entity")[:value].should eq(items[0].tag)
       find("#storekeeper_place")[:value].should eq(
+        User.where(entity_id: items[0].id).first.
+          credentials.where(document_type: Allocation.name).first.place.tag)
+      find("#foreman_place")[:value].should eq(
         User.where(entity_id: items[0].id).first.
           credentials.where(document_type: Allocation.name).first.place.tag)
 
@@ -458,8 +459,6 @@ feature 'allocation', %q{
           "#{I18n.t('views.allocations.storekeeper')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content(
           "#{I18n.t('views.allocations.foreman')} : #{I18n.t('errors.messages.blank')}")
-        page.should have_content(
-          "#{I18n.t('views.allocations.foreman_place')} : #{I18n.t('errors.messages.blank')}")
       end
     end
 
@@ -468,7 +467,6 @@ feature 'allocation', %q{
     within("#container_documents form") do
       fill_in_autocomplete('storekeeper_entity', wb.storekeeper.tag)
       fill_in("foreman_entity", :with =>"entity")
-      fill_in("foreman_place", :with => "place")
     end
 
     within("#container_documents") do
@@ -533,10 +531,11 @@ feature 'allocation', %q{
       page.datepicker("created").prev_month.day(10)
       find("#storekeeper_entity")[:value].should eq(user.entity.tag)
       find("#storekeeper_place")[:value].should eq(wb.storekeeper_place.tag)
+      find("#foreman_place")[:value].should eq(wb.storekeeper_place.tag)
       find("#storekeeper_entity")[:disabled].should eq("true")
       find("#storekeeper_place")[:disabled].should eq("true")
+      find("#foreman_place")[:disabled].should eq("true")
       fill_in("foreman_entity", :with =>"entity")
-      fill_in("foreman_place", :with => "place")
     end
 
     within("#container_documents") do

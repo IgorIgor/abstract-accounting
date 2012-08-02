@@ -26,7 +26,11 @@ ko.bindingHandlers.autocomplete =
           if bind and bind.hasOwnProperty(key)
             if typeof value == "object"
               for key2, value2 of value
-                bind[key][key2](value2) if bind[key].hasOwnProperty(key2)
+                if bind[key].hasOwnProperty(key2)
+                  if $.isArray(bind[key][key2])
+                    bind_value(value2) for bind_value in bind[key][key2]
+                  else
+                    bind[key][key2](value2)
             else
               bind[key](value)
           else if (viewModel.hasOwnProperty(key))
@@ -46,7 +50,10 @@ ko.bindingHandlers.autocomplete =
             for key, value of bind
               if typeof value == "object"
                 for key2, value2 of value
-                  value2(null)
+                  if $.isArray(value2)
+                    bind_value(null) for bind_value in value2
+                  else
+                    value2(null)
               else
                 value(null)
           if config.onlySelect

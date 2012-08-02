@@ -68,8 +68,10 @@
                               bind: {
                                 id: $parent.object.allocation.storekeeper_id,
                                 place: {
-                                  id: $parent.object.allocation.storekeeper_place_id,
-                                  tag: $parent.object.storekeeper_place.tag,
+                                  id: [$parent.object.allocation.storekeeper_place_id,
+                                       $parent.object.allocation.foreman_place_id],
+                                  tag: [$parent.object.storekeeper_place.tag,
+                                        $parent.object.foreman_place.tag],
                                 }
                               },
                               onlySelect: true,
@@ -114,11 +116,7 @@
         <span data-bind='with: object.foreman_place'>
           <input type='text' id='foreman_place'
                  name='<%= t 'views.allocations.foreman_place' %>' rule='required'
-                 data-bind="autocomplete: {
-                              source: '/places.json',
-                              value: 'tag',
-                              bind: { id: $parent.object.allocation.foreman_place_id }
-                            }, value: tag, disable: $parent.readonly" />
+                 data-bind="value: tag" disabled="disabled" />
         </span>
       </div>
     </div>

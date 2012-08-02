@@ -30,10 +30,10 @@ node(:can_cancel) do
   @allocation.state == Statable::APPLIED || @allocation.state == Statable::INWORK
 end
 child(Entity.new => :foreman) { attributes :tag }
-child(Place.new => :foreman_place) { attributes :tag }
 storekeeper = @allocation.storekeeper
 child(storekeeper ? storekeeper : Entity.new => :storekeeper) { attributes :tag }
 place = @allocation.storekeeper_place
 child((place ? place : Place.new) => :storekeeper_place) { attributes :tag }
+child((place ? place : Place.new) => :foreman_place) { attributes :tag }
 child([] => :items)
 

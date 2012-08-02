@@ -177,4 +177,10 @@ describe BalanceSheet do
       BalanceSheet.group_by('resource').db_count.should eq(9)
     end
   end
+
+  describe "#search" do
+    it "should have search attribute" do
+      BalanceSheet.search(resource: 'res').search_value.should eq(resource: 'res')
+    end
+  end
 end

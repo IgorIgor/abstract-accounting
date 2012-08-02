@@ -41,10 +41,12 @@ class BalanceSheet < Array
   filter_attr :entity
   filter_attr :place_id
   filter_attr :group_by
+  filter_attr :search
 
   getter :all do |options = {}|
     build_scopes
-    if self.resource_value || self.entity_value || self.place_id_value || self.group_by_value
+    if self.resource_value || self.entity_value || self.place_id_value ||
+        self.group_by_value || self.search_value
       scope = @balance_scope
       scope = scope.paginate(self.paginate_value) if self.paginate_value
       scope.each do |o|
@@ -108,6 +110,23 @@ class BalanceSheet < Array
         @balance_scope = @balance_scope.joins(:take).joins(:give).
             with_place(self.place_id_value)
       end
+      if self.search_value
+        if self.search_value[:resource]
+          @balance_scope = @balance_scope.joins{give.resource(Asset)}.
+              where{lower(give.resource.tag).like(lower("%#{my{search_value[:resource]}}%"))}
+        end
+        if self.search_value[:place]
+          @balance_scope = @balance_scope.joins{give.place}.joins{take.place}.
+              where{((lower(give.place.tag).like(lower("%#{my{search_value[:place]}}%"))) &
+              (side == Balance::PASSIVE)) |
+              ((lower(take.place.tag).like(lower("%#{my{search_value[:place]}}%"))) &
+                  (side == Balance::ACTIVE))}
+        end
+        if self.search_value[:entity]
+          @balance_scope = @balance_scope.joins{deal.entity(Entity)}.
+              where{lower(deal.entity.tag).like(lower("%#{my{search_value[:entity]}}%"))}
+        end
+      end
       if self.group_by_value
         case self.group_by_value
           when 'place'
@@ -136,7 +155,8 @@ class BalanceSheet < Array
 
   def retrieve_assets
     build_scopes
-    object = if self.resource_value || self.entity_value || self.place_id_value
+    object = if self.resource_value || self.entity_value || self.place_id_value ||
+        self.search_value
         SqlRecord.from(@balance_scope.select(build_select_statement(Balance)).to_sql).
                  select("SUM(assets) as assets, SUM(liabilities) as liabilities").first
       else

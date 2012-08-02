@@ -116,6 +116,11 @@ $ ->
       @callback = null
       @group_by = ko.observable('')
 
+      @filter =
+        resource: ko.observable('')
+        place: ko.observable('')
+        entity: ko.observable('')
+
       unless $.isEmptyObject(params)
         @resource(params.resource) if params.resource
         @entity(params.entity) if params.entity
@@ -126,6 +131,7 @@ $ ->
       super(data)
 
       @params =
+        search: @filter
         date: @balances_date().toString()
         page: @page
         per_page: @per_page
@@ -142,9 +148,10 @@ $ ->
       else
         location.hash = "#balance_sheet?group_by=#{@group_by()}"
 
-    filter: =>
+    filterData: =>
       @page(1)
       @params =
+        search: @filter
         date: @balances_date().toString()
         page: @page
         per_page: @per_page
@@ -152,7 +159,7 @@ $ ->
         entity: @entity()
         place_id: @place_id()
         group_by: @group_by()
-      $.getJSON(@url, normalizeHash(@params), (data) =>
+      $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
         @documents(data.objects)
         @page(1)
         @count(data.count)

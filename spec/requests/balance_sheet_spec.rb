@@ -43,6 +43,42 @@ feature "BalanceSheet", %q{
         I18n.t('views.balance_sheet.credit')
     ]
     check_header("#container_documents table", titles)
+
+    page.find("#show-filter").click
+
+    within('#filter-area') do
+      page.should have_content(I18n.t('views.balance_sheet.resource'))
+      page.should have_content(I18n.t('views.balance_sheet.place'))
+      page.should have_content(I18n.t('views.balance_sheet.entity'))
+
+      fill_in('filter-resource', with: bs[1].deal.give.resource.tag)
+      fill_in('filter-place', with: bs[1].deal.give.place.tag)
+      fill_in('filter-entity', with: bs[1].deal.entity.tag)
+      click_button(I18n.t('views.home.search'))
+    end
+    within('#container_documents table') do
+      page.should have_selector('tbody tr', count: 1)
+      page.should have_content(bs[1].deal.tag)
+      page.should have_content(bs[1].deal.entity.name)
+      page.should have_content(bs[1].deal.give.resource.tag)
+      page.should have_content(bs[1].deal.give.place.tag)
+      page.should have_content(bs[1].amount)
+      if Balance::PASSIVE == bs[1].side
+        find(:xpath, ".//td[5]").should have_content('')
+      else
+        find(:xpath, ".//td[4]").should have_content('')
+      end
+    end
+
+    check_paginate("div[@class='paginate']", 1, 1)
+
+    page.find("#show-filter").click
+
+    within('#filter-area') do
+      click_link(I18n.t('views.home.clear_filter'))
+      click_button(I18n.t('views.home.search'))
+    end
+
     check_content("#container_documents table", bs) do |balance|
       if Balance::PASSIVE == balance.side
         find(:xpath, ".//td[5]").should have_content('')

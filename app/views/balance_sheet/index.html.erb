@@ -1,3 +1,12 @@
+<% content_for :search  do %>
+  <label><%=t 'views.balance_sheet.resource' %></label>
+  <input type="text" id="filter-resource" data-bind="value: filter.resource"/>
+  <label><%=t 'views.balance_sheet.place' %></label>
+  <input type="text" id="filter-place" data-bind="value: filter.place"/>
+  <label><%=t 'views.balance_sheet.entity' %></label>
+  <input type="text" id="filter-entity" data-bind="value: filter.entity"/>
+<% end %>
+
 <div class='actions with-padding'>
   <input type='button' value="<%= t 'views.balance_sheet.report_on_selected' %>"
          data-bind="click: reportOnSelected, disable: !selected()"/>
@@ -11,7 +20,7 @@
 <div class="left">
   <label for="balance_date_start"><%= t 'views.balance_sheet.date' %>:</label>
   <input type="text" id="balance_date_start"
-         data-bind="datepicker: balances_date, event: {change: filter}">
+         data-bind="datepicker: balances_date, event: {change: filterData}">
 </div>
 <div class="left">
   <span><%= t 'views.balance_sheet.mu' %>:</span>

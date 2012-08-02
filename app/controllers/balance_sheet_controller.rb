@@ -9,7 +9,7 @@
 
 class BalanceSheetController < ActionController::Base
   def index
-    render 'index', layout: false
+    render 'index', layout: "data_with_filter"
   end
 
   def data
@@ -17,6 +17,7 @@ class BalanceSheetController < ActionController::Base
     scope = scope.resource(params[:resource]) if params[:resource]
     scope = scope.entity(params[:entity]) if params[:entity]
     scope = scope.place_id(params[:place_id]) if params[:place_id]
+    scope = scope.search(params[:search]) if params[:search]
     @balances = scope.
         date(params[:date].nil? ? DateTime.now : Date.parse(params[:date])).
         paginate(page: params[:page] || 1, per_page: params[:per_page]).

@@ -809,6 +809,30 @@ describe Txn do
     bs.db_count.should eq(1)
     bs.assets.should eq(101900.0)
     bs.liabilities.should eq(0.0)
+
+
+
+    bs = BalanceSheet.search(search: { resource: @rub.tag }).
+        date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
+
+    bs.count.should eq(6)
+    bs.db_count.should eq(6)
+    bs.assets.should eq(242000.0)
+    bs.liabilities.should eq(242000.0)
+
+    bs = BalanceSheet.search(search: { entity: @bank.entity.tag }).
+        date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
+    bs.count.should eq(6)
+    bs.db_count.should eq(6)
+    bs.assets.should eq(242000.0)
+    bs.liabilities.should eq(242000.0)
+
+    bs = BalanceSheet.search(search: { place: @bank.take.place.tag }).
+        date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
+    bs.count.should eq(6)
+    bs.db_count.should eq(6)
+    bs.assets.should eq(242000.0)
+    bs.liabilities.should eq(242000.0)
   end
 
   it "should produce general ledger" do

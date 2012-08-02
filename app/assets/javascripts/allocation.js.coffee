@@ -3,6 +3,17 @@ $ ->
     constructor: (object, readonly = false) ->
       super(object, 'allocations', readonly)
       @disable_storekeeper = if object.allocation.storekeeper_id then true else false
+      @motion = ko.observable("0")
+      @motion.subscribe((val) =>
+        @object.foreman.tag(null)
+        @object.allocation.foreman_id(null)
+        if val == '0'
+          @object.foreman_place.tag(@object.storekeeper_place.tag())
+          @object.allocation.foreman_place_id(@object.allocation.storekeeper_place_id())
+        else
+          @object.foreman_place.tag(null)
+          @object.allocation.foreman_place_id(null)
+      )
 
       @url = '/warehouses/data.json'
       @warehouse = ko.observable(null)

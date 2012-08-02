@@ -28,7 +28,12 @@ ru:
       document_id: № документа
       distributor: Поставщик
       storekeeper: Кладовщик
+      other_storekeeper: Получающий кладовщик
       storekeeper_place: Объект
+      motion:
+        name: Перемещение
+        warehouse: на другой склад
+        allocation: на выдачу
       resource:
         name: Название ресурса
         tag: Название

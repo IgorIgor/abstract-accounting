@@ -28,7 +28,12 @@ en:
       document_id: Document id
       distributor: Distributor
       storekeeper: Storekeeper
+      other_storekeeper: Receive storekeeper
       storekeeper_place: Place
+      motion:
+        name: Motion
+        warehouse: to other warehouse
+        allocation: to allocation
       resource:
         name: Resource name
         tag: Name

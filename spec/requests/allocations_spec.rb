@@ -33,6 +33,7 @@ def show_allocation(allocation)
     find("#foreman_entity")[:disabled].should be_true
     find("#foreman_place")[:disabled].should be_true
     find("#state")[:disabled].should be_true
+    page.should have_no_selector("#motion-allocation")
   end
 
   within("#selected-resources tbody") do
@@ -128,15 +129,26 @@ feature 'allocation', %q{
       items = Credential.where(document_type: Allocation.name).
           all.collect { |c| c.user.entity }
       check_autocomplete("storekeeper_entity", items, :tag, true)
-      fill_in('storekeeper_entity', :with => items[0].tag)
-      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
-                     "contains(@style, 'display: block')]") do
-        all(:xpath, ".//li//a")[0].click
-      end
+      fill_in_autocomplete('storekeeper_entity', items[0].tag)
       find("#storekeeper_entity")[:value].should eq(items[0].tag)
       find("#storekeeper_place")[:value].should eq(
         User.where(entity_id: items[0].id).first.
           credentials.where(document_type: Allocation.name).first.place.tag)
+      find("#foreman_place")[:value].should eq(
+        User.where(entity_id: items[0].id).first.
+          credentials.where(document_type: Allocation.name).first.place.tag)
+
+      page.should have_selector("#motion-allocation")
+      find('#motion-warehouse').click
+      find("#foreman_place")[:value].should eq('')
+      find("#foreman_entity")[:value].should eq('')
+      check_autocomplete("foreman_entity", items, :tag, true)
+      fill_in_autocomplete('foreman_entity', items[2].tag)
+      find("#foreman_place")[:value].should eq(
+        User.where(entity_id: items[2].id).first.
+          credentials.where(document_type: Allocation.name).first.place.tag)
+      find('#motion-allocation').click
+      find("#foreman_entity")[:value].should eq('')
       find("#foreman_place")[:value].should eq(
         User.where(entity_id: items[0].id).first.
           credentials.where(document_type: Allocation.name).first.place.tag)

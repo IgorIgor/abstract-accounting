@@ -13,4 +13,12 @@ class DealState < ActiveRecord::Base
 
   validates_uniqueness_of :deal_id
   validates_presence_of :open
+
+  def in_work?
+    self.close.nil?
+  end
+
+  def closed?
+    !self.in_work?
+  end
 end

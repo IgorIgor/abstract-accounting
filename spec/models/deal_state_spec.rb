@@ -10,12 +10,38 @@
 require 'spec_helper'
 
 describe DealState do
-  it "should have next behaviour" do
+  before :all do
     d = DealState.new(open: Date.today)
     d.deal = create(:deal)
     d.save!
+  end
+
+  it "should have next behaviour" do
     should validate_presence_of :open
     should validate_uniqueness_of :deal_id
     should belong_to :deal
+  end
+
+  describe "#in_work?" do
+    it "should be in work if close is not set" do
+      DealState.first.in_work?.should be_true
+    end
+
+    it "should not be in work if close is set" do
+      DealState.first.update_attributes(close: Date.today)
+      DealState.first.in_work?.should be_false
+    end
+  end
+
+  describe "#closed?" do
+    it "should be closed if close is set" do
+      DealState.first.update_attributes(close: Date.today)
+      DealState.first.closed?.should be_true
+    end
+
+    it "should not be closed if close is not set" do
+      DealState.first.update_attributes(close: nil)
+      DealState.first.closed?.should be_false
+    end
   end
 end

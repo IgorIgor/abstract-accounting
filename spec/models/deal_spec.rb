@@ -27,6 +27,7 @@ describe Deal do
     should have_one(:give).class_name(Term).conditions(:side => false)
     should have_one(:take).class_name(Term).conditions(:side => true)
     should have_many Deal.versions_association_name
+    should have_one :deal_state
 
     deal_has_states
     deal_has_balances

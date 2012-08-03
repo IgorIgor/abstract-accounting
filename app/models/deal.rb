@@ -20,6 +20,7 @@ class Deal < ActiveRecord::Base
   has_many :waybills
   has_one :give, :class_name => "Term", :conditions => {:side => false}
   has_one :take, :class_name => "Term", :conditions => {:side => true}
+  has_one :deal_state
 
   def self.income
     income = Deal.where(:id => INCOME_ID).first

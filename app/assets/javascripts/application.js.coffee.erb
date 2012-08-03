@@ -18,23 +18,6 @@
 #= require_tree .
 
 $ ->
-  self.ajaxRequest = (type, url, params = {}) ->
-    $.ajax(
-      type: type
-      url: url
-      data: params
-      complete: (data) ->
-        if data.responseText == 'success'
-          location.hash = 'inbox'
-        else
-          $('#container_notification').css('display', 'block')
-          $('#container_notification ul').css('display', 'block')
-          $('#container_notification ul').empty()
-          for msg in JSON.parse(data.responseText, (key, value) -> value)
-            $('#container_notification ul')
-                                  .append($("<li class='server-message'>#{msg}</li>"))
-    )
-
   self.toggleSelect = (id = null) ->
     $('.sidebar-selected').removeClass('sidebar-selected')
     $("##{id}").addClass('sidebar-selected') if id
@@ -102,10 +85,31 @@ $ ->
       @route = route
       $('.paginate').hide()
 
+    ajaxRequest: (type, url, params = {}) =>
+      $.ajax(
+        type: type
+        url: url
+        data: params
+        complete: (data) =>
+          response = JSON.parse(data.responseText)
+          if response['result'] == 'success'
+            if response['id']
+              location.hash = "documents/#{@route}/#{response['id']}"
+            else
+              location.hash = 'inbox'
+          else
+            $('#container_notification').css('display', 'block')
+            $('#container_notification ul').css('display', 'block')
+            $('#container_notification ul').empty()
+            for msg in JSON.parse(data.responseText, (key, value) -> value)
+              $('#container_notification ul')
+                  .append($("<li class='server-message'>#{msg}</li>"))
+      )
+
     back: -> location.hash = 'inbox'
 
     save: =>
-      ajaxRequest('POST', "/#{@route}", normalizeHash(ko.mapping.toJS(@object)))
+      @ajaxRequest('POST', "/#{@route}", normalizeHash(ko.mapping.toJS(@object)))
 
   class self.CommentableViewModel extends ObjectViewModel
     constructor: (object, route, readonly = false)->
@@ -143,11 +147,12 @@ $ ->
   class self.StatableViewModel extends CommentableViewModel
     constructor: (object, route, readonly = false)->
       super(object, route, readonly)
+      viewModel = this
       $.sammy( ->
         this.get("#documents/:type/:id/apply", ->
-          ajaxRequest('GET', "/#{this.params.type}/#{this.params.id}/apply"))
+          viewModel.ajaxRequest('GET', "/#{this.params.type}/#{this.params.id}/apply"))
         this.get("#documents/:type/:id/cancel", ->
-          ajaxRequest('GET', "/#{this.params.type}/#{this.params.id}/cancel"))
+          viewModel.ajaxRequest('GET', "/#{this.params.type}/#{this.params.id}/cancel"))
       )
 
     apply: =>
@@ -178,7 +183,7 @@ $ ->
       url = "/#{@route}"
       if @method == 'PUT'
         url = "/#{@route}/#{@object.id()}"
-      ajaxRequest(@method, url, ko.mapping.toJS(@object))
+      @ajaxRequest(@method, url, ko.mapping.toJS(@object))
 
   class self.FolderViewModel
     constructor: (data) ->

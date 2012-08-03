@@ -64,7 +64,7 @@ class WaybillsController < ApplicationController
         end
         params[:items].each_value { |item| waybill.add_item(item) } if params[:items]
         waybill.save!
-        render :text => "success"
+        render json: { result: 'success', id: waybill.id }
       end
     rescue
       render json: waybill.errors.full_messages
@@ -138,7 +138,7 @@ class WaybillsController < ApplicationController
   def apply
     waybill = Waybill.find(params[:id])
     if waybill.apply
-      render :text => "success"
+      render json: { result: 'success', id: waybill.id }
     else
       render json: waybill.errors.full_messages
     end
@@ -147,7 +147,7 @@ class WaybillsController < ApplicationController
   def cancel
     waybill = Waybill.find(params[:id])
     if waybill.cancel
-      render :text => "success"
+      render json: { result: 'success', id: waybill.id }
     else
       render json: waybill.errors.full_messages
     end

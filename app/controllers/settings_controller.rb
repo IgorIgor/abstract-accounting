@@ -31,7 +31,7 @@ class SettingsController < ApplicationController
               params[:money][:alpha_code],params[:money][:num_code])
         chart.save!
       end
-      render text: "success"
+      render json: { result: 'success' }
     rescue
       render json: chart.errors.full_messages
     end

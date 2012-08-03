@@ -38,7 +38,7 @@ class GroupsController < ApplicationController
       Group.transaction do
         group = Group.create(params[:group])
         group.user_ids = params[:users].values.map{ |item| item[:id] }
-        render text: 'success'
+        render json: { result: 'success', id: group.id }
       end
     rescue
       render json: group.errors.full_messages
@@ -51,7 +51,7 @@ class GroupsController < ApplicationController
       Group.transaction do
         group.update_attributes(params[:group])
         group.user_ids = params[:users].values.map{ |item| item[:id] }
-        render :text => "success"
+        render json: { result: 'success', id: group.id }
       end
     rescue
       render json: group.errors.full_messages

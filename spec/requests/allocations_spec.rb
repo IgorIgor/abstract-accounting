@@ -514,7 +514,7 @@ feature 'allocation', %q{
 
     lambda {
       click_button(I18n.t('views.allocations.save'))
-      page.should have_selector("#inbox[@class='sidebar-selected']")
+      current_hash.should eq("documents/allocations/#{Allocation.last.id}")
     }.should change(Allocation, :count).by(1)
 
     PaperTrail.enabled = false
@@ -557,7 +557,7 @@ feature 'allocation', %q{
 
     lambda {
       click_button(I18n.t('views.allocations.save'))
-      page.should have_selector("#inbox[@class='sidebar-selected']")
+      current_hash.should eq("documents/allocations/#{Allocation.last.id}")
     }.should change(Allocation, :count).by(1)
 
     PaperTrail.enabled = false
@@ -605,10 +605,8 @@ feature 'allocation', %q{
 
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Allocation - #{wb.storekeeper.tag}')]").click
-      click_button(I18n.t('views.allocations.apply'))
-      page.should have_selector("#inbox[@class='sidebar-selected']")
-    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Allocation - #{wb.storekeeper.tag}')]").click
+    click_button(I18n.t('views.allocations.apply'))
+    current_hash.should eq("documents/allocations/#{ds.id}")
     page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
       'views.allocations.apply')}' and contains(@style, 'display: none')]")
     PaperTrail.enabled = false
@@ -631,8 +629,7 @@ feature 'allocation', %q{
 
     visit("#documents/allocations/#{ds.id}")
     click_button(I18n.t('views.allocations.cancel'))
-    page.should have_selector("#inbox[@class='sidebar-selected']")
-    visit("#documents/allocations/#{ds.id}")
+    current_hash.should eq("documents/allocations/#{ds.id}")
     page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.allocations.cancel')}' and contains(@style, 'display: none')]")
     find_field('state').value.should eq(I18n.t('views.statable.canceled'))
@@ -648,8 +645,7 @@ feature 'allocation', %q{
 
     visit("#documents/allocations/#{ds.id}")
     click_button(I18n.t('views.allocations.cancel'))
-    page.should have_selector("#inbox[@class='sidebar-selected']")
-    visit("#documents/allocations/#{ds.id}")
+    current_hash.should eq("documents/allocations/#{ds.id}")
     page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.allocations.cancel')}' and contains(@style, 'display: none')]")
     find_field('state').value.should eq(I18n.t('views.statable.reversed'))

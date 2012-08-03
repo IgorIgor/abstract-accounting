@@ -66,7 +66,7 @@ feature "group", %q{
 
     lambda do
       click_button(I18n.t('views.groups.save'))
-      page.should have_selector("#inbox[@class='sidebar-selected']")
+      current_hash.should eq("documents/groups/#{Group.last.id}")
     end.should change(Group, :count).by(1)
   end
 
@@ -185,7 +185,7 @@ feature "group", %q{
 
     lambda do
       click_button(I18n.t('views.groups.save'))
-      page.should have_selector("#inbox[@class='sidebar-selected']")
+      current_hash.should eq("documents/groups/#{group.id}")
     end.should change(Group, :count).by(0)
 
     group = Group.find(group.id)

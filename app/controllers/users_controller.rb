@@ -38,9 +38,9 @@ class UsersController < ApplicationController
           end
         end
       end
-      render text: "success"
+      render json: { result: 'success', id: user.id }
     rescue
-      render json: user.errors.messages
+      render json: user.errors.full_messages
     end
   end
 
@@ -78,9 +78,9 @@ class UsersController < ApplicationController
           user.change_password!(params[:user][:password])
         end
       end
-      render text: "success"
+      render json: { result: 'success', id: user.id }
     rescue
-      render json: user.errors.messages
+      render json: user.errors.full_messages
     end
   end
 

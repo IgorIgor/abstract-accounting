@@ -60,7 +60,7 @@ class AllocationsController < ApplicationController
         end
         params[:items].each_value { |item| allocation.add_item(item) } if params[:items]
         allocation.save!
-        render :text => "success"
+        render json: { result: 'success', id: allocation.id }
       end
     rescue
       render json: allocation.errors.messages
@@ -108,7 +108,7 @@ class AllocationsController < ApplicationController
   def apply
     allocation = Allocation.find(params[:id])
     if allocation.apply
-      render :text => "success"
+      render json: { result: 'success', id: allocation.id }
     else
       render json: allocation.errors.messages
     end
@@ -117,7 +117,7 @@ class AllocationsController < ApplicationController
   def cancel
     allocation = Allocation.find(params[:id])
     if allocation.cancel
-      render :text => "success"
+      render json: { result: 'success', id: allocation.id }
     else
       render json: allocation.errors.messages
     end

@@ -66,6 +66,7 @@
             <input type="text" rule="required"
                    data-bind="autocomplete: { source: '/users/names.json',
                                               bind: { id: id },
+                                              onlySelect: true,
                                               value: 'tag' },
                               attr: { name: '<%=t 'views.groups.user_name' %>#'+
                                             $parent.object.users.indexOf($data) +

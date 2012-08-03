@@ -239,11 +239,9 @@ feature "waybill", %q{
     lambda do
       page.find(:xpath, "//div[@class='actions']" +
           "//input[@value='#{I18n.t('views.waybills.save')}']").click
-      page.should have_selector("#inbox[@class='sidebar-selected']")
+      current_hash.should eq("documents/waybills/#{Waybill.last.id}")
     end.should change(Waybill, :count).by(1)
 
-    page.find(:xpath, "//td[@class='cell-title' and " +
-                  "contains(.//text(), '#{Waybill.name}')]").click
     show_waybill(Waybill.first)
 
     PaperTrail.enabled = false
@@ -316,10 +314,8 @@ feature "waybill", %q{
       page.find(:xpath, "//div[@class='actions']//input[@value='#{
                           I18n.t('views.waybills.save')
                         }']").click
-      page.should have_selector("#inbox[@class='sidebar-selected']")
+      current_hash.should eq("documents/waybills/#{Waybill.last.id}")
     end.should change(Waybill, :count).by(1)
-
-    page.find("td[@class='cell-entity']").click
 
     within('div.comments') do
       page.should have_content(I18n.t('layouts.comments.comments'))
@@ -350,9 +346,7 @@ feature "waybill", %q{
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Waybill - #{wb.storekeeper.tag}')]").click
     click_button(I18n.t('views.waybills.apply'))
-    page.should have_selector("#inbox[@class='sidebar-selected']")
-    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Waybill - #{wb.storekeeper.tag}')]").click
+    current_hash.should eq("documents/waybills/#{wb.id}")
     page.should have_xpath("//div[@class='actions']/input[@value='#{I18n.t(
         'views.waybills.apply')}' and contains(@style, 'display: none')]")
     find_field('state').value.should eq(I18n.t('views.statable.applied'))
@@ -371,9 +365,7 @@ feature "waybill", %q{
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Waybill - #{wb.storekeeper.tag}')]").click
     click_button(I18n.t('views.waybills.cancel'))
-    page.should have_selector("#inbox[@class='sidebar-selected']")
-    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Waybill - #{wb.storekeeper.tag}')]").click
+    current_hash.should eq("documents/waybills/#{wb.id}")
     page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.waybills.cancel')}' and contains(@style, 'display: none')]")
     find_field('state').value.should eq(I18n.t('views.statable.canceled'))
@@ -387,7 +379,7 @@ feature "waybill", %q{
     page_login
     visit("#documents/waybills/#{wb.id}")
     click_button(I18n.t('views.waybills.cancel'))
-    page.should have_selector("#inbox[@class='sidebar-selected']")
+    current_hash.should eq("documents/waybills/#{wb.id}")
     visit("#documents/waybills/#{wb.id}")
     page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.waybills.cancel')}' and contains(@style, 'display: none')]")

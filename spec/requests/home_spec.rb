@@ -316,7 +316,6 @@ feature "single page application", %q{
 
     current_hash.should eq("archive")
     page.should have_selector("div[@id='container_documents'] table")
-    page.find_by_id("archive")[:class].should eq("sidebar-selected")
 
     table_with_paginate(VersionEx.lasts.by_type([ Waybill.name, Allocation.name ]),
                         @per_page)

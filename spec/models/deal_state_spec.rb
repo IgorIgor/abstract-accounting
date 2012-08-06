@@ -11,13 +11,10 @@ require 'spec_helper'
 
 describe DealState do
   before :all do
-    d = DealState.new(open: Date.today)
-    d.deal = create(:deal)
-    d.save!
+    DealState.create!(deal_id: create(:deal).id)
   end
 
   it "should have next behaviour" do
-    should validate_presence_of :open
     should validate_uniqueness_of :deal_id
     should belong_to :deal
   end
@@ -28,20 +25,44 @@ describe DealState do
     end
 
     it "should not be in work if close is set" do
-      DealState.first.update_attributes(close: Date.today)
+      state = DealState.first
+      state.closed = Date.today
+      state.save!
       DealState.first.in_work?.should be_false
     end
   end
 
   describe "#closed?" do
     it "should be closed if close is set" do
-      DealState.first.update_attributes(close: Date.today)
+      state = DealState.first
+      state.closed = Date.today
+      state.save!
       DealState.first.closed?.should be_true
     end
 
     it "should not be closed if close is not set" do
-      DealState.first.update_attributes(close: nil)
+      state = DealState.first
+      state.closed = nil
+      state.save!
       DealState.first.closed?.should be_false
+    end
+  end
+
+  describe "#save" do
+    it "should set open field to today" do
+      DealState.create!(deal_id: create(:deal).id).opened.should eq(Date.today)
+    end
+  end
+
+  describe "#close" do
+    it "should set close to today" do
+      DealState.create!(deal_id: create(:deal).id).close.should be_true
+      DealState.last.closed.should eq(Date.today)
+    end
+
+    it "should return false if already closed" do
+      DealState.create!(deal_id: create(:deal).id).close.should be_true
+      DealState.last.close.should be_false
     end
   end
 end

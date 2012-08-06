@@ -8,17 +8,30 @@
 # Please see ./COPYING for details
 
 class DealState < ActiveRecord::Base
-  attr_accessible :close, :open
+  attr_accessible :deal_id
   belongs_to :deal
 
   validates_uniqueness_of :deal_id
-  validates_presence_of :open
+
+  before_save :set_open
 
   def in_work?
-    self.close.nil?
+    self.closed.nil?
   end
 
   def closed?
     !self.in_work?
+  end
+
+  def close
+    return false if self.closed?
+    self.closed = Date.today
+    self.save
+  end
+
+  private
+  def set_open
+    self.opened = Date.today if self.new_record?
+    true
   end
 end

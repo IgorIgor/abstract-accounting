@@ -11,8 +11,8 @@ class CreateDealStates < ActiveRecord::Migration
   def change
     create_table :deal_states do |t|
       t.references :deal
-      t.date :open
-      t.date :close
+      t.date :opened
+      t.date :closed
     end
     add_index :deal_states, :deal_id, unique: true
   end

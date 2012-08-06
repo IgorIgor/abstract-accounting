@@ -124,8 +124,8 @@ ActiveRecord::Schema.define(:version => 20120803090534) do
 
   create_table "deal_states", :force => true do |t|
     t.integer "deal_id"
-    t.date    "open"
-    t.date    "close"
+    t.date    "opened"
+    t.date    "closed"
   end
 
   add_index "deal_states", ["deal_id"], :name => "index_deal_states_on_deal_id", :unique => true

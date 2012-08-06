@@ -69,5 +69,3 @@ $ ->
     selectTranscript: (object) =>
       @deal_tag(object.account)
       @deal_id(object.deal_id)
-      @date_from($.datepicker.parseDate('yy-mm-dd', object.date))
-      @date_to($.datepicker.parseDate('yy-mm-dd', object.date))

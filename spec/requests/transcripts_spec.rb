@@ -50,6 +50,9 @@ feature "Transcripts", %q{
 
     page.datepicker("transcript_date_from").prev_month.day(10)
 
+    date_from = Time.now.months_ago(1).change(day: 10).to_date
+    date_to = Date.today
+
     click_button(I18n.t('views.transcripts.select_deal'))
     page.find('#main').visible?.should_not be_true
     page.find('#container_selection').visible?.should be_true
@@ -260,9 +263,9 @@ feature "Transcripts", %q{
         page.find('#deal_tag')[:value].should have_content(txns[0].fact.from.tag)
       end
       Date.parse(page.find('#transcript_date_from')[:value]).
-          should eq(txns[0].fact.day.to_date)
+          should eq(date_from)
       Date.parse(page.find('#transcript_date_to')[:value]).
-          should eq(txns[0].fact.day.to_date)
+          should eq(date_to)
     end
 
     page.find('#btn_slide_conditions').click

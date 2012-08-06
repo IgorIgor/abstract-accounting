@@ -46,6 +46,14 @@ class Income < ActiveRecord::Base
     update_value(quote.day, quote.diff) unless quote.diff.accounting_zero?
   end
 
+  def resource
+    NilResource.new
+  end
+
+  def place
+    NilPlace.new
+  end
+
   private
   def do_initialize
     self.value ||= 0.0 if self.attributes.has_key?('value')

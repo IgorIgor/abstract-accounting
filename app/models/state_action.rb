@@ -16,6 +16,11 @@ module StateAction
     self.side == ACTIVE ? self.deal.take.resource : self.deal.give.resource
   end
 
+  def place
+    return nil if self.deal.nil?
+    self.side == ACTIVE ? self.deal.take.place : self.deal.give.place
+  end
+
   def update_amount(side, amount)
     return false if self.deal.nil?
     if self.side != side

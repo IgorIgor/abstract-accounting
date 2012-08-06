@@ -60,8 +60,8 @@ feature "BalanceSheet", %q{
       page.should have_selector('tbody tr', count: 1)
       page.should have_content(bs[1].deal.tag)
       page.should have_content(bs[1].deal.entity.name)
-      page.should have_content(bs[1].deal.give.resource.tag)
-      page.should have_content(bs[1].deal.give.place.tag)
+      page.should have_content(bs[1].resource.tag)
+      page.should have_content(bs[1].place.tag)
       page.should have_content(bs[1].amount)
       if Balance::PASSIVE == bs[1].side
         find(:xpath, ".//td[5]").should have_content('')
@@ -87,8 +87,8 @@ feature "BalanceSheet", %q{
       end
       [balance.deal.tag,
        balance.deal.entity.name,
-       balance.deal.give.resource.tag,
-       balance.deal.give.place.tag,
+       balance.resource.tag,
+       balance.place.tag,
        balance.amount
       ]
     end
@@ -109,8 +109,8 @@ feature "BalanceSheet", %q{
       end
       [balance.deal.tag,
        balance.deal.entity.name,
-       balance.deal.give.resource.tag,
-       balance.deal.give.place.tag,
+       balance.resource.tag,
+       balance.place.tag,
        balance.amount
       ]
     end
@@ -137,8 +137,8 @@ feature "BalanceSheet", %q{
       end
       [balance.deal.tag,
        balance.deal.entity.name,
-       balance.deal.give.resource.tag,
-       balance.deal.give.place.tag,
+       balance.resource.tag,
+       balance.place.tag,
        balance.amount
       ]
     end
@@ -201,8 +201,8 @@ feature "BalanceSheet", %q{
       end
       [balance.deal.tag,
        balance.deal.entity.name,
-       balance.deal.give.resource.tag,
-       balance.deal.give.place.tag,
+       balance.resource.tag,
+       balance.place.tag,
        balance.amount
       ]
     end
@@ -256,8 +256,8 @@ feature "BalanceSheet", %q{
       end
       [balance.deal.tag,
        balance.deal.entity.name,
-       balance.deal.give.resource.tag,
-       balance.deal.give.place.tag,
+       balance.resource.tag,
+       balance.place.tag,
        balance.amount
       ]
     end
@@ -352,8 +352,8 @@ feature "BalanceSheet", %q{
         end
         [balance.deal.tag,
          balance.deal.entity.name,
-         balance.deal.give.resource.tag,
-         balance.deal.give.place.tag,
+         balance.resource.tag,
+         balance.place.tag,
          balance.amount
         ]
       end
@@ -380,8 +380,8 @@ feature "BalanceSheet", %q{
         end
         [balance.deal.tag,
          balance.deal.entity.name,
-         balance.deal.give.resource.tag,
-         balance.deal.give.place.tag,
+         balance.resource.tag,
+         balance.place.tag,
          balance.amount
         ]
       end
@@ -401,8 +401,8 @@ feature "BalanceSheet", %q{
         end
         [balance.deal.tag,
          balance.deal.entity.name,
-         balance.deal.give.resource.tag,
-         balance.deal.give.place.tag,
+         balance.resource.tag,
+         balance.place.tag,
          balance.amount
         ]
       end
@@ -463,8 +463,8 @@ feature "BalanceSheet", %q{
         end
         [balance.deal.tag,
          balance.deal.entity.name,
-         balance.deal.give.resource.tag,
-         balance.deal.give.place.tag,
+         balance.resource.tag,
+         balance.place.tag,
          balance.amount
         ]
       end
@@ -478,8 +478,8 @@ feature "BalanceSheet", %q{
         end
         [balance.deal.tag,
          balance.deal.entity.name,
-         balance.deal.give.resource.tag,
-         balance.deal.give.place.tag,
+         balance.resource.tag,
+         balance.place.tag,
          balance.amount
         ]
       end
@@ -527,8 +527,8 @@ feature "BalanceSheet", %q{
         end
         [balance.deal.tag,
          balance.deal.entity.name,
-         balance.deal.give.resource.tag,
-         balance.deal.give.place.tag,
+         balance.resource.tag,
+         balance.place.tag,
          balance.amount
         ]
       end

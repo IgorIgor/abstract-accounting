@@ -1,4 +1,5 @@
 # Copyright (C) 2011 Sergey Yanovich <ynvich@gmail.com>
+# Copyright (C) 2011 Sergey Yanovich <ynvich@gmail.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Affero General Public License as
@@ -759,6 +760,8 @@ describe Txn do
       if income.kind_of?(Income)
         income.value.should eq((400.0 * (34.95 - 34.2)).accounting_norm)
         income.side.should eq(Income::PASSIVE)
+        income.resource.should be_instance_of(NilResource)
+        income.place.should be_instance_of(NilPlace)
       end
     end
     bs.assets.should eq(242300.0)
@@ -773,12 +776,14 @@ describe Txn do
 
     bs = BalanceSheet.resource(id: @rub.id, type: @rub.class.name).
         date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
+    bs[0].resource.should eq(@rub)
     bs.count.should eq(1)
     bs.db_count.should eq(1)
     bs.assets.should eq(87920.0)
     bs.liabilities.should eq(0.0)
 
     bs = BalanceSheet.resource(id: @rub.id, type: @rub.class.name).all
+    bs[0].resource.should eq(@rub)
     bs.count.should eq(1)
     bs.db_count.should eq(1)
     bs.assets.should eq(101900.0)
@@ -799,12 +804,14 @@ describe Txn do
 
     bs = BalanceSheet.place_id(@bank.take.place_id).
         date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
+    bs[0].place.should eq(@bank.take.place)
     bs.count.should eq(1)
     bs.db_count.should eq(1)
     bs.assets.should eq(87920.0)
     bs.liabilities.should eq(0.0)
 
     bs = BalanceSheet.place_id(@bank.take.place_id).all
+    bs[0].place.should eq(@bank.take.place)
     bs.count.should eq(1)
     bs.db_count.should eq(1)
     bs.assets.should eq(101900.0)

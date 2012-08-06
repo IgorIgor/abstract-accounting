@@ -19,8 +19,9 @@ child(@gl => :objects) {
     txn.fact.to.nil? ? nil : txn.fact.to.tag
   end
   node(:deal_debit) { |txn| txn.fact.to.nil? ? nil : txn.fact.to.id }
-  node(:price_debit) { |txn| txn.fact.to.nil? ? nil : txn.value.to_s }
-  node(:debit_debit) { |txn| txn.fact.to.nil? ? nil : txn.earnings.to_s }
+  node(:price_debit) { |txn| txn.fact.to.nil? ? nil :
+      ((txn.value + txn.earnings) / txn.fact.amount).to_s }
+  node(:debit_debit) { |txn| txn.fact.to.nil? ? nil : (txn.value + txn.earnings).to_s }
   node(:type_credit) do |txn|
     txn.fact.from.nil? ? nil : I18n.t('views.general_ledger.credit')
   end
@@ -28,8 +29,9 @@ child(@gl => :objects) {
     txn.fact.from.nil? ? nil : txn.fact.from.tag
   end
   node(:deal_credit) { |txn| txn.fact.from.nil? ? nil : txn.fact.from.id }
-  node(:price_credit) { |txn| txn.fact.from.nil? ? nil : txn.value.to_s }
-  node(:credit_credit) { |txn| txn.fact.from.nil? ? nil : txn.earnings.to_s }
+  node(:price_credit) { |txn| txn.fact.from.nil? ? nil :
+      ((txn.value + txn.earnings) / txn.fact.amount).to_s }
+  node(:credit_credit) { |txn| txn.fact.from.nil? ? nil : (txn.value + txn.earnings).to_s }
 }
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

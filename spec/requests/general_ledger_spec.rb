@@ -55,12 +55,12 @@ feature "GeneralLedger", %q{
          txn.fact.amount.to_s,
          txn.fact.resource.tag,
          txn.fact.to.tag,
-         txn.value,
-         txn.earnings]
+         ((txn.value + txn.earnings) / txn.fact.amount),
+         txn.value + txn.earnings]
       elsif txn.fact.from
         [txn.fact.from.tag,
-         txn.value,
-         txn.earnings]
+         ((txn.value + txn.earnings) / txn.fact.amount),
+         txn.value + txn.earnings]
       else
         []
       end
@@ -75,12 +75,12 @@ feature "GeneralLedger", %q{
          txn.fact.amount.to_s,
          txn.fact.resource.tag,
          txn.fact.to.tag,
-         txn.value,
-         txn.earnings]
+         ((txn.value + txn.earnings) / txn.fact.amount),
+         txn.value + txn.earnings]
       elsif txn.fact.from
         [txn.fact.from.tag,
-         txn.value,
-         txn.earnings]
+         ((txn.value + txn.earnings) / txn.fact.amount),
+         txn.value + txn.earnings]
       else
         []
       end
@@ -100,12 +100,12 @@ feature "GeneralLedger", %q{
          txn.fact.amount.to_s,
          txn.fact.resource.tag,
          txn.fact.to.tag,
-         txn.value,
-         txn.earnings]
+         ((txn.value + txn.earnings) / txn.fact.amount),
+         txn.value + txn.earnings]
       elsif txn.fact.from
         [txn.fact.from.tag,
-         txn.value,
-         txn.earnings]
+         ((txn.value + txn.earnings) / txn.fact.amount),
+         txn.value + txn.earnings]
       else
         []
       end

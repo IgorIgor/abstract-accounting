@@ -420,6 +420,18 @@ $ ->
                 ko.applyBindings(viewModel, $('#main').get(0))
               )
             )
+          else if filter.view?
+            switch filter.view
+              when 'table'
+                $.get("/#{report}/list", {}, (form) ->
+                  $.getJSON("/#{report}/list.json", normalizeHash(filter), (data) ->
+                    if report == 'waybills'
+                      viewModel = new WaybillsListViewModel(data, filter)
+                    $('#container_documents').html(form)
+                    ko.cleanNode($('#main').get(0))
+                    ko.applyBindings(viewModel, $('#main').get(0))
+                  )
+                )
           else
             $.get("/#{report}", {}, (form) ->
               $.getJSON("/#{report}/data.json", normalizeHash(filter), (data) ->

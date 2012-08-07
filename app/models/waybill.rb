@@ -88,7 +88,7 @@ class Waybill < ActiveRecord::Base
 
   def self.search(attrs = {})
     scope = attrs.keys.inject(scoped) do |mem, key|
-      case key
+      case key.to_s
         when 'distributor'
           mem.joins{deal.rules.from.entity(LegalEntity)}.
             select('DISTINCT ON (waybills.id) waybills.*')
@@ -96,8 +96,9 @@ class Waybill < ActiveRecord::Base
           mem.joins{deal.entity(Entity)}
         when 'storekeeper_place'
           mem.joins{deal.take.place}
-        when 'resource_name'
-          mem.joins{deal.rules.from.take.resource(Asset)}
+        when 'resource_tag'
+          mem.joins{deal.rules.from.take.resource(Asset)}.
+            select('DISTINCT ON (waybills.id) waybills.*')
         when 'state'
           mem.joins{deal.deal_state}.joins{deal.to_facts.outer}
         else
@@ -105,14 +106,14 @@ class Waybill < ActiveRecord::Base
       end
     end
     attrs.inject(scope) do |mem, (key, value)|
-      case key
+      case key.to_s
         when 'distributor'
           mem.where{lower(deal.rules.from.entity.name).like(lower("%#{value}%"))}
         when 'storekeeper'
           mem.where{lower(deal.entity.tag).like(lower("%#{value}%"))}
         when 'storekeeper_place'
           mem.where{lower(deal.take.place.tag).like(lower("%#{value}%"))}
-        when 'resource_name'
+        when 'resource_tag'
           mem.where{lower(deal.rules.from.take.resource.tag).like(lower("%#{value}%"))}
         when 'state'
           case value.to_i

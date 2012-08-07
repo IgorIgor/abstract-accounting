@@ -830,8 +830,8 @@ describe Waybill do
                      'distributor' => wb.distributor.name, 'storekeeper' => wb.storekeeper.tag,
                      'storekeeper_place' => wb.storekeeper_place.tag }).length.should eq(1)
 
-    Waybill.search({ 'resource_name' => 'roof_1' }).include?(wb).should be_true
-    Waybill.search({ 'resource_name' => 'roof_1' }).include?(wb2).should be_false
+    Waybill.search({ 'resource_tag' => 'roof_1' }).include?(wb).should be_true
+    Waybill.search({ 'resource_tag' => 'roof_1' }).include?(wb2).should be_false
 
 
     wb2.cancel.should be_true

@@ -72,6 +72,24 @@ def should_present_waybill(waybills)
   end
 end
 
+def should_present_waybill_with_resource(waybills)
+  check_content('#container_documents table', waybills) do |waybill|
+    state =
+        case waybill.state
+          when Statable::UNKNOWN then I18n.t('views.statable.unknown')
+          when Statable::INWORK then I18n.t('views.statable.inwork')
+          when Statable::CANCELED then I18n.t('views.statable.canceled')
+          when Statable::APPLIED then I18n.t('views.statable.applied')
+          when Statable::REVERSED then I18n.t('views.statable.reversed')
+        end
+    [waybill.created.strftime('%Y-%m-%d'), waybill.document_id, waybill.distributor.name,
+     waybill.storekeeper.tag, waybill.storekeeper_place.tag, state, waybill.sum.to_s,
+     waybill.resource_tag, waybill.resource_mu, waybill.resource_amount.to_s,
+     (1 / Converter.float(waybill.resource_price)).accounting_norm.to_s,
+     Converter.float(waybill.resource_sum).accounting_norm.to_s]
+  end
+end
+
 feature "waybill", %q{
   As an user
   I want to manage waybills
@@ -324,7 +342,7 @@ feature "waybill", %q{
       page.should have_content(I18n.t('layouts.comments.comments'))
 
       fill_in('message', with: 'My first comment')
-      click_button(I18n.t('layouts.comments.save'))
+      click_button_and_wait(I18n.t('layouts.comments.save'))
 
       comment = Waybill.first.comments(:force_update).first
       within('fieldset fieldset') do
@@ -446,6 +464,7 @@ feature "waybill", %q{
       click_button(I18n.t('views.home.search'))
     end
 
+    wait_for_ajax
     should_present_waybill([waybills[3]])
     check_paginate("div[@class='paginate']", 1, 1)
 
@@ -484,6 +503,89 @@ feature "waybill", %q{
     page.find(:xpath, "//table//tbody//td[contains(.//text(),"+
         " '#{Waybill.first.document_id}')]").click
     show_waybill(Waybill.first)
+
+
+    waybills = WaybillReport.with_resources.select_all.limit(per_page)
+    count = WaybillReport.with_resources.count
+    total = WaybillReport.with_resources.total
+
+    page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
+        "not(contains(@style, 'display: none'))]/li[@id='waybills']/a").click
+
+    current_hash.should eq('waybills')
+
+    page.find("#table_view").click
+    current_hash.should eq('waybills?view=table')
+
+    titles = [I18n.t('views.waybills.created_at'),
+              I18n.t('views.waybills.document_id'),
+              I18n.t('views.waybills.distributor'),
+              I18n.t('views.waybills.storekeeper'),
+              I18n.t('views.waybills.storekeeper_place'),
+              I18n.t('views.statable.state'),
+              I18n.t('views.waybills.resource.tag'),
+              I18n.t('views.waybills.resource.mu'),
+              I18n.t('views.waybills.resource.amount'),
+              I18n.t('views.waybills.resource.price'),
+              I18n.t('views.waybills.resource.sum')]
+    check_header('#container_documents table', titles)
+
+    page.should have_selector("table tfoot tr")
+    page.should have_xpath("//table//tfoot//tr//td[contains(.//text()," +
+                               "'#{I18n.t('views.waybills.total')}')]")
+    page.find(:xpath, "//table//tfoot//tr//td[2]").text.to_f.should eq(total)
+
+    page.find("#show-filter").click
+    within('#filter-area') do
+      fill_in('filter_created_at', with: waybills[3].created.strftime('%Y-%m-%d'))
+      fill_in('filter_document_id', with: waybills[3].document_id)
+      fill_in('filter_distributor', with: waybills[3].distributor.name)
+      fill_in('filter_storekeeper', with: waybills[3].storekeeper.tag)
+      fill_in('filter_storekeeper_place', with: waybills[3].storekeeper_place.tag)
+      fill_in('filter_resource_name', with: waybills[3].items[0].resource.tag)
+      select(I18n.t('views.statable.inwork'), from: 'filter_state')
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    should_present_waybill_with_resource([waybills[3]])
+
+    check_paginate("div[@class='paginate']", 1, 1)
+
+    page.find("#show-filter").click
+
+    within('#filter-area') do
+      find('#filter_created_at')['value'].should eq(waybills[3].created.strftime('%Y-%m-%d'))
+      find('#filter_document_id')['value'].should eq(waybills[3].document_id)
+      find('#filter_distributor')['value'].should eq(waybills[3].distributor.name)
+      find('#filter_storekeeper')['value'].should eq(waybills[3].storekeeper.tag)
+      find('#filter_storekeeper_place')['value'].should eq(waybills[3].storekeeper_place.tag)
+      find('#filter_state')['value'].should eq('1')
+      find('#filter_resource_name')['value'].should eq(waybills[3].items[0].resource.tag)
+
+      page.find("#clear_filter").click
+
+      find('#filter_created_at')['value'].should eq('')
+      find('#filter_document_id')['value'].should eq('')
+      find('#filter_distributor')['value'].should eq('')
+      find('#filter_storekeeper')['value'].should eq('')
+      find('#filter_storekeeper_place')['value'].should eq('')
+      find('#filter_state')['value'].should eq('')
+      find('#filter_resource_name')['value'].should eq('')
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    should_present_waybill_with_resource(waybills)
+
+    check_paginate("div[@class='paginate']", count, per_page)
+    next_page("div[@class='paginate']")
+
+    waybills = WaybillReport.with_resources.select_all.limit(per_page).offset(per_page)
+    should_present_waybill_with_resource(waybills)
+
+    prev_page("div[@class='paginate']")
+
   end
 
   scenario "storekeeper should view only items created by him", js: true do
@@ -576,9 +678,9 @@ feature "waybill", %q{
 
     page_login
     page.find('#btn_slide_lists').click
-    page.find('#deals').click
+    page.find('#deals').click_and_wait
     page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
-        "not(contains(@style, 'display: none'))]/li[@id='waybills']/a").click
+        "not(contains(@style, 'display: none'))]/li[@id='waybills']/a").click_and_wait
     current_hash.should eq('waybills')
     page.should have_xpath("//ul[@id='slide_menu_lists']" +
                                "/ul[@id='slide_menu_deals']" +
@@ -685,5 +787,56 @@ feature "waybill", %q{
 
     test_order.call('storekeeper_place','asc')
     test_order.call('storekeeper_place','desc')
+
+
+    page.find("#table_view").click
+    current_hash.should eq('waybills?view=table')
+
+    test_order_with_resource = lambda do |field, type|
+      waybills = WaybillReport.with_resources.select_all.order_by(field: field, type: type)
+      within('#container_documents table') do
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      should_present_waybill_with_resource(waybills)
+    end
+
+    test_order_with_resource.call('created','asc')
+    test_order_with_resource.call('created','desc')
+
+    test_order_with_resource.call('document_id','asc')
+    test_order_with_resource.call('document_id','desc')
+
+    test_order_with_resource.call('distributor','asc')
+    test_order_with_resource.call('distributor','desc')
+
+    test_order_with_resource.call('storekeeper','asc')
+    test_order_with_resource.call('storekeeper','desc')
+
+    test_order_with_resource.call('storekeeper_place','asc')
+    test_order_with_resource.call('storekeeper_place','desc')
+
+    test_order_with_resource.call('resource_tag','asc')
+    test_order_with_resource.call('resource_tag','desc')
+
+    test_order_with_resource.call('resource_mu','asc')
+    test_order_with_resource.call('resource_mu','desc')
+
+    test_order_with_resource.call('resource_amount','asc')
+    test_order_with_resource.call('resource_amount','desc')
+
+    test_order_with_resource.call('resource_price','asc')
+    test_order_with_resource.call('resource_price','desc')
+
+    test_order_with_resource.call('resource_sum','asc')
+    test_order_with_resource.call('resource_sum','desc')
   end
 end

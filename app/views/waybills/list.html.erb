@@ -1,0 +1,78 @@
+<% content_for :search  do %>
+  <%= render 'filter'  %>
+<% end %>
+
+<div class="view-nav">
+  <ul>
+    <li>
+      <a href="#waybills?view=table" id="table_view" class="button table-view pressed"></a>
+    </li>
+    <li>
+      <a href="#waybills" id="tree_view" class="button tree-view"></a>
+    </li>
+  </ul>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th id="created" data-bind="click: sortBy">
+        <%=t 'views.waybills.created_at' %><span></span>
+      </th>
+      <th id="document_id" data-bind="click: sortBy">
+        <%=t 'views.waybills.document_id' %><span></span>
+      </th>
+      <th id="distributor" data-bind="click: sortBy">
+        <%=t 'views.waybills.distributor' %><span></span>
+      </th>
+      <th id="storekeeper" data-bind="click: sortBy">
+        <%=t 'views.waybills.storekeeper' %><span></span>
+      </th>
+      <th id="storekeeper_place" data-bind="click: sortBy">
+        <%=t 'views.waybills.storekeeper_place' %><span></span>
+      </th>
+      <th id="state">
+        <%=t 'views.statable.state' %><span></span>
+      </th>
+
+      <th id="resource_tag" data-bind="click: sortBy">
+        <%=t 'views.waybills.resource.tag' %><span></span>
+      </th>
+      <th id="resource_mu" data-bind="click: sortBy">
+        <%=t 'views.waybills.resource.mu' %><span></span>
+      </th>
+      <th id="resource_amount" data-bind="click: sortBy">
+        <%=t 'views.waybills.resource.amount' %><span></span>
+      </th>
+      <th id="resource_price" data-bind="click: sortBy">
+        <%=t 'views.waybills.resource.price' %><span></span>
+      </th>
+      <th id="resource_sum" data-bind="click: sortBy">
+        <%=t 'views.waybills.resource.sum' %><span></span>
+      </th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr>
+      <td data-bind="text: created"></td>
+      <td data-bind="text: document_id"></td>
+      <td data-bind="text: distributor"></td>
+      <td data-bind="text: storekeeper"></td>
+      <td data-bind="text: storekeeper_place"></td>
+      <td data-bind="text: state"></td>
+
+      <td data-bind="text: resource_tag"></td>
+      <td data-bind="text: resource_mu"></td>
+      <td data-bind="text: resource_amount"></td>
+      <td data-bind="text: resource_price"></td>
+      <td data-bind="text: resource_sum"></td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="10"><%=t 'views.waybills.total' %></td>
+      <td data-bind="text: total"></td>
+      <td></td>
+    </tr>
+  </tfoot>
+</table>

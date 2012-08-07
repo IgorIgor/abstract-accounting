@@ -36,6 +36,7 @@ Abstract::Application.routes.draw do
       get 'preview'
       get 'data'
       get 'present'
+      get 'list'
     end
     member do
       get 'apply'

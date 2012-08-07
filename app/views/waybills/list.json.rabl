@@ -8,9 +8,12 @@
 # Please see ./COPYING for details
 
 object false
-child(@waybills => :objects) do
+child(@list => :objects) do
   extends "waybills/_waybill"
-  node(:sum) { |w| w.sum.to_s }
+  attributes :resource_id, :resource_tag, :resource_mu
+  node(:resource_amount) { |resource| resource.resource_amount.to_s }
+  node(:resource_price) { |resource| (1 / Converter.float(resource.resource_price)).accounting_norm.to_s }
+  node(:resource_sum) { |resource| Converter.float(resource.resource_sum).accounting_norm.to_s }
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

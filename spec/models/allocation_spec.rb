@@ -504,16 +504,16 @@ describe Allocation do
         where{lower(deal.give.place.tag).like(lower("%#{al1.storekeeper_place.tag[0, 4]}%"))}
     Allocation.search({"storekeeper_place" => create(:place).tag}).should be_empty
 
-    Allocation.search({"resource" => al1.items[1].resource.tag}).should =~ [al1]
-    Allocation.search({"resource" => al1.items[0].resource.tag}).
+    Allocation.search({"resource_tag" => al1.items[1].resource.tag}).should =~ [al1]
+    Allocation.search({"resource_tag" => al1.items[0].resource.tag}).
         should =~ Allocation.joins{deal.rules.from.give.resource(Asset)}.
         where do
           lower(deal.rules.from.give.resource.tag).
               like(lower("%#{al1.items[0].resource.tag}%"))
         end.select("DISTINCT ON (allocations.id) allocations.*")
-    Allocation.search({"resource" => create(:asset).tag}).should be_empty
+    Allocation.search({"resource_tag" => create(:asset).tag}).should be_empty
 
-    Allocation.search({"resource" => al1.items[0].resource.tag,
+    Allocation.search({"resource_tag" => al1.items[0].resource.tag,
                        "created" => al2.created.strftime('%Y-%m-%d')}).should =~ [al2]
 
     Allocation.search({"foreman" => al2.foreman.tag,

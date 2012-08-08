@@ -47,7 +47,7 @@ class Allocation < ActiveRecord::Base
   def self.order_by(attrs = {})
     field = nil
     scope = self
-    case attrs[:field]
+    case attrs[:field].to_s
       when 'storekeeper'
         scope = scope.joins{deal.entity(Entity)}
         field = 'entities.tag'
@@ -73,7 +73,7 @@ class Allocation < ActiveRecord::Base
 
   def self.search(attrs = {})
     scope = attrs.keys.inject(scoped) do |mem, key|
-      case key
+      case key.to_s
         when 'foreman'
           mem.joins{deal.rules.to.entity(Entity)}.
               select("DISTINCT ON (allocations.id) allocations.*")
@@ -81,7 +81,7 @@ class Allocation < ActiveRecord::Base
           mem.joins{deal.entity(Entity)}
         when 'storekeeper_place'
           mem.joins{deal.give.place}
-        when 'resource'
+        when 'resource_tag'
           mem.joins{deal.rules.from.give.resource(Asset)}.
               select("DISTINCT ON (allocations.id) allocations.*")
         when 'state'
@@ -91,14 +91,14 @@ class Allocation < ActiveRecord::Base
       end
     end
     attrs.inject(scope) do |mem, (key, value)|
-      case key
+      case key.to_s
         when 'foreman'
           mem.where{lower(deal.rules.to.entity.tag).like(lower("%#{value}%"))}
         when 'storekeeper'
           mem.where{lower(deal.entity.tag).like(lower("%#{value}%"))}
         when 'storekeeper_place'
           mem.where{lower(deal.give.place.tag).like(lower("%#{value}%"))}
-        when 'resource'
+        when 'resource_tag'
           mem.where{lower(deal.rules.from.give.resource.tag).like(lower("%#{value}%"))}
         when 'state'
           case value.to_i

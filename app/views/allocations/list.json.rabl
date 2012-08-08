@@ -8,8 +8,9 @@
 # Please see ./COPYING for details
 
 object false
-child(@allocations => :objects) do
+child(@list => :objects) do
   extends "allocations/_allocation"
+  attributes :resource_id, :resource_tag, :resource_mu, :resource_amount
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

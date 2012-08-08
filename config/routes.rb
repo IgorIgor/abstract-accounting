@@ -64,6 +64,7 @@ Abstract::Application.routes.draw do
     collection do
       get 'preview'
       get 'data'
+      get 'list'
     end
     member do
       get 'apply'

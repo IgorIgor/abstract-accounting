@@ -1,0 +1,57 @@
+<% content_for :search  do %>
+  <%= render 'filter' %>
+<% end %>
+
+<div class="view-nav">
+  <ul>
+    <li>
+      <a href="#allocations?view=table" id="table_view" class="button table-view pressed"></a>
+    </li>
+    <li>
+      <a href="#allocations" id="tree_view" class="button tree-view"></a>
+    </li>
+  </ul>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th id="created" data-bind="click: sortBy">
+        <%=t 'views.allocations.created_at' %><span></span>
+      </th>
+      <th id="storekeeper" data-bind="click: sortBy">
+        <%=t 'views.allocations.storekeeper' %><span></span>
+      </th>
+      <th id="storekeeper_place" data-bind="click: sortBy">
+        <%=t 'views.allocations.storekeeper_place' %><span></span>
+      </th>
+      <th id="foreman" data-bind="click: sortBy">
+        <%=t 'views.allocations.foreman' %><span></span>
+      </th>
+      <th id="state">
+        <%=t 'views.statable.state' %><span></span>
+      </th>
+      <th id="resource_tag" data-bind="click: sortBy">
+        <%=t 'views.allocations.resource.tag' %><span></span>
+      </th>
+      <th id="resource_mu" data-bind="click: sortBy">
+        <%=t 'views.allocations.resource.mu' %><span></span>
+      </th>
+      <th id="resource_amount" data-bind="click: sortBy">
+        <%=t 'views.allocations.resource.amount' %><span></span>
+      </th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr>
+      <td data-bind="text: created"></td>
+      <td data-bind="text: storekeeper"></td>
+      <td data-bind="text: storekeeper_place"></td>
+      <td data-bind="text: foreman"></td>
+      <td data-bind="text: state"></td>
+      <td data-bind="text: resource_tag"></td>
+      <td data-bind="text: resource_mu"></td>
+      <td data-bind="text: resource_amount"></td>
+    </tr>
+  </tbody>
+</table>

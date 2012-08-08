@@ -102,7 +102,33 @@ class AllocationsController < ApplicationController
     @count = scope.count
     @count = @count.count unless @count.instance_of? Fixnum
     scope = scope.order_by(params[:order]) if params[:order]
-    @allocations = scope.limit(per_page).offset((page - 1) * per_page)
+    @allocations = scope.limit(per_page).offset((page - 1) * per_page).
+        includes(deal: [:entity, terms: [:resource, :place],
+                 rules: [from: [:entity, terms: [:resource, :place]],
+                         to: [:entity, terms: [:resource, :place]]]])
+  end
+
+  def list
+    respond_to do |format|
+      format.html { render :'allocations/list', layout: 'data_with_filter' }
+      format.json do
+        page = params[:page].nil? ? 1 : params[:page].to_i
+        per_page = params[:per_page].nil? ?
+            Settings.root.per_page.to_i : params[:per_page].to_i
+
+        scope = AllocationReport.with_resources
+        scope = scope.search(params[:search]) if params[:search]
+        @count = scope.count
+        unless @count.instance_of? Fixnum
+          @count = @count.values[0]
+        end
+        scope = scope.order_by(params[:order]) if params[:order]
+        @list = scope.limit(per_page).offset((page - 1) * per_page).select_all.
+            includes(deal: [:entity, terms: [:resource, :place],
+                     rules: [from: [:entity, terms: [:resource, :place]],
+                             to: [:entity, terms: [:resource, :place]]]])
+      end
+    end
   end
 
   def apply

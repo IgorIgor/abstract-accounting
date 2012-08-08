@@ -60,6 +60,21 @@ def should_present_allocation(allocations)
   end
 end
 
+def should_present_allocation_with_resource(allocations)
+  check_content('#container_documents table', allocations) do |allocation|
+    state =
+        case allocation.state
+          when Statable::UNKNOWN then I18n.t('views.statable.unknown')
+          when Statable::INWORK then I18n.t('views.statable.inwork')
+          when Statable::CANCELED then I18n.t('views.statable.canceled')
+          when Statable::APPLIED then I18n.t('views.statable.applied')
+        end
+    [allocation.created.strftime('%Y-%m-%d'), allocation.storekeeper.tag,
+     allocation.storekeeper_place.tag, allocation.foreman.tag, state,
+     allocation.resource_tag, allocation.resource_mu, allocation.resource_amount.to_s]
+  end
+end
+
 def should_present_warehouse(warehouse)
   page.should have_content(warehouse.tag)
   page.should have_content(warehouse.exp_amount.to_i)
@@ -198,9 +213,14 @@ feature 'allocation', %q{
       end
       page.find('#filtrate').click_and_wait
 
-      page.all('tbody tr').each_with_index { |tr, i|
-        tr.find("td[@data-bind='text: tag']").should have_content(wh_tag[i].tag)
-      }
+      sleep(5)
+      elements = page.all('tbody tr')
+      elements.count.should eq(wh_tag.count)
+      within "tbody" do
+        wh_tag.each do |item|
+          page.should have_content(item.tag)
+        end
+      end
 
       within("thead tr[@id='resource_filter']") do
         fill_in 'resource_filter_tag', with: ''
@@ -208,9 +228,13 @@ feature 'allocation', %q{
       end
       page.find('#filtrate').click_and_wait
 
-      page.all('tbody tr').each_with_index { |tr, i|
-        tr.find("td[@data-bind='text: mu']").should have_content(wh_mu[i].mu)
-      }
+      elements = page.all('tbody tr')
+      elements.count.should eq(wh_mu.count)
+      within "tbody" do
+        wh_mu.each do |item|
+          page.should have_content(item.mu)
+        end
+      end
 
       within("thead tr[@id='resource_filter']") do
         fill_in 'resource_filter_mu', with: ''
@@ -218,10 +242,13 @@ feature 'allocation', %q{
       end
       page.find('#filtrate').click_and_wait
 
-      page.all('tbody tr').each_with_index { |tr, i|
-        tr.find("td[@data-bind='text: exp_amount']").
-            should have_content(wh_exp_amount[i].exp_amount.to_i)
-      }
+      elements = page.all('tbody tr')
+      elements.count.should eq(wh_exp_amount.count)
+      within "tbody" do
+        wh_exp_amount.each do |item|
+          page.should have_content(item.exp_amount.to_i)
+        end
+      end
     end
     page.find('#search_available_resources').click_and_wait
     page.should_not have_selector("#available-resources thead tr[@id='resource_filter']",
@@ -616,8 +643,10 @@ feature 'allocation', %q{
       'Allocation - #{wb.storekeeper.tag}')]").click_and_wait
     click_button(I18n.t('views.allocations.apply'))
     wait_until_hash_changed_to "documents/allocations/#{ds.id}"
-    page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
-      'views.allocations.apply')}']")
+    wait_until do
+      !page.has_xpath?("//div[@class='actions']//input[@value='#{I18n.t(
+              'views.allocations.apply')}']")
+    end
     PaperTrail.enabled = false
   end
 
@@ -639,6 +668,10 @@ feature 'allocation', %q{
     visit("#documents/allocations/#{ds.id}")
     click_button_and_wait(I18n.t('views.allocations.cancel'))
     wait_until_hash_changed_to "documents/allocations/#{ds.id}"
+    wait_until do
+      !page.has_xpath?("//div[@class='actions']//input[@value='#{I18n.t(
+              'views.allocations.apply')}']")
+    end
     page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.allocations.cancel')}']")
     find_field('state').value.should eq(I18n.t('views.statable.canceled'))
@@ -655,8 +688,10 @@ feature 'allocation', %q{
     visit("#documents/allocations/#{ds.id}")
     click_button_and_wait(I18n.t('views.allocations.cancel'))
     wait_until_hash_changed_to "documents/allocations/#{ds.id}"
-    page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
-        'views.allocations.cancel')}']")
+    wait_until do
+      !page.has_xpath?("//div[@class='actions']//input[@value='#{I18n.t(
+              'views.allocations.cancel')}']")
+    end
     find_field('state').value.should eq(I18n.t('views.statable.reversed'))
     click_link I18n.t('views.home.logout')
 
@@ -757,7 +792,7 @@ feature 'allocation', %q{
       fill_in('filter_resource', with: allocations[3].items[0].resource.tag)
       select(I18n.t('views.statable.inwork'), from: 'filter_state')
 
-      click_button(I18n.t('views.home.search'))
+      click_button_and_wait(I18n.t('views.home.search'))
     end
 
     should_present_allocation([allocations[3]])
@@ -772,7 +807,7 @@ feature 'allocation', %q{
       fill_in('filter_resource', with: "")
       select('', from: 'filter_state')
 
-      click_button(I18n.t('views.home.search'))
+      click_button_and_wait(I18n.t('views.home.search'))
     end
 
     should_present_allocation(allocations)
@@ -784,6 +819,65 @@ feature 'allocation', %q{
 
     page.find(:xpath, "//table//tbody//tr[1]//td[2]").click_and_wait
     show_allocation(Allocation.first)
+
+
+    allocations = AllocationReport.with_resources.select_all.limit(per_page)
+    count = AllocationReport.with_resources.count
+
+    page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
+        "not(contains(@style, 'display: none'))]/li[@id='allocations']/a").click
+
+    current_hash.should eq('allocations')
+
+    page.find("#table_view").click
+    current_hash.should eq('allocations?view=table')
+
+    titles = [I18n.t('views.allocations.created_at'),
+              I18n.t('views.allocations.storekeeper'),
+              I18n.t('views.allocations.storekeeper_place'),
+              I18n.t('views.allocations.foreman'),
+              I18n.t('views.statable.state'),
+              I18n.t('views.allocations.resource.tag'),
+              I18n.t('views.allocations.resource.mu'),
+              I18n.t('views.allocations.resource.amount')]
+    check_header("#container_documents table", titles)
+
+    page.find("#show-filter").click
+    within('#filter-area') do
+      fill_in('filter_created_at', with: allocations[3].created.strftime('%Y-%m-%d'))
+      fill_in('filter_foreman', with: allocations[3].foreman.tag)
+      fill_in('filter_storekeeper', with: allocations[3].storekeeper.tag)
+      fill_in('filter_storekeeper_place', with: allocations[3].storekeeper_place.tag)
+      fill_in('filter_resource', with: allocations[3].items[0].resource.tag)
+      select(I18n.t('views.statable.inwork'), from: 'filter_state')
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    should_present_allocation_with_resource([allocations[3]])
+    check_paginate("div[@class='paginate']", 1, 1)
+
+    page.find("#show-filter").click
+    within('#filter-area') do
+      fill_in('filter_created_at', with: "")
+      fill_in('filter_foreman', with: "")
+      fill_in('filter_storekeeper', with: "")
+      fill_in('filter_storekeeper_place', with: "")
+      fill_in('filter_resource', with: "")
+      select('', from: 'filter_state')
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    should_present_allocation_with_resource(allocations)
+
+    check_paginate("div[@class='paginate']", count, per_page)
+    next_page("div[@class='paginate']")
+
+    allocations = AllocationReport.with_resources.select_all.limit(per_page).offset(per_page)
+    should_present_allocation_with_resource(allocations)
+
+    prev_page("div[@class='paginate']")
   end
 
   scenario "storekeeper should view only items created by him", js: true do
@@ -943,14 +1037,14 @@ feature 'allocation', %q{
     wb2 = build(:waybill, created: Date.new(2011,11,12), document_id: 3,
                 distributor: antonov_legal, storekeeper: ivanov,
                 storekeeper_place: kiev)
-    wb2.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+    wb2.add_item(tag: 'nails', mu: 'kg', amount: 200, price: 10.0)
     wb2.save!
     wb2.apply
 
     wb3 = build(:waybill, created: Date.new(2011,11,13), document_id: 2,
                 distributor: ivanov_legal, storekeeper: petrov,
                 storekeeper_place: amsterdam)
-    wb3.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+    wb3.add_item(tag: 'briks', mu: 't', amount: 300, price: 30.0)
     wb3.save!
     wb3.apply
 
@@ -966,14 +1060,14 @@ feature 'allocation', %q{
                 storekeeper: wb2.storekeeper,
                 storekeeper_place: wb2.storekeeper_place,
                 foreman: petrov)
-    al2.add_item(tag: 'roof', mu: 'rm', amount: 16)
+    al2.add_item(tag: 'nails', mu: 'kg', amount: 16)
     al2.save!
 
     al3 = build(:allocation, created: Date.new(2011,11,13),
                 storekeeper: wb3.storekeeper,
                 storekeeper_place: wb3.storekeeper_place,
                 foreman: antonov)
-    al3.add_item(tag: 'roof', mu: 'rm', amount: 17)
+    al3.add_item(tag: 'briks', mu: 't', amount: 17)
     al3.save!
     al3.apply
 
@@ -1016,5 +1110,47 @@ feature 'allocation', %q{
 
     test_order.call('foreman','asc')
     test_order.call('foreman','desc')
+
+
+    page.find("#table_view").click
+    current_hash.should eq('allocations?view=table')
+
+    test_order_with_resource = lambda do |field, type|
+      allocations = AllocationReport.with_resources.select_all.order_by(field: field, type: type)
+      within('#container_documents table') do
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      should_present_allocation_with_resource(allocations)
+    end
+
+    test_order_with_resource.call('created','asc')
+    test_order_with_resource.call('created','desc')
+
+    test_order_with_resource.call('storekeeper','asc')
+    test_order_with_resource.call('storekeeper','desc')
+
+    test_order_with_resource.call('storekeeper_place','asc')
+    test_order_with_resource.call('storekeeper_place','desc')
+
+    test_order_with_resource.call('foreman','asc')
+    test_order_with_resource.call('foreman','desc')
+
+    test_order_with_resource.call('resource_tag','asc')
+    test_order_with_resource.call('resource_tag','desc')
+
+    test_order_with_resource.call('resource_mu','asc')
+    test_order_with_resource.call('resource_mu','desc')
+
+    test_order_with_resource.call('resource_amount','asc')
+    test_order_with_resource.call('resource_amount','desc')
   end
 end

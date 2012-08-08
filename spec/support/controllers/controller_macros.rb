@@ -148,13 +148,13 @@ module ControllerMacros
 
   def next_page(paginate_selector)
     within(paginate_selector) do
-      click_button('>')
+      click_button_and_wait('>')
     end
   end
 
   def prev_page(paginate_selector)
     within(paginate_selector) do
-      click_button('<')
+      click_button_and_wait('<')
     end
   end
 end

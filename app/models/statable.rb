@@ -12,10 +12,7 @@ module Statable
 
   module ClassMethods
     def act_as_statable
-      validates_presence_of :state
-
-      after_initialize :state_initialize
-      before_save :state_change
+      after_save :open_state
       class_attribute :after_apply_callback
       class_attribute :after_reverse_callback
     end
@@ -35,39 +32,49 @@ module Statable
   APPLIED = 3
   REVERSED = 4
 
-  def state_initialize
-    self.state = UNKNOWN if self.new_record?
+  def open_state
+    self.deal.create_deal_state! if self.deal.deal_state.nil?
   end
 
-  def state_change
-    self.state = INWORK if self.state == UNKNOWN && self.new_record?
+  def state
+    return UNKNOWN if self.deal.nil? || self.deal.deal_state(:force).nil?
+    if self.deal.deal_state.in_work?
+      return INWORK
+    elsif self.deal.deal_state.closed? && Fact.where{to_deal_id == my{deal_id}}.count == 0
+      return CANCELED
+    elsif self.deal.deal_state.closed? &&
+        Fact.where{to_deal_id == my{deal_id}}.count == 1 &&
+        Fact.where{to_deal_id == my{deal_id}}.where{amount == 1.0}.count == 1
+      return APPLIED
+    elsif self.deal.deal_state.closed? && Fact.where{to_deal_id == my{deal_id}}.count == 2 &&
+            Fact.where{to_deal_id == my{deal_id}}.where{amount == -1.0}.count == 1
+      return REVERSED
+    end
+    UNKNOWN
   end
 
   def cancel
     if self.state == INWORK
-      self.state = CANCELED
-      return self.save
+      return self.deal.deal_state.close
     elsif self.state == APPLIED
       fact = Fact.create(amount: -1.0, resource: self.deal.give.resource,
                          day: DateTime.current.change(hour: 12), to: self.deal)
       return false if fact.nil?
-      self.state = REVERSED
       return false if self.class.after_reverse_callback &&
                       !send(self.class.after_reverse_callback, fact)
-      return self.save
+      return true
     end
     false
   end
 
   def apply
-    if self.state == INWORK and !self.deal.nil?
+    if self.state == INWORK
       fact = Fact.create(amount: 1.0, resource: self.deal.give.resource,
                          day: DateTime.current.change(hour: 12), to: self.deal)
       return false if fact.nil?
-      self.state = APPLIED
       return false if self.class.after_apply_callback &&
                       !send(self.class.after_apply_callback, fact)
-      return self.save
+      return self.deal.deal_state.close
     end
     false
   end

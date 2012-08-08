@@ -12,7 +12,6 @@ class CreateAllocations < ActiveRecord::Migration
     create_table :allocations do |t|
       t.references :deal
       t.datetime :created
-      t.integer :state
     end
   end
 end

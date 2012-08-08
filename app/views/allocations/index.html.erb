@@ -10,9 +10,10 @@
   <label><%=t 'views.statable.state' %></label>
   <select id="filter_state" data-bind="value: filter.state">
     <option value=""></option>
-    <option value="1"><%=t 'views.statable.inwork' %></option>
-    <option value="2"><%=t 'views.statable.canceled' %></option>
-    <option value="3"><%=t 'views.statable.applied' %></option>
+    <option value="<%= Statable::INWORK %>"><%=t 'views.statable.inwork' %></option>
+    <option value="<%= Statable::CANCELED %>"><%=t 'views.statable.canceled' %></option>
+    <option value="<%= Statable::APPLIED %>"><%=t 'views.statable.applied' %></option>
+    <option value="<%= Statable::REVERSED %>"><%=t 'views.statable.reversed' %></option>
   </select>
   <label><%=t 'views.allocations.resource.name' %></label>
   <input type="text" id="filter_resource" data-bind="value: filter.resource"/>
@@ -34,9 +35,7 @@
       <th id="foreman" data-bind="click: sortBy">
         <%=t 'views.allocations.foreman' %><span></span>
       </th>
-      <th id="state" data-bind="click: sortBy">
-        <%=t 'views.statable.state' %><span></span>
-      </th>
+      <th id="state"><%=t 'views.statable.state' %></th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">

@@ -24,7 +24,6 @@ describe Allocation do
     should validate_presence_of :foreman
     should validate_presence_of :foreman_place
     should validate_presence_of :created
-    should validate_presence_of :state
     should validate_presence_of :storekeeper
     should validate_presence_of :storekeeper_place
     should belong_to :deal
@@ -420,13 +419,6 @@ describe Allocation do
     als_test = Allocation.joins{deal.rules.to.entity(Entity)}.
         group('allocations.id').order('entities.tag DESC').all
     als.should eq(als_test)
-
-    als = Allocation.order_by({field: 'state', type: 'acs'}).all
-    als_test = Allocation.order('state').all
-    als.should eq(als_test)
-    als = Allocation.order_by({field: 'state', type: 'desc'}).all
-    als_test = Allocation.order('state DESC').all
-    als.should eq(als_test)
   end
 
   it 'should search allocations' do
@@ -488,8 +480,7 @@ describe Allocation do
     Allocation.search({"created" => DateTime.now.strftime('%Y-%m-%d')}).should be_empty
 
     Allocation.search({"state" => Statable::INWORK}).should =~ Allocation.
-        where{state == Statable::INWORK}
-    Allocation.search({"state" => Statable::UNKNOWN}).should be_empty
+        joins{deal.deal_state}.where{deal.deal_state.closed == nil}
 
     Allocation.search({"storekeeper" => al1.storekeeper.tag}).should =~ [al1]
     Allocation.search({"storekeeper" => al1.storekeeper.tag[0, 4]}).

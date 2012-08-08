@@ -773,13 +773,6 @@ describe Waybill do
     wbs_test = Waybill.joins{deal.take.place}.order('places.tag DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = Waybill.order_by(field: 'state', type: 'asc').all
-    wbs_test = Waybill.order('state').all
-    wbs.should eq(wbs_test)
-    wbs = Waybill.order_by(field: 'state', type: 'desc').all
-    wbs_test = Waybill.order('state DESC').all
-    wbs.should eq(wbs_test)
-
     wbs = Waybill.order_by(field: 'sum', type: 'asc').all
     wbs_test = Waybill.joins{deal.rules.from}.group{waybills.id}.
                       select("waybills.*").
@@ -822,6 +815,12 @@ describe Waybill do
 
     Waybill.search({ 'state' => Waybill::APPLIED }).include?(wb).should be_true
     Waybill.search({ 'state' => Waybill::APPLIED }).include?(wb2).should be_false
+    Waybill.search({ 'state' => Waybill::INWORK }).include?(wb).should be_false
+    Waybill.search({ 'state' => Waybill::INWORK }).include?(wb2).should be_true
+    Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb).should be_false
+    Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb2).should be_false
+    Waybill.search({ 'state' => Waybill::REVERSED }).include?(wb).should be_false
+    Waybill.search({ 'state' => Waybill::REVERSED }).include?(wb2).should be_false
 
     Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d'), 'document_id' => wb.document_id,
                      'distributor' => wb.distributor.name, 'storekeeper' => wb.storekeeper.tag,
@@ -829,6 +828,16 @@ describe Waybill do
 
     Waybill.search({ 'resource_name' => 'roof_1' }).include?(wb).should be_true
     Waybill.search({ 'resource_name' => 'roof_1' }).include?(wb2).should be_false
+
+
+    wb2.cancel.should be_true
+    Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb).should be_false
+    Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb2).should be_true
+    wb.cancel.should be_true
+    Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb).should be_false
+    Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb2).should be_true
+    Waybill.search({ 'state' => Waybill::REVERSED }).include?(wb).should be_true
+    Waybill.search({ 'state' => Waybill::REVERSED }).include?(wb2).should be_false
   end
 end
 

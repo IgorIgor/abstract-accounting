@@ -13,7 +13,6 @@ class CreateWaybills < ActiveRecord::Migration
       t.string :document_id
       t.references :deal
       t.datetime :created
-      t.integer :state
     end
     add_index :waybills, :deal_id, :unique => true
   end

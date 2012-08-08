@@ -133,7 +133,10 @@ class Warehouse
             INNER JOIN assets ON assets.id = terms.resource_id
             INNER JOIN places ON places.id = terms.place_id
             INNER JOIN entities ON entities.id = deals.entity_id
-          WHERE allocations.state = 1 AND states.paid is NULL
+            INNER JOIN deals as a_deals ON allocations.deal_id = a_deals.id
+            INNER JOIN deal_states ON a_deals.id = deal_states.deal_id
+                                   AND deal_states.closed IS NULL
+          WHERE states.paid is NULL
           GROUP BY places.id, terms.resource_id
         )
         GROUP BY #{group_by}

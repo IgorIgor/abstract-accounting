@@ -18,6 +18,7 @@ class Deal < ActiveRecord::Base
   has_many :rules
   has_many :terms
   has_many :waybills
+  has_many :to_facts, :class_name => Fact, :foreign_key => :to_deal_id
   has_one :give, :class_name => "Term", :conditions => {:side => false}
   has_one :take, :class_name => "Term", :conditions => {:side => true}
   has_one :deal_state

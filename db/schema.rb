@@ -16,7 +16,6 @@ ActiveRecord::Schema.define(:version => 20120803090534) do
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
     t.datetime "created"
-    t.integer  "state"
   end
 
   create_table "assets", :force => true do |t|
@@ -391,7 +390,6 @@ ActiveRecord::Schema.define(:version => 20120803090534) do
     t.string   "document_id"
     t.integer  "deal_id"
     t.datetime "created"
-    t.integer  "state"
   end
 
   add_index "waybills", ["deal_id"], :name => "index_waybills_on_deal_id", :unique => true

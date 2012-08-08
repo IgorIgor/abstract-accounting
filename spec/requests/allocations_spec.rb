@@ -1007,8 +1007,5 @@ feature 'allocation', %q{
 
     test_order.call('foreman','asc')
     test_order.call('foreman','desc')
-
-    test_order.call('state','asc')
-    test_order.call('state','desc')
   end
 end

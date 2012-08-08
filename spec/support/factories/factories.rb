@@ -177,7 +177,6 @@ FactoryGirl.define do
     storekeeper { |allocation| allocation.association(:entity) }
     storekeeper_place { |allocation| allocation.association(:place) }
     created Date.today
-    state 0
   end
 
   factory :credential do

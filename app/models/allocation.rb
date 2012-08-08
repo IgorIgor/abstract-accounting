@@ -82,6 +82,8 @@ class Allocation < ActiveRecord::Base
           mem.joins{deal.give.place}
         when 'resource'
           mem.joins{deal.rules.from.give.resource(Asset)}.group{allocations.id}
+        when 'state'
+          mem.joins{deal.deal_state}.joins{deal.to_facts.outer}
         else
           mem
       end
@@ -96,6 +98,17 @@ class Allocation < ActiveRecord::Base
           mem.where{lower(deal.give.place.tag).like(lower("%#{value}%"))}
         when 'resource'
           mem.where{lower(deal.rules.from.give.resource.tag).like(lower("%#{value}%"))}
+        when 'state'
+          case value.to_i
+            when Statable::INWORK
+              mem.where{deal.deal_state.closed == nil}
+            when Statable::APPLIED
+              mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.amount == 1.0)}
+            when Statable::CANCELED
+              mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.id == nil)}
+            when Statable::REVERSED
+              mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.amount == -1.0)}
+          end
         else
           mem.where{lower(__send__(key)).like(lower("%#{value}%"))}
       end

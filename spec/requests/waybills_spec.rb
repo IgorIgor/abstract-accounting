@@ -681,8 +681,5 @@ feature "waybill", %q{
 
     test_order.call('storekeeper_place','asc')
     test_order.call('storekeeper_place','desc')
-
-    test_order.call('state','asc')
-    test_order.call('state','desc')
   end
 end

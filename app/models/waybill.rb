@@ -94,6 +94,8 @@ class Waybill < ActiveRecord::Base
           mem.joins{deal.take.place}
         when 'resource_name'
           mem.joins{deal.rules.from.take.resource(Asset)}
+        when 'state'
+          mem.joins{deal.deal_state}.joins{deal.to_facts.outer}
         else
           mem
       end
@@ -108,6 +110,17 @@ class Waybill < ActiveRecord::Base
           mem.where{lower(deal.take.place.tag).like(lower("%#{value}%"))}
         when 'resource_name'
           mem.where{lower(deal.rules.from.take.resource.tag).like(lower("%#{value}%"))}
+        when 'state'
+          case value.to_i
+            when Statable::INWORK
+              mem.where{deal.deal_state.closed == nil}
+            when Statable::APPLIED
+              mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.amount == 1.0)}
+            when Statable::CANCELED
+              mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.id == nil)}
+            when Statable::REVERSED
+              mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.amount == -1.0)}
+          end
         else
           mem.where{lower(__send__(key)).like(lower("%#{value}%"))}
       end
@@ -156,8 +169,9 @@ class Waybill < ActiveRecord::Base
             INNER JOIN places ON places.id = terms.place_id
             INNER JOIN entities ON entities.id = deals.entity_id
             INNER JOIN rules AS ds_rule ON ds_rule.from_id = rules.to_id
-            INNER JOIN allocations ON allocations.deal_id = ds_rule.deal_id
-                                     AND allocations.state = 1
+            INNER JOIN deals as a_deals ON a_deals.id = ds_rule.deal_id
+            INNER JOIN deal_states ON deal_states.deal_id = a_deals.id
+                                   AND deal_states.closed IS NULL
           #{condition}
           GROUP BY waybills.id, rules.to_id )
         GROUP BY id, asset_id

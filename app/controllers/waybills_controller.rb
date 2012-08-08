@@ -35,6 +35,7 @@ class WaybillsController < ApplicationController
       Waybill.transaction do
         params[:waybill][:distributor_type] = "LegalEntity"
         params[:waybill][:storekeeper_type] = "Entity"
+        params[:waybill].delete(:state) if params[:waybill].has_key?(:state)
         waybill = Waybill.new(params[:waybill])
         unless waybill.distributor
           country = Country.find_or_create_by_tag(:tag => "Russian Federation")

@@ -383,6 +383,8 @@ $ ->
                   new GroupViewModel(object)
                 when 'assets'
                   new AssetViewModel(object)
+                when 'money'
+                  new MoneyViewModel(object)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))
@@ -405,6 +407,8 @@ $ ->
                   new GroupViewModel(object, true)
                 when 'assets'
                   new AssetViewModel(object, true)
+                when 'money'
+                  new MoneyViewModel(object, true)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))

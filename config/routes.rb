@@ -133,6 +133,12 @@ Abstract::Application.routes.draw do
       get 'preview'
     end
   end
+  resources :money, except: :index do
+    collection do
+      get 'preview'
+      get 'data'
+    end
+  end
 
 # The priority is based upon order of creation:
   # first created -> highest priority.

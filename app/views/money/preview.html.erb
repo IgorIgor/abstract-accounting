@@ -1,0 +1,50 @@
+<form data-bind="validate: { success: save }">
+  <div class='actions'>
+    <input type='submit' value="<%= t 'views.users.save' %>"
+           data-bind='disable: readonly'/>
+    <input type='button' value="<%= t 'views.users.edit' %>"
+           data-bind='click: edit, disable: !readonly()'/>
+    <input type='button' value="<%= t 'views.users.back' %>"
+           data-bind='click: back'/>
+  </div>
+
+  <span id="page-title">
+    <!-- ko if: readonly -->
+      <%= t('views.money.page.title.show') %>
+    <!-- /ko -->
+    <!-- ko ifnot: readonly -->
+      <!-- ko if: id_presence -->
+        <%= t('views.money.page.title.edit') %>
+      <!-- /ko -->
+      <!-- ko ifnot: id_presence -->
+        <%= t('views.money.page.title.new') %>
+      <!-- /ko -->
+    <!-- /ko -->
+  </span>
+
+  <%= render 'home/errors' %>
+
+  <fieldset>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="money_alpha_code"><%= t('views.money.alpha_code') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="money_alpha_code"
+                 name="<%= t('views.money.alpha_code') %>" rule="required"
+                 data-bind="value: object.money.alpha_code, disable: readonly">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="money_num_code"><%= t('views.money.num_code') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="money_num_code" name="<%= t('views.money.num_code') %>"
+                 data-bind="value: object.money.num_code, disable: readonly">
+        </span>
+      </div>
+    </div>
+  </fieldset>
+</form>

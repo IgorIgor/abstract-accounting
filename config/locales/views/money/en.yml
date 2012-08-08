@@ -1,0 +1,10 @@
+en:
+  views:
+    money:
+      alpha_code: Alpha code
+      num_code: Num code
+      page:
+        title:
+          show: Show money
+          edit: Edit money
+          new: New money

@@ -1,0 +1,10 @@
+ru:
+  views:
+    money:
+      alpha_code: Название
+      num_code: Код
+      page:
+        title:
+          show: Просмотр денег
+          edit: Редактирование денег
+          new: Новые деньги

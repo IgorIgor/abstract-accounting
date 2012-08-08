@@ -156,4 +156,78 @@ feature 'assets', %q{
     find_field('asset_tag')[:value].should eq('edited new asset')
     find_field('asset_mu')[:value].should eq('edited mu')
   end
+
+  scenario 'create/edit money', js: true do
+    page_login
+    page.find('#btn_slide_services').click
+    page.find('#arrow_resources_actions').click
+    click_link I18n.t('views.home.money')
+    current_hash.should eq('documents/money/new')
+    page.should have_xpath("//li[@id='money_new' and @class='sidebar-selected']")
+    page.should have_selector("div[@id='container_documents'] form")
+    within('#page-title') do
+      page.should have_content(I18n.t('views.money.page.title.new'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should be_nil
+    find_button(I18n.t('views.users.edit'))[:disabled].should eq("true")
+
+    click_button(I18n.t('views.users.save'))
+
+    within("#container_documents form") do
+      find("#container_notification").visible?.should be_true
+      within("#container_notification") do
+        page.should have_content("#{I18n.t(
+            'views.money.alpha_code')} : #{I18n.t('errors.messages.blank')}")
+      end
+    end
+
+    fill_in('money_alpha_code', with: 'new money')
+    fill_in('money_num_code', with: '303')
+    page.should_not have_selector("#container_notification")
+
+    lambda do
+      click_button(I18n.t('views.users.save'))
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/money/#{Money.last.id}"
+    end.should change(Money, :count).by(1)
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.money.page.title.show'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should eq("true")
+    find_button(I18n.t('views.users.edit'))[:disabled].should be_nil
+    find_field('money_alpha_code')[:disabled].should eq("true")
+    find_field('money_num_code')[:disabled].should eq("true")
+    click_button(I18n.t('views.users.edit'))
+    wait_for_ajax
+    wait_until_hash_changed_to "documents/money/#{Money.last.id}/edit"
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.money.page.title.edit'))
+    end
+
+    find_field('money_alpha_code')[:disabled].should be_nil
+    find_field('money_num_code')[:disabled].should be_nil
+
+    fill_in('money_alpha_code', with: 'edited new money')
+    fill_in('money_num_code', with: '304')
+
+    click_button(I18n.t('views.users.save'))
+    wait_for_ajax
+    wait_until_hash_changed_to "documents/money/#{Money.last.id}"
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.money.page.title.show'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should eq("true")
+    find_button(I18n.t('views.users.edit'))[:disabled].should be_nil
+
+    find_field('money_alpha_code')[:disabled].should eq("true")
+    find_field('money_num_code')[:disabled].should eq("true")
+    find_field('money_alpha_code')[:value].should eq('edited new money')
+    find_field('money_num_code')[:value].should eq('304')
+  end
 end

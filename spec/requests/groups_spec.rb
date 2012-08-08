@@ -66,7 +66,8 @@ feature "group", %q{
 
     lambda do
       click_button(I18n.t('views.groups.save'))
-      current_hash.should eq("documents/groups/#{Group.last.id}")
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/groups/#{Group.last.id}"
     end.should change(Group, :count).by(1)
   end
 
@@ -185,7 +186,7 @@ feature "group", %q{
 
     lambda do
       click_button(I18n.t('views.groups.save'))
-      current_hash.should eq("documents/groups/#{group.id}")
+      wait_until_hash_changed_to "documents/groups/#{group.id}"
     end.should change(Group, :count).by(0)
 
     group = Group.find(group.id)

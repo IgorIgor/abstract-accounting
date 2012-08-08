@@ -238,8 +238,10 @@ feature "waybill", %q{
     end
     lambda do
       page.find(:xpath, "//div[@class='actions']" +
-          "//input[@value='#{I18n.t('views.waybills.save')}']").click
-      current_hash.should eq("documents/waybills/#{Waybill.last.id}")
+                  "//input[@value='#{I18n.t('views.waybills.save')}']").click
+      #wait_until { Waybill.last != nil }
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
     end.should change(Waybill, :count).by(1)
 
     show_waybill(Waybill.first)
@@ -314,7 +316,8 @@ feature "waybill", %q{
       page.find(:xpath, "//div[@class='actions']//input[@value='#{
                           I18n.t('views.waybills.save')
                         }']").click
-      current_hash.should eq("documents/waybills/#{Waybill.last.id}")
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
     end.should change(Waybill, :count).by(1)
 
     within('div.comments') do
@@ -346,7 +349,8 @@ feature "waybill", %q{
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Waybill - #{wb.storekeeper.tag}')]").click
     click_button(I18n.t('views.waybills.apply'))
-    current_hash.should eq("documents/waybills/#{wb.id}")
+
+    wait_until_hash_changed_to "documents/waybills/#{wb.id}"
     page.should have_xpath("//div[@class='actions']/input[@value='#{I18n.t(
         'views.waybills.apply')}' and contains(@style, 'display: none')]")
     find_field('state').value.should eq(I18n.t('views.statable.applied'))
@@ -365,7 +369,7 @@ feature "waybill", %q{
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Waybill - #{wb.storekeeper.tag}')]").click
     click_button(I18n.t('views.waybills.cancel'))
-    current_hash.should eq("documents/waybills/#{wb.id}")
+    wait_until_hash_changed_to "documents/waybills/#{wb.id}"
     page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.waybills.cancel')}' and contains(@style, 'display: none')]")
     find_field('state').value.should eq(I18n.t('views.statable.canceled'))
@@ -379,7 +383,7 @@ feature "waybill", %q{
     page_login
     visit("#documents/waybills/#{wb.id}")
     click_button(I18n.t('views.waybills.cancel'))
-    current_hash.should eq("documents/waybills/#{wb.id}")
+    wait_until_hash_changed_to "documents/waybills/#{wb.id}"
     visit("#documents/waybills/#{wb.id}")
     page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.waybills.cancel')}' and contains(@style, 'display: none')]")

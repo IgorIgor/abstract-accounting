@@ -321,8 +321,9 @@ feature "BalanceSheet", %q{
         all(include: [deal: [:entity, give: [:resource]]])
     places.length.should eq(4)
 
+    wait_for_ajax
+
     within('#container_documents table tbody') do
-      sleep(1)
       page.should have_selector('tr', count: places.count, visible: true)
       page.should have_content(wb.storekeeper_place.tag)
       page.should have_content(wb2.storekeeper_place.tag)
@@ -420,11 +421,14 @@ feature "BalanceSheet", %q{
         all(include: [deal: [:entity, give: [:resource]]])
     resources.length.should eq(per_page + 2)
 
+    wait_for_ajax
+
     check_paginate("div[@class='paginate']", resources.count, per_page)
     next_page("div[@class='paginate']")
 
+    wait_for_ajax
+
     within('#container_documents table tbody') do
-      sleep(1)
       page.should have_selector('tr', count: resources.count - per_page, visible: true)
       2.times do |i|
         page.should have_content(resources[per_page + i][:group_column])
@@ -496,11 +500,11 @@ feature "BalanceSheet", %q{
         all(include: [deal: [:entity, give: [:resource]]])
     entities.length.should eq(4)
 
+    wait_for_ajax
 
     check_paginate("div[@class='paginate']", entities.count, per_page)
 
     within('#container_documents table tbody') do
-      sleep(1)
       page.should have_selector('tr', count: entities.length, visible: true)
       entities.each do |entity|
         page.should have_content(entity[:group_column])
@@ -544,6 +548,8 @@ feature "BalanceSheet", %q{
         date( DateTime.now).
         all(include: [deal: [:entity, give: [:resource]]])
 
+    wait_for_ajax
+
     within('#container_documents table tbody') do
       find(:xpath,
            ".//tr[1]//td[@class='tree-actions']").click
@@ -563,6 +569,8 @@ feature "BalanceSheet", %q{
 
     click_link I18n.t('views.home.balance_sheet')
     select(I18n.t('views.balance_sheet.group_place'), from: 'balance_sheet_group')
+
+    wait_for_ajax
 
     within('#container_documents table tbody') do
       find(:xpath,

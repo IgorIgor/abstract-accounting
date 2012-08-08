@@ -71,7 +71,8 @@ feature "user", %q{
 
     lambda do
       click_button(I18n.t('views.users.save'))
-      current_hash.should eq("documents/users/#{User.last.id}")
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/users/#{User.last.id}"
     end.should change(User, :count).by(1) && change(Entity, :count).by(1)
 
     page.find('#btn_create').click
@@ -90,7 +91,8 @@ feature "user", %q{
 
     lambda do
       click_button(I18n.t('views.users.save'))
-      current_hash.should eq("documents/users/#{User.last.id}")
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/users/#{User.last.id}"
     end.should change(User, :count).by(1) && change(Entity, :count).by(0)
 
     page.find('#btn_create').click
@@ -171,7 +173,8 @@ feature "user", %q{
     end
     lambda do
       click_button(I18n.t('views.users.save'))
-      current_hash.should eq("documents/users/#{User.last.id}")
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/users/#{User.last.id}"
     end.should change(User, :count).by(1) && change(Credential, :count).by(2) &&
                    change(Place, :count).by(1)
   end
@@ -285,7 +288,7 @@ feature "user", %q{
 
     lambda do
       click_button(I18n.t('views.users.save'))
-      current_hash.should eq("documents/users/#{user.id}")
+      wait_until_hash_changed_to "documents/users/#{user.id}"
     end.should change(User, :count).by(0) && change(Entity, :count).by(1) &&
         change(Credential, :count).by(1)
 
@@ -330,7 +333,7 @@ feature "user", %q{
     end
     lambda do
       click_button(I18n.t('views.users.save'))
-      current_hash.should eq("documents/users/#{user.id}")
+      wait_until_hash_changed_to "documents/users/#{user.id}"
     end.should change(User, :count).by(0)
     click_link I18n.t('views.home.logout')
 

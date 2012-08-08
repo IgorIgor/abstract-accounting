@@ -51,7 +51,7 @@ feature 'settings', %q{
       lambda do
         page.find(:xpath, "//div[@class='actions']" +
             "//input[@value='#{I18n.t('views.settings.save')}']").click
-        current_hash.should eq('inbox')
+        wait_until_hash_changed_to 'inbox'
         page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
       end.should change(Chart, :count).by(1)
     end

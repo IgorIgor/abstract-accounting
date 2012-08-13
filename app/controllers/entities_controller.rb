@@ -17,6 +17,18 @@ class EntitiesController < ApplicationController
     end
   end
 
+  def preview
+    render 'entities/preview', layout: false
+  end
+
+  def new
+    @entity = Entity.new
+  end
+
+  def show
+    @entity = Entity.find(params[:id])
+  end
+
   def data
     page = params[:page].nil? ? 1 : params[:page].to_i
     per_page = params[:per_page].nil? ?
@@ -24,5 +36,29 @@ class EntitiesController < ApplicationController
 
     @entities = SubjectOfLaw.all(page: page, per_page: per_page)
     @count = SubjectOfLaw.count
+  end
+
+  def create
+    entity = nil
+    begin
+      Entity.transaction do
+        entity = Entity.create(params[:entity])
+        render json: { result: 'success', id: entity.id }
+      end
+    rescue
+      render json: entity.errors.full_messages
+    end
+  end
+
+  def update
+    entity = Entity.find(params[:id])
+    begin
+      Entity.transaction do
+        entity.update_attributes(params[:entity])
+        render json: { result: 'success', id: entity.id }
+      end
+    rescue
+      render json: entity.errors.full_messages
+    end
   end
 end

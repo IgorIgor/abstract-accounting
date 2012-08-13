@@ -74,4 +74,72 @@ feature 'entities', %q{
       page.should have_content(deal.entity.name)
     end
   end
+
+  scenario 'create/edit entity', js: true do
+    page_login
+    page.find('#btn_slide_services').click
+    page.find('#arrow_entities_actions').click
+    click_link I18n.t('views.home.entity')
+    current_hash.should eq('documents/entities/new')
+    page.should have_xpath("//li[@id='entities_new' and @class='sidebar-selected']")
+    page.should have_selector("div[@id='container_documents'] form")
+    within('#page-title') do
+      page.should have_content(I18n.t('views.entities.page.title.new'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should be_nil
+    find_button(I18n.t('views.users.edit'))[:disabled].should eq("true")
+
+    click_button(I18n.t('views.users.save'))
+
+    within("#container_documents form") do
+      find("#container_notification").visible?.should be_true
+      within("#container_notification") do
+        page.should have_content("#{I18n.t(
+            'views.entities.tag')} : #{I18n.t('errors.messages.blank')}")
+      end
+    end
+
+    fill_in('entity_tag', with: 'new entity')
+    page.should_not have_selector("#container_notification")
+
+    lambda do
+      click_button(I18n.t('views.users.save'))
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/entities/#{Entity.last.id}"
+    end.should change(Entity, :count).by(1)
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.entities.page.title.show'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should eq("true")
+    find_button(I18n.t('views.users.edit'))[:disabled].should be_nil
+    find_field('entity_tag')[:disabled].should eq("true")
+    click_button(I18n.t('views.users.edit'))
+    wait_for_ajax
+    wait_until_hash_changed_to "documents/entities/#{Entity.last.id}/edit"
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.entities.page.title.edit'))
+    end
+
+    find_field('entity_tag')[:disabled].should be_nil
+
+    fill_in('entity_tag', with: 'edited new entity')
+
+    click_button(I18n.t('views.users.save'))
+    wait_for_ajax
+    wait_until_hash_changed_to "documents/entities/#{Entity.last.id}"
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.entities.page.title.show'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should eq("true")
+    find_button(I18n.t('views.users.edit'))[:disabled].should be_nil
+
+    find_field('entity_tag')[:disabled].should eq("true")
+    find_field('entity_tag')[:value].should eq('edited new entity')
+  end
 end

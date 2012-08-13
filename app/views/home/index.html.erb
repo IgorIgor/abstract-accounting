@@ -76,6 +76,18 @@
         <li id="places_new">
           <a href="#documents/places/new"><%=t 'views.home.place' %></a>
         </li>
+        <div class="slide_action">
+          <div id="arrow_entities_actions" class="arrow-expand arrow-right-expand"
+               data-bind="click: expandEntities"></div>
+          <a id="entity" class="btn_slide_action" data-bind="click: expandEntities">
+            <%=t 'views.home.entities' %>
+          </a>
+        </div>
+        <ul id="slide_menu_entities" class="slide_menu" style="display: none;">
+          <li id="entities_new">
+            <a href="#documents/entities/new"><%=t 'views.home.entity' %></a>
+          </li>
+        </ul>
       </ul>
     </div>
 

@@ -3,3 +3,8 @@ en:
     entities:
       tag: "Tag"
       type: Type
+      page:
+        title:
+          show: Show entity
+          edit: Edit entity
+          new: New entity

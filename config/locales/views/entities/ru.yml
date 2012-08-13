@@ -3,3 +3,8 @@ ru:
     entities:
       tag: "Имя"
       type: Тип
+      page:
+        title:
+          show: Просмотр лица
+          edit: Редактирование лица
+          new: Новое лицо

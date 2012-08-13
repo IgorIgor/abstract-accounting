@@ -50,9 +50,10 @@ Abstract::Application.routes.draw do
       get 'data'
     end
   end
-  resources :entities, only: :index do
+  resources :entities do
     collection do
       get 'data'
+      get 'preview'
     end
   end
   resources :warehouses, only: [:index] do

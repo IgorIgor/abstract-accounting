@@ -387,6 +387,8 @@ $ ->
                   new MoneyViewModel(object)
                 when 'places'
                   new PlaceViewModel(object)
+                when 'entities'
+                  new EntityViewModel(object)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))
@@ -413,6 +415,8 @@ $ ->
                   new MoneyViewModel(object, true)
                 when 'places'
                   new PlaceViewModel(object, true)
+                when 'entities'
+                  new EntityViewModel(object, true)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))
@@ -496,13 +500,19 @@ $ ->
       location.hash = 'inbox' if $('#main').length
 
     expandResources: (object, event) =>
-      if $('#slide_menu_resources').is(":visible")
-        $('#arrow_resources_actions').removeClass('arrow-down-expand')
-        $('#arrow_resources_actions').addClass('arrow-right-expand')
+      @expand($('#slide_menu_resources'), $('#arrow_resources_actions'))
+
+    expandEntities: (object, event) =>
+      @expand($('#slide_menu_entities'), $('#arrow_entities_actions'))
+
+    expand: (menu, actions) =>
+      if menu.is(":visible")
+        actions.removeClass('arrow-down-expand')
+        actions.addClass('arrow-right-expand')
       else
-        $('#arrow_resources_actions').removeClass('arrow-right-expand')
-        $('#arrow_resources_actions').addClass('arrow-down-expand')
-      $("#slide_menu_resources").slideToggle()
+        actions.removeClass('arrow-right-expand')
+        actions.addClass('arrow-down-expand')
+      menu.slideToggle()
 
     expandDeals: (object, event) =>
       toggle = true

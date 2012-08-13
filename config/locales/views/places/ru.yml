@@ -2,3 +2,8 @@ ru:
   views:
     places:
       tag: "Название"
+      page:
+        title:
+          show: Просмотр места
+          edit: Редактирование места
+          new: Новое место

@@ -44,8 +44,9 @@ Abstract::Application.routes.draw do
       get 'resources'
     end
   end
-  resources :places, only: :index do
+  resources :places do
     collection do
+      get 'preview'
       get 'data'
     end
   end

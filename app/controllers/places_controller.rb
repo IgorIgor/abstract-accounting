@@ -17,11 +17,47 @@ class PlacesController < ApplicationController
     end
   end
 
+  def preview
+    render 'places/preview', layout: false
+  end
+
+  def new
+    @place = Place.new
+  end
+
+  def show
+    @place = Place.find(params[:id])
+  end
+
   def data
     page = params[:page].nil? ? 1 : params[:page].to_i
     per_page = params[:per_page].nil? ?
         Settings.root.per_page.to_i : params[:per_page].to_i
     @places = Place.limit(per_page).offset((page - 1) * per_page).all
     @count = Place.count
+  end
+
+  def create
+    place = nil
+    begin
+      Place.transaction do
+        place = Place.create(params[:place])
+        render json: { result: 'success', id: place.id }
+      end
+    rescue
+      render json: place.errors.full_messages
+    end
+  end
+
+  def update
+    place = Place.find(params[:id])
+    begin
+      Place.transaction do
+        place.update_attributes(params[:place])
+        render json: { result: 'success', id: place.id }
+      end
+    rescue
+      render json: place.errors.full_messages
+    end
   end
 end

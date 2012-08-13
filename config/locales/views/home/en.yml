@@ -36,4 +36,6 @@ en:
       clear_filter: Clear filter
       services: Services
       asset: Asset
-      money: Деньги
+      money: Money
+      place: Place
+

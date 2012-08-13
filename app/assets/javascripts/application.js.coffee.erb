@@ -385,6 +385,8 @@ $ ->
                   new AssetViewModel(object)
                 when 'money'
                   new MoneyViewModel(object)
+                when 'places'
+                  new PlaceViewModel(object)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))
@@ -409,6 +411,8 @@ $ ->
                   new AssetViewModel(object, true)
                 when 'money'
                   new MoneyViewModel(object, true)
+                when 'places'
+                  new PlaceViewModel(object, true)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))

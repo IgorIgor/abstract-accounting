@@ -2,3 +2,8 @@ en:
   views:
     places:
       tag: "Tag"
+      page:
+        title:
+          show: Show place
+          edit: Edit place
+          new: New place

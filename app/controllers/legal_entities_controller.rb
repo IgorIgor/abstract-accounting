@@ -9,6 +9,42 @@
 
 class LegalEntitiesController < ApplicationController
   def index
-    @entities = LegalEntity.where("name LIKE ?", "#{params[:term]}%").order("name").limit(5)
+    @entities = LegalEntity.where{name.like "#{my{params[:term]}}%"}.order("name").limit(5)
+  end
+
+  def preview
+    render 'legal_entities/preview', layout: false
+  end
+
+  def new
+    @legal_entity = LegalEntity.new
+  end
+
+  def show
+    @legal_entity = LegalEntity.find(params[:id])
+  end
+
+  def create
+    legal_entity = nil
+    begin
+      LegalEntity.transaction do
+        legal_entity = LegalEntity.create(params[:legal_entity])
+        render json: { result: 'success', id: legal_entity.id }
+      end
+    rescue
+      render json: legal_entity.errors.full_messages
+    end
+  end
+
+  def update
+    legal_entity = LegalEntity.find(params[:id])
+    begin
+      LegalEntity.transaction do
+        legal_entity.update_attributes(params[:legal_entity])
+        render json: { result: 'success', id: legal_entity.id }
+      end
+    rescue
+      render json: legal_entity.errors.full_messages
+    end
   end
 end

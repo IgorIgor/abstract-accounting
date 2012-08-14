@@ -1,0 +1,83 @@
+<form data-bind="validate: { success: save }">
+  <div class='actions'>
+    <input type='submit' value="<%= t 'views.users.save' %>"
+           data-bind='disable: readonly'/>
+    <input type='button' value="<%= t 'views.users.edit' %>"
+           data-bind='click: edit, disable: !readonly()'/>
+    <input type='button' value="<%= t 'views.users.back' %>"
+           data-bind='click: back'/>
+  </div>
+
+  <span id="page-title">
+    <!-- ko if: readonly -->
+      <%= t('views.legal_entities.page.title.show') %>
+    <!-- /ko -->
+    <!-- ko ifnot: readonly -->
+      <!-- ko if: id_presence -->
+        <%= t('views.legal_entities.page.title.edit') %>
+      <!-- /ko -->
+      <!-- ko ifnot: id_presence -->
+        <%= t('views.legal_entities.page.title.new') %>
+      <!-- /ko -->
+    <!-- /ko -->
+  </span>
+
+  <%= render 'home/errors' %>
+
+  <fieldset>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="legal_entity_name"><%= t('views.legal_entities.name') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="legal_entity_name"
+                 name="<%= t('views.legal_entities.name') %>" rule="required"
+                 data-bind="value: object.legal_entity.name, disable: readonly">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="legal_entity_country"><%= t('views.legal_entities.country') %>:</label>
+        </span>
+        <span data-bind='with: object.country'>
+          <input type="text" id="legal_entity_country"
+                 name="<%= t('views.legal_entities.country') %>" rule="required"
+                 data-bind="autocomplete: { source: 'countries.json',
+                                            onlySelect: true,
+                                            value: 'tag',
+                                            bind: { id: $parent.object.legal_entity.country_id }
+                                            },
+                            value: tag, disable: $parent.readonly">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="legal_entity_ident_name">
+            <%= t('views.legal_entities.ident_name') %>:
+          </label>
+        </span>
+        <span>
+          <select id="legal_entity_ident_name"
+                  name="<%= t('views.legal_entities.ident_name') %>"
+                  data-bind="value: object.legal_entity.identifier_name, disable: readonly">
+            <option value="MSRN"><%=t 'views.waybills.ident_name_MSRN' %></option>
+            <option value="VATIN"><%=t 'views.waybills.ident_name_VATIN' %></option>
+          </select>
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="legal_entity_ident_value">
+            <%= t('views.legal_entities.ident_value') %>:
+          </label>
+        </span>
+        <span>
+          <input type="text" id="legal_entity_ident_value"
+                 name="<%= t('views.legal_entities.ident_value') %>" rule="required"
+                 data-bind="value: object.legal_entity.identifier_value, disable: readonly">
+        </span>
+      </div>
+    </div>
+  </fieldset>
+</form>

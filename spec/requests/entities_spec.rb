@@ -142,4 +142,88 @@ feature 'entities', %q{
     find_field('entity_tag')[:disabled].should eq("true")
     find_field('entity_tag')[:value].should eq('edited new entity')
   end
+
+  scenario 'create/edit legal entity', js: true do
+    page_login
+    page.find('#btn_slide_services').click
+    page.find('#arrow_entities_actions').click
+    click_link I18n.t('views.home.legal_entity')
+    current_hash.should eq('documents/legal_entities/new')
+    page.should have_xpath("//li[@id='legal_entities_new' and @class='sidebar-selected']")
+    page.should have_selector("div[@id='container_documents'] form")
+    within('#page-title') do
+      page.should have_content(I18n.t('views.legal_entities.page.title.new'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should be_nil
+    find_button(I18n.t('views.users.edit'))[:disabled].should eq("true")
+
+    click_button(I18n.t('views.users.save'))
+
+    within("#container_documents form") do
+      find("#container_notification").visible?.should be_true
+      within("#container_notification") do
+        page.should have_content("#{I18n.t(
+            'views.legal_entities.name')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.legal_entities.country')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.legal_entities.ident_value')} : #{I18n.t('errors.messages.blank')}")
+      end
+    end
+
+    fill_in('legal_entity_name', with: 'new legal entity')
+    6.times { create(:country) }
+    items = Country.order(:tag).limit(6)
+    check_autocomplete('legal_entity_country', items, :tag, :should_clear)
+    fill_in('legal_entity_ident_value', with: '33')
+
+    page.should_not have_selector("#container_notification")
+
+    lambda do
+      click_button(I18n.t('views.users.save'))
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/legal_entities/#{LegalEntity.last.id}"
+    end.should change(LegalEntity, :count).by(1)
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.legal_entities.page.title.show'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should eq('true')
+    find_button(I18n.t('views.users.edit'))[:disabled].should be_nil
+    find_field('legal_entity_name')[:disabled].should eq('true')
+    find_field('legal_entity_country')[:disabled].should eq('true')
+    find('#legal_entity_ident_name')[:disabled].should eq('true')
+    find_field('legal_entity_ident_value')[:disabled].should eq('true')
+
+    click_button(I18n.t('views.users.edit'))
+    wait_for_ajax
+    wait_until_hash_changed_to "documents/legal_entities/#{LegalEntity.last.id}/edit"
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.legal_entities.page.title.edit'))
+    end
+
+    find_field('legal_entity_name')[:disabled].should be_nil
+    find_field('legal_entity_country')[:disabled].should be_nil
+    find('#legal_entity_ident_name')[:disabled].should be_nil
+    find_field('legal_entity_ident_value')[:disabled].should be_nil
+
+    fill_in('legal_entity_name', with: 'new edited legal entity')
+
+    click_button(I18n.t('views.users.save'))
+    wait_for_ajax
+    wait_until_hash_changed_to "documents/legal_entities/#{LegalEntity.last.id}"
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.legal_entities.page.title.show'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should eq("true")
+    find_button(I18n.t('views.users.edit'))[:disabled].should be_nil
+
+    find_field('legal_entity_name')[:disabled].should eq("true")
+    find_field('legal_entity_name')[:value].should eq('new edited legal entity')
+  end
 end

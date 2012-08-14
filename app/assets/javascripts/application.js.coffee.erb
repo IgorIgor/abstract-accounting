@@ -391,6 +391,8 @@ $ ->
                   new EntityViewModel(object)
                 when 'quote'
                   new QuoteViewModel(object)
+                when 'legal_entities'
+                  new LegalEntityViewModel(object)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))
@@ -421,6 +423,8 @@ $ ->
                   new EntityViewModel(object, true)
                 when 'quote'
                   new QuoteViewModel(object, true)
+                when 'legal_entities'
+                  new LegalEntityViewModel(object, true)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))

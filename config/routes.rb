@@ -22,7 +22,11 @@ Abstract::Application.routes.draw do
       get 'preview'
     end
   end
-  resources :legal_entities
+  resources :legal_entities do
+    collection do
+      get 'preview'
+    end
+  end
   resources :catalogs
   resources :price_lists
   resources :bo_ms do
@@ -142,6 +146,7 @@ Abstract::Application.routes.draw do
       get 'data'
     end
   end
+  resources :countries, only: :index
 
 # The priority is based upon order of creation:
   # first created -> highest priority.

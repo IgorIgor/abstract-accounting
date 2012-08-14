@@ -1,0 +1,12 @@
+en:
+  views:
+    legal_entities:
+      name: Name"
+      country: Country
+      ident_name: Identifier name
+      ident_value: Identifier value
+      page:
+        title:
+          show: Show legal entity
+          edit: Edit legal entity
+          new: New legal entity

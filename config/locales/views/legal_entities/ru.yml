@@ -1,0 +1,12 @@
+ru:
+  views:
+    legal_entities:
+      name: Название
+      country: Страна
+      ident_name: Название идентификатора
+      ident_value: Идентификатор
+      page:
+        title:
+          show: Просмотр юр. лица
+          edit: Редактирование юр. лица
+          new: Новое юр. лицо

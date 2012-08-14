@@ -1,10 +1,4 @@
 $ ->
-  class self.QuoteViewModel extends FolderViewModel
-    constructor: (data) ->
-      @url = '/quote/data.json'
-
-      super(data)
-
-      @params =
-        page: @page
-        per_page: @per_page
+  class self.QuoteViewModel extends EditableObjectViewModel
+    constructor: (object, readonly = false) ->
+      super(object, 'quote', readonly)

@@ -389,6 +389,8 @@ $ ->
                   new PlaceViewModel(object)
                 when 'entities'
                   new EntityViewModel(object)
+                when 'quote'
+                  new QuoteViewModel(object)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))
@@ -417,6 +419,8 @@ $ ->
                   new PlaceViewModel(object, true)
                 when 'entities'
                   new EntityViewModel(object, true)
+                when 'quote'
+                  new QuoteViewModel(object, true)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))
@@ -487,7 +491,7 @@ $ ->
                   when 'allocations'
                     new AllocationsViewModel(data)
                   when 'quote'
-                    new QuoteViewModel(data)
+                    new QuotesViewModel(data)
 
                 $('#container_documents').html(form)
                 ko.cleanNode($('#main').get(0))

@@ -8,6 +8,11 @@
 # Please see ./COPYING for details
 
 class MoneyController < ApplicationController
+  def index
+    term = params[:term]
+    @money = Money.where{money.alpha_code.like "%#{term}%"}.order("money.alpha_code").limit(5)
+  end
+
   def preview
     render 'money/preview', layout: false
   end

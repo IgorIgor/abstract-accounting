@@ -2,5 +2,11 @@ en:
   views:
     quote:
       resource: Resource
+      money: Money
       date: Date
       rate: Rate
+      page:
+        title:
+          show: Show quote
+          edit: Edit qoute
+          new: New quote

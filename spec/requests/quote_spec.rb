@@ -45,4 +45,93 @@ feature 'quote', %q{
       [item.money.alpha_code, item.day.strftime('%Y-%m-%d'), item.rate.to_i]
     end
   end
+
+  scenario 'create/edit quote', js: true do
+    page_login
+    page.find('#btn_slide_services').click
+    click_link I18n.t('views.home.quote')
+    current_hash.should eq('documents/quote/new')
+    page.should have_xpath("//li[@id='quote_new' and @class='sidebar-selected']")
+    page.should have_selector("div[@id='container_documents'] form")
+    within('#page-title') do
+      page.should have_content(I18n.t('views.quote.page.title.new'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should be_nil
+    find_button(I18n.t('views.users.edit'))[:disabled].should eq("true")
+
+    click_button(I18n.t('views.users.save'))
+
+    within("#container_documents form") do
+      find("#container_notification").visible?.should be_true
+      within("#container_notification") do
+        page.should have_content("#{I18n.t(
+            'views.quote.date')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.quote.rate')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.quote.resource')} : #{I18n.t('errors.messages.blank')}")
+      end
+    end
+
+    page.should have_datepicker('quote_day')
+    page.datepicker('quote_day').day(10)
+
+    fill_in('quote_rate', with: '2')
+    6.times { create(:money) }
+    items = Money.order(:alpha_code).limit(6)
+    check_autocomplete('quote_money', items, :alpha_code, true)
+    page.should_not have_selector('#container_notification')
+
+    lambda do
+      click_button(I18n.t('views.users.save'))
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/quote/#{Quote.last.id}"
+    end.should change(Quote, :count).by(1)
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.quote.page.title.show'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should eq("true")
+    find_button(I18n.t('views.users.edit'))[:disabled].should be_nil
+    find_field('quote_day')[:disabled].should eq("true")
+    find_field('quote_rate')[:disabled].should eq("true")
+    find_field('quote_money')[:disabled].should eq("true")
+
+    click_button(I18n.t('views.users.edit'))
+    wait_for_ajax
+    wait_until_hash_changed_to "documents/quote/#{Quote.last.id}/edit"
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.quote.page.title.edit'))
+    end
+
+    find_field('quote_day')[:disabled].should be_nil
+    find_field('quote_rate')[:disabled].should be_nil
+    find_field('quote_money')[:disabled].should be_nil
+    page.datepicker('quote_day').day(22)
+    new_date = DateTime.parse(find_field('quote_day')[:value])
+    fill_in('quote_rate', with: '3')
+
+    money = Quote.last.money
+
+    click_button(I18n.t('views.users.save'))
+    wait_for_ajax
+    wait_until_hash_changed_to "documents/quote/#{Quote.last.id}"
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.quote.page.title.show'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should eq("true")
+    find_button(I18n.t('views.users.edit'))[:disabled].should be_nil
+
+    find_field('quote_day')[:disabled].should eq("true")
+    find_field('quote_rate')[:disabled].should eq("true")
+    find_field('quote_money')[:disabled].should eq("true")
+    find_field('quote_day')[:value].should eq(new_date.strftime('%d.%m.%Y'))
+    find_field('quote_rate')[:value].should eq('3')
+    find_field('quote_money')[:value].should eq(money.alpha_code)
+  end
 end

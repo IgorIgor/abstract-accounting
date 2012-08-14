@@ -12,11 +12,49 @@ class QuoteController < ApplicationController
     render 'index', layout: false
   end
 
+  def preview
+    render 'quote/preview', layout: false
+  end
+
+  def new
+    @quote = Quote.new
+  end
+
+  def show
+    @quote = Quote.find(params[:id])
+  end
+
   def data
     page = params[:page].nil? ? 1 : params[:page].to_i
     per_page = params[:per_page].nil? ?
         Settings.root.per_page.to_i : params[:per_page].to_i
     @quote = Quote.limit(per_page).offset((page - 1) * per_page).all
     @count = Quote.count
+  end
+
+  def create
+    quote = nil
+    begin
+      Quote.transaction do
+        params[:quote][:day] = DateTime.strptime(params[:quote][:day], "%a %b %d %Y %H:%M:%S")
+        quote = Quote.create(params[:quote])
+        render json: { result: 'success', id: quote.id }
+      end
+    rescue
+      render json: quote.errors.full_messages
+    end
+  end
+
+  def update
+    quote = Quote.find(params[:id])
+    begin
+      Quote.transaction do
+        params[:quote][:day] = DateTime.strptime(params[:quote][:day], "%a %b %d %Y %H:%M:%S")
+        quote.update_attributes(params[:quote])
+        render json: { result: 'success', id: quote.id }
+      end
+    rescue
+      render json: quote.errors.full_messages
+    end
   end
 end

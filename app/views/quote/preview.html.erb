@@ -1,0 +1,63 @@
+<form data-bind="validate: { success: save }">
+  <div class='actions'>
+    <input type='submit' value="<%= t 'views.users.save' %>"
+           data-bind='disable: readonly'/>
+    <input type='button' value="<%= t 'views.users.edit' %>"
+           data-bind='click: edit, disable: !readonly()'/>
+    <input type='button' value="<%= t 'views.users.back' %>"/>
+  </div>
+  <span id="page-title">
+    <!-- ko if: readonly -->
+      <%= t('views.quote.page.title.show') %>
+    <!-- /ko -->
+    <!-- ko ifnot: readonly -->
+      <!-- ko if: id_presence -->
+        <%= t('views.quote.page.title.edit') %>
+      <!-- /ko -->
+      <!-- ko ifnot: id_presence -->
+        <%= t('views.quote.page.title.new') %>
+      <!-- /ko -->
+    <!-- /ko -->
+  </span>
+  <%= render 'home/errors' %>
+
+  <fieldset>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="quote_day"><%= t 'views.quote.date' %>:</label>
+        </span>
+        <span>
+          <input type="text" id="quote_day" name="<%= t 'views.quote.date' %>"
+                 rule="required" data-bind="datepicker: object.quote.day, disable: readonly">
+        </span>
+      </div>
+
+      <div>
+        <span class="form-cell-label">
+          <label for="quote_rate"><%= t('views.quote.rate') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="quote_rate"
+                 name="<%= t('views.quote.rate') %>" rule="required"
+                 data-bind="value: object.quote.rate, disable: readonly">
+        </span>
+      </div>
+
+      <div>
+        <span class="form-cell-label">
+          <label for="quote_money"><%= t 'views.quote.money' %>:</label>
+        </span>
+        <span data-bind='with: object.money'>
+          <input type="text" id="quote_money"
+                 name="<%= t 'views.quote.resource' %>" rule="required"
+                 data-bind="autocomplete: { source: '/money.json',
+                                            bind: { id: $parent.object.quote.money_id },
+                                            onlySelect: true,
+                                            value: 'alpha_code'},
+                            value: alpha_code, disable: $parent.readonly">
+        </span>
+      </div>
+    </div>
+  </fieldset>
+</form>

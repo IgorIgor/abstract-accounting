@@ -125,9 +125,10 @@ Abstract::Application.routes.draw do
       get 'preview'
     end
   end
-  resources :quote, only: :index do
+  resources :quote do
     collection do
       get 'data'
+      get 'preview'
     end
   end
   resources :assets, except: :index do
@@ -135,7 +136,7 @@ Abstract::Application.routes.draw do
       get 'preview'
     end
   end
-  resources :money, except: :index do
+  resources :money do
     collection do
       get 'preview'
       get 'data'

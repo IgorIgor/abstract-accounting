@@ -2,5 +2,11 @@ ru:
   views:
     quote:
       resource: Ресурс
+      money: Деньги
       date: Дата
       rate: Курс
+      page:
+        title:
+          show: Просмотр курса
+          edit: Редактирование курса
+          new: Новый курс

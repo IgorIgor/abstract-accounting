@@ -9,7 +9,11 @@
 
 class ResourcesController < ApplicationController
   def index
-    render 'index', layout: false
+    if params[:term]
+      @resources = Resource.where({tag: {like: params[:term]}}).limit(5).order_by('tag').all
+    else
+      render 'index', layout: false
+    end
   end
 
   def data

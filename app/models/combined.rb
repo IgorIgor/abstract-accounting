@@ -8,7 +8,7 @@
 # Please see ./COPYING for details
 
 class Combined
-  class_attribute :klasses_i
+  class_attribute :klasses_i, :configuration
 
   def initialize(object)
     @object = object.type.constantize.find(object.id)
@@ -28,14 +28,23 @@ class Combined
     end
 
     def combined_attribute(name, config = {})
+      self.configuration ||= Hash.new
+      self.configuration[name.to_sym] = config
       define_method name do
         @object.send(config[@object.class.name.to_sym])
       end
     end
 
-    def scope
-      tables = klasses_i.collect { |item| item.select("id, '#{item.name}' as type").to_sql }
-      SqlRecord.union(tables)
+    def where(attrs)
+      scope.where(attrs)
+    end
+
+    def limit(value)
+      scope.limit(value)
+    end
+
+    def order_by(value)
+      scope.order_by(value)
     end
 
     def count
@@ -43,11 +52,24 @@ class Combined
     end
 
     def all(attrs = {})
-      scoped = scope
-      if attrs[:page]
-        scoped = scoped.paginate(page: attrs[:page], per_page: attrs[:per_page])
+      scope.paginate(page: attrs[:page], per_page: attrs[:per_page]).all.
+          collect { |item| self.new(item) }
+    end
+
+    private
+    def scope
+      tables = klasses_i.collect do |item|
+        sel = configuration.inject([]) do |mem, (key, value)|
+          if item.columns_hash[value[item.name.to_sym].to_s].type == :integer
+            mem << "to_char(#{value[item.name.to_sym]}, '999') as #{key}"
+          else
+            mem << "#{value[item.name.to_sym]} as #{key}"
+          end
+        end
+        sel = sel.join(', ')
+        item.select("id, '#{item.name}' as type, #{sel}").to_sql
       end
-      scoped.all.collect { |item| self.new(item) }
+      CombinedRelation.new(SqlRecord.union(tables))
     end
   end
 end

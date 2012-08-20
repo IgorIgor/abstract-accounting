@@ -393,6 +393,8 @@ $ ->
                   new QuoteViewModel(object)
                 when 'legal_entities'
                   new LegalEntityViewModel(object)
+                when 'deals'
+                  new DealViewModel(object)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))
@@ -425,6 +427,8 @@ $ ->
                   new QuoteViewModel(object, true)
                 when 'legal_entities'
                   new LegalEntityViewModel(object, true)
+                when 'deals'
+                  new DealViewModel(object, true)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))

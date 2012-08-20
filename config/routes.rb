@@ -58,6 +58,7 @@ Abstract::Application.routes.draw do
     collection do
       get 'data'
       get 'preview'
+      get 'autocomplete'
     end
   end
   resources :warehouses, only: [:index] do
@@ -95,9 +96,11 @@ Abstract::Application.routes.draw do
       get 'data'
     end
   end
-  resources :deals, only: :index do
+  resources :deals do
     collection do
+      get 'preview'
       get 'data'
+      get 'entities'
     end
     member do
       get 'rules'

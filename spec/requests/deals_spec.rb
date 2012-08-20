@@ -9,6 +9,28 @@
 
 require 'spec_helper'
 
+def check_components_enable(readonly)
+  readonly_str = readonly ? "true" : nil
+  no_readonly_str = (!readonly) ? "true" : nil
+
+  find_button(I18n.t('views.users.save'))[:disabled].should eq(readonly_str)
+  find_button(I18n.t('views.users.edit'))[:disabled].should eq(no_readonly_str)
+  find_field('deal_tag')[:disabled].should eq(readonly_str)
+  find_field('deal_entity')[:disabled].should eq(readonly_str)
+  find('#is_off_balance')[:disabled].should eq(readonly_str)
+  find_field('deal_rate')[:disabled].should eq(readonly_str)
+  find_field('deal_give_resource')[:disabled].should eq(readonly_str)
+  find_field('deal_give_place')[:disabled].should eq(readonly_str)
+  find_field('deal_take_resource')[:disabled].should eq(readonly_str)
+  find_field('deal_take_place')[:disabled].should eq(readonly_str)
+  find_button(I18n.t('views.users.add'))[:disabled].should eq(readonly_str)
+  find_field('rule_from_tag_0')[:disabled].should eq(readonly_str)
+  find_field('rule_to_tag_0')[:disabled].should eq(readonly_str)
+  find_field('rule_rate_0')[:disabled].should eq(readonly_str)
+  find('#fact_side_0')[:disabled].should eq(readonly_str)
+  find('#change_side_0')[:disabled].should eq(readonly_str)
+end
+
 feature 'deals', %q{
   As an user
   I want to view deals
@@ -118,5 +140,165 @@ feature 'deals', %q{
       page.find(:xpath, ".//tr[3]//td[@class='tree-actions']").click
       page.should_not have_selector("#rules_#{deal_2.id}")
     end
+  end
+
+  scenario 'create/edit deal', js: true do
+    page_login
+    page.find('#btn_slide_services').click
+    click_link I18n.t('views.home.deal')
+    current_hash.should eq('documents/deals/new')
+    page.should have_xpath("//li[@id='deals_new' and @class='sidebar-selected']")
+    page.should have_selector("div[@id='container_documents'] form")
+    within('#page-title') do
+      page.should have_content(I18n.t('views.deals.page.title.new'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should be_nil
+    find_button(I18n.t('views.users.edit'))[:disabled].should eq("true")
+
+    click_button(I18n.t('views.users.save'))
+
+    within("#container_documents form") do
+      find("#container_notification").visible?.should be_true
+      within("#container_notification") do
+        page.should have_content("#{I18n.t(
+            'views.deals.tag')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.deals.entity')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.deals.rate')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.deals.resource')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.deals.place')} : #{I18n.t('errors.messages.blank')}")
+      end
+    end
+
+    fill_in('deal_tag', with: 'new deal')
+    6.times { create(:legal_entity) }
+    entities = LegalEntity.order(:name).limit(6)
+    check_autocomplete('deal_entity', entities, :name, :should_clear)
+    fill_in('deal_rate', with: '2')
+    6.times { create(:asset) }
+    resources = Asset.order(:tag).limit(6)
+    check_autocomplete('deal_give_resource', resources, :tag, :should_clear)
+    6.times { create(:place) }
+    places = Place.order(:tag).limit(6)
+    check_autocomplete('deal_give_place', places, :tag, :should_clear)
+    fill_in('deal_take_resource', :with => resources[0].tag[0..1])
+    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
+      all(:xpath, ".//li//a")[3].click
+    end
+    fill_in('deal_take_place', :with => places[0].tag[0..1])
+    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
+      all(:xpath, ".//li//a")[3].click
+    end
+
+    page.should_not have_selector("#container_notification")
+
+    click_button(I18n.t('views.users.add'))
+    click_button(I18n.t('views.users.save'))
+
+    within("#container_documents form") do
+      find("#container_notification").visible?.should be_true
+      within("#container_notification") do
+        page.should have_content("#{I18n.t(
+            'views.deals.rules')}#0 #{I18n.t('views.rules.from')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.deals.rules')}#0 #{I18n.t('views.rules.to')} : #{I18n.t('errors.messages.blank')}")
+      end
+    end
+
+    d1 = create(:deal)
+    d2 = create(:deal)
+    d3 = create(:deal)
+
+    fill_in('rule_from_tag_0', :with => d1.tag)
+    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
+      all(:xpath, ".//li//a")[0].click
+    end
+    fill_in('rule_to_tag_0', :with => d2.tag)
+    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
+      all(:xpath, ".//li//a")[0].click
+    end
+    fill_in('rule_rate_0', :with => '2')
+
+    page.should_not have_selector("#container_notification")
+
+    lambda do
+      click_button(I18n.t('views.users.save'))
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/deals/#{Deal.last.id}"
+    end.should change(Deal, :count).by(1)
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.deals.page.title.show'))
+    end
+
+    check_components_enable(true)
+
+    find_field('deal_tag')[:value].should eq('new deal')
+    find_field('deal_entity')[:value].should eq(entities[1].name)
+    find('#is_off_balance')[:checked].should_not eq('true')
+    find_field('deal_rate')[:value].should eq('2')
+    find_field('deal_give_resource')[:value].should eq(resources[1].tag)
+    find_field('deal_give_place')[:value].should eq(places[1].tag)
+    find_field('deal_take_resource')[:value].should eq(resources[3].tag)
+    find_field('deal_take_place')[:value].should eq(places[3].tag)
+    find_field('rule_from_tag_0')[:value].should eq(d1.tag)
+    find_field('rule_to_tag_0')[:value].should eq(d2.tag)
+    find_field('rule_rate_0')[:value].should eq('2')
+    find('#fact_side_0')[:checked].should_not eq('true')
+    find('#change_side_0')[:checked].should_not eq('true')
+
+    click_button(I18n.t('views.users.edit'))
+    wait_for_ajax
+    wait_until_hash_changed_to "documents/deals/#{Deal.last.id}/edit"
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.deals.page.title.edit'))
+    end
+
+    check_components_enable(false)
+
+    fill_in('deal_tag', with: 'new edited deal')
+    fill_in('deal_entity', :with => entities[0].name[0..1])
+    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
+      all(:xpath, ".//li//a")[2].click
+    end
+    check('is_off_balance')
+    fill_in('deal_give_resource', :with => resources[0].tag)
+    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
+      all(:xpath, ".//li//a")[0].click
+    end
+    fill_in('deal_give_place', :with => places[0].tag)
+    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
+      all(:xpath, ".//li//a")[0].click
+    end
+    fill_in('rule_from_tag_0', :with => d3.tag)
+    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
+      all(:xpath, ".//li//a")[0].click
+    end
+    check('fact_side_0')
+    check('change_side_0')
+
+    click_button(I18n.t('views.users.save'))
+    wait_for_ajax
+    wait_until_hash_changed_to "documents/deals/#{Deal.last.id}"
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.deals.page.title.show'))
+    end
+
+    check_components_enable(true)
+
+    find_field('deal_tag')[:value].should eq('new edited deal')
+    find_field('deal_entity')[:value].should eq(entities[2].name)
+    find('#is_off_balance')[:checked].should eq('true')
+    find_field('deal_give_resource')[:value].should eq(resources[0].tag)
+    find_field('deal_give_place')[:value].should eq(places[0].tag)
+    find_field('rule_from_tag_0')[:value].should eq(d3.tag)
+    find('#fact_side_0')[:checked].should eq('true')
+    find('#change_side_0')[:checked].should eq('true')
   end
 end

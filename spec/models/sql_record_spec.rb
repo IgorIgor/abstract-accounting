@@ -62,6 +62,42 @@ describe SqlRecord do
     end
   end
 
+  describe "#where" do
+    it "should create where statement with LIKE" do
+      SqlRecord.class_eval do
+        def where_test
+          @where
+        end
+      end
+      SqlRecord.where({tag: {like: 'a'}}).where_test.
+          should eq("WHERE T.tag LIKE '%a%'")
+      SqlRecord.where({tag: {like: 'a'}, code: {like: '2'}}).where_test.
+          should eq("WHERE T.tag LIKE '%a%' AND T.code LIKE '%2%'")
+    end
+  end
+
+  describe "#limit" do
+    it "should create where statement with LIMIT" do
+      SqlRecord.class_eval do
+        def limit_test
+          @limit
+        end
+      end
+      SqlRecord.limit(10).limit_test.should eq("LIMIT 10")
+    end
+  end
+
+  describe "#order_by" do
+    it "should create where statement with ORDER BY" do
+      SqlRecord.class_eval do
+        def order_by_test
+          @order_by
+        end
+      end
+      SqlRecord.order_by('tag').order_by_test.should eq("ORDER BY tag")
+    end
+  end
+
   describe "#select" do
     it "should raise error on empty sql" do
       expect { SqlRecord.new.select("some") }.should raise_error

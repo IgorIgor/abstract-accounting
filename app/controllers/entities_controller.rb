@@ -38,6 +38,10 @@ class EntitiesController < ApplicationController
     @count = SubjectOfLaw.count
   end
 
+  def autocomplete
+    @entities = SubjectOfLaw.where({tag: {like: params[:term]}}).limit(5).order_by('tag').all
+  end
+
   def create
     entity = nil
     begin

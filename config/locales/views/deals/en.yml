@@ -7,3 +7,11 @@ en:
       rate: Rate
       give: Give
       take: Take
+      page:
+        title:
+          show: Show deal
+          edit: Edit deal
+          new: New deal
+      place: Place
+      resource: Resource
+      rules: Rules

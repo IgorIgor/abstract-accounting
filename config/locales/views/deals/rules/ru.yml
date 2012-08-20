@@ -6,3 +6,5 @@ ru:
       to: Куда
       resource: Ресурс
       rate: Курс
+      fact_side: Fact side
+      change_side: Change side

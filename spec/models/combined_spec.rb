@@ -90,4 +90,31 @@ describe Combined do
       CombinedTest.all(page: 2, per_page: 4).count.should eq(Money.count + Asset.count - 4)
     end
   end
+
+  describe "#where" do
+    it "should select resources with where condition" do
+      arr = CombinedTest.where({tag: {like: 'e'}}).all.collect{ |item| item.id }
+      arr_test = (Money.where("alpha_code LIKE '%e%'") + Asset.where("tag LIKE '%e%'")).
+          collect { |item| item.id }
+      arr.should =~ arr_test
+    end
+  end
+
+  describe "#limit" do
+    it "should select resources with limit" do
+      arr = CombinedTest.limit(2).all.count.should eq(2)
+    end
+  end
+
+  describe "#order_by" do
+    it "should select resources with order" do
+      arr = CombinedTest.order_by('tag').all.collect{ |item| item.id }
+      arr_test = (Money.order('alpha_code') + Asset.order('tag')).
+          sort! do |x, y|
+            (x.instance_of?(Money) ? x.alpha_code : x.tag) <=>
+                (y.instance_of?(Money) ? y.alpha_code : y.tag)
+          end.map(&:id)
+      arr.should eq(arr_test)
+    end
+  end
 end

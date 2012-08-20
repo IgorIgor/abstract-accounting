@@ -41,6 +41,24 @@ class SqlRecord
     self
   end
 
+  builder :where do |attrs = {}|
+    condition = attrs.inject([]) do |cond, (key, value)|
+      cond << "T.#{key} LIKE '%#{value[:like]}%'" if value[:like]
+    end.join(' AND ')
+    @where =  "WHERE #{condition}"
+    self
+  end
+
+  builder :limit do |value|
+    @limit = "LIMIT #{value}"
+    self
+  end
+
+  builder :order_by do |value|
+    @order_by = "ORDER BY #{value}"
+    self
+  end
+
   def initialize()
     @sql = ""
     @joins = ""
@@ -52,11 +70,11 @@ class SqlRecord
 
   def select(str)
     raise Exception.new("Could not select from empty sql") if @sql.empty?
-    limit = ''
+    limit = @limit
     if @page && @per_page
       limit = "LIMIT #{@per_page} OFFSET #{(@page - 1) * @per_page}"
     end
-    execute("SELECT #{str} FROM (#{@sql}) T #{@joins} #{limit}")
+    execute("SELECT #{str} FROM (#{@sql}) T #{@where} #{@order_by} #{limit}")
   end
 
   def all
@@ -84,6 +102,10 @@ class SqlRecord
   class SqlRecordObject < Object
     def initialize(record)
       @record = record
+    end
+
+    def id
+      Converter.int(self["id"])
     end
 
     def method_missing(meth, *args, &block)

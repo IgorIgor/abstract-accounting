@@ -17,6 +17,10 @@ class DealsController < ApplicationController
     end
   end
 
+  def preview
+    render 'deals/preview', layout: false
+  end
+
   def data
     page = params[:page].nil? ? 1 : params[:page].to_i
     per_page = params[:per_page].nil? ?
@@ -34,5 +38,61 @@ class DealsController < ApplicationController
 
     @rules = deal.rules.limit(per_page).offset((page - 1) * per_page).all
     @count = deal.rules.count
+  end
+
+  def new
+    @deal = Deal.new
+  end
+
+  def show
+    @deal = Deal.find(params[:id])
+  end
+
+  def create
+    deal = nil
+    begin
+      Deal.transaction do
+        deal = Deal.new(params[:deal])
+        deal.build_give(resource_id: params[:give][:resource_id],
+                        resource_type: params[:give][:resource_type],
+                        place_id: params[:give][:place_id])
+        deal.build_take(resource_id: params[:take][:resource_id],
+                        resource_type: params[:take][:resource_type],
+                        place_id: params[:take][:place_id])
+        deal.save!
+        params[:rules].values.each { |item| deal.rules.create!(fact_side: item[:fact_side],
+                                                               change_side: item[:change_side],
+                                                               rate: item[:rate],
+                                                               from_id: item[:from_id],
+                                                               to_id: item[:to_id]) }
+        render json: { result: 'success', id: deal.id }
+      end
+    rescue
+      render json: deal.errors.full_messages
+    end
+  end
+
+  def update
+    deal = Deal.find(params[:id])
+    begin
+      Deal.transaction do
+        deal.update_attributes(params[:deal])
+        deal.give.update_attributes(resource_id: params[:give][:resource_id],
+                                    resource_type: params[:give][:resource_type],
+                                    place_id: params[:give][:place_id])
+        deal.take.update_attributes(resource_id: params[:take][:resource_id],
+                                    resource_type: params[:take][:resource_type],
+                                    place_id: params[:take][:place_id])
+        deal.rules.delete_all
+        params[:rules].values.each { |item| deal.rules.create!(fact_side: item[:fact_side],
+                                                               change_side: item[:change_side],
+                                                               rate: item[:rate],
+                                                               from_id: item[:from_id],
+                                                               to_id: item[:to_id]) }
+        render json: { result: 'success', id: deal.id }
+      end
+    rescue
+      render json: deal.errors.full_messages
+    end
   end
 end

@@ -20,6 +20,8 @@ ko.bindingHandlers.autocomplete =
                .append("<a>#{item[config.value]}</a>").appendTo(ul)
 
       $(element).bind('autocompleteselect', (_, ui) ->
+        if allBindings().value?
+          allBindings().value(ui.item.data[config.value])
         bind = null
         bind = config.bind if config.hasOwnProperty("bind")
         for key, value of ui.item.data
@@ -57,6 +59,9 @@ ko.bindingHandlers.autocomplete =
               else
                 value(null)
           if config.onlySelect
-            allBindings().value('')
+            if allBindings().value?
+              allBindings().value('')
+            else
+              $(element).val('')
             config.afterChange() if config.afterChange
       )

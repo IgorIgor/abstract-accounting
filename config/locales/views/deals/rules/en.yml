@@ -6,3 +6,5 @@ en:
       to: To
       resource: Resource
       rate: Rate
+      fact_side: Fact side
+      change_side: Change side

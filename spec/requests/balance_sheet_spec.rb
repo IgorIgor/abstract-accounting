@@ -333,8 +333,7 @@ feature "BalanceSheet", %q{
                                 ".//tr//td[@class='tree-actions']
                         //div[@class='ui-corner-all ui-state-hover']
                         //span[@class='ui-icon ui-icon-circle-plus']", count: 4)
-      find(:xpath,
-           ".//tr[1]//td[@class='tree-actions']").click
+      find(:xpath, ".//tr[1]//td[@class='tree-actions']").click
 
       balances = BalanceSheet.
           place_id(wb.distributor_place.id).
@@ -358,12 +357,10 @@ feature "BalanceSheet", %q{
          balance.amount
         ]
       end
-      find(:xpath,
-           ".//tr[1]//td[@class='tree-actions']").click
-      page.find("#group_#{wb2.storekeeper_place.id}").visible?.should_not be_true
+      find(:xpath, ".//tr[1]//td[@class='tree-actions']").click
+      page.should_not have_selector("#group_#{wb2.storekeeper_place.id}")
 
-      find(:xpath,
-           ".//tr[5]//td[@class='tree-actions']").click
+      find(:xpath, ".//tr[5]//td[@class='tree-actions']").click
       balances = BalanceSheet.
           place_id(wb2.distributor_place.id).
           paginate(page: 1, per_page: per_page).
@@ -410,7 +407,7 @@ feature "BalanceSheet", %q{
       prev_page("#group_#{wb2.distributor_place.id} div[@class='paginate']")
       find(:xpath,
            ".//tr[5]//td[@class='tree-actions']").click
-      page.find("#group_#{wb2.storekeeper_place.id}").visible?.should_not be_true
+      page.should_not have_selector("#group_#{wb2.storekeeper_place.id}")
     end
 
 
@@ -490,7 +487,7 @@ feature "BalanceSheet", %q{
       prev_page("#group_#{resources[0][:group_id]} div[@class='paginate']")
       find(:xpath,
            ".//tr[1]//td[@class='tree-actions']").click
-      page.find("#group_#{resources[0][:group_id]}").visible?.should_not be_true
+      page.should_not have_selector("#group_#{resources[0][:group_id]}")
     end
 
     select(I18n.t('views.balance_sheet.group_entity'), from: 'balance_sheet_group')
@@ -536,9 +533,8 @@ feature "BalanceSheet", %q{
          balance.amount
         ]
       end
-      find(:xpath,
-           ".//tr[1]//td[@class='tree-actions']").click
-      page.find("#group_#{entities[0][:group_id]}").visible?.should_not be_true
+      find(:xpath, ".//tr[1]//td[@class='tree-actions']").click
+      page.should_not have_selector("#group_#{entities[0][:group_id]}")
     end
 
     select(I18n.t('views.balance_sheet.group_place'), from: 'balance_sheet_group')
@@ -573,8 +569,7 @@ feature "BalanceSheet", %q{
     wait_for_ajax
 
     within('#container_documents table tbody') do
-      find(:xpath,
-           ".//tr[1]//td[@class='tree-actions']").click
+      find(:xpath, ".//tr[1]//td[@class='tree-actions']").click
 
       within("#group_#{wb.distributor_place.id}") do
         page.should have_selector("td[@class='td-inner-table']")

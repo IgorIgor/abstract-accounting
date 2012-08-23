@@ -118,7 +118,7 @@ module ControllerMacros
 
       find_button('<')[:disabled].should eq('true')
       if count_all > per_page
-        find_button('>')[:disabled].should eq('false')
+        find_button('>')[:disabled].should be_nil
       else
         find_button('>')[:disabled].should eq('true')
       end
@@ -134,14 +134,14 @@ module ControllerMacros
         find("span[@data-bind='text: count']").
             should have_content(count_all.to_s)
 
-        find_button('<')[:disabled].should eq('false')
+        find_button('<')[:disabled].should be_nil
         click_button('<')
 
         find("span[@data-bind='text: range']").
             should have_content("1-#{per_page}")
 
         find_button('<')[:disabled].should eq('true')
-        find_button('>')[:disabled].should eq('false')
+        find_button('>')[:disabled].should be_nil
       end
     end
   end

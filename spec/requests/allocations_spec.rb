@@ -89,14 +89,14 @@ feature 'allocation', %q{
     page_login
 
     page.find("#btn_create").click
-    page.find("a[@href='#documents/allocations/new']").click
+    page.find("a[@href='#documents/allocations/new']").click_and_wait
     current_hash.should eq('documents/allocations/new')
 
     page.should have_selector("div[@id='container_documents'] form")
     page.should have_selector("input[@value='#{I18n.t('views.allocations.save')}']")
     page.should have_selector("input[@value='#{I18n.t('views.allocations.back')}']")
     page.should have_selector("input[@value='#{I18n.t('views.allocations.draft')}']")
-    page.should have_xpath("//div[@class='paginate' and contains(@style, 'display: none')]")
+    page.should_not have_xpath("//div[@class='paginate']")
     page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
 
     page.should have_selector("span[@id='page-title']")
@@ -189,14 +189,14 @@ feature 'allocation', %q{
                      storekeeper_place_id: { equal: wb.storekeeper_place.id }},
             where: { exp_amount: { like: '2'}})
 
-    page.find('#search_available_resources').click
+    page.find('#search_available_resources').click_and_wait
     page.should have_selector("table[@id='available-resources'] thead tr[@id='resource_filter']")
 
     within('#available-resources') do
       within("thead tr[@id='resource_filter']") do
         fill_in 'resource_filter_tag', with: '1'
       end
-      page.find('#filtrate').click
+      page.find('#filtrate').click_and_wait
 
       page.all('tbody tr').each_with_index { |tr, i|
         tr.find("td[@data-bind='text: tag']").should have_content(wh_tag[i].tag)
@@ -206,7 +206,7 @@ feature 'allocation', %q{
         fill_in 'resource_filter_tag', with: ''
         fill_in 'resource_filter_mu', with: '1'
       end
-      page.find('#filtrate').click
+      page.find('#filtrate').click_and_wait
 
       page.all('tbody tr').each_with_index { |tr, i|
         tr.find("td[@data-bind='text: mu']").should have_content(wh_mu[i].mu)
@@ -216,14 +216,14 @@ feature 'allocation', %q{
         fill_in 'resource_filter_mu', with: ''
         fill_in 'resource_filter_exp_amount', with: '2'
       end
-      page.find('#filtrate').click
+      page.find('#filtrate').click_and_wait
 
       page.all('tbody tr').each_with_index { |tr, i|
         tr.find("td[@data-bind='text: exp_amount']").
             should have_content(wh_exp_amount[i].exp_amount.to_i)
       }
     end
-    page.find('#search_available_resources').click
+    page.find('#search_available_resources').click_and_wait
     page.should_not have_selector("#available-resources thead tr[@id='resource_filter']",
                                   visible: true)
 
@@ -250,7 +250,8 @@ feature 'allocation', %q{
 
     within("#container_documents") do
       (0..count-1).each do |i|
-        page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
+        page.find("#available-resources tbody tr td[@class='allocation-actions'] span").
+            click_and_wait
         if i < count - 1
           if i < count - per_page
             page.should have_selector('#available-resources tbody tr', count: per_page)
@@ -279,14 +280,15 @@ feature 'allocation', %q{
         in_warehouse(where: { storekeeper_id: { equal: wb.storekeeper.id },
                               storekeeper_place_id: { equal: wb.storekeeper_place.id }})
 
-    page.find('#mode-waybills').click
+    page.find('#mode-waybills').click_and_wait
 
     check_content("#available-resources-by-wb", wbs) do |w|
       [w.document_id, w.created.strftime('%Y-%m-%d'), w.distributor.name,
        w.storekeeper.tag, w.storekeeper_place.tag]
     end
 
-    page.find("#available-resources-by-wb td[@class='allocation-tree-actions-by-wb']").click
+    page.find("#available-resources-by-wb td[@class='allocation-tree-actions-by-wb']").
+        click_and_wait
 
     items = wbs[0].items[0, per_page]
     count = wbs[0].items.length
@@ -309,11 +311,12 @@ feature 'allocation', %q{
       [item.resource.tag, item.resource.mu, item.amount.to_i]
     end
 
-    page.find('#mode-resources-by-wb').click
+    page.find('#mode-resources-by-wb').click_and_wait
     page.should have_no_selector('#available-resources-by-wb')
 
     (0..count-1).each do |i|
-      page.find("#selected-resources tbody tr td[@class='allocation-actions'] span").click
+      page.find("#selected-resources tbody tr td[@class='allocation-actions'] span").
+          click_and_wait
       if i < count-1
         page.should have_selector('#selected-resources tbody tr', count: count-i-1)
         page.should have_selector('#available-resources tbody tr', count: 1+i)
@@ -332,12 +335,12 @@ feature 'allocation', %q{
         in_warehouse(where: { storekeeper_id: { equal: wb.storekeeper.id },
                               storekeeper_place_id: { equal: wb.storekeeper_place.id }})
 
-    page.find('#mode-waybills').click
+    page.find('#mode-waybills').click_and_wait
     page.should have_no_selector('#available-resources')
     within('#available-resources-by-wb') do
       page.all('tbody tr').each do |tr|
         if tr.has_content?(wb.document_id)
-          tr.find("td[@class='allocation-actions-by-wb'] span").click
+          tr.find("td[@class='allocation-actions-by-wb'] span").click_and_wait
         end
       end
       within('tbody') do
@@ -370,7 +373,7 @@ feature 'allocation', %q{
     within('#available-resources-by-wb') do
       all(:xpath, ".//tbody//tr", visible: true).each do |tr|
         if tr.has_content?(wb3.document_id)
-          tr.find("td[@class='allocation-actions-by-wb'] span").click
+          tr.find("td[@class='allocation-actions-by-wb'] span").click_and_wait
         end
       end
     end
@@ -399,7 +402,7 @@ feature 'allocation', %q{
     page_login
 
     page.find("#btn_create").click
-    page.find("a[@href='#documents/allocations/new']").click
+    page.find("a[@href='#documents/allocations/new']").click_and_wait
     current_hash.should eq('documents/allocations/new')
 
     fill_in_autocomplete('storekeeper_entity', wb.storekeeper.tag)
@@ -414,7 +417,7 @@ feature 'allocation', %q{
                 count(where: { storekeeper_id: { equal: wb.storekeeper.id },
                                storekeeper_place_id: { equal: wb.storekeeper_place.id }})
         within('thead tr') do
-          page.find("##{field}").click
+          page.find("##{field}").click_and_wait
           if type == 'asc'
             page.should have_xpath("//th[@id='#{field}']" +
                                    "/span[@class='ui-icon ui-icon-triangle-1-s']")
@@ -459,7 +462,7 @@ feature 'allocation', %q{
     page_login
 
     page.find("#btn_create").click
-    page.find("a[@href='#documents/allocations/new']").click
+    page.find("a[@href='#documents/allocations/new']").click_and_wait
 
     click_button(I18n.t('views.allocations.save'))
     within("#container_documents form") do
@@ -482,8 +485,10 @@ feature 'allocation', %q{
     end
 
     within("#container_documents") do
-      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
-      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
+      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").
+          click_and_wait
+      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").
+          click_and_wait
 
       within('#selected-resources') do
         fill_in I18n.t('views.allocations.amount'), :with => 0
@@ -538,7 +543,7 @@ feature 'allocation', %q{
     page_login user.email, password
 
     page.find("#btn_create").click
-    page.find("a[@href='#documents/allocations/new']").click
+    page.find("a[@href='#documents/allocations/new']").click_and_wait
 
     within("#container_documents form") do
       page.datepicker("created").prev_month.day(10)
@@ -552,8 +557,10 @@ feature 'allocation', %q{
     end
 
     within("#container_documents") do
-      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
-      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
+      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").
+          click_and_wait
+      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").
+          click_and_wait
     end
 
     lambda {
@@ -584,7 +591,7 @@ feature 'allocation', %q{
     page_login
 
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Allocation - #{wb.storekeeper.tag}')]").click
+      'Allocation - #{wb.storekeeper.tag}')]").click_and_wait
     show_allocation(ds)
 
     PaperTrail.enabled = false
@@ -606,11 +613,11 @@ feature 'allocation', %q{
     page_login
 
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Allocation - #{wb.storekeeper.tag}')]").click
+      'Allocation - #{wb.storekeeper.tag}')]").click_and_wait
     click_button(I18n.t('views.allocations.apply'))
     wait_until_hash_changed_to "documents/allocations/#{ds.id}"
-    page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
-      'views.allocations.apply')}' and contains(@style, 'display: none')]")
+    page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
+      'views.allocations.apply')}']")
     PaperTrail.enabled = false
   end
 
@@ -630,10 +637,10 @@ feature 'allocation', %q{
     page_login
 
     visit("#documents/allocations/#{ds.id}")
-    click_button(I18n.t('views.allocations.cancel'))
+    click_button_and_wait(I18n.t('views.allocations.cancel'))
     wait_until_hash_changed_to "documents/allocations/#{ds.id}"
-    page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
-        'views.allocations.cancel')}' and contains(@style, 'display: none')]")
+    page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
+        'views.allocations.cancel')}']")
     find_field('state').value.should eq(I18n.t('views.statable.canceled'))
     click_link I18n.t('views.home.logout')
 
@@ -646,10 +653,10 @@ feature 'allocation', %q{
     page_login
 
     visit("#documents/allocations/#{ds.id}")
-    click_button(I18n.t('views.allocations.cancel'))
+    click_button_and_wait(I18n.t('views.allocations.cancel'))
     wait_until_hash_changed_to "documents/allocations/#{ds.id}"
-    page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
-        'views.allocations.cancel')}' and contains(@style, 'display: none')]")
+    page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
+        'views.allocations.cancel')}']")
     find_field('state').value.should eq(I18n.t('views.statable.reversed'))
     click_link I18n.t('views.home.logout')
 
@@ -672,7 +679,7 @@ feature 'allocation', %q{
     page_login
 
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-                      'Allocation - #{wb.storekeeper.tag}')]").click
+                      'Allocation - #{wb.storekeeper.tag}')]").click_and_wait
 
     visit("#{allocation_path(ds)}.html")
 
@@ -723,7 +730,7 @@ feature 'allocation', %q{
     page.find('#btn_slide_lists').click
     page.find('#deals').click
     page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
-      "not(contains(@style, 'display: none'))]/li[@id='allocations']/a").click
+      "not(contains(@style, 'display: none'))]/li[@id='allocations']/a").click_and_wait
 
     current_hash.should eq('allocations')
     page.should have_xpath("//ul[@id='slide_menu_lists']" +
@@ -775,7 +782,7 @@ feature 'allocation', %q{
     should_present_allocation(allocations)
     prev_page("div[@class='paginate']")
 
-    page.find(:xpath, "//table//tbody//tr[1]//td[2]").click
+    page.find(:xpath, "//table//tbody//tr[1]//td[2]").click_and_wait
     show_allocation(Allocation.first)
   end
 
@@ -807,7 +814,7 @@ feature 'allocation', %q{
     allocations_not_visible = Allocation.where{id.not_in(allocations.select(:id))}
 
     page.find('#btn_slide_lists').click
-    page.find(:xpath, "//ul//li[@id='allocations']/a").click
+    page.find(:xpath, "//ul//li[@id='allocations']/a").click_and_wait
 
     current_hash.should eq('allocations')
     page.should have_xpath("//ul//li[@id='allocations' and @class='sidebar-selected']")
@@ -840,13 +847,13 @@ feature 'allocation', %q{
     page_login user.email, password
 
     page.find('#btn_slide_lists').click
-    page.find(:xpath, "//ul//li[@id='allocations']/a").click
+    page.find(:xpath, "//ul//li[@id='allocations']/a").click_and_wait
 
     current_hash.should eq('allocations')
     page.should have_xpath("//ul//li[@id='allocations' and @class='sidebar-selected']")
 
-    within('#container_documents table tbody') do
-      page.should_not have_selector("tr")
+    within('#container_documents table') do
+      page.should_not have_selector("tbody tr")
     end
 
     PaperTrail.enabled = false
@@ -875,7 +882,7 @@ feature 'allocation', %q{
     page.find('#btn_slide_lists').click
     page.find('#deals').click
     page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
-        "not(contains(@style, 'display: none'))]/li[@id='allocations']/a").click
+        "not(contains(@style, 'display: none'))]/li[@id='allocations']/a").click_and_wait
 
     current_hash.should eq('allocations')
     page.should have_xpath("//ul[@id='slide_menu_lists']" +
@@ -889,7 +896,7 @@ feature 'allocation', %q{
                         //div[@class='ui-corner-all ui-state-hover']
                         //span[@class='ui-icon ui-icon-circle-plus']", count: 1)
       find(:xpath,
-           ".//tr[1]//td[@class='tree-actions']").click
+           ".//tr[1]//td[@class='tree-actions']").click_and_wait
     end
 
     count = allocation.items.count
@@ -911,7 +918,7 @@ feature 'allocation', %q{
 
     within('#container_documents table tbody') do
       find(:xpath, ".//tr[1]//td[@class='tree-actions']").click
-      page.find("#resource_#{allocation.id}").visible?.should_not be_true
+      page.should_not have_selector("#resource_#{allocation.id}")
     end
   end
 
@@ -974,7 +981,7 @@ feature 'allocation', %q{
     page.find('#btn_slide_lists').click
     page.find('#deals').click
     page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
-        "not(contains(@style, 'display: none'))]/li[@id='allocations']/a").click
+        "not(contains(@style, 'display: none'))]/li[@id='allocations']/a").click_and_wait
 
     current_hash.should eq('allocations')
     page.should have_xpath("//ul[@id='slide_menu_lists']" +
@@ -985,7 +992,7 @@ feature 'allocation', %q{
       allocations = Allocation.order_by(field: field, type: type).all
       within('#container_documents table') do
         within('thead tr') do
-          page.find("##{field}").click
+          page.find("##{field}").click_and_wait
           if type == 'asc'
             page.should have_xpath("//th[@id='#{field}']" +
                                    "/span[@class='ui-icon ui-icon-triangle-1-s']")

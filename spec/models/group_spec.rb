@@ -26,7 +26,7 @@ describe Group do
     group.users << user
     expect do
       group.manager = user
-      expect { group.save! }.should raise_error
+      expect { group.save! }.to raise_error
     end.to change{ group.errors[:manager].size }.from(0).to(1)
   end
 
@@ -36,7 +36,7 @@ describe Group do
     group.users << user
     manager = User.find(group.manager_id)
     expect do
-      expect { group.users << manager }.should raise_error
+      expect { group.users << manager }.to raise_error
     end.to change{ group.errors[:users].size }.from(0).to(1)
   end
 
@@ -45,7 +45,7 @@ describe Group do
     user = create(:user)
     group.users << user
     expect do
-      expect { group.users << user }.should raise_error
+      expect { group.users << user }.to raise_error
     end.to change{ group.errors[:users].size }.from(0).to(1)
   end
 end

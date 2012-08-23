@@ -9,7 +9,7 @@
 
 require 'spec_helper'
 
-describe VersionEx do
+describe Document do
   before :all do
     PaperTrail.enabled = true
   end
@@ -21,7 +21,7 @@ describe VersionEx do
   describe '#lasts' do
     let(:entity) { create(:entity) }
     it 'should return one version if object was created' do
-      versions = VersionEx.lasts.where(
+      versions = Document.lasts.where(
         "item_type='Entity' AND versions.item_id=#{entity.id}")
       entity.versions.last.id.should eq(versions.first.id)
       versions.count.should eq(1)
@@ -32,35 +32,18 @@ describe VersionEx do
       entity.versions.count.should eq(2)
       entity.update_attributes!(tag: 'new_tag2')
       entity.versions.count.should eq(3)
-      versions = VersionEx.lasts.where(
+      versions = Document.lasts.where(
         "item_type='Entity' AND versions.item_id=#{entity.id}")
       entity.versions.last.id.should eq(versions.first.id)
       versions.count.should eq(1)
     end
   end
 
-  describe '#by_type' do
-    it 'should return only objects with special types' do
-      types = [Entity.name]
-      create(:entity)
-      versions = VersionEx.by_type(types)
-      versions.each { |version| version.item_type.should eq(types[0]) }
-      create(:legal_entity)
-      types << LegalEntity.name
-      versions = VersionEx.by_type(types)
-      versions.any?.should eq(true)
-      versions.each do |version|
-        (version.item_type == types[0] ||
-          version.item_type == types[1]).should eq(true)
-      end
-    end
-  end
-
   describe "#by_user" do
     it "should return all records for root user" do
-      create(:entity)
-      create(:legal_entity)
-      VersionEx.all.should =~ VersionEx.by_user(RootUser.new).all
+      create(:user)
+      Document.where{item_type.in(Document.documents)}.should =~ Document.
+          by_user(RootUser.new).all
     end
 
     it "should return records by user credentials" do
@@ -68,13 +51,13 @@ describe VersionEx do
       5.times do
         create(:entity)
       end
-      VersionEx.by_user(user).all.should be_empty
+      Document.by_user(user).all.should be_empty
       create(:credential, user: user, document_type: Entity.name)
-      VersionEx.by_user(user).all.should be_empty
-      VersionEx.by_type([Entity.name]).each do |v|
+      Document.by_user(user).all.should be_empty
+      Document.where{item_type.in([Entity.name])}.each do |v|
         v.update_attributes(whodunnit: user.id)
       end
-      VersionEx.by_user(user).all.should =~ VersionEx.by_type([Entity.name])
+      Document.by_user(user).all.should =~ Document.where{item_type.in([Entity.name])}
       create(:chart)
       5.times do
         wb = build(:waybill, storekeeper: user.entity)
@@ -87,10 +70,10 @@ describe VersionEx do
         ds.add_item(tag: 'roof', mu: 'm2', amount: 1)
         ds.save!
       end
-      VersionEx.by_user(user).all.should =~ VersionEx.by_type([Entity.name]).
+      Document.by_user(user).all.should =~ Document.where{item_type.in([Entity.name])}.
           where{whodunnit == user.id.to_s}
       credential = create(:credential, user: user, document_type: Waybill.name)
-      VersionEx.by_user(user).all.should =~ VersionEx.by_type([Entity.name]).
+      Document.by_user(user).all.should =~ Document.where{item_type.in([Entity.name])}.
                 where{whodunnit == user.id.to_s}
       5.times do
         wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place)
@@ -100,8 +83,8 @@ describe VersionEx do
       end
       create(:credential, user: user,
           place: credential.place, document_type: Allocation.name)
-      VersionEx.by_user(user).all.should =~ VersionEx.
-          by_type([Entity.name, Waybill.name]).
+      Document.by_user(user).all.should =~ Document.
+          where{item_type.in([Entity.name, Waybill.name])}.
           joins{item(Waybill).outer.deal.outer.take.outer}.
           where{((item.deal.entity_id == user.entity_id) &
                 (item.deal.take.place_id == credential.place_id)) |
@@ -117,8 +100,8 @@ describe VersionEx do
         ds.add_item(tag: 'roof', mu: 'm2', amount: 1)
         ds.save!
       end
-      VersionEx.by_user(user).all.should =~ VersionEx.
-          by_type([Entity.name, Waybill.name, Allocation.name]).
+      Document.by_user(user).all.should =~ Document.
+          where{item_type.in([Entity.name, Waybill.name, Allocation.name])}.
           where{id.in(
             Version.joins{item(Waybill).deal.take}.
                     where{(item.deal.entity_id == user.entity_id) &
@@ -139,28 +122,28 @@ describe VersionEx do
 
       per_page.times { create(:entity) }
 
-      ver1 = VersionEx.paginate()
+      ver1 = Document.paginate()
       ver1.count.should eq(per_page)
 
-      ver2 = VersionEx.paginate({page: 1})
+      ver2 = Document.paginate({page: 1})
       ver1.should eq(ver2)
 
-      ver2 = VersionEx.paginate({page: '1'})
+      ver2 = Document.paginate({page: '1'})
       ver1.should eq(ver2)
 
-      ver2 = VersionEx.paginate({per_page: per_page})
+      ver2 = Document.paginate({per_page: per_page})
       ver1.should eq(ver2)
 
-      ver2 = VersionEx.paginate({per_page: per_page.to_s})
+      ver2 = Document.paginate({per_page: per_page.to_s})
       ver1.should eq(ver2)
 
-      ver2 = VersionEx.paginate({page: 1, per_page: per_page})
+      ver2 = Document.paginate({page: 1, per_page: per_page})
       ver1.should eq(ver2)
 
-      ver2 = VersionEx.paginate({page: '1', per_page: per_page.to_s})
+      ver2 = Document.paginate({page: '1', per_page: per_page.to_s})
       ver1.should eq(ver2)
 
-      ver2 = VersionEx.paginate({page: 2, per_page: per_page})
+      ver2 = Document.paginate({page: 2, per_page: per_page})
       (ver2 & ver1).empty?.should eq(true)
     end
   end
@@ -205,32 +188,32 @@ describe VersionEx do
       fr = Entity.find_by_tag('foreman1')
       frp = Place.find_by_tag('fr_place1')
 
-      VersionEx.filter().should eq(VersionEx.all)
+      Document.filter().should eq(Document.all)
 
       filtered = items.select { |i| i.kind_of?(Waybill) }
-      VersionEx.filter(waybill: { created: Date.today.to_s[0,2] }).lasts
+      Document.filter(waybill: { created: Date.today.to_s[0,2] }).lasts
         .map { |v| v.item }.should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Waybill) &&
                                     i.document_id == 'test_document_id1'}
-      VersionEx.filter(waybill: { document_id: 'test_document_id1' }).lasts
+      Document.filter(waybill: { document_id: 'test_document_id1' }).lasts
         .map { |v| v.item }.should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Waybill) && i.storekeeper == st}
-      VersionEx.filter(waybill: {
+      Document.filter(waybill: {
                         storekeeper: {
                           entity: { tag: 'storekeeper1'}}}).lasts.map { |v| v.item }.
         should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Waybill) &&
                                     i.storekeeper_place == stp}
-      VersionEx.filter(waybill: {
+      Document.filter(waybill: {
                         storekeeper_place: {
                           place: { tag: 'sk_place1'}}}).lasts.map { |v| v.item }.
         should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Waybill) && i.distributor == ds}
-      VersionEx.filter(waybill: {
+      Document.filter(waybill: {
                         distributor: {
                           legal_entity: {
                             identifier_name: 'ds_id_name1',
@@ -240,14 +223,14 @@ describe VersionEx do
 
       filtered = items.select { |i| i.kind_of?(Waybill) &&
                                     i.distributor_place == dsp}
-      VersionEx.filter(waybill: {
+      Document.filter(waybill: {
                         distributor_place: {
                           place: { tag: 'ds_place1'}}}).lasts.map { |v| v.item }.
         should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Waybill) &&
         i.storekeeper == st && i.storekeeper_place == stp}
-      VersionEx.filter(waybill: {
+      Document.filter(waybill: {
                         storekeeper: {
                           entity: { tag: st.tag}},
                         storekeeper_place: {
@@ -256,7 +239,7 @@ describe VersionEx do
 
       filtered = items.select { |i| i.kind_of?(Waybill) &&
         i.storekeeper == st && i.storekeeper_place == stp}
-      VersionEx.filter(waybill: {
+      Document.filter(waybill: {
                         storekeeper: {
                           entity: { tag: st.tag}},
                         storekeeper_place: {
@@ -264,13 +247,13 @@ describe VersionEx do
                         created: Date.today.to_s[0,2]}).lasts.map { |v| v.item }.
         should =~ filtered
 
-      VersionEx.filter(waybill: { created: Date.today.to_s[0,2] },
+      Document.filter(waybill: { created: Date.today.to_s[0,2] },
                        allocation: { created: Date.today.to_s[0,2] }).lasts
         .count.should eq(items.count)
 
       filtered = items.select { |i| (i.kind_of?(Waybill) &&
         i.storekeeper == st) || (i.kind_of?(Allocation) && i.storekeeper == st) }
-      VersionEx.filter(waybill: {
+      Document.filter(waybill: {
                         storekeeper: {
                           entity: { tag: st.tag}},
                         created: Date.today.to_s[0,2]},
@@ -281,38 +264,70 @@ describe VersionEx do
         should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Allocation) && i.state == 1}
-      VersionEx.filter(allocation: { state: '1' }).lasts
+      Document.filter(allocation: { state: '1' }).lasts
         .map { |v| v.item }.should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Allocation) &&
                                     i.storekeeper == st}
-      VersionEx.filter(allocation: {
+      Document.filter(allocation: {
                         storekeeper: {
                           entity: { tag: 'storekeeper1'}}}).lasts.map { |v| v.item }.
         should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Allocation) &&
                                     i.storekeeper_place == stp}
-      VersionEx.filter(allocation: {
+      Document.filter(allocation: {
                         storekeeper_place: {
                           place: { tag: 'sk_place1'}}}).lasts.map { |v| v.item }.
         should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Allocation) &&
                                     i.foreman == fr}
-      VersionEx.filter(allocation: {
+      Document.filter(allocation: {
                         foreman: {
                           entity: { tag: 'foreman1'}}}).lasts.map { |v| v.item }.
         should =~ filtered
 
       filtered = items.select { |i| i.kind_of?(Allocation) &&
                                     i.foreman_place == frp}
-      VersionEx.filter(allocation: {
+      Document.filter(allocation: {
                         foreman_place: {
                           place: { tag: 'fr_place1'}}}).lasts.map { |v| v.item }.
         should =~ filtered
 
-      VersionEx.filter.class.name.should eq('ActiveRecord::Relation')
+      Document.filter.class.name.should eq('ActiveRecord::Relation')
+    end
+  end
+
+  describe "#attributes" do
+    let(:doc) { Document.where{item_type.in(Document.documents)}.first }
+
+    it "should has document_id" do
+      doc.document_id.should eq(doc.item.id)
+    end
+
+    it "should has document_name" do
+      doc.document_name.should eq(doc.item.class.name)
+    end
+
+    it "should has document_content" do
+      klass_associations = doc.item.class.reflect_on_all_associations(:belongs_to)
+      value = if doc.item.class.method_defined?(:storekeeper)
+        doc.item.storekeeper.tag
+      elsif klass_associations.any? { |assoc| assoc.name == :entity }
+        doc.item.entity.tag
+      else
+        doc.item.tag
+      end
+      doc.document_content.should eq(value)
+    end
+
+    it "should has document_created_at" do
+      doc.document_created_at.should eq(doc.item.versions.first.created_at)
+    end
+
+    it "should has document_updated_at" do
+      doc.document_updated_at.should eq(doc.item.versions.last.created_at)
     end
   end
 end

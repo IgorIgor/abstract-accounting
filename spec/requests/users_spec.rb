@@ -18,12 +18,12 @@ feature "user", %q{
     create(:chart)
   end
 
-  scenario "create users", :js => true do
+  scenario "create users", js: true do
     page_login
 
     page.find('#btn_create').click
     page.find("a[@href='#documents/users/new']").click
-    page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
+    page.should_not have_xpath("//ul[@id='documents_list']")
 
     current_hash.should eq('documents/users/new')
     page.should have_selector("div[@id='container_documents'] form")
@@ -67,7 +67,7 @@ feature "user", %q{
     fill_in('user_email', with: 'mymail@gmail.com')
     fill_in('user_password', with: '1234567')
     fill_in('user_password_confirmation', with: '1234567')
-    find("#container_notification").visible?.should_not be_true
+    page.should_not have_selector("#container_notification")
 
     lambda do
       click_button(I18n.t('views.users.save'))
@@ -141,14 +141,12 @@ feature "user", %q{
         end
       end
       within("#container_notification ul") do
-        find(:xpath, ".//li[contains(.//text(), '#{I18n.t(
+        page.should_not have_xpath(".//li[contains(.//text(), '#{I18n.t(
             'views.users.credential')}#0 #{I18n.t(
-            'views.users.place')} : #{I18n.t('errors.messages.blank')}')]").
-            visible?.should_not be_true
-        find(:xpath, ".//li[contains(.//text(), '#{I18n.t(
+            'views.users.place')} : #{I18n.t('errors.messages.blank')}')]")
+        page.should_not have_xpath(".//li[contains(.//text(), '#{I18n.t(
             'views.users.credential')}#1 #{I18n.t(
-            'views.users.place')} : #{I18n.t('errors.messages.blank')}')]").
-            visible?.should_not be_true
+            'views.users.place')} : #{I18n.t('errors.messages.blank')}')]")
       end
       within("fieldset table tbody") do
         page.find(:xpath, ".//td[@class='table-actions']//label").click
@@ -259,16 +257,16 @@ feature "user", %q{
         find(:xpath, ".//tbody//tr[1]//td[contains(.//text(), '#{user.entity.tag}')]").click
       end
       current_hash.should eq("documents/users/#{user.id}")
-      find_button(I18n.t('views.users.edit'))[:disabled].should eq('false')
+      find_button(I18n.t('views.users.edit'))[:disabled].should be_nil
 
       click_button(I18n.t('views.users.edit'))
       find('#page-title').should have_content(
                                      I18n.t('views.users.page_title_edit'))
       find_button(I18n.t('views.users.edit'))[:disabled].should eq('true')
 
-      find('#user_entity')[:disabled].should eq('false')
-      find('#user_email')[:disabled].should eq('false')
-      find_button(I18n.t('views.users.add'))[:disabled].should eq('false')
+      find('#user_entity')[:disabled].should be_nil
+      find('#user_email')[:disabled].should be_nil
+      find_button(I18n.t('views.users.add'))[:disabled].should be_nil
 
       fill_in('user_entity', with: 'some different entity')
       fill_in('user_email', with: 'some.different@email.ee')
@@ -325,8 +323,8 @@ feature "user", %q{
       find('#user_password')[:disabled].should eq('true')
       find('#user_password_confirmation')[:disabled].should eq('true')
       check('change_pass')
-      find('#user_password')[:disabled].should eq('false')
-      find('#user_password_confirmation')[:disabled].should eq('false')
+      find('#user_password')[:disabled].should be_nil
+      find('#user_password_confirmation')[:disabled].should be_nil
       password = 'newpassword'
       fill_in('user_password', with: password)
       fill_in('user_password_confirmation', with: password)

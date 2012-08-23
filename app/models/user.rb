@@ -34,4 +34,8 @@ class User < ActiveRecord::Base
   def root?
     false
   end
+
+  def documents
+    self.credentials(:force_update).collect{ |c| c.document_type }
+  end
 end

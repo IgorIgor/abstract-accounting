@@ -30,10 +30,6 @@ class ApplicationController < ActionController::Base
     sorcery_forget_me! unless current_user.root?
   end
 
-  def implemented_documents
-    [Waybill.name, Allocation.name]
-  end
-
   protected
   alias_method :sorcery_login_from_session, :login_from_session
   def login_from_session

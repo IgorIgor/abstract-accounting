@@ -13,5 +13,6 @@ describe RootUser do
   it "should have next behaviour" do
     RootUser.new.email.should eq("root@localhost")
     RootUser.new.root?.should be_true
+    RootUser.new.documents.should be_empty
   end
 end

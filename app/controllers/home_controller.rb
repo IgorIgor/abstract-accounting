@@ -12,10 +12,9 @@ class HomeController < ApplicationController
 
   def user_documents
     if current_user.root?
-      implemented_documents + [User.name, Group.name]
+      Document.documents
     else
-      current_user.credentials(:force_update).
-          collect{ |c| c.document_type } & implemented_documents
+      current_user.documents & Document.documents
     end
   end
 
@@ -27,14 +26,12 @@ class HomeController < ApplicationController
     respond_to do |format|
       format.html { render "home/documents", :layout => false }
       format.json do
-        types = user_documents
-        @versions = []
+        @documents = []
         @count = 0
-        unless types.empty?
-          scoped_versions = VersionEx.lasts.by_type(user_documents).by_user(current_user).
-              filter(params[:like])
-          @versions = scoped_versions.paginate(page: params[:page], per_page: params[:per_page]).
-              all()#include: [item: [:versions, :storekeeper]])
+        unless user_documents.empty?
+          scoped_versions = Document.lasts.by_user(current_user).filter(params[:like])
+          @documents = scoped_versions.paginate(page: params[:page],
+                                                per_page: params[:per_page]).all
           @count = scoped_versions.count
         end
         render "home/data"
@@ -46,13 +43,11 @@ class HomeController < ApplicationController
     respond_to do |format|
       format.html { render "home/documents", :layout => false }
       format.json do
-        types = user_documents
-        @versions = []
+        @documents = []
         @count = 0
-        unless types.empty?
-          scoped_versions = VersionEx.lasts.by_type(user_documents).by_user(current_user).
-              filter(params[:like])
-          @versions = scoped_versions.paginate(page: params[:page], per_page: params[:per_page]).
+        unless user_documents.empty?
+          scoped_versions = Document.lasts.by_user(current_user).filter(params[:like])
+          @documents = scoped_versions.paginate(page: params[:page], per_page: params[:per_page]).
               all()#include: [item: [:versions, :storekeeper]])
           @count = scoped_versions.count
         end

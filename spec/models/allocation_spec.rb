@@ -226,12 +226,12 @@ describe Allocation do
     nails_deal.state.amount.should eq(1190.0)
 
     db.save.should be_true
-    expect { db.apply } .should change(Fact, :count).by(3)
+    expect { db.apply } .to change(Fact, :count).by(3)
 
     roof_deal.state.amount.should eq(589.0)
     nails_deal.state.amount.should eq(1180.0)
 
-    expect { db.cancel } .should change(Fact, :count).by(3)
+    expect { db.cancel } .to change(Fact, :count).by(3)
     db.state.should eq(Statable::REVERSED)
 
     roof_deal.state.amount.should eq(594.0)

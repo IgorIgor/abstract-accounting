@@ -54,7 +54,7 @@ feature "Transcripts", %q{
     date_to = Date.today
 
     click_button(I18n.t('views.transcripts.select_deal'))
-    page.find('#main').visible?.should_not be_true
+    page.should_not have_selector('#main')
     page.find('#container_selection').visible?.should be_true
     within('#container_selection table tbody') do
       page.find(:xpath, ".//tr[1]/td[2]").click
@@ -229,9 +229,9 @@ feature "Transcripts", %q{
           should have_content(txns_count.to_s)
 
       find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
+      find_button('>')[:disabled].should be_nil
       click_button('>')
-      find_button('<')[:disabled].should eq('false')
+      find_button('<')[:disabled].should be_nil
 
       find("span[@data-bind='text: range']").
           should have_content("#{per_page + 1}-#{to_range}")
@@ -248,7 +248,7 @@ feature "Transcripts", %q{
           should have_content("1-#{per_page}")
 
       find_button('<')[:disabled].should eq('true')
-      find_button('>')[:disabled].should eq('false')
+      find_button('>')[:disabled].should be_nil
     end
 
     within("#container_documents") do
@@ -268,7 +268,6 @@ feature "Transcripts", %q{
           should eq(date_to)
     end
 
-    page.find('#btn_slide_conditions').click
     click_link I18n.t('views.home.general_ledger')
 
     within('#container_documents') do

@@ -8,21 +8,12 @@
 # Please see ./COPYING for details
 
 object false
-child(@versions => :objects) do
-  node(:id) { |version| version.item.id }
-  node(:type) { |version| version.item.class.name.pluralize.downcase }
-  node(:name) { |version| version.item.class.name }
+child(@documents => :objects) do
+  attributes document_id: :id, document_name: :name, document_content: :content
+  node(:type) { |doc| doc.document_name.pluralize.downcase }
   node(:sum) { 0.0 }
-  node(:content) do |version|
-    klass_associations = version.item.class.reflect_on_all_associations(:belongs_to)
-    if version.item.class.method_defined?(:storekeeper)
-      version.item.storekeeper.tag
-    elsif klass_associations.any? { |assoc| assoc.name == :entity }
-      version.item.entity.tag
-    end
-  end
-  node(:created_at) { |version| version.item.versions.first.created_at.strftime('%Y-%m-%d') }
-  node(:update_at) { |version| version.item.versions.last.created_at.strftime('%Y-%m-%d') }
+  node(:created_at) { |doc| doc.document_created_at.strftime('%Y-%m-%d') }
+  node(:update_at) { |doc| doc.document_updated_at.strftime('%Y-%m-%d') }
 end
 node (:per_page) { params[:per_page] || Settings.root.per_page }
 node (:count) { @count }

@@ -137,10 +137,7 @@ feature 'warehouses', %q{
     check_header("#container_documents table", titles)
 
     within('#container_documents table') do
-      page.should have_selector("tbody[@data-bind='foreach: documents']")
-      within('tbody') do
-        page.should_not have_selector("tr")
-      end
+      page.should_not have_selector("tbody tr")
     end
     click_link I18n.t('views.home.logout')
 
@@ -229,7 +226,7 @@ feature 'warehouses', %q{
 
       find(:xpath,
            ".//tr[1]//td[@class='distribution-tree-actions-by-wb']").click
-      page.find("#group_#{wb2.storekeeper_place.id}").visible?.should_not be_true
+      page.should_not have_selector("#group_#{wb2.storekeeper_place.id}")
 
       resources = Warehouse.
           all(per_page: per_page, page: 1,
@@ -265,7 +262,7 @@ feature 'warehouses', %q{
 
       find(:xpath,
            ".//tr[3]//td[@class='distribution-tree-actions-by-wb']").click
-      page.find("#group_#{wb2.storekeeper_place.id}").visible?.should_not be_true
+      page.should_not have_selector("#group_#{wb2.storekeeper_place.id}")
     end
 
     select(I18n.t('views.warehouses.group_tag'), from: 'warehouse_group')
@@ -323,7 +320,7 @@ feature 'warehouses', %q{
       end
       find(:xpath,
            ".//tr[1]//td[@class='distribution-tree-actions-by-wb']").click
-      page.find("#group_#{resource.id}").visible?.should_not be_true
+      page.should_not have_selector("#group_#{resource.id}")
     end
   end
 

@@ -88,14 +88,14 @@ feature "waybill", %q{
 
     page.find("#btn_create").click
     page.find("a[@href='#documents/waybills/new']").click
-    page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
+    page.should_not have_xpath("//ul[@id='documents_list']")
 
     current_hash.should eq("documents/waybills/new")
     page.should have_selector("div[@id='container_documents'] form")
     page.should have_selector("input[@value='#{I18n.t('views.waybills.save')}']")
     page.should have_selector("input[@value='#{I18n.t('views.waybills.back')}']")
     page.should have_selector("input[@value='#{I18n.t('views.waybills.draft')}']")
-    page.should have_xpath("//div[@class='paginate' and contains(@style, 'display: none')]")
+    page.should_not have_xpath("//div[@class='paginate']")
     page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
 
     within("select[@id='waybill_ident_name']") do
@@ -260,7 +260,7 @@ feature "waybill", %q{
 
     page.find("#btn_create").click
     page.find("a[@href='#documents/waybills/new']").click
-    page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
+    page.should_not have_xpath("//ul[@id='documents_list']")
 
     within('#container_documents form') do
       page.datepicker("created").prev_month.day(10)
@@ -348,11 +348,11 @@ feature "waybill", %q{
     page_login
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Waybill - #{wb.storekeeper.tag}')]").click
-    click_button(I18n.t('views.waybills.apply'))
+    click_button_and_wait(I18n.t('views.waybills.apply'))
 
     wait_until_hash_changed_to "documents/waybills/#{wb.id}"
-    page.should have_xpath("//div[@class='actions']/input[@value='#{I18n.t(
-        'views.waybills.apply')}' and contains(@style, 'display: none')]")
+    page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
+        'views.waybills.apply')}']")
     find_field('state').value.should eq(I18n.t('views.statable.applied'))
 
     PaperTrail.enabled = false
@@ -368,10 +368,10 @@ feature "waybill", %q{
     page_login
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Waybill - #{wb.storekeeper.tag}')]").click
-    click_button(I18n.t('views.waybills.cancel'))
+    click_button_and_wait(I18n.t('views.waybills.cancel'))
     wait_until_hash_changed_to "documents/waybills/#{wb.id}"
-    page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
-        'views.waybills.cancel')}' and contains(@style, 'display: none')]")
+    page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
+        'views.waybills.cancel')}']")
     find_field('state').value.should eq(I18n.t('views.statable.canceled'))
     click_link I18n.t('views.home.logout')
 
@@ -382,11 +382,11 @@ feature "waybill", %q{
 
     page_login
     visit("#documents/waybills/#{wb.id}")
-    click_button(I18n.t('views.waybills.cancel'))
+    click_button_and_wait(I18n.t('views.waybills.cancel'))
     wait_until_hash_changed_to "documents/waybills/#{wb.id}"
     visit("#documents/waybills/#{wb.id}")
-    page.should have_xpath("//div[@class='actions']//input[@value='#{I18n.t(
-        'views.waybills.cancel')}' and contains(@style, 'display: none')]")
+    page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
+        'views.waybills.cancel')}']")
     find_field('state').value.should eq(I18n.t('views.statable.reversed'))
     click_link I18n.t('views.home.logout')
 
@@ -547,8 +547,8 @@ feature "waybill", %q{
     current_hash.should eq('waybills')
     page.should have_xpath("//ul//li[@id='waybills' and @class='sidebar-selected']")
 
-    within('#container_documents table tbody') do
-      page.should_not have_selector("tr")
+    within('#container_documents table') do
+      page.should_not have_selector("tbody tr")
     end
 
     PaperTrail.enabled = false
@@ -608,7 +608,7 @@ feature "waybill", %q{
     end
     within('#container_documents table tbody') do
       find(:xpath, ".//tr[3]//td[@class='tree-actions']").click
-      page.find("#resource_#{wb2.id}").visible?.should_not be_true
+      page.should_not have_selector("#resource_#{wb2.id}")
     end
   end
 

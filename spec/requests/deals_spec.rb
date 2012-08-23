@@ -90,9 +90,9 @@ feature 'deals', %q{
       within(:xpath, ".//tr[3]//td[@class='tree-actions']") do
         page.should have_selector("div[@class='ui-corner-all ui-state-default']")
       end
-      page.find(:xpath, ".//tr[2]").visible?.should_not be_true
+      page.should_not have_xpath(".//tr[2]")
       page.find(:xpath, ".//tr[1]//td[@class='tree-actions']").click
-      page.find(:xpath, ".//tr[2]//td[@class='td-inner-table']").visible?.should be_true
+      page.should_not have_xpath(".//tr[2]//td[@class='td-inner-table']")
     end
 
     titles = [I18n.t('views.rules.tag'), I18n.t('views.rules.resource'),
@@ -113,10 +113,10 @@ feature 'deals', %q{
 
     within("#container_documents table tbody") do
       page.find(:xpath, ".//tr[1]//td[@class='tree-actions']").click
-      page.find("#rules_#{deal_1.id}").visible?.should_not be_true
-      page.find("#rules_#{deal_2.id}").visible?.should_not be_true
+      page.should_not have_selector("#rules_#{deal_1.id}")
+      page.should_not have_selector("#rules_#{deal_2.id}")
       page.find(:xpath, ".//tr[3]//td[@class='tree-actions']").click
-      page.find("#rules_#{deal_2.id}").visible?.should_not be_true
+      page.should_not have_selector("#rules_#{deal_2.id}")
     end
   end
 end

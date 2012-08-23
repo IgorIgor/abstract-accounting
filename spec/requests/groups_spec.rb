@@ -24,8 +24,7 @@ feature "group", %q{
 
     page.find('#btn_create').click
     page.find("a[@href='#documents/groups/new']").click
-    page.should have_xpath("//ul[@id='documents_list' and "+
-                               " contains(@style, 'display: none')]")
+    page.should_not have_xpath("//ul[@id='documents_list']")
 
     current_hash.should eq('documents/groups/new')
     page.should have_selector("div[@id='container_documents'] form")
@@ -154,7 +153,7 @@ feature "group", %q{
       current_hash.should eq("documents/groups/#{group.id}")
       find_button(I18n.t('views.groups.add'))[:disabled].should eq('true')
       find_button(I18n.t('views.groups.save'))[:disabled].should eq('true')
-      find_button(I18n.t('views.groups.edit'))[:disabled].should eq('false')
+      find_button(I18n.t('views.groups.edit'))[:disabled].should be_nil
       find('#page-title').should have_content(
                                      I18n.t('views.groups.page_title_show'))
 
@@ -166,13 +165,13 @@ feature "group", %q{
       find('#page-title').should have_content(
                                      I18n.t('views.groups.page_title_edit'))
       find_button(I18n.t('views.groups.edit'))[:disabled].should eq('true')
-      find_button(I18n.t('views.groups.add'))[:disabled].should eq('false')
+      find_button(I18n.t('views.groups.add'))[:disabled].should be_nil
 
       find("#group_tag")[:value].should eq(group.tag)
       find("#group_manager")[:value].should eq(group.manager.entity.tag)
 
-      find("#group_tag")[:disabled].should eq('false')
-      find("#group_manager")[:disabled].should eq('false')
+      find("#group_tag")[:disabled].should be_nil
+      find("#group_manager")[:disabled].should be_nil
 
       fill_in('group_tag', with: 'some different group tag')
       fill_in_autocomplete('group_manager', create(:user).entity.tag)
@@ -212,8 +211,7 @@ feature "group", %q{
 
     page.find('#btn_create').click
     page.find("a[@href='#documents/groups/new']").click
-    page.should have_xpath("//ul[@id='documents_list' and "+
-                               " contains(@style, 'display: none')]")
+    page.should_not have_xpath("//ul[@id='documents_list']")
     current_hash.should eq('documents/groups/new')
 
     fill_in('group_tag', with: group.tag)

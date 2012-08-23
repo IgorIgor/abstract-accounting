@@ -10,18 +10,18 @@
 require 'spec_helper'
 
 
-def should_present_versions(versions)
-  check_content('#container_documents table', versions) do |version|
-    [version.item.class.name, version.item.storekeeper.tag,
-     version.item.versions.first.created_at.strftime('%Y-%m-%d'),
-     version.item.versions.last.created_at.strftime('%Y-%m-%d')]
+def should_present_documents(documents)
+  check_content('#container_documents table', documents) do |document|
+    [document.document_name, document.document_content,
+     document.document_created_at.strftime('%Y-%m-%d'),
+     document.document_updated_at.strftime('%Y-%m-%d')]
   end
 end
 
 def table_with_paginate(scope, per_page)
   items = scope.paginate(page: 1, per_page: per_page).all(include: {item: :versions})
 
-  should_present_versions(items)
+  should_present_documents(items)
 
   items_count = scope.count
 
@@ -29,7 +29,7 @@ def table_with_paginate(scope, per_page)
   next_page("div[@class='paginate']")
 
   items = scope.paginate(page: 2, per_page: @per_page).all(include: {item: :versions})
-  should_present_versions(items)
+  should_present_documents(items)
 end
 
 feature "single page application", %q{
@@ -37,7 +37,7 @@ feature "single page application", %q{
   I want to work with single page
 } do
 
-  before do
+  before :each do
     PaperTrail.enabled = true
     create(:chart)
     @waybills = []
@@ -58,7 +58,7 @@ feature "single page application", %q{
     end
   end
 
-  after { PaperTrail.enabled = false }
+  after(:each) { PaperTrail.enabled = false }
 
   scenario 'visit home page', js: true do
     page_login
@@ -83,21 +83,21 @@ feature "single page application", %q{
     page.find("#btn_create").click
     page.should_not have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
     page.find("#btn_create").click
-    page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
+    page.should_not have_xpath("//ul[@id='documents_list']")
     page.find("#btn_create").click
     page.find("#container_documents").click
-    page.should have_xpath("//ul[@id='documents_list' and contains(@style, 'display: none')]")
+    page.should_not have_xpath("//ul[@id='documents_list']")
 
     page.should have_xpath("//div[@class='slider']")
     page.should have_xpath("//div[@id='arrow_lists' and @class='arrow-down-slide']")
-    page.find('#slide_menu_lists').visible?.should eq(false)
+    page.should_not have_selector('#slide_menu_lists')
     page.find('#btn_slide_lists').click
     page.find('#slide_menu_lists').visible?.should eq(true)
     page.should have_xpath("//div[@id='arrow_lists' and @class='arrow-up-slide']")
 
     page.should have_xpath("//div[@class='slider']")
     page.should have_xpath("//div[@id='arrow_conditions' and @class='arrow-down-slide']")
-    page.find('#slide_menu_conditions').visible?.should eq(false)
+    page.should_not have_selector('#slide_menu_conditions')
     page.find('#btn_slide_conditions').click
     page.find('#slide_menu_conditions').visible?.should eq(true)
     page.should have_xpath("//div[@id='arrow_conditions' and @class='arrow-up-slide']")
@@ -109,6 +109,7 @@ feature "single page application", %q{
     page.should have_xpath("//ul//li[@id='entities']")
     page.should have_xpath("//ul//li[@id='places']")
     page.should have_xpath("//ul//div[@id='arrow_actions']")
+    page.find('#arrow_actions').click
     page.should have_xpath("//ul//li[@id='waybills']")
     page.should have_xpath("//ul//li[@id='allocations']")
     page.should have_xpath("//ul//li[@id='warehouses']")
@@ -117,8 +118,7 @@ feature "single page application", %q{
     page.should have_xpath("//ul//li[@id='transcripts']")
     page.should have_xpath("//div//a[@href='#settings']")
 
-    table_with_paginate(VersionEx.lasts.by_type([ Waybill.name, Allocation.name ]),
-                        @per_page)
+    table_with_paginate(Document.lasts.by_user(RootUser.new), @per_page)
 
 
     pending "disabled while fix filter with new allocation and waybill fields" do
@@ -152,7 +152,7 @@ feature "single page application", %q{
         click_button(I18n.t('views.home.search'))
       end
 
-      should_present_versions([@waybills[0]])
+      should_present_documents([@waybills[0]])
 
       page.find("#show-filter").click
 
@@ -194,7 +194,7 @@ feature "single page application", %q{
     click_link I18n.t('views.home.logout')
 
     user = create(:user)
-    VersionEx.where{item_type.in([Waybill.name, Allocation.name])}.delete_all
+    Document.where{item_type.in([Waybill.name, Allocation.name])}.destroy_all
     page_login
 
     check_content("#container_documents table", [user]) do |item|
@@ -216,6 +216,7 @@ feature "single page application", %q{
 
     page.should have_xpath("//div[@class='slider']")
     page.should have_xpath("//div[@id='arrow_lists' and @class='arrow-down-slide']")
+    page.find('#btn_slide_lists').click
     page.should_not have_xpath("//ul//li[@id='users']")
     page.should_not have_xpath("//ul//li[@id='groups']")
     page.should_not have_xpath("//ul//li[@id='assets']")
@@ -224,6 +225,7 @@ feature "single page application", %q{
     page.should_not have_xpath("//ul//div[@id='arrow_actions']")
     page.should have_xpath("//ul//li[@id='waybills']")
     page.should have_xpath("//ul//li[@id='allocations']")
+    page.find('#btn_slide_conditions').click
     page.should have_xpath("//ul//li[@id='warehouses']")
     page.should_not have_xpath("//ul//li[@id='general_ledger']")
     page.should_not have_xpath("//ul//li[@id='balance_sheet']")
@@ -235,6 +237,7 @@ feature "single page application", %q{
     credential = create(:credential, user: user, document_type: Waybill.name)
 
     page_login(user.email, password)
+    page.find("#btn_create").click
     within(:xpath, "//ul[@id='documents_list']") do
       page.should have_selector("li", count: user.credentials(:force_update).count)
       user.credentials(:force_update).each do |cred|
@@ -242,8 +245,8 @@ feature "single page application", %q{
       end
     end
     page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
-    within('#container_documents table tbody') do
-      page.should_not have_selector("tr")
+    within('#container_documents table') do
+      page.should_not have_selector("tbody tr")
     end
     click_link I18n.t('views.home.logout')
 
@@ -260,13 +263,12 @@ feature "single page application", %q{
       ds.save!
     end
 
-    versions = VersionEx.lasts.
-      by_type(user.credentials(:force_update).collect { |c| c.document_type }).
+    versions = Document.lasts.
       by_user(user).paginate(page: 1, per_page: @per_page).all
     page_login(user.email, password)
     page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
 
-    should_present_versions(versions)
+    should_present_documents(versions)
 
     within('#container_documents table tbody') do
       page.should_not have_content(Allocation.name)
@@ -276,6 +278,7 @@ feature "single page application", %q{
     credential = create(:credential, user: user, document_type: Allocation.name)
 
     page_login(user.email, password)
+    page.find("#btn_create").click
     within(:xpath, "//ul[@id='documents_list']") do
       page.should have_selector("li", count: user.credentials(:force_update).count)
       user.credentials(:force_update).each do |cred|
@@ -292,6 +295,7 @@ feature "single page application", %q{
       user.credentials(:force_update).find_by_document_type(Waybill.name).place)
 
     page_login(user.email, password)
+    page.find("#btn_create").click
     within(:xpath, "//ul[@id='documents_list']") do
       page.should have_selector("li", count: user.credentials(:force_update).count)
       user.credentials(:force_update).each do |cred|
@@ -299,11 +303,10 @@ feature "single page application", %q{
       end
     end
     page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
-    versions = VersionEx.lasts.
-      by_type(user.credentials(:force_update).collect { |c| c.document_type }).
+    versions = Document.lasts.
       by_user(user).paginate(page: 1, per_page: @per_page).all
 
-    should_present_versions(versions)
+    should_present_documents(versions)
 
     click_link I18n.t('views.home.logout')
   end
@@ -317,7 +320,7 @@ feature "single page application", %q{
     current_hash.should eq("archive")
     page.should have_selector("div[@id='container_documents'] table")
 
-    table_with_paginate(VersionEx.lasts.by_type([ Waybill.name, Allocation.name ]),
+    table_with_paginate(Document.lasts.by_user(RootUser.new),
                         @per_page)
 
 
@@ -356,7 +359,7 @@ feature "single page application", %q{
     click_link I18n.t('views.home.logout')
 
     user = create(:user)
-    VersionEx.where{item_type.in([Waybill.name, Allocation.name])}.delete_all
+    Document.where{item_type.in([Waybill.name, Allocation.name])}.delete_all
     page_login
 
     within('#container_documents table') do

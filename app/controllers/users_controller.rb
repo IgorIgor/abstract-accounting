@@ -13,7 +13,7 @@ class UsersController < ApplicationController
   end
 
   def preview
-    @document_types = implemented_documents
+    @document_types = Document.documents
     render "users/preview", layout: false
   end
 

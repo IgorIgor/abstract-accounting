@@ -47,6 +47,9 @@ Spork.prefork do
     config.filter_run :focus => true
     config.run_all_when_everything_filtered = true
 
+    config.use_transactional_fixtures = false
+    DatabaseCleaner.strategy = :truncation
+
     config.before(:all) do
       PaperTrail.enabled = false
       DatabaseCleaner.start
@@ -58,12 +61,10 @@ Spork.prefork do
 
     config.before(:each, js: true) do
       DatabaseCleaner.clean
-      DatabaseCleaner.strategy = :truncation
       DatabaseCleaner.start
     end
     config.after(:each, js: true) do
       DatabaseCleaner.clean
-      DatabaseCleaner.strategy = :transaction
       DatabaseCleaner.start
     end
 
@@ -72,4 +73,8 @@ Spork.prefork do
 
     config.include FactoryGirl::Syntax::Methods
   end
+end
+
+Capybara.configure do |config|
+  config.ignore_hidden_elements = true
 end

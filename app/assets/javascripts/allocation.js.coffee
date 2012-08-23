@@ -81,6 +81,7 @@ $ ->
         )
 
     loadAvailableResources: (clearSelected = true) =>
+      return false if @readonly()
       @object.items([]) if clearSelected
       @warehouse(null)
       if @object.allocation.storekeeper_id() && @object.allocation.storekeeper_place_id()

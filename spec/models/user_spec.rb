@@ -53,4 +53,11 @@ describe User do
     new_user.change_password!("changed")
     new_user.crypted_password.should_not eq(user.crypted_password)
   end
+
+  it "should return documents accessible by user" do
+    user = create(:user)
+    create(:credential, user: user, document_type: Document.documents[0])
+    create(:credential, user: user, document_type: Document.documents[1])
+    user.documents.should =~ user.credentials(:force_update).collect{ |c| c.document_type }
+  end
 end

@@ -23,6 +23,16 @@ module Abstract
       rescue Capybara::TimeoutError
         flunk 'Ajax request is not completed.'
       end
+
+      def click_link_and_wait(locator)
+        click_link(locator)
+        wait_for_ajax
+      end
+
+      def click_button_and_wait(locator)
+        click_button(locator)
+        wait_for_ajax
+      end
     end
   end
 end

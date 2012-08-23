@@ -7,25 +7,53 @@
 #
 # Please see ./COPYING for details
 
-class VersionEx < Version
+class Document < Version
+  def self.documents
+    [Waybill.name, Allocation.name, User.name, Group.name]
+  end
+
+  def document_id
+    self.item.id
+  end
+
+  def document_name
+    self.item.class.name
+  end
+
+  def document_content
+    klass_associations = self.item.class.reflect_on_all_associations(:belongs_to)
+    if self.item.class.method_defined?(:storekeeper)
+      self.item.storekeeper.tag
+    elsif klass_associations.any? { |assoc| assoc.name == :entity }
+      self.item.entity.tag
+    else
+      self.item.tag
+    end
+  end
+
+  def document_created_at
+    self.item.versions.first.created_at
+  end
+
+  def document_updated_at
+    self.item.versions.last.created_at
+  end
+
   scope :lasts, joins('INNER JOIN
                         (SELECT item_id, MAX(created_at) as last_create
                         FROM versions GROUP BY item_id, item_type) grouped
                       ON versions.item_id = grouped.item_id AND
                       versions.created_at = grouped.last_create')
 
-  def self.by_type types
-    where(types.map{|item| "item_type='#{item}'"}.join(' OR '))
-  end
-
   def self.by_user(user)
-    return scoped if user.root?
-    if user.credentials(:force_update).empty?
+    if user.root?
+      return where{item_type.in(Document.documents)}
+    end
+    if user.documents.empty?
       where{item_type == ""}
     else
       versions_scope = scoped
-      versions_scope = versions_scope.
-        by_type(user.credentials.collect{ |c| c.document_type })
+      versions_scope = versions_scope.where{item_type.in(user.documents)}
       versions_scope = versions_scope.where do
         scope = nil
         user.credentials.each do |c|

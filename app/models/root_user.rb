@@ -15,4 +15,8 @@ class RootUser
   def root?
     true
   end
+
+  def documents
+    []
+  end
 end

@@ -285,6 +285,10 @@ describe Waybill do
   end
 
   it 'should change state' do
+    user = create(:user)
+    create(:credential, user: user, document_type: Waybill.name)
+    PaperTrail.whodunnit = user
+
     wb = build(:waybill)
     wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
     wb.state.should eq(Waybill::UNKNOWN)
@@ -294,15 +298,45 @@ describe Waybill do
     wb.save!
     wb.state.should eq(Waybill::INWORK)
 
+    comment = Comment.last
+    comment.user_id.should eq(user.id)
+    comment.item_id.should eq(wb.id)
+    comment.item_type.should eq(wb.class.name)
+    comment.message.should eq(I18n.t('activerecord.attributes.waybill.comment.create'))
+
     wb = Waybill.find(wb)
     wb.cancel.should be_true
     wb.state.should eq(Waybill::CANCELED)
+
+    comment = Comment.last
+    comment.user_id.should eq(user.id)
+    comment.item_id.should eq(wb.id)
+    comment.item_type.should eq(wb.class.name)
+    comment.message.should eq(I18n.t('activerecord.attributes.waybill.comment.cancel'))
 
     wb = build(:waybill)
     wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
     wb.save!
     wb.apply.should be_true
     wb.state.should eq(Waybill::APPLIED)
+
+    comment = Comment.last
+    comment.user_id.should eq(user.id)
+    comment.item_id.should eq(wb.id)
+    comment.item_type.should eq(wb.class.name)
+    comment.message.should eq(I18n.t('activerecord.attributes.waybill.comment.apply'))
+
+    wb = Waybill.find(wb)
+    wb.cancel.should be_true
+    wb.state.should eq(Waybill::REVERSED)
+
+    comment = Comment.last
+    comment.user_id.should eq(user.id)
+    comment.item_id.should eq(wb.id)
+    comment.item_type.should eq(wb.class.name)
+    comment.message.should eq(I18n.t('activerecord.attributes.waybill.comment.reverse'))
+
+    PaperTrail.whodunnit = nil
   end
 
   it 'should create fact after apply' do

@@ -12,17 +12,31 @@ module Statable
 
   module ClassMethods
     def act_as_statable
+      include ActiveSupport::Callbacks
+
       after_save :open_state
-      class_attribute :after_apply_callback
-      class_attribute :after_reverse_callback
+      define_callbacks :apply, :cancel, :reverse, only: [:before, :after],
+                       terminator: "result == false"
     end
 
-    def after_apply(callback)
-      self.after_apply_callback = callback
+    def after_apply(*filters)
+      set_callback :apply, :after, *filters
     end
 
-    def after_reverse(callback)
-      self.after_reverse_callback = callback
+    def after_cancel(*filters)
+      set_callback :cancel, :after, *filters
+    end
+
+    def after_reverse(*filters)
+      set_callback :reverse, :after, *filters
+    end
+
+    def before_apply(*filters)
+      set_callback :apply, :before, *filters
+    end
+
+    def before_reverse(*filters)
+      set_callback :reverse, :before, *filters
     end
   end
 
@@ -55,26 +69,20 @@ module Statable
 
   def cancel
     if self.state == INWORK
-      return self.deal.deal_state.close
+      return run_callbacks :cancel do
+        self.deal.deal_state.close
+      end
     elsif self.state == APPLIED
-      fact = Fact.create(amount: -1.0, resource: self.deal.give.resource,
-                         day: DateTime.current.change(hour: 12), to: self.deal)
-      return false if fact.nil?
-      return false if self.class.after_reverse_callback &&
-                      !send(self.class.after_reverse_callback, fact)
-      return true
+      return run_callbacks :reverse
     end
     false
   end
 
   def apply
     if self.state == INWORK
-      fact = Fact.create(amount: 1.0, resource: self.deal.give.resource,
-                         day: DateTime.current.change(hour: 12), to: self.deal)
-      return false if fact.nil?
-      return false if self.class.after_apply_callback &&
-                      !send(self.class.after_apply_callback, fact)
-      return self.deal.deal_state.close
+      return run_callbacks :apply do
+        self.deal.deal_state.close
+      end
     end
     false
   end

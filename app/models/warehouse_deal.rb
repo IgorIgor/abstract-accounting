@@ -15,6 +15,7 @@ module WarehouseDeal
       has_paper_trail
       include Statable
       act_as_statable
+      include Commentable
 
       class_attribute :warehouse_fields
 
@@ -28,7 +29,17 @@ module WarehouseDeal
       has_many :comments, :as => :item
 
       before_save :before_warehouse_deal_save
+      after_save :after_warehouse_deal_save
       class_attribute :before_item_save_callback
+
+      attr_accessor :fact
+
+      after_apply :send_comment_after_apply
+      after_reverse :send_comment_after_reverse
+      after_cancel :send_comment_after_cancel
+
+      before_apply :apply_fact
+      before_reverse :reverse_fact
     end
 
     def before_item_save(callback)
@@ -135,5 +146,38 @@ module WarehouseDeal
       end
     end
     true
+  end
+
+  def after_warehouse_deal_save
+    send_comment self, I18n.t(
+          "activerecord.attributes.#{self.class.name.downcase}.comment.create")
+  end
+
+  def send_comment_after_apply
+    send_comment self, I18n.t(
+        "activerecord.attributes.#{self.class.name.downcase}.comment.apply")
+  end
+
+  def send_comment_after_reverse
+    send_comment self, I18n.t(
+        "activerecord.attributes.#{self.class.name.downcase}.comment.reverse")
+  end
+
+  def send_comment_after_cancel
+    send_comment self, I18n.t(
+        "activerecord.attributes.#{self.class.name.downcase}.comment.cancel")
+  end
+
+  def apply_fact
+    self.fact = Fact.create(amount: 1.0, resource: self.deal.give.resource,
+                            day: DateTime.current.change(hour: 12), to: self.deal)
+
+    !self.fact.nil?
+  end
+
+  def reverse_fact
+    self.fact = Fact.create(amount: -1.0, resource: self.deal.give.resource,
+                            day: DateTime.current.change(hour: 12), to: self.deal)
+    !self.fact.nil?
   end
 end

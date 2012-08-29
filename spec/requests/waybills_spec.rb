@@ -461,10 +461,9 @@ feature "waybill", %q{
       fill_in('filter_resource_name', with: waybills[3].items[0].resource.tag)
       select(I18n.t('views.statable.inwork'), from: 'filter_state')
 
-      click_button(I18n.t('views.home.search'))
+      click_button_and_wait(I18n.t('views.home.search'))
     end
 
-    wait_for_ajax
     should_present_waybill([waybills[3]])
     check_paginate("div[@class='paginate']", 1, 1)
 
@@ -838,5 +837,125 @@ feature "waybill", %q{
 
     test_order_with_resource.call('resource_sum','asc')
     test_order_with_resource.call('resource_sum','desc')
+  end
+
+  scenario 'comment waybill when user doing action', js: true do
+    PaperTrail.enabled = true
+
+    password = "password"
+    user = create(:user, password: password)
+    create(:credential, user: user, document_type: Waybill.name)
+    page_login user.email, password
+
+    page.find("#btn_create").click
+    page.find("a[@href='#documents/waybills/new']").click_and_wait
+    page.should_not have_xpath("//ul[@id='documents_list']")
+
+    within('#container_documents form') do
+      page.datepicker("created").prev_month.day(10)
+      fill_in("waybill_document_id", :with => "123121")
+      item = create(:legal_entity)
+      fill_in('waybill_entity', :with => item.name[0..1])
+      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
+          "contains(@style, 'display: block')]") do
+        all(:xpath, ".//li//a")[0].click
+      end
+      item = create(:place)
+      fill_in('distributor_place', :with => item.tag[0..1])
+      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
+          "contains(@style, 'display: block')]") do
+        all(:xpath, ".//li//a")[0].click
+      end
+
+      page.find(:xpath, "//fieldset[@class='with-legend']//input[@value='#{I18n.
+          t('views.waybills.add')}']").click
+      fill_in("tag_0", :with => "res_tag")
+      fill_in("mu_0", :with => "RUB")
+      fill_in("count_0", :with => "200")
+      fill_in("price_0", :with => "100")
+    end
+
+    lambda do
+      page.find(:xpath, "//div[@class='actions']//input[@value='#{I18n.
+          t('views.waybills.save')}']").click_and_wait
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
+    end.should change(Waybill, :count).by(1)
+
+    within('#container_documents') do
+      within("div[@class='comments']") do
+        page.should have_content(I18n.t("activerecord.attributes.waybill.comment.create"))
+      end
+    end
+
+    click_button_and_wait(I18n.t('views.waybills.apply'))
+
+    wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
+    wait_until { !page.has_xpath?("//div[@class='actions']/input[@value='#{I18n.t(
+            'views.waybills.apply')}']") }
+    within('#container_documents') do
+      within("div[@class='comments']") do
+        page.should have_content(I18n.t("activerecord.attributes.waybill.comment.apply"))
+      end
+    end
+
+    click_button_and_wait(I18n.t('views.waybills.cancel'))
+
+    wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
+    wait_until { !page.has_xpath?("//div[@class='actions']/input[@value='#{I18n.t(
+            'views.waybills.apply')}']") }
+    within('#container_documents') do
+      within("div[@class='comments']") do
+        page.should have_content(I18n.t("activerecord.attributes.waybill.comment.reverse"))
+      end
+    end
+
+    page.find("#btn_create").click
+    page.find("a[@href='#documents/waybills/new']").click_and_wait
+    page.should_not have_xpath("//ul[@id='documents_list']")
+
+    within('#container_documents form') do
+      page.datepicker("created").prev_month.day(10)
+      fill_in("waybill_document_id", :with => "123122")
+      item = create(:legal_entity)
+      fill_in('waybill_entity', :with => item.name[0..1])
+      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
+          "contains(@style, 'display: block')]") do
+        all(:xpath, ".//li//a")[0].click
+      end
+      item = create(:place)
+      fill_in('distributor_place', :with => item.tag[0..1])
+      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
+          "contains(@style, 'display: block')]") do
+        all(:xpath, ".//li//a")[0].click
+      end
+
+      page.find(:xpath, "//fieldset[@class='with-legend']//input[@value='#{I18n.
+          t('views.waybills.add')}']").click
+      fill_in("tag_0", :with => "res_tag1")
+      fill_in("mu_0", :with => "RUB")
+      fill_in("count_0", :with => "200")
+      fill_in("price_0", :with => "100")
+    end
+
+    lambda do
+      page.find(:xpath, "//div[@class='actions']//input[@value='#{I18n.
+          t('views.waybills.save')}']").click_and_wait
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
+    end.should change(Waybill, :count).by(1)
+
+    click_button_and_wait(I18n.t('views.waybills.cancel'))
+
+    wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
+    wait_until { !page.has_xpath?("//div[@class='actions']/input[@value='#{I18n.t(
+            'views.waybills.apply')}']") }
+    within('#container_documents') do
+      within("div[@class='comments']") do
+        page.should have_content(I18n.t("activerecord.attributes.waybill.comment.cancel"))
+      end
+    end
+
+    PaperTrail.enabled = false
   end
 end

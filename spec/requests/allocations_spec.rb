@@ -1153,4 +1153,106 @@ feature 'allocation', %q{
     test_order_with_resource.call('resource_amount','asc')
     test_order_with_resource.call('resource_amount','desc')
   end
+
+  scenario 'comment allocation when user doing action', js: true do
+    PaperTrail.enabled = true
+
+    password = "password"
+    user = create(:user, password: password)
+    credential = create(:credential, user: user, document_type: Allocation.name)
+    wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place,
+               created: DateTime.current.change(year: 2011))
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 12, price: 100.0)
+    wb.add_item(tag: 'roof2', mu: 'm2', amount: 12, price: 100.0)
+    wb.save!
+    wb.apply
+
+    page_login user.email, password
+
+    page.find("#btn_create").click
+    page.find("a[@href='#documents/allocations/new']").click_and_wait
+    sleep(3)
+
+    page.datepicker("created").prev_month.day(10)
+
+    entity = create(:entity)
+
+    within("#container_documents form") do
+      fill_in("foreman_entity", :with => entity.tag)
+    end
+
+    within("#container_documents") do
+      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
+      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
+
+      within('#selected-resources') do
+        fill_in I18n.t('views.allocations.amount'), :with => 2
+      end
+    end
+
+    lambda {
+      click_button_and_wait(I18n.t('views.allocations.save'))
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/allocations/#{Allocation.last.id}"
+    }.should change(Allocation, :count).by(1)
+
+    within('#container_documents') do
+      within("div[@class='comments']") do
+        page.should have_content(I18n.t("activerecord.attributes.allocation.comment.create"))
+      end
+    end
+
+    click_button_and_wait(I18n.t('views.allocations.apply'))
+    wait_until_hash_changed_to "documents/allocations/#{Allocation.last.id}"
+
+    within('#container_documents') do
+      within("div[@class='comments']") do
+        page.should have_content(I18n.t("activerecord.attributes.allocation.comment.apply"))
+      end
+    end
+
+    click_button_and_wait(I18n.t('views.allocations.cancel'))
+    wait_until_hash_changed_to "documents/allocations/#{Allocation.last.id}"
+
+    within('#container_documents') do
+      within("div[@class='comments']") do
+        page.should have_content(I18n.t("activerecord.attributes.allocation.comment.reverse"))
+      end
+    end
+
+    page.find("#btn_create").click
+    page.find("a[@href='#documents/allocations/new']").click
+
+    page.datepicker("created").prev_month.day(10)
+
+    within("#container_documents form") do
+      fill_in("foreman_entity", :with =>"entity")
+    end
+
+    within("#container_documents") do
+      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
+      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
+
+      within('#selected-resources') do
+        fill_in I18n.t('views.allocations.amount'), :with => 2
+      end
+    end
+
+    lambda {
+      click_button_and_wait(I18n.t('views.allocations.save'))
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/allocations/#{Allocation.last.id}"
+    }.should change(Allocation, :count).by(1)
+
+    click_button_and_wait(I18n.t('views.allocations.cancel'))
+    wait_until_hash_changed_to "documents/allocations/#{Allocation.last.id}"
+
+    within('#container_documents') do
+      within("div[@class='comments']") do
+        page.should have_content(I18n.t("activerecord.attributes.allocation.comment.cancel"))
+      end
+    end
+
+    PaperTrail.enabled = false
+  end
 end

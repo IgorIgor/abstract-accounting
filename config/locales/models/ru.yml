@@ -18,12 +18,22 @@ ru:
           tag: Накладная %{id}
           resource:
             tag: Накладная %{id} строка %{index}
+        comment:
+          create: Создание накладной
+          apply: Принятие накладной
+          cancel: Отмена накладной
+          reverse: Стронирование накладной
       allocation:
         items: Ресурсы
         deal:
           tag: НЗП %{id}
           resource:
             tag: НЗП %{id} строка %{index}
+        comment:
+          create: Создание выдачи
+          apply: Принятие выдачи
+          cancel: Отмена выдачи
+          reverse: Стронирование выдачи
     errors:
       models:
         group:

@@ -18,12 +18,22 @@ en:
           tag: Invoice %{id}
           resource:
             tag: Invoice %{id} string %{index}
+        comment:
+          create: Create waybill
+          apply: Apply waybill
+          cancel: Cancel waybill
+          reverse: Reverse waybill
       allocation:
         items: Resources
         deal:
           tag: WIP %{id}
           resource:
             tag: WIP %{id} string %{index}
+        comment:
+          create: Create allocation
+          apply: Apply allocation
+          cancel: Cancel allocation
+          reverse: Reverse allocation
     errors:
       models:
         group:

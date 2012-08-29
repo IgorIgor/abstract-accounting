@@ -168,6 +168,10 @@ describe Allocation do
   end
 
   it 'should change state' do
+    user = create(:user)
+    create(:credential, user: user, document_type: Allocation.name)
+    PaperTrail.whodunnit = user
+
     db = build(:allocation, storekeeper: @wb.storekeeper,
                             storekeeper_place: @wb.storekeeper_place)
     db.add_item(tag: 'roof', mu: 'm2', amount: 5)
@@ -178,9 +182,21 @@ describe Allocation do
     db.save!
     db.state.should eq(Allocation::INWORK)
 
+    comment = Comment.last
+    comment.user_id.should eq(user.id)
+    comment.item_id.should eq(db.id)
+    comment.item_type.should eq(db.class.name)
+    comment.message.should eq(I18n.t('activerecord.attributes.allocation.comment.create'))
+
     db = Allocation.find(db)
     db.cancel.should be_true
     db.state.should eq(Allocation::CANCELED)
+
+    comment = Comment.last
+    comment.user_id.should eq(user.id)
+    comment.item_id.should eq(db.id)
+    comment.item_type.should eq(db.class.name)
+    comment.message.should eq(I18n.t('activerecord.attributes.allocation.comment.cancel'))
 
     db = build(:allocation, storekeeper: @wb.storekeeper,
                             storekeeper_place: @wb.storekeeper_place)
@@ -188,6 +204,31 @@ describe Allocation do
     db.save!
     db.apply.should be_true
     db.state.should eq(Allocation::APPLIED)
+
+    comment = Comment.last
+    comment.user_id.should eq(user.id)
+    comment.item_id.should eq(db.id)
+    comment.item_type.should eq(db.class.name)
+    comment.message.should eq(I18n.t('activerecord.attributes.allocation.comment.apply'))
+
+    db = Allocation.find(db)
+    db.cancel.should be_true
+    db.state.should eq(Allocation::REVERSED)
+
+    comment = Comment.last
+    comment.user_id.should eq(user.id)
+    comment.item_id.should eq(db.id)
+    comment.item_type.should eq(db.class.name)
+    comment.message.should eq(I18n.t('activerecord.attributes.allocation.comment.reverse'))
+
+    db = build(:allocation, storekeeper: @wb.storekeeper,
+               storekeeper_place: @wb.storekeeper_place)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 1)
+    db.save!
+    db.apply.should be_true
+    db.state.should eq(Allocation::APPLIED)
+
+    PaperTrail.whodunnit = nil
   end
 
   it 'should create facts by rules after apply' do

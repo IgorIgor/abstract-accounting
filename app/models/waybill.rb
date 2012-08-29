@@ -205,10 +205,8 @@ class Waybill < ActiveRecord::Base
     super(initialize_warehouse_attrs(attrs))
   end
 
-  def do_apply_txn(fact)
-    if fact
-      return !Txn.create(fact: fact).nil?
-    end
+  def do_apply_txn
+    return !Txn.create(fact: self.fact).nil? if self.fact
     true
   end
 

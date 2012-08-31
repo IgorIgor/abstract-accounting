@@ -54,6 +54,7 @@ def should_present_allocation(allocations)
           when Statable::INWORK then I18n.t('views.statable.inwork')
           when Statable::CANCELED then I18n.t('views.statable.canceled')
           when Statable::APPLIED then I18n.t('views.statable.applied')
+          when Statable::REVERSED then I18n.t('views.statable.reversed')
         end
     [allocation.created.strftime('%Y-%m-%d'), allocation.storekeeper.tag,
      allocation.storekeeper_place.tag, allocation.foreman.tag, state]
@@ -68,6 +69,7 @@ def should_present_allocation_with_resource(allocations)
           when Statable::INWORK then I18n.t('views.statable.inwork')
           when Statable::CANCELED then I18n.t('views.statable.canceled')
           when Statable::APPLIED then I18n.t('views.statable.applied')
+          when Statable::REVERSED then I18n.t('views.statable.reversed')
         end
     [allocation.created.strftime('%Y-%m-%d'), allocation.storekeeper.tag,
      allocation.storekeeper_place.tag, allocation.foreman.tag, state,
@@ -886,7 +888,7 @@ feature 'allocation', %q{
     Waybill.delete_all
     password = "password"
     user = create(:user, password: password)
-    credential = create(:credential, user: user, document_type: Waybill.name)
+    credential = create(:credential, user: user, document_type: Allocation.name)
     page_login user.email, password
 
     12.times do |i|
@@ -926,6 +928,7 @@ feature 'allocation', %q{
               when Statable::INWORK then I18n.t('views.statable.inwork')
               when Statable::CANCELED then I18n.t('views.statable.canceled')
               when Statable::APPLIED then I18n.t('views.statable.applied')
+              when Statable::REVERSED then I18n.t('views.statable.reversed')
             end
           page.should have_content(state)
         end
@@ -934,6 +937,25 @@ feature 'allocation', %q{
         end
       end
     end
+
+    allocations_table = AllocationReport.with_resources.select_all.by_storekeeper(user.entity).
+        by_storekeeper_place(credential.place)
+    allocations_table.count.should eq(3)
+
+    page.find("#table_view").click_and_wait
+
+    current_hash.should eq('allocations?view=table')
+    page.should have_xpath("//ul//li[@id='allocations' and @class='sidebar-selected']")
+
+    should_present_allocation_with_resource(allocations_table)
+    within('#container_documents table') do
+      within('tbody') do
+        allocations_not_visible.each do |allocation|
+          page.should_not have_content(allocation.foreman.tag)
+        end
+      end
+    end
+
     click_link I18n.t('views.home.logout')
 
     password = "password"
@@ -944,6 +966,15 @@ feature 'allocation', %q{
     page.find(:xpath, "//ul//li[@id='allocations']/a").click_and_wait
 
     current_hash.should eq('allocations')
+    page.should have_xpath("//ul//li[@id='allocations' and @class='sidebar-selected']")
+
+    within('#container_documents table') do
+      page.should_not have_selector("tbody tr")
+    end
+
+    page.find("#table_view").click_and_wait
+
+    current_hash.should eq('allocations?view=table')
     page.should have_xpath("//ul//li[@id='allocations' and @class='sidebar-selected']")
 
     within('#container_documents table') do

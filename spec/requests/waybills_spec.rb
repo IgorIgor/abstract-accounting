@@ -65,6 +65,7 @@ def should_present_waybill(waybills)
           when Statable::INWORK then I18n.t('views.statable.inwork')
           when Statable::CANCELED then I18n.t('views.statable.canceled')
           when Statable::APPLIED then I18n.t('views.statable.applied')
+          when Statable::REVERSED then I18n.t('views.statable.reversed')
         end
     [waybill.created.strftime('%Y-%m-%d'), waybill.document_id,
      waybill.distributor.name, waybill.storekeeper.tag,
@@ -636,6 +637,26 @@ feature "waybill", %q{
         end
       end
     end
+
+    waybills_table = WaybillReport.with_resources.select_all.by_storekeeper(user.entity).
+        by_storekeeper_place(credential.place)
+    waybills_table.count.should eq(3)
+
+    page.find("#table_view").click_and_wait
+
+    current_hash.should eq('waybills?view=table')
+    page.should have_xpath("//ul//li[@id='waybills' and @class='sidebar-selected']")
+
+    should_present_waybill_with_resource(waybills_table)
+    within('#container_documents table') do
+      within('tbody') do
+        waybills_not_visible.each do |waybill|
+          page.should_not have_content(waybill.document_id)
+          page.should_not have_content(waybill.distributor.name)
+        end
+      end
+    end
+
     click_link I18n.t('views.home.logout')
 
     password = "password"
@@ -646,6 +667,15 @@ feature "waybill", %q{
     page.find(:xpath, "//ul//li[@id='waybills']/a").click
 
     current_hash.should eq('waybills')
+    page.should have_xpath("//ul//li[@id='waybills' and @class='sidebar-selected']")
+
+    within('#container_documents table') do
+      page.should_not have_selector("tbody tr")
+    end
+
+    page.find("#table_view").click_and_wait
+
+    current_hash.should eq('waybills?view=table')
     page.should have_xpath("//ul//li[@id='waybills' and @class='sidebar-selected']")
 
     within('#container_documents table') do

@@ -30,6 +30,24 @@ class ApplicationController < ActionController::Base
     sorcery_forget_me! unless current_user.root?
   end
 
+  def autorize_warehouse(klass, options = {})
+    options = {
+        alias: klass
+    }.merge(options)
+    if current_user.root?
+      klass
+    else
+      credential = current_user.credentials(:force_update).
+          where{document_type == options[:alias].name}.first
+      if credential
+        klass.by_storekeeper(current_user.entity).
+            by_storekeeper_place(credential.place)
+      else
+        klass.where{id == nil}
+      end
+    end
+  end
+
   protected
   alias_method :sorcery_login_from_session, :login_from_session
   def login_from_session

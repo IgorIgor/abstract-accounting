@@ -87,17 +87,7 @@ class AllocationsController < ApplicationController
     per_page = params[:per_page].nil? ?
         Settings.root.per_page.to_i : params[:per_page].to_i
 
-    scope = Allocation
-    unless current_user.root?
-      credential = current_user.credentials(:force_update).
-                                where{document_type == Waybill.name}.first
-      if credential
-        scope = scope.by_storekeeper(current_user.entity).
-                      by_storekeeper_place(credential.place)
-      else
-        scope = scope.where{id == nil}
-      end
-    end
+    scope = autorize_warehouse(Allocation)
     scope = scope.search(params[:search]) if params[:search]
     @count = scope.count
     @count = @count.count unless @count.instance_of? Fixnum
@@ -116,7 +106,7 @@ class AllocationsController < ApplicationController
         per_page = params[:per_page].nil? ?
             Settings.root.per_page.to_i : params[:per_page].to_i
 
-        scope = AllocationReport.with_resources
+        scope = autorize_warehouse(AllocationReport, alias: Allocation).with_resources
         scope = scope.search(params[:search]) if params[:search]
         @count = scope.count
         unless @count.instance_of? Fixnum

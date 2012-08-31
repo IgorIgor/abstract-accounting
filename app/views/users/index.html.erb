@@ -1,8 +1,12 @@
 <table>
   <thead>
     <tr>
-      <th><%=t 'views.users.user_name' %></th>
-      <th><%=t 'views.users.email' %></th>
+      <th id="tag" data-bind="click: sortBy">
+        <%=t 'views.users.user_name' %><span></span>
+      </th>
+      <th id="email" data-bind="click: sortBy">
+        <%=t 'views.users.email' %><span></span>
+      </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">

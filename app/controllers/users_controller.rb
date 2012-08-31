@@ -52,7 +52,10 @@ class UsersController < ApplicationController
     page = params[:page].nil? ? 1 : params[:page].to_i
     per_page = params[:per_page].nil? ?
         Settings.root.per_page.to_i : params[:per_page].to_i
-    @users = User.limit(per_page).offset((page - 1) * per_page).all
+    scope = User
+    scope = scope.joins{entity}.
+        order("#{params[:order][:field]} #{params[:order][:type]}") if params[:order]
+    @users = scope.limit(per_page).offset((page - 1) * per_page).all
     @count = User.count
   end
 

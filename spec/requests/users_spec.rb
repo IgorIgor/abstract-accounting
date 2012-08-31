@@ -339,4 +339,45 @@ feature "user", %q{
     page.should have_selector("#inbox[@class='sidebar-selected']")
     click_link I18n.t('views.home.logout')
   end
+
+  scenario 'sort users', js: true do
+    ivanov = create(:entity, tag: 'Ivanov')
+    petrov = create(:entity, tag: 'Petrov')
+    antonov = create(:entity, tag: 'Antonov')
+    create(:user, entity: ivanov, email: 'pampam@mail.fm')
+    create(:user, entity: petrov, email: 'amail@mail.fm')
+    create(:user, entity: antonov, email: 'spambox@mail.fm')
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.users')
+    current_hash.should eq('users')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='users' and @class='sidebar-selected']")
+
+    test_order = lambda do |field, type|
+      users = User.joins{entity}.order("#{field}  #{type}").all
+      within('#container_documents table') do
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      check_content("#container_documents table", users) do |user|
+        [user.entity.tag, user.email]
+      end
+    end
+
+    test_order.call('tag','asc')
+    test_order.call('tag','desc')
+
+    test_order.call('email','asc')
+    test_order.call('email','desc')
+  end
 end

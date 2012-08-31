@@ -36,9 +36,14 @@ class SqlRecord
     @sql = sql
     self
   end
+  builder :join do |join|
+    @joins += " #{join}"
+    self
+  end
 
   def initialize()
     @sql = ""
+    @joins = ""
   end
 
   def to_sql
@@ -51,7 +56,7 @@ class SqlRecord
     if @page && @per_page
       limit = "LIMIT #{@per_page} OFFSET #{(@page - 1) * @per_page}"
     end
-    execute("SELECT #{str} FROM (#{@sql}) #{limit}")
+    execute("SELECT #{str} FROM (#{@sql}) T #{@joins} #{limit}")
   end
 
   def all
@@ -61,9 +66,9 @@ class SqlRecord
 
   def count
     raise Exception.new("Could not select from empty sql") if @sql.empty?
-    items = ActiveRecord::Base.connection.execute("SELECT count(*) as cnt FROM (#{@sql})")
-    return 0 if items.empty?
-    items.first["cnt"].to_i
+    items = ActiveRecord::Base.connection.execute("SELECT count(T.*) as cnt FROM (#{@sql}) T")
+    return 0 if items.count == 0
+    Converter.int(items.first["cnt"])
   end
 
   private
@@ -95,6 +100,10 @@ class SqlRecord
       else
         super
       end
+    end
+
+    def [](key)
+      @record[key.to_s]
     end
   end
 end

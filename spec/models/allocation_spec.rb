@@ -413,11 +413,13 @@ describe Allocation do
 
     als = Allocation.order_by({field: 'foreman', type: 'acs'}).all
     als_test = Allocation.joins{deal.rules.to.entity(Entity)}.
-        group('allocations.id').order('entities.tag').all
+        group('allocations.id, allocations.created, allocations.deal_id, entities.tag').
+        order('entities.tag').all
     als.should eq(als_test)
     als = Allocation.order_by({field: 'foreman', type: 'desc'}).all
     als_test = Allocation.joins{deal.rules.to.entity(Entity)}.
-        group('allocations.id').order('entities.tag DESC').all
+        group('allocations.id, allocations.created, allocations.deal_id, entities.tag').
+        order('entities.tag DESC').all
     als.should eq(als_test)
   end
 
@@ -476,7 +478,8 @@ describe Allocation do
     Allocation.search({"created" => al1.created.strftime('%Y-%m-%d')}).should =~ [al1]
     Allocation.search({"created" => al1.created.strftime('%Y-%m-%d')[0, 4]}).
         should =~ Allocation.
-        where{lower(created).like(lower("%#{al1.created.strftime('%Y-%m-%d')[0, 4]}%"))}
+        where{to_char(created, 'YYYY-MM-DD').
+          like(lower("%#{al1.created.strftime('%Y-%m-%d')[0, 4]}%"))}
     Allocation.search({"created" => DateTime.now.strftime('%Y-%m-%d')}).should be_empty
 
     Allocation.search({"state" => Statable::INWORK}).should =~ Allocation.
@@ -492,7 +495,7 @@ describe Allocation do
     Allocation.search({"foreman" => al1.foreman.tag[0, 4]}).
         should =~ Allocation.joins{deal.rules.to.entity(Entity)}.
         where{lower(deal.rules.to.entity.tag).like(lower("%#{al1.foreman.tag[0, 4]}%"))}.
-        group{id}
+        select("DISTINCT ON (allocations.id) allocations.*")
     Allocation.search({"foreman" => create(:entity).tag}).should be_empty
 
     Allocation.search({"storekeeper_place" => al1.storekeeper_place.tag}).should =~ [al1]
@@ -507,7 +510,7 @@ describe Allocation do
         where do
           lower(deal.rules.from.give.resource.tag).
               like(lower("%#{al1.items[0].resource.tag}%"))
-        end.group{allocations.id}
+        end.select("DISTINCT ON (allocations.id) allocations.*")
     Allocation.search({"resource" => create(:asset).tag}).should be_empty
 
     Allocation.search({"resource" => al1.items[0].resource.tag,

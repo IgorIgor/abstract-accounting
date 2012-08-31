@@ -350,11 +350,11 @@ describe Warehouse do
 
     Warehouse.all(where: { storekeeper_id: { equal: petrov.id },
                            storekeeper_place_id: { equal: minsk.id },
-                           'assets.id' => { equal_attr: Asset.find_by_tag("nails").id } })
+                           'assets.id' => { equal_attr: Asset.find_by_tag_and_mu('nails', 'kg').id } })
              .first.exp_amount.to_i.should eq(215)
     Warehouse.all(where: { storekeeper_id: { equal: petrov.id },
                            storekeeper_place_id: { equal: minsk.id },
-                           'assets.id' => { equal_attr: Asset.find_by_tag("roof").id } })
+                           'assets.id' => { equal_attr: Asset.find_by_tag_and_mu('roof', 'rm').id } })
              .first.exp_amount.to_i.should eq(300)
     wb.items.first.exp_amount.should eq(300)
     wb.items.last.exp_amount.should eq(215)

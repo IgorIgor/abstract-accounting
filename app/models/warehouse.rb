@@ -14,8 +14,8 @@ class Warehouse
     @place = attrs['place']
     @id = attrs['asset_id']
     @tag = attrs['tag']
-    @real_amount = attrs['real_amount']
-    @exp_amount = attrs['exp_amount']
+    @real_amount = Converter.float(attrs['real_amount'])
+    @exp_amount = Converter.float(attrs['exp_amount'])
     @mu = attrs['mu']
   end
 
@@ -23,9 +23,9 @@ class Warehouse
     attrs[:select] = 'warehouse'
     warehouse = []
     ActiveRecord::Base.connection.
-        execute("#{script(attrs)} #{SqlBuilder.paginate(attrs)}").each { |entry|
+        execute("#{script(attrs)} #{SqlBuilder.paginate(attrs)}").each do |entry|
       warehouse << Warehouse.new(entry)
-    }
+    end
     warehouse
   end
 
@@ -34,14 +34,14 @@ class Warehouse
     attrs[:select] = 'group'
     ActiveRecord::Base.connection.
         execute("#{script(attrs)} #{SqlBuilder.paginate(attrs)}").each { |entry|
-      groups << { value: entry['group_column'], id: entry['id'] }
+      groups << { value: entry['group_column'], id: Converter.int(entry['id']) }
     }
     groups
   end
 
   def self.count(attrs = {})
     attrs[:select] = 'count'
-    ActiveRecord::Base.connection.execute(script(attrs))[0][0]
+    Converter.int(ActiveRecord::Base.connection.execute(script(attrs))[0]["count"])
   end
 
   private
@@ -51,47 +51,73 @@ class Warehouse
         if attrs[:select] == 'count'
           'COUNT(*) as count'
         elsif attrs[:select] == 'warehouse'
-          'warehouse.*'
+          'places.tag as place, warehouse.*, assets.tag as tag, assets.mu as mu'
         end
 
       condition = ''
-      condition_storekeeper = ''
-      condition_attr = ''
+
+      converter = lambda do |attr|
+        case attr.to_s
+          when "storekeeper_place_id"
+            "places.id"
+          when "place"
+            "places.tag"
+          when "tag"
+            "assets.tag"
+          when "exp_amount"
+            "to_char(warehouse.exp_amount, '9999.99')"
+          when "real_amount"
+            "to_char(warehouse.real_amount, '9999.99')"
+          else
+            attr.to_s
+        end
+      end
+      storekeeper = ""
       if attrs.has_key?(:where)
-        attrs[:where].each { |attr, value|
-          if value.kind_of?(Hash)
-            if value.has_key?(:equal)
-              condition_storekeeper += " AND #{attr} = '#{value[:equal]}'"
-            elsif value.has_key?(:like)
-              condition += " AND lower(warehouse.#{attr}) LIKE '%#{value[:like]}%'"
-            elsif value.has_key?(:equal_attr)
-              condition_attr = " AND #{attr} = '#{value[:equal_attr]}'"
+        attrs[:where].each do |attr, value|
+          if attr.to_s == "storekeeper_id"
+            storekeeper = " AND entities.id = #{value[:equal]}"
+          else
+            if value.kind_of?(Hash)
+              if value.has_key?(:equal)
+                condition += " AND #{converter.call(attr)} = '#{value[:equal]}'"
+              elsif value.has_key?(:like)
+                condition += " AND lower(#{converter.call(attr)}) LIKE '%#{value[:like]}%'"
+              elsif value.has_key?(:equal_attr)
+                condition += " AND #{converter.call(attr)} = '#{value[:equal_attr]}'"
+              end
             end
           end
-        }
+        end
       end
 
       if attrs.has_key?(:without)
         condition << " AND warehouse.asset_id NOT IN (#{attrs[:without].join(', ')})"
       end
 
-      group_by = 'place_id, asset_id'
+      group_by = 'T.place_id, T.asset_id'
+      select_inner = "T.place_id, T.asset_id"
+      inner_join = "
+        INNER JOIN places ON warehouse.place_id = places.id
+        INNER JOIN assets ON warehouse.asset_id = assets.id"
       if attrs[:group_by]
-        group_by =
+        select_inner = group_by =
           if attrs[:group_by] == 'place'
-            'place_id'
+            inner_join = "INNER JOIN places ON warehouse.place_id = places.id"
+            'T.place_id'
           elsif attrs[:group_by] == 'tag'
-            'asset_id'
+            inner_join = "INNER JOIN assets ON warehouse.asset_id = assets.id"
+            'T.asset_id'
           end
 
         if attrs[:select] == 'group'
           select_id =
             if attrs[:group_by] == 'place'
-              'place_id as id'
+              'warehouse.place_id as id'
             elsif attrs[:group_by] == 'tag'
-              'asset_id as id'
+              'warehouse.asset_id as id'
             end
-          select = "#{attrs[:group_by]} as group_column, #{select_id}"
+          select = "#{converter.call(attrs[:group_by])} as group_column, #{select_id}"
         end
       end
 
@@ -104,45 +130,39 @@ class Warehouse
 
       "
       SELECT #{select} FROM (
-        SELECT place, storekeeper_place_id as place_id, asset_id, tag,
-               SUM(real_amount) as real_amount,
-               ROUND(SUM(real_amount - exp_amount), 2) as exp_amount, mu
+        SELECT #{select_inner},
+               SUM(T.real_amount) as real_amount,
+               ROUND(CAST (SUM(T.real_amount - T.exp_amount) as NUMERIC), 2) as exp_amount
         FROM (
-          SELECT places.tag as place, assets.id as asset_id, assets.tag as tag,
-                 states.amount as real_amount, 0.0 as exp_amount, assets.mu as mu,
-                 entities.id as storekeeper_id, places.id as storekeeper_place_id
+          SELECT terms.resource_id as asset_id, terms.place_id as place_id,
+                 MAX(states.amount) as real_amount, 0.0 as exp_amount
           FROM rules
             INNER JOIN waybills ON waybills.deal_id = rules.deal_id
-            INNER JOIN states ON states.deal_id = rules.to_id
-            INNER JOIN deals ON deals.id = rules.to_id
-            INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
-            INNER JOIN assets ON assets.id = terms.resource_id
-            INNER JOIN places ON places.id = terms.place_id
+            INNER JOIN deals ON deals.id = rules.deal_id
             INNER JOIN entities ON entities.id = deals.entity_id
-          WHERE states.paid is NULL #{condition_storekeeper} #{condition_attr}
-          GROUP BY places.id, terms.resource_id
+            INNER JOIN states ON states.deal_id = rules.to_id
+            INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
+          WHERE states.paid is NULL #{storekeeper}
+          GROUP BY terms.place_id, terms.resource_id
           UNION
-          SELECT places.tag as place, assets.id as asset_id, assets.tag as tag,
-                 0.0 as amount, SUM(rules.rate) as exp_amount, assets.mu as mu,
-                 entities.id as storekeeper_id, places.id as storekeeper_place_id
+          SELECT terms.resource_id as asset_id, terms.place_id as place_id,
+                 0.0 as real_amount, SUM(rules.rate) as exp_amount
           FROM rules
             INNER JOIN allocations ON allocations.deal_id = rules.deal_id
-            INNER JOIN states ON states.deal_id = rules.from_id
-            INNER JOIN deals ON deals.id = rules.from_id
-            INNER JOIN terms ON terms.deal_id = rules.from_id AND terms.side = 'f'
-            INNER JOIN assets ON assets.id = terms.resource_id
-            INNER JOIN places ON places.id = terms.place_id
+            INNER JOIN deals ON deals.id = rules.deal_id
             INNER JOIN entities ON entities.id = deals.entity_id
-            INNER JOIN deals as a_deals ON allocations.deal_id = a_deals.id
-            INNER JOIN deal_states ON a_deals.id = deal_states.deal_id
+            INNER JOIN states ON states.deal_id = rules.from_id
+            INNER JOIN terms ON terms.deal_id = rules.from_id AND terms.side = 'f'
+            INNER JOIN deal_states ON allocations.deal_id = deal_states.deal_id
                                    AND deal_states.closed IS NULL
-          WHERE states.paid is NULL
-          GROUP BY places.id, terms.resource_id
-        )
+          WHERE states.paid is NULL #{storekeeper}
+          GROUP BY terms.place_id, terms.resource_id
+        ) T
         GROUP BY #{group_by}
-        #{order_by}
       ) as warehouse
-      WHERE warehouse.real_amount > 0.0 AND warehouse.exp_amount > 0.0 #{condition}"
+      #{inner_join}
+      WHERE warehouse.real_amount > 0.0 AND warehouse.exp_amount > 0.0 #{condition}
+      #{order_by}"
     end
   end
 end

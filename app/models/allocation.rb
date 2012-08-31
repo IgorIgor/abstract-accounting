@@ -56,7 +56,7 @@ class Allocation < ActiveRecord::Base
         field = 'places.tag'
       when 'foreman'
         scope = scope.joins{deal.rules.to.entity(Entity)}.
-            group('allocations.id')
+            group('allocations.id, allocations.created, allocations.deal_id, entities.tag')
         field = 'entities.tag'
       else
         field = attrs[:field] if attrs[:field]
@@ -75,13 +75,15 @@ class Allocation < ActiveRecord::Base
     scope = attrs.keys.inject(scoped) do |mem, key|
       case key
         when 'foreman'
-          mem.joins{deal.rules.to.entity(Entity)}.group{allocations.id}
+          mem.joins{deal.rules.to.entity(Entity)}.
+              select("DISTINCT ON (allocations.id) allocations.*")
         when 'storekeeper'
           mem.joins{deal.entity(Entity)}
         when 'storekeeper_place'
           mem.joins{deal.give.place}
         when 'resource'
-          mem.joins{deal.rules.from.give.resource(Asset)}.group{allocations.id}
+          mem.joins{deal.rules.from.give.resource(Asset)}.
+              select("DISTINCT ON (allocations.id) allocations.*")
         when 'state'
           mem.joins{deal.deal_state}.joins{deal.to_facts.outer}
         else
@@ -109,6 +111,8 @@ class Allocation < ActiveRecord::Base
             when Statable::REVERSED
               mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.amount == -1.0)}
           end
+        when 'created'
+          mem.where{to_char(created, 'YYYY-MM-DD').like("%#{value}%")}
         else
           mem.where{lower(__send__(key)).like(lower("%#{value}%"))}
       end

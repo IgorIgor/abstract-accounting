@@ -241,11 +241,14 @@ describe Quote do
   end
 
   it "should produce balance sheet" do
-    balance = (BalanceSheet.all)[0]
-    balance.should_not be_nil
-    balance.amount.should eq(30000.0)
-    balance.value.should eq(45000.0)
-    balance.side.should eq(Balance::PASSIVE)
-    balance.deal.should eq(@bx1)
+    BalanceSheet.all.each do |balance|
+      if balance.instance_of?(Balance) && balance.deal_id == @bx1.id
+        balance.side.should eq(Balance::PASSIVE)
+        balance.deal.should eq(@bx1)
+        balance.amount.should eq(30000.0)
+        balance.value.should eq(45000.0)
+        break
+      end
+    end
   end
 end

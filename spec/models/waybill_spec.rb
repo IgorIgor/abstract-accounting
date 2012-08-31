@@ -181,7 +181,7 @@ describe Waybill do
     wb.items.each do |i|
       deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
       deal.should_not be_nil
-      deal.rate.should eq(1 / i.price)
+      deal.rate.accounting_norm.should eq((1 / i.price).accounting_norm)
       deal.isOffBalance.should be_false
 
       deal = i.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
@@ -752,11 +752,13 @@ describe Waybill do
 
     wbs = Waybill.order_by(field: 'distributor', type: 'asc').all
     wbs_test = Waybill.joins{deal.rules.from.entity(LegalEntity)}.
-        group('waybills.id').order('legal_entities.name').all
+        group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id, ' +
+              'legal_entities.name').order('legal_entities.name').all
     wbs.should eq(wbs_test)
     wbs = Waybill.order_by(field: 'distributor', type: 'desc').all
     wbs_test = Waybill.joins{deal.rules.from.entity(LegalEntity)}.
-        group('waybills.id').order('legal_entities.name DESC').all
+        group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id, ' +
+              'legal_entities.name').order('legal_entities.name DESC').all
     wbs.should eq(wbs_test)
 
     wbs = Waybill.order_by(field: 'storekeeper', type: 'asc').all
@@ -774,16 +776,18 @@ describe Waybill do
     wbs.should eq(wbs_test)
 
     wbs = Waybill.order_by(field: 'sum', type: 'asc').all
-    wbs_test = Waybill.joins{deal.rules.from}.group{waybills.id}.
-                      select("waybills.*").
-                      select{sum(deal.rules.rate / deal.rules.from.rate).as(:sum)}.
-                      order("sum").all
+    wbs_test = Waybill.joins{deal.rules.from}.
+        group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id').
+        select("waybills.*").
+        select{sum(deal.rules.rate / deal.rules.from.rate).as(:sum)}.
+        order("sum").all
     wbs.should eq(wbs_test)
     wbs = Waybill.order_by(field: 'sum', type: 'desc').all
-    wbs_test = Waybill.joins{deal.rules.from}.group{waybills.id}.
-                      select("waybills.*").
-                      select{sum(deal.rules.rate / deal.rules.from.rate).as(:sum)}.
-                      order("sum DESC").all
+    wbs_test = Waybill.joins{deal.rules.from}.
+        group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id').
+        select("waybills.*").
+        select{sum(deal.rules.rate / deal.rules.from.rate).as(:sum)}.
+        order("sum DESC").all
     wbs.should eq(wbs_test)
   end
 

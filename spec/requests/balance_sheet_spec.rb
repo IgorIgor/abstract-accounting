@@ -56,6 +56,7 @@ feature "BalanceSheet", %q{
       fill_in('filter-entity', with: bs[1].deal.entity.tag)
       click_button(I18n.t('views.home.search'))
     end
+    wait_for_ajax
     within('#container_documents table') do
       page.should have_selector('tbody tr', count: 1)
       page.should have_content(bs[1].deal.tag)

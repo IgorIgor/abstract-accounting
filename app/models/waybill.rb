@@ -38,8 +38,9 @@ class Waybill < ActiveRecord::Base
     end
 
     def total
-      joins{deal.rules.from}.select{sum(deal.rules.rate/deal.rules.from.rate).as(:total)}.
-          first.total
+      total = joins{deal.rules.from}.
+          select{sum(deal.rules.rate/deal.rules.from.rate).as(:total)}.first.total
+      Converter.float(total)
     end
   end
 
@@ -57,7 +58,8 @@ class Waybill < ActiveRecord::Base
     case attrs[:field]
       when 'distributor'
         scope = scope.joins{deal.rules.from.entity(LegalEntity)}.
-            group('waybills.id')
+            group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id, ' +
+                  'legal_entities.name')
         field = 'legal_entities.name'
       when 'storekeeper'
         scope = scope.joins{deal.entity(Entity)}
@@ -66,7 +68,8 @@ class Waybill < ActiveRecord::Base
         scope = scope.joins{deal.take.place}
         field = 'places.tag'
       when 'sum'
-        scope = scope.joins{deal.rules.from}.group{waybills.id}.
+        scope = scope.joins{deal.rules.from}.
+                group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id').
                 select("waybills.*").
                 select{sum(deal.rules.rate / deal.rules.from.rate).as(:sum)}
         field = 'sum'
@@ -87,7 +90,8 @@ class Waybill < ActiveRecord::Base
     scope = attrs.keys.inject(scoped) do |mem, key|
       case key
         when 'distributor'
-          mem.joins{deal.rules.from.entity(LegalEntity)}.group{waybills.id}
+          mem.joins{deal.rules.from.entity(LegalEntity)}.
+            select('DISTINCT ON (waybills.id) waybills.*')
         when 'storekeeper'
           mem.joins{deal.entity(Entity)}
         when 'storekeeper_place'
@@ -121,6 +125,8 @@ class Waybill < ActiveRecord::Base
             when Statable::REVERSED
               mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.amount == -1.0)}
           end
+        when 'created'
+          mem.where{to_char(created, "YYYY-MM-DD").like(lower("%#{value}%"))}
         else
           mem.where{lower(__send__(key)).like(lower("%#{value}%"))}
       end
@@ -131,9 +137,15 @@ class Waybill < ActiveRecord::Base
     condition = ''
     if attrs.has_key?(:where)
       attrs[:where].each do |attr, value|
+        key = attr
+        if attr.to_s == "storekeeper_id"
+          key = "entities.id"
+        elsif attr.to_s == "storekeeper_place_id"
+          key = "places.id"
+        end
         if value.kind_of?(Hash) && value.has_key?(:equal)
           condition << (condition.empty? ? ' AND' : 'WHERE')
-          condition << " #{attr} = '#{value[:equal]}'"
+          condition << " #{key} = '#{value[:equal]}'"
         end
       end
     end
@@ -143,29 +155,25 @@ class Waybill < ActiveRecord::Base
     end
 
     script = "
-      SELECT id FROM (
-        SELECT id, SUM(amount) as exp_amount FROM (
-          SELECT waybills.id as id, assets.id as asset_id,
-                 states.amount as amount, entities.id as storekeeper_id,
-                 places.id as storekeeper_place_id FROM waybills
+      SELECT T2.id FROM (
+        SELECT T1.id, SUM(T1.amount) as exp_amount FROM (
+          SELECT waybills.id as id, rules.to_id as to_id,
+                 MAX(states.amount) as amount FROM waybills
             LEFT JOIN rules ON rules.deal_id = waybills.deal_id
             INNER JOIN states ON states.deal_id = rules.to_id
                               AND states.paid IS NULL
             INNER JOIN deals ON deals.id = rules.to_id
             INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
-            INNER JOIN assets ON assets.id = terms.resource_id
             INNER JOIN places ON places.id = terms.place_id
             INNER JOIN entities ON entities.id = deals.entity_id
           #{condition}
           GROUP BY waybills.id, rules.to_id
           UNION
-          SELECT waybills.id as id, assets.id as asset_id,
-                 -SUM(ds_rule.rate) as amount, entities.id as storekeeper_id,
-                 places.id as storekeeper_place_id FROM waybills
+          SELECT waybills.id as id, rules.to_id as to_id,
+                 -SUM(ds_rule.rate) as amount FROM waybills
             LEFT JOIN rules ON rules.deal_id = waybills.deal_id
             INNER JOIN deals ON deals.id = rules.to_id
             INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
-            INNER JOIN assets ON assets.id = terms.resource_id
             INNER JOIN places ON places.id = terms.place_id
             INNER JOIN entities ON entities.id = deals.entity_id
             INNER JOIN rules AS ds_rule ON ds_rule.from_id = rules.to_id
@@ -173,10 +181,13 @@ class Waybill < ActiveRecord::Base
             INNER JOIN deal_states ON deal_states.deal_id = a_deals.id
                                    AND deal_states.closed IS NULL
           #{condition}
-          GROUP BY waybills.id, rules.to_id )
-        GROUP BY id, asset_id
-      ) WHERE exp_amount > 0
-      GROUP BY id"
+          GROUP BY waybills.id, rules.to_id ) T1
+          INNER JOIN deals ON deals.id = T1.to_id
+          INNER JOIN terms ON terms.deal_id = T1.to_id AND terms.side = 'f'
+          INNER JOIN assets ON assets.id = terms.resource_id
+        GROUP BY T1.id, assets.id
+      ) T2 WHERE T2.exp_amount > 0
+      GROUP BY T2.id"
 
     Waybill.find(
       ActiveRecord::Base.connection.execute(script).map { |wb| wb['id'] })
@@ -185,7 +196,7 @@ class Waybill < ActiveRecord::Base
   def sum
     sum = self.deal.rules.joins{from}.group{rules.deal_id}.
                select{sum(rules.rate / from.rate).as(:sum)}.first.sum
-    sum.instance_of?(Float) ? sum.accounting_norm : sum
+    Converter.float(sum)
   end
 
   private

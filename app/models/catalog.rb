@@ -17,10 +17,10 @@ class Catalog < ActiveRecord::Base
   has_and_belongs_to_many :boms, :class_name => "BoM"
   has_and_belongs_to_many :price_lists
 
-  def price_list(date, tab)
+  def price_list(filter_date, filter_tab)
     # FIXME: it's temporary solution for date comparison
     #  Rplace all datetime to date
-    self.price_lists.where("price_lists.date LIKE ?", "#{date.strftime("%Y-%m-%d")}%").
-                     where(:tab => tab).first
+    self.price_lists.where{to_char(date, "YYYY-MM-DD").like("#{filter_date.strftime("%Y-%m-%d")}%")}.
+                     where{tab.eq(filter_tab)}.first
   end
 end

@@ -96,11 +96,13 @@ describe BoM do
     bom.items.create!(:resource => truck, :rate => 0.33)
     bom.items.create!(:resource => compressor,
                       :rate => 0.46)
-    bom.sum(prices, 1).should eq((0.33 * (74.03 * 4.70)) + (0.46 * (59.76 * 4.70)))
-    bom.sum(prices, 2).should eq(((0.33 * (74.03 * 4.70)) + (0.46 * (59.76 * 4.70))) * 2)
+    bom.sum(prices, 1).accounting_norm.should eq(
+      ((0.33 * (74.03 * 4.70)) + (0.46 * (59.76 * 4.70))).accounting_norm)
+    bom.sum(prices, 2).accounting_norm.should eq(
+      (((0.33 * (74.03 * 4.70)) + (0.46 * (59.76 * 4.70))) * 2).accounting_norm)
     catalog = Catalog.create!(tag: "some catalog")
     catalog.price_lists << prices
-    bom.sum_by_catalog(catalog, prices.date, 2).should eq(
-           ((0.33 * (74.03 * 4.70)) + (0.46 * (59.76 * 4.70))) * 2)
+    bom.sum_by_catalog(catalog, prices.date, 2).accounting_norm.should eq(
+           (((0.33 * (74.03 * 4.70)) + (0.46 * (59.76 * 4.70))) * 2).accounting_norm)
   end
 end

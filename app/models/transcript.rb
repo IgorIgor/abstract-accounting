@@ -98,10 +98,10 @@ class Transcript
                   SUM(CASE WHEN facts.to_deal_id = #{@deal.id} THEN txns.value + txns.earnings ELSE 0.0 END) as debits_value,
                   SUM(CASE WHEN facts.to_deal_id = #{@deal.id} THEN facts.amount ELSE 0.0 END) as debits").first
     end
-    @credits_value = object ? object.credits_value : 0.0
-    @credits = object ? object.credits : 0.0
-    @debits_value = object ? object.debits_value : 0.0
-    @debits = object ? object.debits : 0.0
+    @credits_value = object ? Converter.float(object.credits_value) : 0.0
+    @credits = object ? Converter.float(object.credits) : 0.0
+    @debits_value = object ? Converter.float(object.debits_value) : 0.0
+    @debits = object ? Converter.float(object.debits) : 0.0
     @total_loaded = true
   end
 

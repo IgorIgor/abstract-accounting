@@ -33,7 +33,7 @@ describe BoMElement do
         @bom_element.to_rule(@bom_deal, create(:place), price, 1)
       }.should change(@bom_deal.rules, :count).by(1)
       rule = @bom_deal.rules.first
-      rule.rate.should eq(0.33 * (74.03 * 4.70))
+      rule.rate.accounting_norm.should eq((0.33 * (74.03 * 4.70)).accounting_norm)
       rule.deal_id.should eq(@bom_deal.id)
       rule.from.rate.should eq(0.33)
       rule.from.give.resource.should eq(@auto)
@@ -53,7 +53,7 @@ describe BoMElement do
         element.to_rule(@bom_deal, create(:place), price, 1)
       }.should change(Deal, :count).by(1)
       rule = @bom_deal.rules.last
-      rule.rate.should eq(0.46 * (59.76 * 4.70))
+      rule.rate.accounting_norm.should eq((0.46 * (59.76 * 4.70)).accounting_norm)
       rule.deal_id.should eq(@bom_deal.id)
       rule.from.rate.should eq(0.46)
       rule.from.give.resource.should eq(resource)
@@ -68,7 +68,7 @@ describe BoMElement do
         @bom_element.to_rule(@bom_deal, create(:place), price, 1)
       }.should change(Deal, :count).by(0)
       rule = @bom_deal.rules.last
-      rule.rate.should eq(0.33 * (78.03 * 4.70))
+      rule.rate.accounting_norm.should eq((0.33 * (78.03 * 4.70)).accounting_norm)
       rule.deal_id.should eq(@bom_deal.id)
       rule.from.should eq(@bom_deal.rules.first.from)
       rule.to.should eq(@bom_deal.rules.first.to)
@@ -81,7 +81,7 @@ describe BoMElement do
         @bom_element.to_rule(@bom_deal, create(:place), price, physical_volume)
       }.should change(Deal, :count).by(0)
       rule = @bom_deal.rules.last
-      rule.rate.should eq(0.33 * (80.03 * 4.70) * 2)
+      rule.rate.accounting_norm.should eq((0.33 * (80.03 * 4.70) * 2).accounting_norm)
       rule.deal_id.should eq(@bom_deal.id)
       rule.from.should eq(@bom_deal.rules.first.from)
       rule.to.should eq(@bom_deal.rules.first.to)

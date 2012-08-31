@@ -22,5 +22,7 @@ node(:state) do |allocation|
     I18n.t 'views.statable.canceled'
   when Statable::APPLIED
     I18n.t 'views.statable.applied'
+  when Statable::REVERSED
+    I18n.t 'views.statable.reversed'
   end
 end

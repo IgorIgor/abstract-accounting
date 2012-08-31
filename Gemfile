@@ -1,5 +1,6 @@
 source 'http://rubygems.org'
 
+ruby '1.9.3'
 gem 'rails', '3.2.8'
 
 # Bundle edge Rails instead:
@@ -23,6 +24,10 @@ gem 'jquery-rails'
 gem 'therubyracer'
 gem 'rabl'
 gem 'squeel'
+
+gem 'heroku'
+
+gem 'thin'
 
 # Use unicorn as the web server
 # gem 'unicorn'

@@ -60,5 +60,8 @@ module Abstract
     config.generators do |g|
       g.test_framework :rspec
     end
+
+    # Heroku requires this to be false
+    config.assets.initialize_on_precompile=false
   end
 end

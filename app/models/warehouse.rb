@@ -122,10 +122,18 @@ class Warehouse
       end
 
       order_by = ''
+      order_converter = lambda do |name|
+        case name
+          when 'exp_amount', 'real_amount'
+            name
+          else
+            converter.call(name)
+        end
+      end
       if attrs[:order_by]
         type = ''
         type = 'DESC' if attrs[:order_by][:type] == 'desc'
-        order_by = "ORDER BY #{attrs[:order_by][:field]} #{type}"
+        order_by = "ORDER BY #{order_converter.call(attrs[:order_by][:field])} #{type}"
       end
 
       "

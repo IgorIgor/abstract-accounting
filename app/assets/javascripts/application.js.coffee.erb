@@ -234,9 +234,13 @@ $ ->
 
     sortBy: (object, event) =>
       el = $(event.target).find('span')
-      el = $(event.target) unless el.length
+      target = $(event.target)
+      unless el.length
+        el = $(event.target)
+        target = $(event.target).parent()
 
-      key = "#{event.target.id}"
+
+      key = "#{target.attr("id")}"
       if @orders[key]?
         @orders[key] = !@orders[key]
         el.toggleClass('ui-icon ui-icon-triangle-1-s')
@@ -244,7 +248,8 @@ $ ->
       else
         @orders = {}
         @orders[key] = true
-        $(event.target).siblings().find('span').removeClass('ui-icon ui-icon-triangle-1-n ui-icon-triangle-1-s')
+        target.siblings().find('span').removeClass(
+          'ui-icon ui-icon-triangle-1-n ui-icon-triangle-1-s')
         el.addClass('ui-icon ui-icon-triangle-1-s')
 
       if @orders[key] == true

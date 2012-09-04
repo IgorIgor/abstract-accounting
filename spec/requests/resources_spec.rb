@@ -82,4 +82,78 @@ feature 'assets', %q{
       page.should have_content(res.tag)
     end
   end
+
+  scenario 'create/edit asset', js: true do
+    page_login
+    page.find('#btn_slide_services').click
+    page.find('#arrow_resources_actions').click
+    click_link I18n.t('views.home.asset')
+    current_hash.should eq('documents/assets/new')
+    page.should have_xpath("//li[@id='assets_new' and @class='sidebar-selected']")
+    page.should have_selector("div[@id='container_documents'] form")
+    within('#page-title') do
+      page.should have_content(I18n.t('views.resources.page.title.new'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should be_nil
+    find_button(I18n.t('views.users.edit'))[:disabled].should eq("true")
+
+    click_button(I18n.t('views.users.save'))
+
+    within("#container_documents form") do
+      find("#container_notification").visible?.should be_true
+      within("#container_notification") do
+        page.should have_content("#{I18n.t(
+            'views.resources.tag')} : #{I18n.t('errors.messages.blank')}")
+      end
+    end
+
+    fill_in('asset_tag', with: 'new asset')
+    fill_in('asset_mu', with: 'mu')
+    page.should_not have_selector("#container_notification")
+
+    lambda do
+      click_button(I18n.t('views.users.save'))
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/assets/#{Asset.last.id}"
+    end.should change(Asset, :count).by(1)
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.resources.page.title.show'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should eq("true")
+    find_button(I18n.t('views.users.edit'))[:disabled].should be_nil
+    find_field('asset_tag')[:disabled].should eq("true")
+    find_field('asset_mu')[:disabled].should eq("true")
+    click_button(I18n.t('views.users.edit'))
+    wait_for_ajax
+    wait_until_hash_changed_to "documents/assets/#{Asset.last.id}/edit"
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.resources.page.title.edit'))
+    end
+
+    find_field('asset_tag')[:disabled].should be_nil
+    find_field('asset_mu')[:disabled].should be_nil
+
+    fill_in('asset_tag', with: 'edited new asset')
+    fill_in('asset_mu', with: 'edited mu')
+
+    click_button(I18n.t('views.users.save'))
+    wait_for_ajax
+    wait_until_hash_changed_to "documents/assets/#{Asset.last.id}"
+
+    within('#page-title') do
+      page.should have_content(I18n.t('views.resources.page.title.show'))
+    end
+
+    find_button(I18n.t('views.users.save'))[:disabled].should eq("true")
+    find_button(I18n.t('views.users.edit'))[:disabled].should be_nil
+
+    find_field('asset_tag')[:disabled].should eq("true")
+    find_field('asset_mu')[:disabled].should eq("true")
+    find_field('asset_tag')[:value].should eq('edited new asset')
+    find_field('asset_mu')[:value].should eq('edited mu')
+  end
 end

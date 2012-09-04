@@ -53,8 +53,27 @@
     </ul>
 
     <div class="slider">
+      <div id="arrow_services" class="arrow-down-slide"></div>
+      <a id="btn_slide_services" class="btn-slide" data-bind="click: slide">
+        <%=t 'views.home.services' %>
+      </a>
+      <ul id="slide_menu_services" class="slide_menu" style="display: none;">
+        <div class="slide_action">
+          <div id="arrow_resources_actions" class="arrow-expand arrow-right-expand"
+               data-bind="click: expandResources"></div>
+          <a id="resource" class="btn_slide_action" data-bind="click: expandResources">
+            <%=t 'views.home.resources' %>
+          </a>
+        </div>
+        <ul id="slide_menu_resources" class="slide_menu" style="display: none;">
+          <li id="assets_new"><a href="#documents/assets/new"><%=t 'views.home.asset' %></a></li>
+        </ul>
+      </ul>
+    </div>
+
+    <div class="slider">
       <div id="arrow_lists" class="arrow-down-slide"></div>
-      <a id="btn_slide_lists" class="btn-slide" data-bind="click: slideLists">
+      <a id="btn_slide_lists" class="btn-slide" data-bind="click: slide">
         <%=t 'views.home.lists' %>
       </a>
       <ul id="slide_menu_lists" class="slide_menu" style="display: none;">
@@ -67,9 +86,9 @@
           <li id="places"><a href="#places"><%=t 'views.home.places' %></a></li>
           <div class="slide_action">
             <div id="arrow_actions" class="arrow-expand arrow-right-expand"
-                 data-bind="click: expand"></div>
+                 data-bind="click: expandDeals"></div>
             <a href="#deals" id="deals" class="btn_slide_action"
-               data-bind="click: expand"><%=t 'views.home.deals' %></a>
+               data-bind="click: expandDeals"><%=t 'views.home.deals' %></a>
           </div>
           <ul id="slide_menu_deals" class="slide_menu" style="display: none;">
             <li id="waybills"><a href="#waybills"><%=t 'views.home.waybills' %></a></li>
@@ -88,7 +107,7 @@
 
     <div class="slider">
       <div id="arrow_conditions" class="arrow-down-slide"></div>
-      <a id="btn_slide_conditions" class="btn-slide" data-bind="click: slideConditions">
+      <a id="btn_slide_conditions" class="btn-slide" data-bind="click: slide">
         <%=t 'views.home.conditions' %>
       </a>
       <ul id="slide_menu_conditions" class="slide_menu" style="display: none;">

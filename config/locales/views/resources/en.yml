@@ -4,3 +4,9 @@ en:
       tag: "Tag"
       ext_info: Ext. information
       type: Type
+      mu: MU
+      page:
+        title:
+          show: Show asset
+          edit: Edit asset
+          new: New asset

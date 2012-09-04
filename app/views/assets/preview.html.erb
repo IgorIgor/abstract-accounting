@@ -1,0 +1,50 @@
+<form data-bind="validate: { success: save }">
+  <div class='actions'>
+    <input type='submit' value="<%= t 'views.users.save' %>"
+           data-bind='disable: readonly'/>
+    <input type='button' value="<%= t 'views.users.edit' %>"
+           data-bind='click: edit, disable: !readonly()'/>
+    <input type='button' value="<%= t 'views.users.back' %>"
+           data-bind='click: back'/>
+  </div>
+
+  <span id="page-title">
+    <!-- ko if: readonly -->
+      <%= t('views.resources.page.title.show') %>
+    <!-- /ko -->
+    <!-- ko ifnot: readonly -->
+      <!-- ko if: id_presence -->
+        <%= t('views.resources.page.title.edit') %>
+      <!-- /ko -->
+      <!-- ko ifnot: id_presence -->
+        <%= t('views.resources.page.title.new') %>
+      <!-- /ko -->
+    <!-- /ko -->
+  </span>
+
+  <%= render 'home/errors' %>
+
+  <fieldset>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="asset_tag"><%= t('views.resources.tag') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="asset_tag"
+                 name="<%= t('views.resources.tag') %>" rule="required"
+                 data-bind="value: object.asset.tag, disable: readonly">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="asset_mu"><%= t('views.resources.mu') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="asset_mu" name="<%= t('views.resources.mu') %>"
+                 data-bind="value: object.asset.mu, disable: readonly">
+        </span>
+      </div>
+    </div>
+  </fieldset>
+</form>

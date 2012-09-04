@@ -365,7 +365,7 @@ $ ->
           type = this.params.type
           $.get("/#{type}/preview", {}, (form) ->
             $.getJSON("/#{type}/new.json", {}, (object) ->
-              toggleSelect()
+              toggleSelect("#{type}_new")
 
               viewModel = switch type
                 when 'allocations'
@@ -376,6 +376,8 @@ $ ->
                   new UserViewModel(object)
                 when 'groups'
                   new GroupViewModel(object)
+                when 'assets'
+                  new AssetViewModel(object)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))
@@ -396,6 +398,8 @@ $ ->
                   new UserViewModel(object, true)
                 when 'groups'
                   new GroupViewModel(object, true)
+                when 'assets'
+                  new AssetViewModel(object, true)
 
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))
@@ -478,7 +482,16 @@ $ ->
 
       location.hash = 'inbox' if $('#main').length
 
-    expand: (object, event) =>
+    expandResources: (object, event) =>
+      if $('#slide_menu_resources').is(":visible")
+        $('#arrow_resources_actions').removeClass('arrow-down-expand')
+        $('#arrow_resources_actions').addClass('arrow-right-expand')
+      else
+        $('#arrow_resources_actions').removeClass('arrow-right-expand')
+        $('#arrow_resources_actions').addClass('arrow-down-expand')
+      $("#slide_menu_resources").slideToggle()
+
+    expandDeals: (object, event) =>
       toggle = true
       if $('#slide_menu_deals').is(":visible")
         if event.target.id == 'arrow_actions'
@@ -494,22 +507,22 @@ $ ->
         $('#arrow_actions').addClass('arrow-down-expand')
       $("#slide_menu_deals").slideToggle() if toggle
 
-    slideConditions: =>
-      if $('#slide_menu_conditions').is(":visible")
-        $('#arrow_conditions').removeClass('arrow-up-slide')
-        $('#arrow_conditions').addClass('arrow-down-slide')
-      else
-        $('#arrow_conditions').removeClass('arrow-down-slide')
-        $('#arrow_conditions').addClass('arrow-up-slide')
-      $("#slide_menu_conditions").slideToggle()
+    slide: (object, event) ->
+      switch event.target.id
+        when 'btn_slide_conditions'
+          @slideMenu('#slide_menu_conditions', '#arrow_conditions')
+        when 'btn_slide_lists'
+          @slideMenu('#slide_menu_lists', '#arrow_lists')
+        when 'btn_slide_services'
+          @slideMenu('#slide_menu_services', '#arrow_services')
 
-    slideLists: =>
-      if $('#slide_menu_lists').is(":visible")
-        $('#arrow_lists').removeClass('arrow-up-slide')
-        $('#arrow_lists').addClass('arrow-down-slide')
+    slideMenu: (slide_id, arrow_id) ->
+      if $(slide_id).is(":visible")
+        $(arrow_id).removeClass('arrow-up-slide')
+        $(arrow_id).addClass('arrow-down-slide')
       else
-        $('#arrow_lists').removeClass('arrow-down-slide')
-        $('#arrow_lists').addClass('arrow-up-slide')
-      $("#slide_menu_lists").slideToggle()
+        $(arrow_id).removeClass('arrow-down-slide')
+        $(arrow_id).addClass('arrow-up-slide')
+      $(slide_id).slideToggle()
 
   ko.applyBindings(new HomeViewModel(), $('#body').get(0))

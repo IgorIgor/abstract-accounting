@@ -72,59 +72,25 @@
   </fieldset>
 
   <fieldset>
-    <legend><%= t 'views.allocations.storekeeper' %></legend>
+    <legend><%= t 'views.allocations.warehouse.name' %></legend>
     <div>
       <div>
         <span class="form-cell-label">
-          <label for="storekeeper_entity"><%= t 'views.allocations.entity' %>:</label>
+          <label for="warehouses"><%=t 'views.allocations.warehouse.name' %>:</label>
         </span>
-        <span data-bind='with: object.storekeeper'>
-          <!-- ko if: $parent.motion() == '0' -->
-          <input type='text' id='storekeeper_entity'
-                 name='<%= t 'views.allocations.storekeeper' %>' rule='required'
-                 data-bind="autocomplete: {
-                              source: '/storekeepers.json?document_type=<%= Allocation.name %>',
-                              value: 'tag',
-                              bind: {
-                                id: $parent.object.allocation.storekeeper_id,
-                                place: {
-                                  id: [$parent.object.allocation.storekeeper_place_id,
-                                       $parent.object.allocation.foreman_place_id],
-                                  tag: [$parent.object.storekeeper_place.tag,
-                                        $parent.object.foreman_place.tag],
-                                }
-                              },
-                              onlySelect: true,
-                              afterChange: $parent.loadAvailableResources
-                            }, value: tag, disable: $parent.disable_storekeeper" />
-          <!-- /ko -->
-          <!-- ko if: $parent.motion() == '1' -->
-          <input type='text' id='storekeeper_entity'
-                 name='<%= t 'views.allocations.storekeeper' %>' rule='required'
-                 data-bind="autocomplete: {
-                              source: '/storekeepers.json?document_type=<%= Allocation.name %>',
-                              value: 'tag',
-                              bind: {
-                                id: $parent.object.allocation.storekeeper_id,
-                                place: {
-                                  id: $parent.object.allocation.storekeeper_place_id,
-                                  tag: $parent.object.storekeeper_place.tag,
-                                }
-                              },
-                              onlySelect: true,
-                              afterChange: $parent.loadAvailableResources
-                            }, value: tag, disable: $parent.disable_storekeeper" />
-          <!-- /ko -->
-        </span>
-      </div>
-      <div>
-        <span class="form-cell-label">
-          <label for="storekeeper_place"><%= t 'views.allocations.place' %>:</label>
-        </span>
-        <span data-bind='with: object.storekeeper_place'>
-          <input type='text' id='storekeeper_place'
-                 name='<%= t 'views.allocations.storekeeper_place' %>' rule='required'
-                 data-bind="value: tag" disabled="disabled" />
+        <span>
+          <select id="warehouses" rule="required"
+                  name="<%=t('views.allocations.warehouse.name')%>"
+                  data-bind="options: object.warehouses,
+                             optionsCaption: '<%= t('views.allocations.warehouse.select') %>',
+                             optionsText: function(item) {
+                               return item.tag() +
+                                 '(<%= t('views.allocations.warehouse.storekeeper') %>: ' +
+                                 item.storekeeper() + ')'
+                             },
+                             optionsValue: 'id',
+                             value: object.allocation.warehouse_id,
+                             disable: disable_warehouse"></select>
         </span>
       </div>
     </div>
@@ -141,11 +107,11 @@
     </legend>
     <div>
       <div>
+        <!-- ko if: motion() == '0' -->
         <span class="form-cell-label">
           <label for="foreman_entity"><%= t 'views.allocations.entity' %>:</label>
         </span>
         <span data-bind='with: object.foreman'>
-          <!-- ko if: $parent.motion() == '0' -->
           <input type='text' id='foreman_entity'
                  name='<%= t 'views.allocations.foreman' %>' rule='required'
                  data-bind="autocomplete: {
@@ -153,25 +119,28 @@
                               value: 'tag',
                               bind: { id: $parent.object.allocation.foreman_id }
                             }, value: tag, disable: $parent.readonly" />
-          <!-- /ko -->
-          <!-- ko if: $parent.motion() == '1' -->
-          <input type='text' id='foreman_entity'
-                 name='<%= t 'views.allocations.storekeeper' %>' rule='required'
-                 data-bind="autocomplete: {
-                              source: '/storekeepers.json?document_type=<%= Allocation.name %>',
-                              value: 'tag',
-                              bind: {
-                                id: $parent.object.allocation.foreman_id,
-                                place: {
-                                  id: $parent.object.allocation.foreman_place_id,
-                                  tag: $parent.object.foreman_place.tag,
-                                }
-                              },
-                              onlySelect: true
-                            }, value: tag, disable: $parent.readonly" />
-          <!-- /ko -->
         </span>
+        <!-- /ko -->
+        <!-- ko if: motion() == '1' -->
+        <span class="form-cell-label">
+          <label for="remote_warehouses"><%=t 'views.allocations.warehouse.name' %>:</label>
+        </span>
+        <span>
+          <select id="remote_warehouses" rule="required"
+                  name="<%=t('views.allocations.warehouse.remote')%>"
+                  data-bind="options: remote_warehouses,
+                             optionsCaption: '<%= t('views.allocations.warehouse.select') %>',
+                             optionsText: function(item) {
+                               return item.tag() +
+                                 '(<%= t('views.allocations.warehouse.storekeeper') %>: ' +
+                                 item.storekeeper() + ')'
+                             },
+                             optionsValue: 'id',
+                             value: remote_warehouse_id"></select>
+        </span>
+        <!-- /ko -->
       </div>
+      <!-- ko if: motion() == '0' -->
       <div>
         <span class="form-cell-label">
           <label for="foreman_place"><%= t 'views.allocations.place' %>:</label>
@@ -182,6 +151,7 @@
                  data-bind="value: tag" disabled="disabled" />
         </span>
       </div>
+      <!-- /ko -->
     </div>
   </fieldset>
 

@@ -11,8 +11,12 @@
     </fieldset>
     <!-- /ko -->
 
-    <textarea id="message" rows="5" data-bind="value: message"></textarea>
-    <input type="button" value="<%= t('layouts.comments.save') %>"
-           data-bind="click: saveComment"/>
+    <% if current_user.root? %>
+      <span><%= t 'layouts.comments.denied' %></span>
+    <% else %>
+      <textarea id="message" rows="5" data-bind="value: message"></textarea>
+      <input type="button" value="<%= t('layouts.comments.save') %>"
+             data-bind="click: saveComment"/>
+    <% end %>
   </fieldset>
 </div>

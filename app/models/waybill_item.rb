@@ -17,8 +17,8 @@ class WaybillItem
 
   def exp_amount
     return 0.0 unless self.resource
-    resource_state = Warehouse.all(where: { storekeeper_id: { equal: @object.storekeeper.id },
-                         storekeeper_place_id: { equal: @object.storekeeper_place.id },
+    resource_state = Warehouse.all(where: {
+                         warehouse_id: { equal: @object.storekeeper_place.id },
                          'assets.id' => { equal_attr: self.resource.id } }).first
     return 0.0 unless resource_state
     resource_state.exp_amount

@@ -9,7 +9,7 @@ en:
       ident_name: "Ident. name"
       ident_value: "Ident. value"
       place: "Place"
-      storekeeper: "Storekeeper"
+      storekeeper: Storekeeper
       storekeeper_place: "Storekeeper place"
       waybill_entry: "Resources"
       entry_name: "Entry name"
@@ -29,6 +29,10 @@ en:
       page_title_show: "Show waybill"
       ident_name_MSRN: "MSRN"
       ident_name_VATIN: "VATIN"
+      warehouse:
+        name: Warehouse
+        select: Select warehouse ...
+        storekeeper: Storekeeper
       resource:
         name: Resource name
         tag: Tag

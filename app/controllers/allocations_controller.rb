@@ -9,6 +9,7 @@
 require "waybill"
 
 class AllocationsController < ApplicationController
+  authorize_resource class: Allocation.name
   layout 'comments'
 
   def preview
@@ -21,33 +22,18 @@ class AllocationsController < ApplicationController
 
   def new
     @allocation = Allocation.new
-    unless current_user.root?
-      credential = current_user.credentials.where(document_type: Allocation.name).first
-      if credential
-        @allocation.storekeeper = current_user.entity
-        @allocation.storekeeper_place = credential.place
-      end
-    end
   end
 
   def create
     allocation = nil
     begin
       Allocation.transaction do
-        params[:allocation][:storekeeper_type] = "Entity"
-        params[:allocation][:foreman_type] = "Entity"
+        params[:allocation][:foreman_type] = "Entity" if params[:allocation][:foreman_id]
         params[:allocation].delete(:state) if params[:allocation].has_key?(:state)
+        params[:allocation].merge!(
+            Allocation.extract_warehouse(params[:allocation][:warehouse_id]))
+        params[:allocation].delete(:warehouse_id)
         allocation = Allocation.new(params[:allocation])
-        unless allocation.storekeeper
-          storekeeper = Entity.find_or_create_by_tag(params[:storekeeper])
-          storekeeper.save!
-          allocation.storekeeper = storekeeper
-        end
-        unless allocation.storekeeper_place
-          storekeeper_place = Place.find_or_create_by_tag(params[:storekeeper_place])
-          storekeeper_place.save!
-          allocation.storekeeper_place = storekeeper_place
-        end
         unless allocation.foreman
           foreman = Entity.find_or_create_by_tag(params[:foreman])
           foreman.save!
@@ -88,14 +74,20 @@ class AllocationsController < ApplicationController
         Settings.root.per_page.to_i : params[:per_page].to_i
 
     scope = autorize_warehouse(Allocation)
-    scope = scope.search(params[:search]) if params[:search]
-    @count = scope.count
-    @count = @count.count unless @count.instance_of? Fixnum
-    scope = scope.order_by(params[:order]) if params[:order]
-    @allocations = scope.limit(per_page).offset((page - 1) * per_page).
-        includes(deal: [:entity, terms: [:resource, :place],
-                 rules: [from: [:entity, terms: [:resource, :place]],
-                         to: [:entity, terms: [:resource, :place]]]])
+    if scope
+      scope = scope.search(params[:search]) if params[:search]
+      @count = scope.count
+      @count = @count.count unless @count.instance_of? Fixnum
+      scope = scope.order_by(params[:order]) if params[:order]
+      @allocations = scope.limit(per_page).offset((page - 1) * per_page).
+          includes(deal: [:entity, terms: [:resource, :place],
+                   rules: [from: [:entity, terms: [:resource, :place]],
+                           to: [:entity, terms: [:resource, :place]]]])
+    else
+      @count = 0
+      @allocations = []
+    end
+
   end
 
   def list
@@ -106,17 +98,23 @@ class AllocationsController < ApplicationController
         per_page = params[:per_page].nil? ?
             Settings.root.per_page.to_i : params[:per_page].to_i
 
-        scope = autorize_warehouse(AllocationReport, alias: Allocation).with_resources
-        scope = scope.search(params[:search]) if params[:search]
-        @count = scope.count
-        unless @count.instance_of? Fixnum
-          @count = @count.values[0]
+        scope = autorize_warehouse(AllocationReport, alias: Allocation)
+        if scope
+          scope = scope.with_resources
+          scope = scope.search(params[:search]) if params[:search]
+          @count = scope.count
+          unless @count.instance_of? Fixnum
+            @count = @count.values[0]
+          end
+          scope = scope.order_by(params[:order]) if params[:order]
+          @list = scope.limit(per_page).offset((page - 1) * per_page).select_all.
+              includes(deal: [:entity, terms: [:resource, :place],
+                       rules: [from: [:entity, terms: [:resource, :place]],
+                               to: [:entity, terms: [:resource, :place]]]])
+        else
+          @count = 0
+          @list = []
         end
-        scope = scope.order_by(params[:order]) if params[:order]
-        @list = scope.limit(per_page).offset((page - 1) * per_page).select_all.
-            includes(deal: [:entity, terms: [:resource, :place],
-                     rules: [from: [:entity, terms: [:resource, :place]],
-                             to: [:entity, terms: [:resource, :place]]]])
       end
     end
   end

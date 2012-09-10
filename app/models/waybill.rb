@@ -28,13 +28,9 @@ class Waybill < ActiveRecord::Base
                         item: :find_or_initialize
 
   class << self
-    def by_storekeeper(entity)
-      joins{deal}.
-          where{(deal.entity_id == entity.id) & (deal.entity_type == entity.class.name)}
-    end
-    def by_storekeeper_place(place)
+    def by_warehouse(warehouse)
       joins{deal.take}.
-          where{deal.take.place_id == place.id}
+          where{deal.take.place_id == warehouse.id}
     end
 
     def total
@@ -90,15 +86,13 @@ class Waybill < ActiveRecord::Base
     scope = attrs.keys.inject(scoped) do |mem, key|
       case key.to_s
         when 'distributor'
-          mem.joins{deal.rules.from.entity(LegalEntity)}.
-            select('DISTINCT ON (waybills.id) waybills.*')
+          mem.joins{deal.rules.from.entity(LegalEntity)}.uniq
         when 'storekeeper'
           mem.joins{deal.entity(Entity)}
         when 'storekeeper_place'
           mem.joins{deal.take.place}
         when 'resource_tag'
-          mem.joins{deal.rules.from.take.resource(Asset)}.
-            select('DISTINCT ON (waybills.id) waybills.*')
+          mem.joins{deal.rules.from.take.resource(Asset)}.uniq
         when 'state'
           mem.joins{deal.deal_state}.joins{deal.to_facts.outer}
         else
@@ -139,9 +133,7 @@ class Waybill < ActiveRecord::Base
     if attrs.has_key?(:where)
       attrs[:where].each do |attr, value|
         key = attr
-        if attr.to_s == "storekeeper_id"
-          key = "entities.id"
-        elsif attr.to_s == "storekeeper_place_id"
+        if attr.to_s == "warehouse_id"
           key = "places.id"
         end
         if value.kind_of?(Hash) && value.has_key?(:equal)

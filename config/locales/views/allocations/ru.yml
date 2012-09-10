@@ -30,6 +30,11 @@ ru:
       storekeeper: Кладовщик
       other_storekeeper: Получающий кладовщик
       storekeeper_place: Объект
+      warehouse:
+        name: Склад
+        remote: Другой склад
+        select: Выберите склад ...
+        storekeeper: Кладовщик
       motion:
         name: Перемещение
         warehouse: на другой склад

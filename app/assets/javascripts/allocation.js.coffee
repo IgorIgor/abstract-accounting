@@ -2,14 +2,13 @@ $ ->
   class self.AllocationViewModel extends StatableViewModel
     constructor: (object, readonly = false) ->
       super(object, 'allocations', readonly)
-      @disable_storekeeper = if object.allocation.storekeeper_id then true else false
+      @disable_warehouse = object.allocation.warehouse_id?
       @motion = ko.observable("0")
       @motion.subscribe((val) =>
         @object.foreman.tag(null)
         @object.allocation.foreman_id(null)
-        if val == '0'
-          @object.foreman_place.tag(@object.storekeeper_place.tag())
-          @object.allocation.foreman_place_id(@object.allocation.storekeeper_place_id())
+        if val == '0' && @object.allocation.warehouse_id()
+          @assignForemanPlace()
         else
           @object.foreman_place.tag(null)
           @object.allocation.foreman_place_id(null)
@@ -20,8 +19,7 @@ $ ->
 
       @params =
         equal:
-          storekeeper_id: @object.allocation.storekeeper_id
-          storekeeper_place_id: @object.allocation.storekeeper_place_id
+          warehouse_id: null
 
       @availableMode = ko.observable('0')
       @availableMode.subscribe((val) =>
@@ -30,7 +28,49 @@ $ ->
         @loadAvailableResources(false)
       )
 
+      @object.allocation.warehouse_id.subscribe((val) =>
+        if @motion() == '0'
+          if val
+            @assignForemanPlace()
+          else
+            @object.foreman_place.tag(null)
+            @object.allocation.foreman_place_id(null)
+        @loadAvailableResources()
+      )
+
+      #used when motion to storekeeper
+      @remote_warehouse_id = ko.observable(null)
+      @remote_warehouse_id.subscribe((val) =>
+        if @motion() == '1'
+          if val
+            @object.foreman_place.tag(@findWarehouse(val).tag())
+            @object.allocation.foreman_place_id(@findWarehouse(val).place_id())
+          else
+            @object.foreman_place.tag(null)
+            @object.allocation.foreman_place_id(null)
+      )
+
+      @remote_warehouses = ko.computed(=>
+        place_id = null
+        if @object.allocation.warehouse_id()
+          place_id = @findWarehouse(@object.allocation.warehouse_id()).place_id()
+        $.grep(@object.warehouses(), (item) =>
+          item.place_id() != place_id
+        )
+      , self)
+
       @loadAvailableResources() unless readonly
+
+    findWarehouse: (id) =>
+      $.grep(@object.warehouses(), (item) ->
+        item.id() == id
+      )[0]
+
+    assignForemanPlace: () =>
+      @object.foreman_place.tag(@findWarehouse(@object.allocation.warehouse_id()).tag())
+      @object.allocation.foreman_place_id(
+        @findWarehouse(@object.allocation.warehouse_id()).place_id()
+      )
 
     unselectResource: (resource) =>
       @object.items.remove(resource)
@@ -84,7 +124,7 @@ $ ->
       return false if @readonly()
       @object.items([]) if clearSelected
       @warehouse(null)
-      if @object.allocation.storekeeper_id() && @object.allocation.storekeeper_place_id()
+      if @object.allocation.warehouse_id()
         @getPaginateData()
 
     print: =>
@@ -98,6 +138,8 @@ $ ->
           @params['without'] = $.map(@object.items(), (r) -> r.waybill_id)
       else if @params.hasOwnProperty('without')
         delete @params['without']
+      @params['equal']['warehouse_id'] = @findWarehouse(
+        @object.allocation.warehouse_id()).place_id()
       $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
         if @availableMode() == '0'
           @warehouse(new WarehouseViewModel(data, @params))

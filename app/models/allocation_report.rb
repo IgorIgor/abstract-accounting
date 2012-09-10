@@ -68,7 +68,7 @@ class AllocationReport < Allocation
       scope = attrs.inject(scope) do |mem, (key, value)|
         if key == 'foreman'
           mem.where{lower(deal.rules.to.entity.tag).like(lower("%#{value}%"))}
-        elsif 'resource_tag'
+        elsif key == 'resource_tag'
           mem.where{lower(deal.rules.from.give.resource.tag).like(lower("%#{value}%"))}
         end
       end

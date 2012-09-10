@@ -122,38 +122,25 @@
   </fieldset>
 
   <fieldset>
-    <legend><%= t 'views.waybills.storekeeper' %></legend>
+    <legend><%= t 'views.waybills.warehouse.name' %></legend>
     <div>
       <div>
         <span class="form-cell-label">
-          <label for="storekeeper_entity"><%=t 'views.waybills.entity' %>:</label>
+          <label for="warehouses"><%=t 'views.waybills.warehouse.name' %>:</label>
         </span>
-        <span data-bind='with: object.storekeeper'>
-          <input type='text' id='storekeeper_entity'
-                 name='<%= t 'views.waybills.storekeeper' %>' rule='required'
-                 data-bind="autocomplete: {
-                   source: '/storekeepers.json?document_type=<%= Waybill.name %>',
-                   value: 'tag',
-                   onlySelect: true,
-                   bind: {
-                     id: $parent.object.waybill.storekeeper_id,
-                     place: {
-                       id: $parent.object.waybill.storekeeper_place_id,
-                       tag: $parent.object.storekeeper_place.tag
-                     }
-                   }
-                 }, value: tag, disable: $parent.disable_storekeeper" />
-        </span>
-      </div>
-      <div>
-        <span class="form-cell-label">
-          <label for="storekeeper_place"><%=t 'views.waybills.place' %>:</label>
-        </span>
-        <span data-bind='with: object.storekeeper_place'>
-          <input type='text' id='storekeeper_place'
-                 name='<%= t 'views.waybills.storekeeper_place' %>' rule='required'
-                 data-bind="value: tag"
-                 disabled="disabled" />
+        <span>
+          <select id="warehouses" rule="required"
+                  name="<%=t('views.waybills.warehouse.name')%>"
+                  data-bind="options: object.warehouses,
+                             optionsCaption: '<%= t('views.waybills.warehouse.select') %>',
+                             optionsText: function(item) {
+                               return item.tag() +
+                                 '(<%= t('views.waybills.warehouse.storekeeper') %>: ' +
+                                 item.storekeeper() + ')'
+                             },
+                             optionsValue: 'id',
+                             value: object.waybill.warehouse_id,
+                             disable: disable_warehouse"></select>
         </span>
       </div>
     </div>

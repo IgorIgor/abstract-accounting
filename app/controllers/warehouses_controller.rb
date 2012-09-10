@@ -8,9 +8,12 @@
 # Please see ./COPYING for details
 
 class WarehousesController < ApplicationController
-   def index
-     render 'index', layout: "data_with_filter"
-   end
+  authorize_resource class: Waybill.name
+  authorize_resource class: Allocation.name
+
+  def index
+    render 'index', layout: "data_with_filter"
+  end
 
   def data
     params[:page] ||= 1
@@ -34,10 +37,15 @@ class WarehousesController < ApplicationController
     unless current_user.root?
       credential = current_user.credentials(:force_update).
           where{document_type == Waybill.name}.first
+      credential = current_user.credentials.
+          where{(document_type == Allocation.name) & (credential.place_id == place_id)}.
+          first if credential
       if credential
         attrs[:where] = {} unless attrs.has_key?(:where)
-        attrs[:where][:storekeeper_id] = { equal: current_user.entity_id }
-        attrs[:where][:storekeeper_place_id] = { equal: credential.place_id }
+        attrs[:where][:warehouse_id] = { equal: credential.place_id }
+      else
+        @warehouse = []
+        return
       end
     end
 
@@ -56,6 +64,20 @@ class WarehousesController < ApplicationController
         params[:per_page] ||= Settings.root.per_page
 
         attrs = { page: params[:page], per_page: params[:per_page] }
+        unless current_user.root?
+          credential = current_user.credentials(:force_update).
+              where{document_type == Waybill.name}.first
+          credential = current_user.credentials.
+              where{(document_type == Allocation.name) & (credential.place_id == place_id)}.
+              first if credential
+          if credential
+            attrs[:where] = {} unless attrs.has_key?(:where)
+            attrs[:where][:warehouse_id] = { equal: credential.place_id }
+          else
+            @warehouse = []
+            return
+          end
+        end
 
         if params.has_key?(:group_by)
           attrs[:group_by] = params[:group_by]

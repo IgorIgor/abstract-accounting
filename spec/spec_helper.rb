@@ -72,6 +72,7 @@ Spork.prefork do
     User.sorcery_config.encryption_algorithm = :none
 
     config.include FactoryGirl::Syntax::Methods
+    config.include Sorcery::TestHelpers::Rails
   end
 end
 

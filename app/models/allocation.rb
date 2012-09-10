@@ -30,11 +30,7 @@ class Allocation < ActiveRecord::Base
   act_as_warehouse_deal from: :storekeeper, to: :foreman, item: :find
 
   class << self
-    def by_storekeeper(entity)
-      joins{deal}.
-          where{(deal.entity_id == entity.id) & (deal.entity_type == entity.class.name)}
-    end
-    def by_storekeeper_place(place)
+    def by_warehouse(place)
       joins{deal.give}.
           where{deal.give.place_id == place.id}
     end
@@ -75,15 +71,13 @@ class Allocation < ActiveRecord::Base
     scope = attrs.keys.inject(scoped) do |mem, key|
       case key.to_s
         when 'foreman'
-          mem.joins{deal.rules.to.entity(Entity)}.
-              select("DISTINCT ON (allocations.id) allocations.*")
+          mem.joins{deal.rules.to.entity(Entity)}.uniq
         when 'storekeeper'
           mem.joins{deal.entity(Entity)}
         when 'storekeeper_place'
           mem.joins{deal.give.place}
         when 'resource_tag'
-          mem.joins{deal.rules.from.give.resource(Asset)}.
-              select("DISTINCT ON (allocations.id) allocations.*")
+          mem.joins{deal.rules.from.give.resource(Asset)}.uniq
         when 'state'
           mem.joins{deal.deal_state}.joins{deal.to_facts.outer}
         else
@@ -121,6 +115,15 @@ class Allocation < ActiveRecord::Base
 
   def document_id
     Allocation.last.nil? ? 1 : Allocation.last.id + 1
+  end
+
+  def foreman_place_or_new
+    return Place.find(self.foreman_place.id) if self.foreman_place
+    if self.warehouse_id
+      Place.find(Allocation.extract_warehouse(self.warehouse_id)[:storekeeper_place_id])
+    else
+      Place.new
+    end
   end
 
   private

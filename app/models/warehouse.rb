@@ -58,7 +58,7 @@ class Warehouse
 
       converter = lambda do |attr|
         case attr.to_s
-          when "storekeeper_place_id"
+          when "warehouse_id"
             "places.id"
           when "place"
             "places.tag"
@@ -75,17 +75,13 @@ class Warehouse
       storekeeper = ""
       if attrs.has_key?(:where)
         attrs[:where].each do |attr, value|
-          if attr.to_s == "storekeeper_id"
-            storekeeper = " AND entities.id = #{value[:equal]}"
-          else
-            if value.kind_of?(Hash)
-              if value.has_key?(:equal)
-                condition += " AND #{converter.call(attr)} = '#{value[:equal]}'"
-              elsif value.has_key?(:like)
-                condition += " AND lower(#{converter.call(attr)}) LIKE '%#{value[:like]}%'"
-              elsif value.has_key?(:equal_attr)
-                condition += " AND #{converter.call(attr)} = '#{value[:equal_attr]}'"
-              end
+          if value.kind_of?(Hash)
+            if value.has_key?(:equal)
+              condition += " AND #{converter.call(attr)} = '#{value[:equal]}'"
+            elsif value.has_key?(:like)
+              condition += " AND lower(#{converter.call(attr)}) LIKE '%#{value[:like]}%'"
+            elsif value.has_key?(:equal_attr)
+              condition += " AND #{converter.call(attr)} = '#{value[:equal_attr]}'"
             end
           end
         end
@@ -150,7 +146,7 @@ class Warehouse
             INNER JOIN entities ON entities.id = deals.entity_id
             INNER JOIN states ON states.deal_id = rules.to_id
             INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
-          WHERE states.paid is NULL #{storekeeper}
+          WHERE states.paid is NULL
           GROUP BY terms.place_id, terms.resource_id
           UNION
           SELECT terms.resource_id as asset_id, terms.place_id as place_id,
@@ -163,7 +159,7 @@ class Warehouse
             INNER JOIN terms ON terms.deal_id = rules.from_id AND terms.side = 'f'
             INNER JOIN deal_states ON allocations.deal_id = deal_states.deal_id
                                    AND deal_states.closed IS NULL
-          WHERE states.paid is NULL #{storekeeper}
+          WHERE states.paid is NULL
           GROUP BY terms.place_id, terms.resource_id
         ) T
         GROUP BY #{group_by}

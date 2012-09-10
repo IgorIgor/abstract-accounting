@@ -52,49 +52,51 @@
       <hr>
     </ul>
 
-    <div class="slider">
-      <div id="arrow_services" class="arrow-down-slide"></div>
-      <a id="btn_slide_services" class="btn-slide" data-bind="click: slide">
-        <%=t 'views.home.services' %>
-      </a>
-      <ul id="slide_menu_services" class="slide_menu" style="display: none;">
-        <div class="slide_action">
-          <div id="arrow_resources_actions" class="arrow-expand arrow-right-expand"
-               data-bind="click: expandResources"></div>
-          <a id="resource" class="btn_slide_action" data-bind="click: expandResources">
-            <%=t 'views.home.resources' %>
-          </a>
-        </div>
-        <ul id="slide_menu_resources" class="slide_menu" style="display: none;">
-          <li id="assets_new">
-            <a href="#documents/assets/new"><%=t 'views.home.asset' %></a>
+    <% if current_user.root? %>
+      <div class="slider">
+        <div id="arrow_services" class="arrow-down-slide"></div>
+        <a id="btn_slide_services" class="btn-slide" data-bind="click: slide">
+          <%=t 'views.home.services' %>
+        </a>
+        <ul id="slide_menu_services" class="slide_menu" style="display: none;">
+          <div class="slide_action">
+            <div id="arrow_resources_actions" class="arrow-expand arrow-right-expand"
+                 data-bind="click: expandResources"></div>
+            <a id="resource" class="btn_slide_action" data-bind="click: expandResources">
+              <%=t 'views.home.resources' %>
+            </a>
+          </div>
+          <ul id="slide_menu_resources" class="slide_menu" style="display: none;">
+            <li id="assets_new">
+              <a href="#documents/assets/new"><%=t 'views.home.asset' %></a>
+            </li>
+            <li id="money_new">
+              <a href="#documents/money/new"><%=t 'views.home.money' %></a>
+            </li>
+          </ul>
+          <li id="places_new">
+            <a href="#documents/places/new"><%=t 'views.home.place' %></a>
           </li>
-          <li id="money_new">
-            <a href="#documents/money/new"><%=t 'views.home.money' %></a>
-          </li>
+          <div class="slide_action">
+            <div id="arrow_entities_actions" class="arrow-expand arrow-right-expand"
+                 data-bind="click: expandEntities"></div>
+            <a id="entity" class="btn_slide_action" data-bind="click: expandEntities">
+              <%=t 'views.home.entities' %>
+            </a>
+          </div>
+          <ul id="slide_menu_entities" class="slide_menu" style="display: none;">
+            <li id="entities_new">
+              <a href="#documents/entities/new"><%=t 'views.home.entity' %></a>
+            </li>
+            <li id="legal_entities_new">
+              <a href="#documents/legal_entities/new"><%=t 'views.home.legal_entity' %></a>
+            </li>
+          </ul>
+          <li id="quote_new"><a href="#documents/quote/new"><%=t 'views.home.quote' %></a></li>
+          <li id="deals_new"><a href="#documents/deals/new"><%=t 'views.home.deal' %></a></li>
         </ul>
-        <li id="places_new">
-          <a href="#documents/places/new"><%=t 'views.home.place' %></a>
-        </li>
-        <div class="slide_action">
-          <div id="arrow_entities_actions" class="arrow-expand arrow-right-expand"
-               data-bind="click: expandEntities"></div>
-          <a id="entity" class="btn_slide_action" data-bind="click: expandEntities">
-            <%=t 'views.home.entities' %>
-          </a>
-        </div>
-        <ul id="slide_menu_entities" class="slide_menu" style="display: none;">
-          <li id="entities_new">
-            <a href="#documents/entities/new"><%=t 'views.home.entity' %></a>
-          </li>
-          <li id="legal_entities_new">
-            <a href="#documents/legal_entities/new"><%=t 'views.home.legal_entity' %></a>
-          </li>
-        </ul>
-        <li id="quote_new"><a href="#documents/quote/new"><%=t 'views.home.quote' %></a></li>
-        <li id="deals_new"><a href="#documents/deals/new"><%=t 'views.home.deal' %></a></li>
-      </ul>
-    </div>
+      </div>
+    <% end %>
 
     <div class="slider">
       <div id="arrow_lists" class="arrow-down-slide"></div>
@@ -122,10 +124,14 @@
             </li>
           </ul>
         <% else %>
-          <li id="waybills"><a href="#waybills"><%=t 'views.home.waybills' %></a></li>
-          <li id="allocations">
-            <a href="#allocations"><%=t 'views.home.allocations' %></a>
-          </li>
+          <% if can? :manage, Waybill %>
+            <li id="waybills"><a href="#waybills"><%=t 'views.home.waybills' %></a></li>
+          <% end %>
+          <% if can? :manage, Allocation %>
+            <li id="allocations">
+              <a href="#allocations"><%=t 'views.home.allocations' %></a>
+            </li>
+          <% end %>
         <% end %>
       </ul>
     </div>
@@ -136,9 +142,11 @@
         <%=t 'views.home.conditions' %>
       </a>
       <ul id="slide_menu_conditions" class="slide_menu" style="display: none;">
-        <li id="warehouses">
-          <a href="#warehouses"><%=t 'views.home.warehouses' %></a>
-        </li>
+        <% if can?(:manage, Waybill) & can?(:manage, Allocation) %>
+          <li id="warehouses">
+            <a href="#warehouses"><%=t 'views.home.warehouses' %></a>
+          </li>
+        <% end %>
         <% if current_user.root? %>
           <li id="general_ledger">
             <a href="#general_ledger"><%=t 'views.home.general_ledger' %></a>

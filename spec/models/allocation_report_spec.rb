@@ -42,7 +42,7 @@ describe AllocationReport do
     al2.add_item(tag: 'nails', mu: 'kg', amount: 40)
     al2.save!
 
-    als = AllocationReport.with_resources.select_all
+    als = AllocationReport.with_resources.select_all.order{deal.rules.from.give.resource.id}
 
     als[0].created.should eq(al1.created)
     als[0].storekeeper.tag.should eq(al1.storekeeper.tag)

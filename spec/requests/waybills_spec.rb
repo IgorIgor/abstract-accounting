@@ -24,8 +24,7 @@ def show_waybill(waybill)
     find("#waybill_ident_name")[:value].should eq(waybill.distributor.identifier_name)
     find("#waybill_ident_value")[:value].should eq(waybill.distributor.identifier_value)
     find("#distributor_place")[:value].should eq(waybill.distributor_place.tag)
-    find("#storekeeper_entity")[:value].should eq(waybill.storekeeper.tag)
-    find("#storekeeper_place")[:value].should eq(waybill.storekeeper_place.tag)
+    find("#warehouses")[:value].should eq(waybill.warehouse_id.to_s)
 
     find("#created")[:disabled].should eq("true")
     find("#waybill_document_id")[:disabled].should eq("true")
@@ -33,8 +32,7 @@ def show_waybill(waybill)
     find("#waybill_ident_name")[:disabled].should eq("true")
     find("#waybill_ident_value")[:disabled].should eq("true")
     find("#distributor_place")[:disabled].should eq("true")
-    find("#storekeeper_entity")[:disabled].should eq("true")
-    find("#storekeeper_place")[:disabled].should eq("true")
+    find("#warehouses")[:disabled].should eq("true")
 
     within("table tbody") do
       waybill.items.each_with_index do |item, idx|
@@ -103,6 +101,12 @@ feature "waybill", %q{
   scenario "manage waybills", js: true do
     PaperTrail.enabled = true
 
+    3.times do
+      user = create(:user)
+      create(:credential, user: user, document_type: Waybill.name)
+    end
+    3.times { create(:user) }
+
     page_login
 
     page.find("#btn_create").click
@@ -122,6 +126,15 @@ feature "waybill", %q{
       page.should have_content("#{I18n.t('views.waybills.ident_name_MSRN')}")
       find("option[@value='VATIN']")
       page.should have_content("#{I18n.t('views.waybills.ident_name_VATIN')}")
+    end
+
+    within("select[@id='warehouses']") do
+      Waybill.warehouses.each do |warehouse|
+        page.should have_selector("option[@value='#{warehouse.id}']")
+        page.should have_content("#{warehouse.tag}"+
+                                 "(#{I18n.t('views.waybills.warehouse.storekeeper')}: "+
+                                 "#{warehouse.storekeeper})")
+      end
     end
 
     page.should have_selector("span[@id='page-title']")
@@ -144,7 +157,7 @@ feature "waybill", %q{
         page.should have_content(
           "#{I18n.t('views.waybills.distributor_place')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content(
-          "#{I18n.t('views.waybills.storekeeper')} : #{I18n.t('errors.messages.blank')}")
+          "#{I18n.t('views.waybills.warehouse.name')} : #{I18n.t('errors.messages.blank')}")
       end
     end
 
@@ -174,24 +187,10 @@ feature "waybill", %q{
       items = Place.order(:tag).limit(6)
       check_autocomplete("distributor_place", items, :tag)
 
-      find("#storekeeper_place")[:disabled].should eq("true")
-
-      3.times do
-        user = create(:user)
-        create(:credential, user: user, document_type: Waybill.name)
-      end
-      3.times { create(:user) }
-      items = Credential.where(document_type: Waybill.name).all.collect { |c| c.user.entity }
-      check_autocomplete("storekeeper_entity", items, :tag, true)
-      fill_in('storekeeper_entity', :with => items[0].tag[0..1])
-      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
-                     "contains(@style, 'display: block')]") do
-        all(:xpath, ".//li//a")[0].click
-      end
-      find("#storekeeper_entity")[:value].should eq(items[0].tag)
-      find("#storekeeper_place")[:value].should eq(
-        User.where(entity_id: items[0].id).first.
-          credentials.where(document_type: Waybill.name).first.place.tag)
+      warehouse = Waybill.warehouses.first
+      select("#{warehouse.tag}(#{I18n.t('views.waybills.warehouse.storekeeper')}: "+
+             "#{warehouse.storekeeper})", from: "warehouses")
+      find("#warehouses")[:value].should eq(warehouse.id.to_s)
 
       page.should have_xpath("//table")
       page.should_not have_selector("table tbody tr")
@@ -258,7 +257,6 @@ feature "waybill", %q{
     lambda do
       page.find(:xpath, "//div[@class='actions']" +
                   "//input[@value='#{I18n.t('views.waybills.save')}']").click
-      #wait_until { Waybill.last != nil }
       wait_for_ajax
       wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
     end.should change(Waybill, :count).by(1)
@@ -274,7 +272,7 @@ feature "waybill", %q{
     Waybill.delete_all
     password = "password"
     user = create(:user, password: password)
-    create(:credential, user: user, document_type: Waybill.name)
+    credential = create(:credential, user: user, document_type: Waybill.name)
     page_login user.email, password
 
     page.find("#btn_create").click
@@ -297,11 +295,8 @@ feature "waybill", %q{
         all(:xpath, ".//li//a")[0].click
       end
 
-      find("#storekeeper_entity")[:value].should eq(user.entity.tag)
-      find("#storekeeper_place")[:value].should eq(
-        user.credentials(:force_update).where(document_type: Waybill.name).first.place.tag)
-      find("#storekeeper_entity")[:disabled].should eq("true")
-      find("#storekeeper_place")[:disabled].should eq("true")
+      find("#warehouses")[:value].should eq(credential.id.to_s)
+      find("#warehouses")[:disabled].should eq("true")
 
       page.find(:xpath, "//fieldset[@class='with-legend']//input[@value='#{
                           I18n.t('views.waybills.add')
@@ -462,7 +457,7 @@ feature "waybill", %q{
       fill_in('filter_resource_name', with: waybills[3].items[0].resource.tag)
       select(I18n.t('views.statable.inwork'), from: 'filter_state')
 
-      click_button_and_wait(I18n.t('views.home.search'))
+      click_button(I18n.t('views.home.search'))
     end
 
     should_present_waybill([waybills[3]])
@@ -501,7 +496,7 @@ feature "waybill", %q{
     prev_page("div[@class='paginate']")
 
     page.find(:xpath, "//table//tbody//td[contains(.//text(),"+
-        " '#{Waybill.first.document_id}')]").click
+        " '#{Waybill.first.document_id}')]").click_and_wait
     show_waybill(Waybill.first)
 
 
@@ -514,7 +509,7 @@ feature "waybill", %q{
 
     current_hash.should eq('waybills')
 
-    page.find("#table_view").click
+    page.find("#table_view").click_and_wait
     current_hash.should eq('waybills?view=table')
 
     titles = [I18n.t('views.waybills.created_at'),
@@ -545,7 +540,7 @@ feature "waybill", %q{
       fill_in('filter_resource_name', with: waybills[3].items[0].resource.tag)
       select(I18n.t('views.statable.inwork'), from: 'filter_state')
 
-      click_button(I18n.t('views.home.search'))
+      click_button_and_wait(I18n.t('views.home.search'))
     end
 
     should_present_waybill_with_resource([waybills[3]])
@@ -573,7 +568,7 @@ feature "waybill", %q{
       find('#filter_state')['value'].should eq('')
       find('#filter_resource_name')['value'].should eq('')
 
-      click_button(I18n.t('views.home.search'))
+      click_button_and_wait(I18n.t('views.home.search'))
     end
 
     should_present_waybill_with_resource(waybills)
@@ -604,7 +599,7 @@ feature "waybill", %q{
       wb.save!
     end
 
-    waybills = Waybill.by_storekeeper(user.entity).by_storekeeper_place(credential.place)
+    waybills = Waybill.by_warehouse(credential.place)
     waybills.count.should eq(3)
     waybills_not_visible = Waybill.where{id.not_in(waybills.select(:id))}
 
@@ -638,8 +633,7 @@ feature "waybill", %q{
       end
     end
 
-    waybills_table = WaybillReport.with_resources.select_all.by_storekeeper(user.entity).
-        by_storekeeper_place(credential.place)
+    waybills_table = WaybillReport.with_resources.select_all.by_warehouse(credential.place)
     waybills_table.count.should eq(3)
 
     page.find("#table_view").click_and_wait
@@ -664,23 +658,7 @@ feature "waybill", %q{
     page_login user.email, password
 
     page.find('#btn_slide_lists').click
-    page.find(:xpath, "//ul//li[@id='waybills']/a").click
-
-    current_hash.should eq('waybills')
-    page.should have_xpath("//ul//li[@id='waybills' and @class='sidebar-selected']")
-
-    within('#container_documents table') do
-      page.should_not have_selector("tbody tr")
-    end
-
-    page.find("#table_view").click_and_wait
-
-    current_hash.should eq('waybills?view=table')
-    page.should have_xpath("//ul//li[@id='waybills' and @class='sidebar-selected']")
-
-    within('#container_documents table') do
-      page.should_not have_selector("tbody tr")
-    end
+    page.should_not have_xpath("//ul//li[@id='waybills']")
 
     PaperTrail.enabled = false
   end

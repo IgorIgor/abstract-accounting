@@ -120,8 +120,7 @@ describe Warehouse do
                    (w.mu == 'rm') } .should_not be_empty
     Warehouse.count.should eq(wh.count)
 
-    wh = Warehouse.all(where: { storekeeper_id: { equal: ivanov.id },
-                                storekeeper_place_id: { equal: moscow.id }})
+    wh = Warehouse.all(where: { warehouse_id: { equal: moscow.id } })
     wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'roof') &&
         (w.real_amount == 143) && (w.exp_amount == 143) &&
         (w.mu == 'rm') } .should_not be_empty
@@ -137,12 +136,9 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
         (w.real_amount == 300) && (w.exp_amount == 300) &&
         (w.mu == 'kg') } .should be_empty
-    Warehouse.count(where: { storekeeper_id: { equal: ivanov.id },
-                             storekeeper_place_id: { equal: moscow.id }})
-      .should eq(wh.count)
+    Warehouse.count(where: { warehouse_id: { equal: moscow.id }}).should eq(wh.count)
 
-    wh = Warehouse.all(where: { storekeeper_id: { equal: petrov.id },
-                                storekeeper_place_id: { equal: minsk.id }})
+    wh = Warehouse.all(where: { warehouse_id: { equal: minsk.id }})
     wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'roof') &&
         (w.real_amount == 143) && (w.exp_amount == 143) &&
         (w.mu == 'rm') } .should be_empty
@@ -158,30 +154,7 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
         (w.real_amount == 300) && (w.exp_amount == 300) &&
         (w.mu == 'kg') } .should_not be_empty
-    Warehouse.count(where: { storekeeper_id: { equal: petrov.id },
-                             storekeeper_place_id: { equal: minsk.id }})
-      .should eq(wh.count)
-
-    wh = Warehouse.all(where: { storekeeper_id: { equal: petrov.id },
-                                storekeeper_place_id: { equal: moscow.id }})
-    wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'roof') &&
-        (w.real_amount == 143) && (w.exp_amount == 143) &&
-        (w.mu == 'rm') } .should be_empty
-    wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'nails') &&
-        (w.real_amount == 1390) && (w.exp_amount == 1390) &&
-        (w.mu == 'pcs') } .should be_empty
-    wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'nails') &&
-        (w.real_amount == 10) && (w.exp_amount == 10) &&
-        (w.mu == 'kg') } .should be_empty
-    wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'roof') &&
-        (w.real_amount == 500) && (w.exp_amount == 500) &&
-        (w.mu == 'rm') } .should be_empty
-    wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
-        (w.real_amount == 300) && (w.exp_amount == 300) &&
-        (w.mu == 'kg') } .should be_empty
-    Warehouse.count(where: { storekeeper_id: { equal: petrov.id },
-                             storekeeper_place_id: { equal: moscow.id }})
-      .should eq(wh.count)
+    Warehouse.count(where: { warehouse_id: { equal: minsk.id } }).should eq(wh.count)
 
     per_page = Warehouse.all.count - 1
     wh = Warehouse.all(page: 1, per_page: per_page)
@@ -294,8 +267,7 @@ describe Warehouse do
                              tag: { like: 'ai' },
                              mu: { like: 'k' }}).should eq(wh.count)
 
-    wh = Warehouse.all(where: { storekeeper_id: { equal: petrov.id },
-                                storekeeper_place_id: { equal: minsk.id }},
+    wh = Warehouse.all(where: { warehouse_id: { equal: minsk.id }},
                        without: [ Asset.find_by_tag_and_mu('nails', 'kg').id ])
     wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'roof') &&
         (w.real_amount == 143) && (w.exp_amount == 143) &&
@@ -312,13 +284,11 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
         (w.real_amount == 300) && (w.exp_amount == 300) &&
         (w.mu == 'kg') } .should be_empty
-    Warehouse.count(where: { storekeeper_id: { equal: petrov.id },
-                             storekeeper_place_id: { equal: minsk.id }},
+    Warehouse.count(where: { warehouse_id: { equal: minsk.id }},
                     without: [ Asset.find_by_tag_and_mu('nails', 'kg').id ])
       .should eq(wh.count)
 
-    wh = Warehouse.all(where: { storekeeper_id: { equal: petrov.id },
-                                storekeeper_place_id: { equal: minsk.id }},
+    wh = Warehouse.all(where: { warehouse_id: { equal: minsk.id }},
                        without: [ Asset.find_by_tag_and_mu('nails', 'kg').id,
                                   Asset.find_by_tag_and_mu('roof', 'rm').id ])
     wh.select{ |w| (w.place == 'Moscow') && (w.tag == 'roof') &&
@@ -336,8 +306,7 @@ describe Warehouse do
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'nails') &&
         (w.real_amount == 300) && (w.exp_amount == 300) &&
         (w.mu == 'kg') } .should be_empty
-    Warehouse.count(where: { storekeeper_id: { equal: petrov.id },
-                             storekeeper_place_id: { equal: minsk.id }},
+    Warehouse.count(where: { warehouse_id: { equal: minsk.id }},
                     without: [ Asset.find_by_tag_and_mu('nails', 'kg').id,
                                Asset.find_by_tag_and_mu('roof', 'rm').id ])
       .should eq(wh.count)
@@ -348,12 +317,10 @@ describe Warehouse do
     ds_minsk.add_item(tag: 'nails', mu: 'kg', amount: 85)
     ds_minsk.save!
 
-    Warehouse.all(where: { storekeeper_id: { equal: petrov.id },
-                           storekeeper_place_id: { equal: minsk.id },
+    Warehouse.all(where: { warehouse_id: { equal: minsk.id },
                            'assets.id' => { equal_attr: Asset.find_by_tag_and_mu('nails', 'kg').id } })
              .first.exp_amount.to_i.should eq(215)
-    Warehouse.all(where: { storekeeper_id: { equal: petrov.id },
-                           storekeeper_place_id: { equal: minsk.id },
+    Warehouse.all(where: { warehouse_id: { equal: minsk.id },
                            'assets.id' => { equal_attr: Asset.find_by_tag_and_mu('roof', 'rm').id } })
              .first.exp_amount.to_i.should eq(300)
     wb.items.first.exp_amount.should eq(300)

@@ -9,31 +9,17 @@
 
 object true
 child(@allocation => :allocation) do
-  attributes :created, :state
-  node(:storekeeper_id) do |allocation|
-    allocation.storekeeper.nil? ? nil : allocation.storekeeper.id
-  end
-  node(:storekeeper_place_id) do |allocation|
-    allocation.storekeeper_place.nil? ? nil : allocation.storekeeper_place.id
-  end
-  node(:foreman_id) do |allocation|
-    allocation.foreman.nil? ? nil : allocation.foreman.id
-  end
-  node(:foreman_place_id) do |allocation|
-    allocation.foreman_place.nil? ? nil : allocation.foreman_place.id
-  end
+  attributes :created, :state, :warehouse_id
+  node(:foreman_id) { nil }
+  node(:foreman_place_id) { |all| all.foreman_place_or_new.id }
 end
-node(:can_apply) do
-  @allocation.state == Statable::INWORK
-end
-node(:can_cancel) do
-  @allocation.state == Statable::APPLIED || @allocation.state == Statable::INWORK
-end
+node(:can_apply) { @allocation.can_apply? }
+node(:can_cancel) { @allocation.can_cancel? }
 child(Entity.new => :foreman) { attributes :tag }
-storekeeper = @allocation.storekeeper
-child(storekeeper ? storekeeper : Entity.new => :storekeeper) { attributes :tag }
-place = @allocation.storekeeper_place
-child((place ? place : Place.new) => :storekeeper_place) { attributes :tag }
-child((place ? place : Place.new) => :foreman_place) { attributes :tag }
+child(@allocation.foreman_place_or_new => :foreman_place) { attributes :tag }
 child([] => :items)
+child(Allocation.warehouses => :warehouses) do
+  attributes :id, :tag, :storekeeper, :place_id
+end
+
 

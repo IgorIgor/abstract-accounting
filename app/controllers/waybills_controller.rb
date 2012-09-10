@@ -8,6 +8,7 @@
 # Please see ./COPYING for details
 
 class WaybillsController < ApplicationController
+  authorize_resource class: Waybill.name
   layout 'comments'
 
   def index
@@ -20,22 +21,16 @@ class WaybillsController < ApplicationController
 
   def new
     @waybill = Waybill.new
-    unless current_user.root?
-      credential = current_user.credentials.where(document_type: Waybill.name).first
-      if credential
-        @waybill.storekeeper = current_user.entity
-        @waybill.storekeeper_place = credential.place
-      end
-    end
   end
 
   def create
     waybill = nil
     begin
       Waybill.transaction do
-        params[:waybill][:distributor_type] = "LegalEntity"
-        params[:waybill][:storekeeper_type] = "Entity"
+        params[:waybill][:distributor_type] = LegalEntity.name
         params[:waybill].delete(:state) if params[:waybill].has_key?(:state)
+        params[:waybill].merge!(Waybill.extract_warehouse(params[:waybill][:warehouse_id]))
+        params[:waybill].delete(:warehouse_id)
         waybill = Waybill.new(params[:waybill])
         unless waybill.distributor
           country = Country.find_or_create_by_tag(:tag => "Russian Federation")
@@ -52,16 +47,6 @@ class WaybillsController < ApplicationController
           distributor_place = Place.find_or_create_by_tag(params[:distributor_place])
           distributor_place.save!
           waybill.distributor_place = distributor_place
-        end
-        unless waybill.storekeeper
-          storekeeper = Entity.find_or_create_by_tag(params[:storekeeper])
-          storekeeper.save!
-          waybill.storekeeper = storekeeper
-        end
-        unless waybill.storekeeper_place
-          storekeeper_place = Place.find_or_create_by_tag(params[:storekeeper_place])
-          storekeeper_place.save!
-          waybill.storekeeper_place = storekeeper_place
         end
         params[:items].each_value { |item| waybill.add_item(item) } if params[:items]
         waybill.save!
@@ -88,6 +73,18 @@ class WaybillsController < ApplicationController
         end
       end
     end
+    unless current_user.root?
+      credential = current_user.credentials(:force_update).
+          where{document_type == Waybill.name}.first
+      if credential
+        attrs[:where] = {} unless attrs.has_key?(:where)
+        attrs[:where][:warehouse_id] = { equal: credential.place_id }
+      else
+        @waybills = []
+        render :data
+        return
+      end
+    end
 
     attrs[:without_waybills] =
       params[:without] if params.has_key?(:without)
@@ -103,15 +100,21 @@ class WaybillsController < ApplicationController
         Settings.root.per_page.to_i : params[:per_page].to_i
 
     scope = autorize_warehouse(Waybill)
-    scope = scope.search(params[:search]) if params[:search]
-    @count = scope.count
-    @count = @count.length unless @count.instance_of? Fixnum
-    @total = scope.total
-    scope = scope.order_by(params[:order]) if params[:order]
-    @waybills = scope.limit(per_page).offset((page - 1) * per_page).
-      includes(deal: [:entity, terms: [:resource, :place],
-               rules: [from: [:entity, terms: [:resource, :place]],
-                       to: [:entity, terms: [:resource, :place]]]])
+    if scope
+      scope = scope.search(params[:search]) if params[:search]
+      @count = scope.count
+      @count = @count.length unless @count.instance_of? Fixnum
+      @total = scope.total
+      scope = scope.order_by(params[:order]) if params[:order]
+      @waybills = scope.limit(per_page).offset((page - 1) * per_page).
+        includes(deal: [:entity, terms: [:resource, :place],
+                 rules: [from: [:entity, terms: [:resource, :place]],
+                         to: [:entity, terms: [:resource, :place]]]])
+    else
+      @count = 0
+      @total = 0.0
+      @waybills = []
+    end
   end
 
   def list
@@ -122,18 +125,25 @@ class WaybillsController < ApplicationController
         per_page = params[:per_page].nil? ?
             Settings.root.per_page.to_i : params[:per_page].to_i
 
-        scope = autorize_warehouse(WaybillReport, alias: Waybill).with_resources
-        scope = scope.search(params[:search]) if params[:search]
-        @count = scope.count
-        unless @count.instance_of? Fixnum
-          @count = @count.values[0]
+        scope = autorize_warehouse(WaybillReport, alias: Waybill)
+        if scope
+          scope = scope.with_resources
+          scope = scope.search(params[:search]) if params[:search]
+          @count = scope.count
+          unless @count.instance_of? Fixnum
+            @count = @count.values[0]
+          end
+          @total = scope.total
+          scope = scope.order_by(params[:order]) if params[:order]
+          @list = scope.limit(per_page).offset((page - 1) * per_page).select_all.
+              includes(deal: [:entity, terms: [:resource, :place],
+                       rules: [from: [:entity, terms: [:resource, :place]],
+                               to: [:entity, terms: [:resource, :place]]]])
+        else
+          @count = 0
+          @total = 0.0
+          @list = []
         end
-        @total = scope.total
-        scope = scope.order_by(params[:order]) if params[:order]
-        @list = scope.limit(per_page).offset((page - 1) * per_page).select_all.
-            includes(deal: [:entity, terms: [:resource, :place],
-                     rules: [from: [:entity, terms: [:resource, :place]],
-                             to: [:entity, terms: [:resource, :place]]]])
       end
     end
   end

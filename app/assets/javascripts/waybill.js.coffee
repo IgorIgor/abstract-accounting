@@ -1,7 +1,7 @@
 $ ->
   class self.WaybillViewModel extends StatableViewModel
     constructor: (object, readonly = false) ->
-      @disable_storekeeper = if object.waybill.storekeeper_id then true else false
+      @disable_warehouse = object.waybill.warehouse_id?
       super(object, 'waybills', readonly)
       for item in @object.items()
         item.sum = ko.observable((item.amount() * item.price()).toFixed(2))

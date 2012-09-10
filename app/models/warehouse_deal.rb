@@ -63,6 +63,25 @@ module WarehouseDeal
             (self.deal.nil? ? nil : self.deal.send(opts[:methods][:place]).place)
       end
     end
+
+    def warehouses
+      Credential.class_eval do
+        def tag
+          self.place.tag
+        end
+        def storekeeper
+          self.user.entity.tag
+        end
+      end
+      Credential.find_all_by_document_type(self.name)
+    end
+
+    def extract_warehouse(warehouse_id)
+      c = Credential.find(warehouse_id)
+      { storekeeper_place_id: c.place_id,
+        storekeeper_id: c.user.entity_id,
+        storekeeper_type: Entity.name }
+    end
   end
 
   def initialize_warehouse_attrs(attrs = nil)
@@ -107,6 +126,28 @@ module WarehouseDeal
       end
     end
     @items
+  end
+
+  def warehouse_id
+    klass = self.class.name
+    if self.storekeeper
+      storekeeper_id = self.storekeeper.id
+      storekeeper_place_id = self.storekeeper_place.id
+      c = Credential.
+            where{(place_id == my{storekeeper_place_id}) & (document_type == my{klass})}.
+            where{user_id.in(User.where{entity_id == my{storekeeper_id}}.pluck(:id))}.first
+      c ? c.id : nil
+    elsif PaperTrail.whodunnit
+      user = PaperTrail.whodunnit
+      if user.root?
+        nil
+      else
+        c = Credential.where{(user_id == my{user.id}) & (document_type == my{klass})}.first
+        c ? c.id : nil
+      end
+    else
+      nil
+    end
   end
 
   def before_warehouse_deal_save

@@ -646,9 +646,7 @@ describe Waybill do
     Waybill.in_warehouse.include?(wb2).should be_true
     Waybill.in_warehouse.include?(wb3).should be_true
 
-    wbs = Waybill.in_warehouse(where:
-                                { storekeeper_id: { equal: petrov.id },
-                                  storekeeper_place_id: { equal: minsk.id }})
+    wbs = Waybill.in_warehouse(where: { warehouse_id: { equal: minsk.id } })
     wbs.include?(wb1).should be_false
     wbs.include?(wb2).should be_false
     wbs.include?(wb3).should be_true
@@ -659,9 +657,7 @@ describe Waybill do
     ds_minsk.add_item(tag: 'nails', mu: 'kg', amount: 100)
     ds_minsk.save!
 
-    wbs = Waybill.in_warehouse(where:
-                                { storekeeper_id: { equal: petrov.id },
-                                  storekeeper_place_id: { equal: minsk.id }})
+    wbs = Waybill.in_warehouse(where: { warehouse_id: { equal: minsk.id } })
     wbs.include?(wb1).should be_false
     wbs.include?(wb2).should be_false
     wbs.include?(wb3).should be_false
@@ -682,11 +678,12 @@ describe Waybill do
     Waybill.in_warehouse.include?(wb4).should be_false
   end
 
-  it "should filter by storekeeper" do
+  it "should filter by warehouse" do
     moscow = create(:place)
     minsk = create(:place)
     ivanov = create(:entity)
     petrov = create(:entity)
+    sidorov = create(:entity)
 
     wb1 = build(:waybill, storekeeper: ivanov,
                                   storekeeper_place: moscow)
@@ -701,35 +698,11 @@ describe Waybill do
     wb2.add_item(tag: 'roof', mu: 'rm', amount: 50, price: 100.0)
     wb2.save!
 
-    wb3 = build(:waybill, storekeeper: petrov,
-                                  storekeeper_place: minsk)
-    wb3.add_item(tag: 'roof', mu: 'rm', amount: 500, price: 120.0)
-    wb3.add_item(tag: 'nails', mu: 'kg', amount: 300, price: 150.0)
-    wb3.save!
-
-    Waybill.by_storekeeper(ivanov).should =~ [wb1, wb2]
-    Waybill.by_storekeeper(petrov).should =~ [wb3]
-    Waybill.by_storekeeper(create(:entity)).all.should be_empty
-  end
-
-  it "should filter by storekeeper place" do
-    moscow = create(:place)
-    minsk = create(:place)
-    ivanov = create(:entity)
-    petrov = create(:entity)
-
-    wb1 = build(:waybill, storekeeper: ivanov,
+    wb4 = build(:waybill, storekeeper: sidorov,
                                   storekeeper_place: moscow)
-    wb1.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
-    wb1.add_item(tag: 'nails', mu: 'pcs', amount: 700, price: 1.0)
-    wb1.save!
-
-    wb2 = build(:waybill, storekeeper: ivanov,
-                                  storekeeper_place: moscow)
-    wb2.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1.0)
-    wb2.add_item(tag: 'nails', mu: 'kg', amount: 10, price: 150.0)
-    wb2.add_item(tag: 'roof', mu: 'rm', amount: 50, price: 100.0)
-    wb2.save!
+    wb4.add_item(tag: 'roof', mu: 'rm', amount: 500, price: 120.0)
+    wb4.add_item(tag: 'nails', mu: 'kg', amount: 300, price: 150.0)
+    wb4.save!
 
     wb3 = build(:waybill, storekeeper: petrov,
                                   storekeeper_place: minsk)
@@ -737,9 +710,9 @@ describe Waybill do
     wb3.add_item(tag: 'nails', mu: 'kg', amount: 300, price: 150.0)
     wb3.save!
 
-    Waybill.by_storekeeper_place(moscow).should =~ [wb1, wb2]
-    Waybill.by_storekeeper_place(minsk).should =~ [wb3]
-    Waybill.by_storekeeper_place(create(:place)).all.should be_empty
+    Waybill.by_warehouse(moscow).should =~ [wb1, wb2, wb4]
+    Waybill.by_warehouse(minsk).should =~ [wb3]
+    Waybill.by_warehouse(create(:place)).all.should be_empty
   end
 
   it 'should sort waybills' do
@@ -876,6 +849,37 @@ describe Waybill do
     Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb2).should be_true
     Waybill.search({ 'state' => Waybill::REVERSED }).include?(wb).should be_true
     Waybill.search({ 'state' => Waybill::REVERSED }).include?(wb2).should be_false
+  end
+
+  it "should return all warehouses" do
+    5.times { create(:credential, document_type: Waybill.name) }
+    5.times { create(:credential) }
+    Waybill.warehouses.should =~ Credential.find_all_by_document_type(Waybill.name)
+
+    Waybill.warehouses.each do |w|
+      w.tag.should eq(Credential.find(w.id).place.tag)
+      w.storekeeper.should eq(Credential.find(w.id).user.entity.tag)
+    end
+  end
+
+  it "should convert warehouse_id in params" do
+    warehouse_id = Credential.find_all_by_document_type(Waybill.name).first.id
+    c = Credential.find(warehouse_id)
+    Waybill.extract_warehouse(warehouse_id).should eq({ storekeeper_place_id: c.place_id,
+                                                         storekeeper_id: c.user.entity_id,
+                                                         storekeeper_type: Entity.name })
+  end
+
+  it "should return warehouse_id" do
+    w = Waybill.first
+    u = create(:user, entity: w.storekeeper)
+    c = create(:credential, user: u, place: w.storekeeper_place, document_type: Waybill.name)
+    w.warehouse_id.should eq(c.id)
+    Waybill.new.warehouse_id.should eq(nil)
+    PaperTrail.whodunnit = u
+    Waybill.new.warehouse_id.should eq(c.id)
+    PaperTrail.whodunnit = RootUser.new
+    Waybill.new.warehouse_id.should eq(nil)
   end
 end
 

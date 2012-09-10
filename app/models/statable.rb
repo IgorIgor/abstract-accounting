@@ -86,4 +86,12 @@ module Statable
     end
     false
   end
+
+  def can_apply?
+    self.state == INWORK
+  end
+
+  def can_cancel?
+    self.state == APPLIED || self.state == INWORK
+  end
 end

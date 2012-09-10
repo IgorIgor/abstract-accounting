@@ -29,6 +29,10 @@ ru:
       page_title_show: "Просмотр накладной"
       ident_name_MSRN: "ОГРН"
       ident_name_VATIN: "ИНН"
+      warehouse:
+        name: Склад
+        select: Выберите склад ...
+        storekeeper: Кладовщик
       resource:
         name: Название ресурса
         tag: Название

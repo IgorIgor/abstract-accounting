@@ -11,23 +11,17 @@ object true
 node(:id) { @allocation.id }
 node(:type) { @allocation.class.name }
 child(@allocation => :allocation) do
+  attributes :id, :state, :warehouse_id
   node(:created) { |allocation| allocation.created.strftime("%m/%d/%Y") }
-  attributes :id, :state, :foreman_id, :foreman_place_id
-  node(:storekeeper_id) do |waybill|
-    waybill.storekeeper.nil? ? nil : waybill.storekeeper.id
+  glue @allocation.foreman do
+    attributes :id => :foreman_id
   end
-  node(:storekeeper_place_id) do |waybill|
-    waybill.storekeeper_place.nil? ? nil : waybill.storekeeper_place.id
+  glue @allocation.foreman_place do
+    attributes :id => :foreman_place_id
   end
 end
-node(:can_apply) do
-  @allocation.state == Statable::INWORK
-end
-node(:can_cancel) do
-  @allocation.state == Statable::APPLIED || @allocation.state == Statable::INWORK
-end
-child(@allocation.storekeeper => :storekeeper) { attributes :tag }
-child(@allocation.storekeeper_place => :storekeeper_place) { attributes :tag }
+node(:can_apply) { @allocation.can_apply? }
+node(:can_cancel) { @allocation.can_cancel? }
 child(@allocation.foreman => :foreman) { attributes :tag }
 child(@allocation.foreman_place => :foreman_place) { attributes :tag }
 child(@allocation.items => :items) do
@@ -35,4 +29,7 @@ child(@allocation.items => :items) do
   glue :resource do
     attributes :mu, :tag
   end
+end
+child(Allocation.warehouses => :warehouses) do
+  attributes :id, :tag, :storekeeper, :place_id
 end

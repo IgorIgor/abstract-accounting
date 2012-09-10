@@ -30,6 +30,11 @@ en:
       storekeeper: Storekeeper
       other_storekeeper: Receive storekeeper
       storekeeper_place: Place
+      warehouse:
+        name: Warehouse
+        remote: Remote warehouse
+        select: Select warehouse ...
+        storekeeper: Storekeeper
       motion:
         name: Motion
         warehouse: to other warehouse

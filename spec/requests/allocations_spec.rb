@@ -21,15 +21,13 @@ def show_allocation(allocation)
 
   within("#container_documents form") do
     find("#created")[:value].should eq(allocation.created.strftime("%d.%m.%Y"))
-    find("#storekeeper_entity")[:value].should eq(allocation.storekeeper.tag)
-    find("#storekeeper_place")[:value].should eq(allocation.storekeeper_place.tag)
+    find("#warehouses")[:value].should eq(allocation.warehouse_id.to_s)
     find("#foreman_entity")[:value].should eq(allocation.foreman.tag)
     find("#foreman_place")[:value].should eq(allocation.foreman_place.tag)
     find("#state")[:value].should eq(I18n.t('views.statable.inwork'))
 
     find("#created")[:disabled].should be_true
-    find("#storekeeper_entity")[:disabled].should be_true
-    find("#storekeeper_place")[:disabled].should be_true
+    find("#warehouses")[:disabled].should be_true
     find("#foreman_entity")[:disabled].should be_true
     find("#foreman_place")[:disabled].should be_true
     find("#state")[:disabled].should be_true
@@ -96,12 +94,15 @@ feature 'allocation', %q{
     per_page = Settings.root.per_page
     user = create(:user)
     credential = create(:credential, user: user, document_type: Allocation.name)
+    create(:credential, user: user, place: credential.place, document_type: Waybill.name)
     wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place)
     (per_page + 1).times do |i|
       wb.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 100+i, price: 10+i)
     end
     wb.save!
     wb.apply
+
+    3.times { create(:credential, document_type: Allocation.name) }
 
     page_login
 
@@ -121,70 +122,63 @@ feature 'allocation', %q{
       page.should have_content("#{I18n.t('views.allocations.page_title_new')}")
     end
 
+    within("select[@id='warehouses']") do
+      Allocation.warehouses.each do |warehouse|
+        page.should have_selector("option[@value='#{warehouse.id}']")
+        page.should have_content("#{warehouse.tag}"+
+                                 "(#{I18n.t('views.allocations.warehouse.storekeeper')}: "+
+                                 "#{warehouse.storekeeper})")
+      end
+    end
+
     page.should have_datepicker("created")
     page.datepicker("created").prev_month.day(10)
 
     within("#container_documents form") do
       page.should have_no_selector('#available-resources tbody tr')
 
-      find('#storekeeper_place')[:disabled].should eq("true")
       find('#foreman_place')[:disabled].should eq("true")
-      fill_in('storekeeper_entity', with: 'fail')
-      page.has_css?("#storekeeper_entity", value: '').should be_true
-      page.should have_no_selector('#available-resources tbody tr')
-
-      fill_in('storekeeper_entity', with: 'fail')
-      page.has_css?("#storekeeper_place", value: '').should be_true
       page.has_css?("#foreman_place", value: '').should be_true
       page.should have_no_selector('#available-resources tbody tr')
 
-      3.times do
-        user = create(:user)
-        create(:credential, user: user, document_type: Allocation.name)
-      end
-      3.times { create(:user) }
-      items = Credential.where(document_type: Allocation.name).
-          all.collect { |c| c.user.entity }
-      check_autocomplete("storekeeper_entity", items, :tag, true)
-      fill_in_autocomplete('storekeeper_entity', items[0].tag)
-      find("#storekeeper_entity")[:value].should eq(items[0].tag)
-      find("#storekeeper_place")[:value].should eq(
-        User.where(entity_id: items[0].id).first.
-          credentials.where(document_type: Allocation.name).first.place.tag)
-      find("#foreman_place")[:value].should eq(
-        User.where(entity_id: items[0].id).first.
-          credentials.where(document_type: Allocation.name).first.place.tag)
+      select("#{credential.place.tag}(#{I18n.t('views.allocations.warehouse.storekeeper')}: "+
+             "#{credential.user.entity.tag})", from: "warehouses")
+      find("#warehouses")[:value].should eq(credential.id.to_s)
+      find("#foreman_place")[:value].should eq(credential.place.tag)
 
       page.should have_selector("#motion-allocation")
       find('#motion-warehouse').click
-      find("#foreman_place")[:value].should eq('')
-      find("#foreman_entity")[:value].should eq('')
-      check_autocomplete("foreman_entity", items, :tag, true)
-      fill_in_autocomplete('foreman_entity', items[2].tag)
-      find("#foreman_place")[:value].should eq(
-        User.where(entity_id: items[2].id).first.
-          credentials.where(document_type: Allocation.name).first.place.tag)
+      within("select[@id='remote_warehouses']") do
+        Allocation.warehouses.each do |warehouse|
+          if warehouse.id != credential.id
+            page.should have_selector("option[@value='#{warehouse.id}']")
+            page.should have_content("#{warehouse.tag}"+
+                                     "(#{I18n.t('views.allocations.warehouse.storekeeper')}: "+
+                                     "#{warehouse.storekeeper})")
+          else
+            page.should_not have_selector("option[@value='#{warehouse.id}']")
+            page.should_not have_content("#{warehouse.tag}"+
+                                     "(#{I18n.t('views.allocations.warehouse.storekeeper')}: "+
+                                     "#{warehouse.storekeeper})")
+
+          end
+        end
+      end
       find('#motion-allocation').click
       find("#foreman_entity")[:value].should eq('')
-      find("#foreman_place")[:value].should eq(
-        User.where(entity_id: items[0].id).first.
-          credentials.where(document_type: Allocation.name).first.place.tag)
+      find("#foreman_place")[:value].should eq(credential.place.tag)
 
       items = Entity.all(order: :tag, limit: 5)
       check_autocomplete("foreman_entity", items, :tag)
     end
 
-    unless page.find("#storekeeper_entity").value == wb.storekeeper.tag
-      fill_in_autocomplete('storekeeper_entity', wb.storekeeper.tag)
-    end
+    find("#warehouses")[:value].should eq(credential.id.to_s)
 
     wh = Warehouse.
         all(per_page: per_page, page: 1,
-            where: { storekeeper_id: { equal: wb.storekeeper.id },
-                     storekeeper_place_id: { equal: wb.storekeeper_place.id }})
+            where: { warehouse_id: { equal: wb.storekeeper_place.id }})
     count = Warehouse.
-        count(where: { storekeeper_id: { equal: wb.storekeeper.id },
-                       storekeeper_place_id: { equal: wb.storekeeper_place.id }})
+        count(where: { warehouse_id: { equal: wb.storekeeper_place.id }})
 
     check_content("#available-resources", wh) do |w|
       [w.tag, w.mu, w.real_amount.to_i]
@@ -192,19 +186,14 @@ feature 'allocation', %q{
 
     wh_tag = Warehouse.
         all(per_page: per_page, page: 1,
-            where: { storekeeper_id: { equal: wb.storekeeper.id },
-                     storekeeper_place_id: { equal: wb.storekeeper_place.id }},
-            where: { tag: { like: '1'}})
+            where: { warehouse_id: { equal: wb.storekeeper_place.id }, tag: { like: '1'}})
     wh_mu = Warehouse.
         all(per_page: per_page, page: 1,
-            where: { storekeeper_id: { equal: wb.storekeeper.id },
-                     storekeeper_place_id: { equal: wb.storekeeper_place.id }},
-            where: { mu: { like: '1'}})
+            where: { warehouse_id: { equal: wb.storekeeper_place.id }, mu: { like: '1'}})
     wh_exp_amount = Warehouse.
         all(per_page: per_page, page: 1,
-            where: { storekeeper_id: { equal: wb.storekeeper.id },
-                     storekeeper_place_id: { equal: wb.storekeeper_place.id }},
-            where: { exp_amount: { like: '2'}})
+            where: { warehouse_id: { equal: wb.storekeeper_place.id },
+                     exp_amount: { like: '2'}})
 
     page.find('#search_available_resources').click_and_wait
     page.should have_selector("table[@id='available-resources'] thead tr[@id='resource_filter']")
@@ -215,7 +204,7 @@ feature 'allocation', %q{
       end
       page.find('#filtrate').click_and_wait
 
-      sleep(5)
+      wait_for_ajax
       elements = page.all('tbody tr')
       elements.count.should eq(wh_tag.count)
       within "tbody" do
@@ -230,6 +219,7 @@ feature 'allocation', %q{
       end
       page.find('#filtrate').click_and_wait
 
+      wait_for_ajax
       elements = page.all('tbody tr')
       elements.count.should eq(wh_mu.count)
       within "tbody" do
@@ -244,6 +234,7 @@ feature 'allocation', %q{
       end
       page.find('#filtrate').click_and_wait
 
+      wait_for_ajax
       elements = page.all('tbody tr')
       elements.count.should eq(wh_exp_amount.count)
       within "tbody" do
@@ -264,8 +255,7 @@ feature 'allocation', %q{
 
     wh = Warehouse.
         all(per_page: per_page, page: 2,
-            where: { storekeeper_id: { equal: wb.storekeeper.id },
-                     storekeeper_place_id: { equal: wb.storekeeper_place.id }})
+            where: { warehouse_id: { equal: wb.storekeeper_place.id }})
 
     check_content("#available-resources", wh) do |w|
       [w.tag, w.mu, w.real_amount.to_i]
@@ -283,9 +273,9 @@ feature 'allocation', %q{
             click_and_wait
         if i < count - 1
           if i < count - per_page
-            page.should have_selector('#available-resources tbody tr', count: per_page)
+            all("#available-resources tbody tr").count.should eq(per_page)
           else
-            page.should have_selector('#available-resources tbody tr', count: count-i-1)
+            all("#available-resources tbody tr").count.should eq(count-i-1)
           end
         else
           page.should_not have_selector('#available-resources tbody tr')
@@ -306,8 +296,7 @@ feature 'allocation', %q{
     wb2.apply
 
     wbs = Waybill.
-        in_warehouse(where: { storekeeper_id: { equal: wb.storekeeper.id },
-                              storekeeper_place_id: { equal: wb.storekeeper_place.id }})
+        in_warehouse(where: { warehouse_id: { equal: wb.storekeeper_place.id }})
 
     page.find('#mode-waybills').click_and_wait
 
@@ -361,8 +350,7 @@ feature 'allocation', %q{
     wb3.apply.should be_true
 
     wbs = Waybill.
-        in_warehouse(where: { storekeeper_id: { equal: wb.storekeeper.id },
-                              storekeeper_place_id: { equal: wb.storekeeper_place.id }})
+        in_warehouse(where: { warehouse_id: { equal: wb.storekeeper_place.id }})
 
     page.find('#mode-waybills').click_and_wait
     page.should have_no_selector('#available-resources')
@@ -434,17 +422,16 @@ feature 'allocation', %q{
     page.find("a[@href='#documents/allocations/new']").click_and_wait
     current_hash.should eq('documents/allocations/new')
 
-    fill_in_autocomplete('storekeeper_entity', wb.storekeeper.tag)
+    select("#{credential.place.tag}(#{I18n.t('views.allocations.warehouse.storekeeper')}: "+
+           "#{credential.user.entity.tag})", from: "warehouses")
 
     within('#available-resources') do
       test_order = lambda do |field, type|
         warehouses = Warehouse.
-            all(where: { storekeeper_id: { equal: wb.storekeeper.id },
-                         storekeeper_place_id: { equal: wb.storekeeper_place.id }},
+            all(where: { warehouse_id: { equal: wb.storekeeper_place.id }},
                 order_by: { field: field, type: type })
         count = Warehouse.
-                count(where: { storekeeper_id: { equal: wb.storekeeper.id },
-                               storekeeper_place_id: { equal: wb.storekeeper_place.id }})
+                count(where: { warehouse_id: { equal: wb.storekeeper_place.id }})
         within('thead tr') do
           page.find("##{field}").click_and_wait
           if type == 'asc'
@@ -500,7 +487,7 @@ feature 'allocation', %q{
         page.should have_content(
           "#{I18n.t('views.allocations.created_at')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content(
-          "#{I18n.t('views.allocations.storekeeper')} : #{I18n.t('errors.messages.blank')}")
+          "#{I18n.t('views.allocations.warehouse.name')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content(
           "#{I18n.t('views.allocations.foreman')} : #{I18n.t('errors.messages.blank')}")
       end
@@ -509,7 +496,8 @@ feature 'allocation', %q{
     page.datepicker("created").prev_month.day(10)
 
     within("#container_documents form") do
-      fill_in_autocomplete('storekeeper_entity', wb.storekeeper.tag)
+      select("#{credential.place.tag}(#{I18n.t('views.allocations.warehouse.storekeeper')}: "+
+             "#{credential.user.entity.tag})", from: "warehouses")
       fill_in("foreman_entity", :with =>"entity")
     end
 
@@ -555,19 +543,20 @@ feature 'allocation', %q{
     PaperTrail.enabled = false
   end
 
-  scenario 'save distibution by non root user', js: true do
+  scenario 'save allocation by non root user', js: true do
     PaperTrail.enabled = true
 
-    wb = build(:waybill, created: DateTime.current.change(year: 2011))
+    password = "password"
+    user = create(:user, password: password)
+    credential = create(:credential, user: user, document_type: Allocation.name)
+    create(:credential, user: user, place: credential.place, document_type: Waybill.name)
+
+    wb = build(:waybill, storekeeper: user.entity,
+                         storekeeper_place: credential.place)
     wb.add_item(tag: 'roof', mu: 'm2', amount: 12, price: 100.0)
     wb.add_item(tag: 'roof2', mu: 'm2', amount: 12, price: 100.0)
     wb.save!
     wb.apply
-
-    password = "password"
-    user = create(:user, password: password, entity: wb.storekeeper)
-    create(:credential, place: wb.storekeeper_place, user: user,
-                        document_type: Allocation.name)
 
     page_login user.email, password
 
@@ -576,16 +565,15 @@ feature 'allocation', %q{
 
     within("#container_documents form") do
       page.datepicker("created").prev_month.day(10)
-      find("#storekeeper_entity")[:value].should eq(user.entity.tag)
-      find("#storekeeper_place")[:value].should eq(wb.storekeeper_place.tag)
+      find("#warehouses")[:value].should eq(credential.id.to_s)
       find("#foreman_place")[:value].should eq(wb.storekeeper_place.tag)
-      find("#storekeeper_entity")[:disabled].should eq("true")
-      find("#storekeeper_place")[:disabled].should eq("true")
+      find("#warehouses")[:disabled].should eq("true")
       find("#foreman_place")[:disabled].should eq("true")
       fill_in("foreman_entity", :with =>"entity")
     end
 
     within("#container_documents") do
+      wait_until { all("#available-resources tbody tr").count == 2 }
       page.find("#available-resources tbody tr td[@class='allocation-actions'] span").
           click_and_wait
       page.find("#available-resources tbody tr td[@class='allocation-actions'] span").
@@ -616,6 +604,10 @@ feature 'allocation', %q{
       ds.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 10+i)
     end
     ds.save!
+    user = create(:user, entity: wb.storekeeper)
+    create(:credential, user: user, place: wb.storekeeper_place,
+           document_type: Allocation.name)
+    create(:credential, user: user, place: wb.storekeeper_place, document_type: Waybill.name)
 
     page_login
 
@@ -643,7 +635,7 @@ feature 'allocation', %q{
 
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Allocation - #{wb.storekeeper.tag}')]").click_and_wait
-    click_button(I18n.t('views.allocations.apply'))
+    click_button_and_wait(I18n.t('views.allocations.apply'))
     wait_until_hash_changed_to "documents/allocations/#{ds.id}"
     wait_until do
       !page.has_xpath?("//div[@class='actions']//input[@value='#{I18n.t(
@@ -758,6 +750,12 @@ feature 'allocation', %q{
                  storekeeper_place: wb.storekeeper_place)
       ds.add_item(tag: "test resource##{i}", mu: "test mu", amount: 10)
       ds.save!
+
+      user = create(:user, entity: wb.storekeeper)
+      create(:credential, user: user, place: wb.storekeeper_place,
+             document_type: Allocation.name)
+      create(:credential, user: user, place: wb.storekeeper_place,
+             document_type: Waybill.name)
     end
 
     allocations = Allocation.limit(per_page)
@@ -889,6 +887,7 @@ feature 'allocation', %q{
     password = "password"
     user = create(:user, password: password)
     credential = create(:credential, user: user, document_type: Allocation.name)
+    create(:credential, user: user, place: credential.place, document_type: Waybill.name)
     page_login user.email, password
 
     12.times do |i|
@@ -904,8 +903,7 @@ feature 'allocation', %q{
       ds.save!
     end
 
-    allocations = Allocation.by_storekeeper(user.entity).
-                             by_storekeeper_place(credential.place)
+    allocations = Allocation.by_warehouse(credential.place)
     allocations.count.should eq(3)
     allocations_not_visible = Allocation.where{id.not_in(allocations.select(:id))}
 
@@ -938,8 +936,8 @@ feature 'allocation', %q{
       end
     end
 
-    allocations_table = AllocationReport.with_resources.select_all.by_storekeeper(user.entity).
-        by_storekeeper_place(credential.place)
+    allocations_table = AllocationReport.with_resources.select_all.
+        by_warehouse(credential.place)
     allocations_table.count.should eq(3)
 
     page.find("#table_view").click_and_wait
@@ -963,23 +961,7 @@ feature 'allocation', %q{
     page_login user.email, password
 
     page.find('#btn_slide_lists').click
-    page.find(:xpath, "//ul//li[@id='allocations']/a").click_and_wait
-
-    current_hash.should eq('allocations')
-    page.should have_xpath("//ul//li[@id='allocations' and @class='sidebar-selected']")
-
-    within('#container_documents table') do
-      page.should_not have_selector("tbody tr")
-    end
-
-    page.find("#table_view").click_and_wait
-
-    current_hash.should eq('allocations?view=table')
-    page.should have_xpath("//ul//li[@id='allocations' and @class='sidebar-selected']")
-
-    within('#container_documents table') do
-      page.should_not have_selector("tbody tr")
-    end
+    page.should_not have_xpath("//ul//li[@id='allocations']")
 
     PaperTrail.enabled = false
   end
@@ -1191,6 +1173,7 @@ feature 'allocation', %q{
     password = "password"
     user = create(:user, password: password)
     credential = create(:credential, user: user, document_type: Allocation.name)
+    create(:credential, user: user, place: credential.place, document_type: Waybill.name)
     wb = build(:waybill, storekeeper: user.entity, storekeeper_place: credential.place,
                created: DateTime.current.change(year: 2011))
     wb.add_item(tag: 'roof', mu: 'm2', amount: 12, price: 100.0)

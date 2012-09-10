@@ -40,10 +40,9 @@ class ApplicationController < ActionController::Base
       credential = current_user.credentials(:force_update).
           where{document_type == options[:alias].name}.first
       if credential
-        klass.by_storekeeper(current_user.entity).
-            by_storekeeper_place(credential.place)
+        klass.by_warehouse(credential.place)
       else
-        klass.where{id == nil}
+        nil
       end
     end
   end
@@ -61,5 +60,9 @@ class ApplicationController < ActionController::Base
 
   def check_chart
     render :js => "window.location = '/#settings/new'" unless Chart.count > 0
+  end
+
+  rescue_from CanCan::AccessDenied do |exception|
+    render :js => "window.location = '/#inbox'"
   end
 end

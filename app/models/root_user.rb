@@ -19,4 +19,8 @@ class RootUser
   def documents
     []
   end
+
+  def managed_documents
+    []
+  end
 end

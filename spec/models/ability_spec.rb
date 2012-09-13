@@ -31,8 +31,8 @@ describe Ability do
     group = create(:group, manager: boss)
     group.user_ids = [subordinate1.id, subordinate2.id]
 
-    Ability.new(boss).should be_able_to(:manage, Entity)
-    Ability.new(boss).should be_able_to(:manage, Asset)
+    Ability.new(boss).should be_able_to(:group_read, Entity)
+    Ability.new(boss).should be_able_to(:group_read, Asset)
 
     create(:credential, user: boss, document_type: Money.name)
 

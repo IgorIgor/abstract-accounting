@@ -11,7 +11,7 @@
   <input type="text" id="filter-mu" data-bind="value: filter.mu"/>
 <% end %>
 
-<% if current_user.root? %>
+<% if current_user.root? || (can?(:group_read, Waybill) && can?(:group_read, Allocation)) %>
   <div class='actions'>
     <select id="warehouse_group" size="1" data-bind="value: group_by">
       <option value=""><%=t 'views.warehouses.group_none' %></option>

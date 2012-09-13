@@ -26,6 +26,7 @@
   </div>
 
   <div id="sidebar">
+    <% unless @types.empty? %>
     <div class="button_drop_down_list"
          data-bind="slidemenu: { control: 'btn_create', list: 'documents_list' } ">
       <a id="btn_create"><%=t 'views.home.create' %>
@@ -41,6 +42,7 @@
       </ul>
     </div>
     <br />
+    <% end %>
 
     <ul>
       <li id="inbox"><a href="#inbox"><%=t 'views.home.inbox' %></a></li>
@@ -124,10 +126,10 @@
             </li>
           </ul>
         <% else %>
-          <% if can? :manage, Waybill %>
+          <% if can? :group_read, Waybill %>
             <li id="waybills"><a href="#waybills"><%=t 'views.home.waybills' %></a></li>
           <% end %>
-          <% if can? :manage, Allocation %>
+          <% if can? :group_read, Allocation %>
             <li id="allocations">
               <a href="#allocations"><%=t 'views.home.allocations' %></a>
             </li>
@@ -142,7 +144,7 @@
         <%=t 'views.home.conditions' %>
       </a>
       <ul id="slide_menu_conditions" class="slide_menu" style="display: none;">
-        <% if can?(:manage, Waybill) & can?(:manage, Allocation) %>
+        <% if can?(:group_read, Waybill) & can?(:group_read, Allocation) %>
           <li id="warehouses">
             <a href="#warehouses"><%=t 'views.home.warehouses' %></a>
           </li>

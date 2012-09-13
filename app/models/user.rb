@@ -38,4 +38,13 @@ class User < ActiveRecord::Base
   def documents
     self.credentials(:force_update).collect{ |c| c.document_type }
   end
+
+  def managed_documents
+    collection = []
+    self.managed_group.users.each do |user|
+      user_docs = user.documents
+      collection += user_docs if user_docs
+    end if self.managed_group
+    collection
+  end
 end

@@ -44,8 +44,17 @@ class WarehousesController < ApplicationController
         attrs[:where] = {} unless attrs.has_key?(:where)
         attrs[:where][:warehouse_id] = { equal: credential.place_id }
       else
-        @warehouse = []
-        return
+        if current_user.managed_group
+          unless can?(:group_read, Waybill) && can?(:group_read, Allocation)
+            @warehouse = []
+            @count = 0
+            return
+          end
+        else
+          @warehouse = []
+          @count = 0
+          return
+        end
       end
     end
 
@@ -74,8 +83,19 @@ class WarehousesController < ApplicationController
             attrs[:where] = {} unless attrs.has_key?(:where)
             attrs[:where][:warehouse_id] = { equal: credential.place_id }
           else
-            @warehouse = []
-            return
+            if current_user.managed_group
+              unless can?(:group_read, Waybill) && can?(:group_read, Allocation)
+                @warehouse = []
+                @count = 0
+                @group_by = params[:group_by]
+                return
+              end
+            else
+              @warehouse = []
+              @count = 0
+              @group_by = params[:group_by]
+              return
+            end
           end
         end
 

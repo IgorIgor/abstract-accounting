@@ -49,7 +49,9 @@ class Document < Version
     if user.root?
       return where{item_type.in(Document.documents)}
     end
-    if user.documents.empty?
+    if !user.managed_documents.empty?
+      where{item_type.in(user.managed_documents)}
+    elsif user.documents.empty?
       where{item_type == ""}
     else
       versions_scope = scoped

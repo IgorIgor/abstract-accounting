@@ -7,10 +7,12 @@
     <input type='button' value="<%= t('views.allocations.back') %>"
            data-bind='click: back'/>
     <div class='buttons-separator' data-bind='visible: readonly'></div>
+    <% if can? :manage, Allocation %>
     <input type='button' value="<%= t('views.allocations.apply') %>"
            data-bind='click: apply, visible: readonly && object.can_apply()'/>
     <input type='button' value="<%= t('views.allocations.cancel') %>"
            data-bind='click: cancel, visible: readonly && object.can_cancel()'/>
+    <% end %>
     <input type='button' value="<%= t('views.allocations.print') %>"
            data-bind='click: print, visible: readonly'/>
   </div>

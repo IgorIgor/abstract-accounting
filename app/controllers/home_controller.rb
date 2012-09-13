@@ -28,7 +28,7 @@ class HomeController < ApplicationController
       format.json do
         @documents = []
         @count = 0
-        unless user_documents.empty?
+        if current_user.root? || (!current_user.root? && !current_user.managed_documents.empty?)
           scoped_versions = Document.lasts.by_user(current_user).filter(params[:like])
           @documents = scoped_versions.paginate(page: params[:page],
                                                 per_page: params[:per_page]).all

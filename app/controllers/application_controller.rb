@@ -42,7 +42,18 @@ class ApplicationController < ActionController::Base
       if credential
         klass.by_warehouse(credential.place)
       else
-        nil
+        if current_user.managed_group
+          scope = nil
+          current_user.managed_group.users.each do |user|
+            if user.credentials.where{document_type == options[:alias].name}.first
+              scope = klass
+              break
+            end
+          end
+          scope
+        else
+          nil
+        end
       end
     end
   end

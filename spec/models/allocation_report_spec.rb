@@ -42,34 +42,34 @@ describe AllocationReport do
     al2.add_item(tag: 'nails', mu: 'kg', amount: 40)
     al2.save!
 
-    als = AllocationReport.with_resources.select_all.order{deal.rules.from.give.resource.id}
+    als = AllocationReport.with_resources.select_all.order{deal.rules.rate}
 
     als[0].created.should eq(al1.created)
     als[0].storekeeper.tag.should eq(al1.storekeeper.tag)
     als[0].storekeeper_place.tag.should eq(al1.storekeeper_place.tag)
     als[0].foreman.tag.should eq(al1.foreman.tag)
     als[0].state.should eq(al1.state)
-    als[0].resource_tag.should eq(al1.items[0].resource.tag)
-    als[0].resource_mu.should eq(al1.items[0].resource.mu)
-    Converter.float(als[0].resource_amount).should eq(al1.items[0].amount)
+    als[0].resource_tag.should eq(al1.items[1].resource.tag)
+    als[0].resource_mu.should eq(al1.items[1].resource.mu)
+    Converter.float(als[0].resource_amount).should eq(al1.items[1].amount)
 
-    als[1].created.should eq(al1.created)
-    als[1].storekeeper.tag.should eq(al1.storekeeper.tag)
-    als[1].storekeeper_place.tag.should eq(al1.storekeeper_place.tag)
-    als[1].foreman.tag.should eq(al1.foreman.tag)
-    als[1].state.should eq(al1.state)
-    als[1].resource_tag.should eq(al1.items[1].resource.tag)
-    als[1].resource_mu.should eq(al1.items[1].resource.mu)
-    Converter.float(als[1].resource_amount).should eq(al1.items[1].amount)
+    als[1].created.should eq(al2.created)
+    als[1].storekeeper.tag.should eq(al2.storekeeper.tag)
+    als[1].storekeeper_place.tag.should eq(al2.storekeeper_place.tag)
+    als[1].foreman.tag.should eq(al2.foreman.tag)
+    als[1].state.should eq(al2.state)
+    als[1].resource_tag.should eq(al2.items[0].resource.tag)
+    als[1].resource_mu.should eq(al2.items[0].resource.mu)
+    Converter.float(als[1].resource_amount).should eq(al2.items[0].amount)
 
-    als[2].created.should eq(al2.created)
-    als[2].storekeeper.tag.should eq(al2.storekeeper.tag)
-    als[2].storekeeper_place.tag.should eq(al2.storekeeper_place.tag)
-    als[2].foreman.tag.should eq(al2.foreman.tag)
-    als[2].state.should eq(al2.state)
-    als[2].resource_tag.should eq(al2.items[0].resource.tag)
-    als[2].resource_mu.should eq(al2.items[0].resource.mu)
-    Converter.float(als[2].resource_amount).should eq(al2.items[0].amount)
+    als[2].created.should eq(al1.created)
+    als[2].storekeeper.tag.should eq(al1.storekeeper.tag)
+    als[2].storekeeper_place.tag.should eq(al1.storekeeper_place.tag)
+    als[2].foreman.tag.should eq(al1.foreman.tag)
+    als[2].state.should eq(al1.state)
+    als[2].resource_tag.should eq(al1.items[0].resource.tag)
+    als[2].resource_mu.should eq(al1.items[0].resource.mu)
+    Converter.float(als[2].resource_amount).should eq(al1.items[0].amount)
   end
 
   it 'should sort allocations with resources' do

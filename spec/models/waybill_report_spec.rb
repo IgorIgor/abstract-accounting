@@ -23,7 +23,8 @@ describe WaybillReport do
     wb.save
     wb2.save
 
-    wbs = WaybillReport.with_resources.select_all
+    wbs = WaybillReport.with_resources.select_all.joins{deal.rules.from.take.resource}.
+        order("resource_mu DESC")
 
     wbs[0].created.should eq(wb.created)
     wbs[0].document_id.should eq(wb.document_id)

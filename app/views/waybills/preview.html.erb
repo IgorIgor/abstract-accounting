@@ -7,7 +7,7 @@
     <input type='button' value="<%= t 'views.waybills.draft' %>"
            data-bind='visible: !readonly()'/>
     <div class='buttons-separator' data-bind='visible: readonly'></div>
-    <% if can? :manage, Allocation %>
+    <% if can? :manage, Waybill %>
     <input type='button' value="<%= t('views.waybills.apply') %>"
            data-bind='click: apply, visible: readonly && object.can_apply()'/>
     <input type='button' value="<%= t('views.waybills.cancel') %>"

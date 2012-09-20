@@ -223,10 +223,10 @@ feature "single page application", %q{
     page.should_not have_xpath("//ul//li[@id='entities']")
     page.should_not have_xpath("//ul//li[@id='places']")
     page.should_not have_xpath("//ul//div[@id='arrow_actions']")
-    page.should have_xpath("//ul//li[@id='waybills']")
-    page.should have_xpath("//ul//li[@id='allocations']")
+    page.should_not have_xpath("//ul//li[@id='waybills']")
+    page.should_not have_xpath("//ul//li[@id='allocations']")
     page.find('#btn_slide_conditions').click
-    page.should have_xpath("//ul//li[@id='warehouses']")
+    page.should_not have_xpath("//ul//li[@id='warehouses']")
     page.should_not have_xpath("//ul//li[@id='general_ledger']")
     page.should_not have_xpath("//ul//li[@id='balance_sheet']")
     page.should_not have_xpath("//ul//li[@id='transcripts']")
@@ -263,10 +263,25 @@ feature "single page application", %q{
       ds.save!
     end
 
-    versions = Document.lasts.
-      by_user(user).paginate(page: 1, per_page: @per_page).all
     page_login(user.email, password)
     page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
+    within('#container_documents table') do
+      page.should_not have_selector("tbody tr")
+    end
+    click_link I18n.t('views.home.logout')
+
+    password_manager = "123456"
+    user_manager = create(:user, password: password_manager)
+    group = build(:group, manager: user_manager)
+    group.user_ids = [user.id]
+    group.save!
+
+    page_login(user_manager.email, password_manager)
+    page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
+
+    versions = Document.lasts.
+      by_user(user_manager).paginate(page: 1, per_page: @per_page).all
+
 
     should_present_documents(versions)
 
@@ -286,8 +301,9 @@ feature "single page application", %q{
       end
     end
     page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
-    within('#container_documents table tbody') do
-      page.should_not have_content(Allocation.name)
+
+    within('#container_documents table') do
+      page.should_not have_selector("tbody tr")
     end
     click_link I18n.t('views.home.logout')
 
@@ -295,19 +311,25 @@ feature "single page application", %q{
       user.credentials(:force_update).find_by_document_type(Waybill.name).place)
 
     page_login(user.email, password)
-    page.find("#btn_create").click
-    within(:xpath, "//ul[@id='documents_list']") do
-      page.should have_selector("li", count: user.credentials(:force_update).count)
-      user.credentials(:force_update).each do |cred|
-        page.should have_content(I18n.t("views.home.#{cred.document_type.underscore}"))
-      end
-    end
     page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
+    within('#container_documents table') do
+      page.should_not have_selector("tbody tr")
+    end
+    click_link I18n.t('views.home.logout')
+
+    page_login(user_manager.email, password_manager)
+    page.should have_xpath("//li[@id='inbox' and @class='sidebar-selected']")
+
     versions = Document.lasts.
-      by_user(user).paginate(page: 1, per_page: @per_page).all
+      by_user(user_manager).paginate(page: 1, per_page: @per_page).all
+
 
     should_present_documents(versions)
 
+    within('#container_documents table tbody') do
+      page.should have_content(Allocation.name)
+      page.should have_content(Waybill.name)
+    end
     click_link I18n.t('views.home.logout')
   end
 

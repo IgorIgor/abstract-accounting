@@ -362,9 +362,11 @@ feature "waybill", %q{
     page_login
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Waybill - #{wb.storekeeper.tag}')]").click
+    wait_until_hash_changed_to "documents/waybills/#{wb.id}"
     click_button_and_wait(I18n.t('views.waybills.apply'))
 
     wait_until_hash_changed_to "documents/waybills/#{wb.id}"
+    wait_until { !Waybill.find(wb.id).can_apply? }
     page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.waybills.apply')}']")
     find_field('state').value.should eq(I18n.t('views.statable.applied'))
@@ -382,8 +384,9 @@ feature "waybill", %q{
     page_login
     page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
       'Waybill - #{wb.storekeeper.tag}')]").click
-    click_button_and_wait(I18n.t('views.waybills.cancel'))
     wait_until_hash_changed_to "documents/waybills/#{wb.id}"
+    click_button_and_wait(I18n.t('views.waybills.cancel'))
+    wait_until { !Waybill.find(wb.id).can_apply? }
     page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.waybills.cancel')}']")
     find_field('state').value.should eq(I18n.t('views.statable.canceled'))
@@ -398,6 +401,8 @@ feature "waybill", %q{
     visit("#documents/waybills/#{wb.id}")
     click_button_and_wait(I18n.t('views.waybills.cancel'))
     wait_until_hash_changed_to "documents/waybills/#{wb.id}"
+    wait_until { !Waybill.find(wb.id).can_cancel? }
+
     visit("#documents/waybills/#{wb.id}")
     page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.waybills.cancel')}']")
@@ -494,6 +499,10 @@ feature "waybill", %q{
     waybills = Waybill.limit(per_page).offset(per_page)
     should_present_waybill(waybills)
     prev_page("div[@class='paginate']")
+
+    user = create(:user, entity: Waybill.first.storekeeper)
+    create(:credential, user: user, place: Waybill.first.storekeeper_place,
+           document_type: Waybill.name)
 
     page.find(:xpath, "//table//tbody//td[contains(.//text(),"+
         " '#{Waybill.first.document_id}')]").click_and_wait
@@ -899,8 +908,7 @@ feature "waybill", %q{
     click_button_and_wait(I18n.t('views.waybills.apply'))
 
     wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
-    wait_until { !page.has_xpath?("//div[@class='actions']/input[@value='#{I18n.t(
-            'views.waybills.apply')}']") }
+    wait_until { !Waybill.last.can_apply? }
     within('#container_documents') do
       within("div[@class='comments']") do
         page.should have_content(I18n.t("activerecord.attributes.waybill.comment.apply"))
@@ -910,8 +918,7 @@ feature "waybill", %q{
     click_button_and_wait(I18n.t('views.waybills.cancel'))
 
     wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
-    wait_until { !page.has_xpath?("//div[@class='actions']/input[@value='#{I18n.t(
-            'views.waybills.apply')}']") }
+    wait_until { !Waybill.last.can_cancel? }
     within('#container_documents') do
       within("div[@class='comments']") do
         page.should have_content(I18n.t("activerecord.attributes.waybill.comment.reverse"))
@@ -956,8 +963,7 @@ feature "waybill", %q{
     click_button_and_wait(I18n.t('views.waybills.cancel'))
 
     wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
-    wait_until { !page.has_xpath?("//div[@class='actions']/input[@value='#{I18n.t(
-            'views.waybills.apply')}']") }
+    wait_until { !Waybill.last.can_cancel? }
     within('#container_documents') do
       within("div[@class='comments']") do
         page.should have_content(I18n.t("activerecord.attributes.waybill.comment.cancel"))

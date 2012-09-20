@@ -74,7 +74,7 @@ class SqlRecord
     if @page && @per_page
       limit = "LIMIT #{@per_page} OFFSET #{(@page - 1) * @per_page}"
     end
-    execute("SELECT #{str} FROM (#{@sql}) T #{@where} #{@order_by} #{limit}")
+    execute("SELECT #{str} FROM (#{@sql}) T #{@joins} #{@where} #{@order_by} #{limit}")
   end
 
   def all

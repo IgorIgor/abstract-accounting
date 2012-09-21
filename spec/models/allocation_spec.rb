@@ -212,7 +212,7 @@ describe Allocation do
     comment.message.should eq(I18n.t('activerecord.attributes.allocation.comment.apply'))
 
     db = Allocation.find(db)
-    db.cancel.should be_true
+    db.reverse.should be_true
     db.state.should eq(Allocation::REVERSED)
 
     comment = Comment.last
@@ -272,8 +272,8 @@ describe Allocation do
     roof_deal.state.amount.should eq(589.0)
     nails_deal.state.amount.should eq(1180.0)
 
-    expect { db.cancel } .to change(Fact, :count).by(3)
-    db.state.should eq(Statable::REVERSED)
+    expect { db.reverse } .to change(Fact, :count).by(3)
+    db.state.should eq(Allocation::REVERSED)
 
     roof_deal.state.amount.should eq(594.0)
     nails_deal.state.amount.should eq(1190.0)
@@ -472,7 +472,7 @@ describe Allocation do
           like(lower("%#{al1.created.strftime('%Y-%m-%d')[0, 4]}%"))}
     Allocation.search({"created" => DateTime.now.strftime('%Y-%m-%d')}).should be_empty
 
-    Allocation.search({"state" => Statable::INWORK}).should =~ Allocation.
+    Allocation.search({"state" => Allocation::INWORK}).should =~ Allocation.
         joins{deal.deal_state}.where{deal.deal_state.closed == nil}
 
     Allocation.search({"storekeeper" => al1.storekeeper.tag}).should =~ [al1]

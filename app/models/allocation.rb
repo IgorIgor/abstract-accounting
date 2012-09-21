@@ -96,13 +96,13 @@ class Allocation < ActiveRecord::Base
           mem.where{lower(deal.rules.from.give.resource.tag).like(lower("%#{value}%"))}
         when 'state'
           case value.to_i
-            when Statable::INWORK
+            when INWORK
               mem.where{deal.deal_state.closed == nil}
-            when Statable::APPLIED
+            when APPLIED
               mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.amount == 1.0)}
-            when Statable::CANCELED
+            when CANCELED
               mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.id == nil)}
-            when Statable::REVERSED
+            when REVERSED
               mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.amount == -1.0)}
           end
         when 'created'

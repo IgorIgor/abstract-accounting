@@ -327,7 +327,7 @@ describe Waybill do
     comment.message.should eq(I18n.t('activerecord.attributes.waybill.comment.apply'))
 
     wb = Waybill.find(wb)
-    wb.cancel.should be_true
+    wb.reverse.should be_true
     wb.state.should eq(Waybill::REVERSED)
 
     comment = Comment.last
@@ -495,8 +495,8 @@ describe Waybill do
     state.amount.should eq(500.0)
     state.start.should eq(DateTime.current.change(hour: 12))
 
-    wb.cancel.should be_true
-    wb.state.should eq(Statable::REVERSED)
+    wb.reverse.should be_true
+    wb.state.should eq(Waybill::REVERSED)
 
     state = wb_old.items.first.warehouse_deal(Chart.first.currency,
                                               wb_old.distributor_place,
@@ -564,8 +564,8 @@ describe Waybill do
     balance.amount.should eq(500)
     balance.start.should eq(DateTime.current.change(hour: 12))
 
-    wb.cancel.should be_true
-    wb.state.should eq(Statable::REVERSED)
+    wb.reverse.should be_true
+    wb.state.should eq(Waybill::REVERSED)
 
     balance = wb_old.items.first.warehouse_deal(Chart.first.currency,
                                                 wb_old.distributor_place,
@@ -844,7 +844,7 @@ describe Waybill do
     wb2.cancel.should be_true
     Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb).should be_false
     Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb2).should be_true
-    wb.cancel.should be_true
+    wb.reverse.should be_true
     Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb).should be_false
     Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb2).should be_true
     Waybill.search({ 'state' => Waybill::REVERSED }).include?(wb).should be_true

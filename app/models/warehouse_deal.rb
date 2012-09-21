@@ -13,7 +13,7 @@ module WarehouseDeal
   module ClassMethods
     def act_as_warehouse_deal(args = { from: :from, to: :to})
       has_paper_trail
-      include Statable
+      include Helpers::Statable
       act_as_statable
       include Commentable
 

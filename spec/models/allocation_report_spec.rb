@@ -252,7 +252,7 @@ describe AllocationReport do
     als_test = AllocationReport.joins{deal.give.place}.where("places.tag LIKE '%e%'").all
     als. =~ als_test
 
-    als = AllocationReport.select_all.with_resources.search('state' => '1').all
+    als = AllocationReport.select_all.with_resources.search('state' => Allocation::INWORK).all
     als_test = AllocationReport.select_all.with_resources.joins{deal.deal_state}.
         joins{deal.to_facts.outer}.where("deal_states.closed IS NULL").all
     als. =~ als_test

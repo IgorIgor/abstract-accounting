@@ -23,7 +23,7 @@ feature 'entities', %q{
     (per_page + 1).times { create(:entity) }
     create(:legal_entity)
 
-    entities = SubjectOfLaw.all(page: 1, per_page: per_page)
+    entities = SubjectOfLaw.paginate(page: 1, per_page: per_page).all
     count = SubjectOfLaw.count
 
     page_login
@@ -43,7 +43,7 @@ feature 'entities', %q{
     check_paginate("div[@class='paginate']", count, per_page)
     next_page("div[@class='paginate']")
 
-    entities = SubjectOfLaw.all(page: 2, per_page: per_page)
+    entities = SubjectOfLaw.paginate(page: 2, per_page: per_page).all
 
     check_content("#container_documents table", entities) do |entity|
       [entity.tag, I18n.t("activerecord.models.#{entity.type.tableize.singularize}")]
@@ -225,5 +225,42 @@ feature 'entities', %q{
 
     find_field('legal_entity_name')[:disabled].should eq("true")
     find_field('legal_entity_name')[:value].should eq('new edited legal entity')
+  end
+
+  scenario 'sort entity\legal_entity', js: true do
+    create(:entity)
+    create(:legal_entity)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.entities')
+    current_hash.should eq('entities')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='entities' and @class='sidebar-selected']")
+
+    test_order = lambda do |field, type|
+      entities = SubjectOfLaw.sort(field, type)
+      within('#container_documents table') do
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      check_content("#container_documents table", entities.all) do |entity|
+        [entity.tag, I18n.t("activerecord.models.#{entity.type.tableize.singularize}")]
+      end
+    end
+
+    test_order.call('tag','asc')
+    test_order.call('tag','desc')
+
+    test_order.call('type','asc')
+    test_order.call('type','desc')
   end
 end

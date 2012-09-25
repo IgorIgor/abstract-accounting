@@ -1,8 +1,12 @@
 <table>
   <thead>
     <tr>
-      <th><%= t 'views.entities.tag' %></th>
-      <th><%= t 'views.entities.type' %></th>
+      <th id="tag" data-bind="click: sortBy">
+        <%= t 'views.entities.tag' %><span></span>
+      </th>
+      <th id="type" data-bind="click: sortBy">
+        <%= t 'views.entities.type' %><span></span>
+      </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">

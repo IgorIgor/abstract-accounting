@@ -23,7 +23,7 @@ feature 'assets', %q{
     (per_page + 1).times { create(:asset) }
     create(:money)
 
-    resources = Resource.all(page: 1, per_page: per_page)
+    resources = Resource.filtrate(paginate: {page: 1, per_page: per_page}).all
     count = Resource.count
 
     page_login
@@ -46,7 +46,7 @@ feature 'assets', %q{
     next_page("div[@class='paginate']")
 
 
-    resources = Resource.all(page: 2, per_page: per_page)
+    resources = Resource.filtrate(paginate: {page: 2, per_page: per_page}).all
 
     check_content("#container_documents table", resources) do |res|
       [res.tag, res.ext_info, I18n.t("activerecord.models.#{res.type.tableize.singularize}")]
@@ -54,8 +54,8 @@ feature 'assets', %q{
   end
 
   scenario 'view balances by asset', js: true do
-    res = create(:asset)
     res2 = create(:asset)
+    res = create(:asset)
     deal = create(:deal,
                    give: build(:deal_give, resource: res),
                    take: build(:deal_take, resource: res2),
@@ -70,7 +70,7 @@ feature 'assets', %q{
                            "//li[@id='resources' and @class='sidebar-selected']")
 
     within('#container_documents table tbody') do
-      page.find(:xpath, ".//tr[1]/td[1]").click
+      page.find(:xpath, ".//tr[2]/td[1]").click
     end
     current_hash.should eq("balance_sheet?resource%5Bid%5D=#{res.id}&"+
                                "resource%5Btype%5D=#{res.class.name}")
@@ -229,5 +229,45 @@ feature 'assets', %q{
     find_field('money_num_code')[:disabled].should eq("true")
     find_field('money_alpha_code')[:value].should eq('edited new money')
     find_field('money_num_code')[:value].should eq('304')
+  end
+
+  scenario "sort resources", js: true do
+    create(:money)
+    create(:asset)
+    create(:asset)
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.resources')
+    current_hash.should eq('resources')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='resources' and @class='sidebar-selected']")
+
+    test_order = lambda do |field, type|
+      resources = Resource.sort(field, type)
+      within('#container_documents table') do
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      check_content("#container_documents table", resources.all) do |res|
+        [res.tag, res.ext_info, I18n.t("activerecord.models.#{res.type.tableize.singularize}")]
+      end
+    end
+
+    test_order.call('tag','asc')
+    test_order.call('tag','desc')
+
+    test_order.call('ext_info','asc')
+    test_order.call('ext_info','desc')
+
+    test_order.call('type','asc')
+    test_order.call('type','desc')
   end
 end

@@ -84,8 +84,8 @@ describe Resource do
     end
 
     it "should return paginated data" do
-      Resource.all(page: 1, per_page: 4).count.should eq(4)
-      Resource.all(page: 2, per_page: 4).count.should eq(Money.count + Asset.count - 4)
+      Resource.paginate(page: 1, per_page: 5).all.count.should eq(5)
+      Resource.paginate(page: 2, per_page: 5).all.count.should eq(Money.count + Asset.count - 5)
     end
   end
 end

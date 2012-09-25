@@ -1,9 +1,15 @@
 <table>
   <thead>
     <tr>
-      <th><%= t 'views.resources.tag' %></th>
-      <th><%= t 'views.resources.ext_info' %></th>
-      <th><%= t 'views.resources.type' %></th>
+      <th id="tag" data-bind="click: sortBy">
+        <%= t 'views.resources.tag' %><span></span>
+      </th>
+      <th id="ext_info" data-bind="click: sortBy">
+        <%= t 'views.resources.ext_info' %><span></span>
+      </th>
+      <th id="type" data-bind="click: sortBy">
+        <%= t 'views.resources.type' %><span></span>
+      </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">

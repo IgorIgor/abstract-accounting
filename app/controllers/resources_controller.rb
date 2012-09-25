@@ -20,7 +20,10 @@ class ResourcesController < ApplicationController
     page = params[:page].nil? ? 1 : params[:page].to_i
     per_page = params[:per_page].nil? ?
         Settings.root.per_page.to_i : params[:per_page].to_i
-    @resources = Resource.all(page: page, per_page: per_page)
+    filter = { paginate: { page: page, per_page: per_page }}
+    filter[:sort] = params[:order] if params[:order]
+    #TODO: should get filtrate options from client
+    @resources = Resource.filtrate(filter).all
     @count = Resource.count
   end
 end

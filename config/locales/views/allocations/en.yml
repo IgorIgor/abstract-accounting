@@ -17,8 +17,6 @@ en:
       save: "Save"
       back: "Back"
       draft: "Draft"
-      apply: "Apply"
-      cancel: "Cancel"
       print: "Print"
       page_title_new: "Create new allocation"
       page_title_show: "Show allocation"

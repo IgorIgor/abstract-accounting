@@ -21,8 +21,6 @@ en:
       save: "Save"
       back: "Back"
       draft: "Draft"
-      apply: "Apply"
-      cancel: "Cancel"
       add: "Add"
       item: "Item"
       page_title_new: "Create new waybill"

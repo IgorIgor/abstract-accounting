@@ -20,8 +20,9 @@ child(@allocation => :allocation) do
     attributes :id => :foreman_place_id
   end
 end
-node(:can_apply) { @allocation.can_apply? }
-node(:can_cancel) { @allocation.can_cancel? }
+node(:state) do
+  partial "state/can_do", :object => @allocation
+end
 child(@allocation.foreman => :foreman) { attributes :tag }
 child(@allocation.foreman_place => :foreman_place) { attributes :tag }
 child(@allocation.items => :items) do

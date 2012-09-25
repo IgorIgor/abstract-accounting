@@ -13,13 +13,12 @@ child(@allocation => :allocation) do
   node(:foreman_id) { nil }
   node(:foreman_place_id) { |all| all.foreman_place_or_new.id }
 end
-node(:can_apply) { @allocation.can_apply? }
-node(:can_cancel) { @allocation.can_cancel? }
+node(:state) do
+  partial "state/can_do", :object => @allocation
+end
 child(Entity.new => :foreman) { attributes :tag }
 child(@allocation.foreman_place_or_new => :foreman_place) { attributes :tag }
 child([] => :items)
 child(Allocation.warehouses => :warehouses) do
   attributes :id, :tag, :storekeeper, :place_id
 end
-
-

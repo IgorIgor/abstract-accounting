@@ -1,0 +1,8 @@
+<label><%=t 'views.statable.state' %></label>
+<select id="filter_state" data-bind="value: filter.state">
+  <option value=""></option>
+  <option value="<%= ::Helpers::Statable::INWORK %>"><%=t 'views.statable.inwork' %></option>
+  <option value="<%= ::Helpers::Statable::CANCELED %>"><%=t 'views.statable.canceled' %></option>
+  <option value="<%= ::Helpers::Statable::APPLIED %>"><%=t 'views.statable.applied' %></option>
+  <option value="<%= ::Helpers::Statable::REVERSED %>"><%=t 'views.statable.reversed' %></option>
+</select>

@@ -13,8 +13,9 @@ child(@waybill => :waybill) do
   node(:distributor_id) { nil }
   node(:distributor_place_id) { nil }
 end
-node(:can_apply) { @waybill.can_apply? }
-node(:can_cancel) { @waybill.can_cancel? }
+node(:state) do
+  partial "state/can_do", :object => @waybill
+end
 child(LegalEntity.new => :distributor) do
   attributes :name, :identifier_name, :identifier_value
 end

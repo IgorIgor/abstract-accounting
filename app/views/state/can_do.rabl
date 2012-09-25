@@ -7,9 +7,6 @@
 #
 # Please see ./COPYING for details
 
-attributes :id, :document_id
-node(:created) { |waybill| waybill.created.strftime('%Y-%m-%d') }
-node(:distributor) { |waybill| waybill.distributor.name }
-node(:storekeeper) { |waybill| waybill.storekeeper.tag }
-node(:storekeeper_place) { |waybill| waybill.storekeeper_place.tag }
-extends "state/formatted_state"
+node(:can_apply) { |obj| obj.can_apply? }
+node(:can_cancel) { |obj| obj.can_cancel? }
+node(:can_reverse) { |obj| obj.can_reverse? }

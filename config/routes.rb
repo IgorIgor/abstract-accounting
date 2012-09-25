@@ -45,6 +45,7 @@ Abstract::Application.routes.draw do
     member do
       get 'apply'
       get 'cancel'
+      get 'reverse'
       get 'resources'
     end
   end
@@ -76,6 +77,7 @@ Abstract::Application.routes.draw do
     member do
       get 'apply'
       get 'cancel'
+      get 'reverse'
       get 'resources'
     end
   end

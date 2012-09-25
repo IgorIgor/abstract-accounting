@@ -59,11 +59,11 @@ def should_present_waybill(waybills)
   check_group_content('#container_documents table', waybills) do |waybill|
     state =
         case waybill.state
-          when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-          when Statable::INWORK then I18n.t('views.statable.inwork')
-          when Statable::CANCELED then I18n.t('views.statable.canceled')
-          when Statable::APPLIED then I18n.t('views.statable.applied')
-          when Statable::REVERSED then I18n.t('views.statable.reversed')
+          when Waybill::UNKNOWN then I18n.t('views.statable.unknown')
+          when Waybill::INWORK then I18n.t('views.statable.inwork')
+          when Waybill::CANCELED then I18n.t('views.statable.canceled')
+          when Waybill::APPLIED then I18n.t('views.statable.applied')
+          when Waybill::REVERSED then I18n.t('views.statable.reversed')
         end
     [waybill.created.strftime('%Y-%m-%d'), waybill.document_id,
      waybill.distributor.name, waybill.storekeeper.tag,
@@ -75,11 +75,11 @@ def should_present_waybill_with_resource(waybills)
   check_content('#container_documents table', waybills) do |waybill|
     state =
         case waybill.state
-          when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-          when Statable::INWORK then I18n.t('views.statable.inwork')
-          when Statable::CANCELED then I18n.t('views.statable.canceled')
-          when Statable::APPLIED then I18n.t('views.statable.applied')
-          when Statable::REVERSED then I18n.t('views.statable.reversed')
+          when Waybill::UNKNOWN then I18n.t('views.statable.unknown')
+          when Waybill::INWORK then I18n.t('views.statable.inwork')
+          when Waybill::CANCELED then I18n.t('views.statable.canceled')
+          when Waybill::APPLIED then I18n.t('views.statable.applied')
+          when Waybill::REVERSED then I18n.t('views.statable.reversed')
         end
     [waybill.created.strftime('%Y-%m-%d'), waybill.document_id, waybill.distributor.name,
      waybill.storekeeper.tag, waybill.storekeeper_place.tag, state, waybill.sum.to_s,
@@ -360,16 +360,15 @@ feature "waybill", %q{
     wb.save!
 
     page_login
-    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Waybill - #{wb.storekeeper.tag}')]").click
+    visit("#documents/waybills/#{wb.id}")
     wait_until_hash_changed_to "documents/waybills/#{wb.id}"
-    click_button_and_wait(I18n.t('views.waybills.apply'))
+    click_button(I18n.t('views.statable.buttons.apply'))
 
     wait_until_hash_changed_to "documents/waybills/#{wb.id}"
     wait_until { !Waybill.find(wb.id).can_apply? }
+    wait_until { find_field('state').value == I18n.t('views.statable.applied') }
     page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
-        'views.waybills.apply')}']")
-    find_field('state').value.should eq(I18n.t('views.statable.applied'))
+        'views.statable.buttons.apply')}']")
 
     PaperTrail.enabled = false
   end
@@ -382,15 +381,21 @@ feature "waybill", %q{
     wb.save!
 
     page_login
-    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Waybill - #{wb.storekeeper.tag}')]").click
+    visit("#documents/waybills/#{wb.id}")
     wait_until_hash_changed_to "documents/waybills/#{wb.id}"
-    click_button_and_wait(I18n.t('views.waybills.cancel'))
-    wait_until { !Waybill.find(wb.id).can_apply? }
+    click_button(I18n.t('views.statable.buttons.cancel'))
+
+    wait_until_hash_changed_to "documents/waybills/#{wb.id}"
+    wait_until { !Waybill.find(wb.id).can_cancel? }
+    wait_until { find_field('state').value == I18n.t('views.statable.canceled') }
     page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
-        'views.waybills.cancel')}']")
-    find_field('state').value.should eq(I18n.t('views.statable.canceled'))
-    click_link I18n.t('views.home.logout')
+        'views.statable.buttons.cancel')}']")
+
+    PaperTrail.enabled = false
+  end
+
+  scenario 'reverse waybills', js: true do
+    PaperTrail.enabled = true
 
     wb = build(:waybill)
     wb.add_item(tag: "test resource", mu: "test mu", amount: 100, price: 10)
@@ -399,15 +404,14 @@ feature "waybill", %q{
 
     page_login
     visit("#documents/waybills/#{wb.id}")
-    click_button_and_wait(I18n.t('views.waybills.cancel'))
+    wait_until_hash_changed_to "documents/waybills/#{wb.id}"
+    click_button(I18n.t('views.statable.buttons.reverse'))
+
     wait_until_hash_changed_to "documents/waybills/#{wb.id}"
     wait_until { !Waybill.find(wb.id).can_cancel? }
-
-    visit("#documents/waybills/#{wb.id}")
+    wait_until { find_field('state').value == I18n.t('views.statable.reversed') }
     page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
-        'views.waybills.cancel')}']")
-    find_field('state').value.should eq(I18n.t('views.statable.reversed'))
-    click_link I18n.t('views.home.logout')
+        'views.statable.buttons.reverse')}']")
 
     PaperTrail.enabled = false
   end
@@ -420,14 +424,15 @@ feature "waybill", %q{
       wb.save!
     end
 
-    waybills = Waybill.limit(per_page)
-    count = Waybill.count
-
     page_login
     page.find('#btn_slide_lists').click
     page.find('#deals').click
     page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
        "not(contains(@style, 'display: none'))]/li[@id='waybills']/a").click
+
+    waybills = Waybill.limit(per_page)
+    count = Waybill.count
+    wait_for_ajax
 
     current_hash.should eq('waybills')
     page.should have_xpath("//ul[@id='slide_menu_lists']" +
@@ -628,10 +633,10 @@ feature "waybill", %q{
           page.should have_content(waybill.storekeeper_place.tag)
           state =
             case waybill.state
-              when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-              when Statable::INWORK then I18n.t('views.statable.inwork')
-              when Statable::CANCELED then I18n.t('views.statable.canceled')
-              when Statable::APPLIED then I18n.t('views.statable.applied')
+              when Waybill::UNKNOWN then I18n.t('views.statable.unknown')
+              when Waybill::INWORK then I18n.t('views.statable.inwork')
+              when Waybill::CANCELED then I18n.t('views.statable.canceled')
+              when Waybill::APPLIED then I18n.t('views.statable.applied')
             end
           page.should have_content(state)
         end
@@ -905,7 +910,7 @@ feature "waybill", %q{
       end
     end
 
-    click_button_and_wait(I18n.t('views.waybills.apply'))
+    click_button_and_wait(I18n.t('views.statable.buttons.apply'))
 
     wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
     wait_until { !Waybill.last.can_apply? }
@@ -915,10 +920,10 @@ feature "waybill", %q{
       end
     end
 
-    click_button_and_wait(I18n.t('views.waybills.cancel'))
+    click_button_and_wait(I18n.t('views.statable.buttons.reverse'))
 
     wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
-    wait_until { !Waybill.last.can_cancel? }
+    wait_until { !Waybill.last.can_reverse? }
     within('#container_documents') do
       within("div[@class='comments']") do
         page.should have_content(I18n.t("activerecord.attributes.waybill.comment.reverse"))
@@ -960,7 +965,7 @@ feature "waybill", %q{
       wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
     end.should change(Waybill, :count).by(1)
 
-    click_button_and_wait(I18n.t('views.waybills.cancel'))
+    click_button_and_wait(I18n.t('views.statable.buttons.cancel'))
 
     wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
     wait_until { !Waybill.last.can_cancel? }

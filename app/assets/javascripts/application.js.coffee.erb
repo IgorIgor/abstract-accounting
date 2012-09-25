@@ -146,18 +146,16 @@ $ ->
   class self.StatableViewModel extends CommentableViewModel
     constructor: (object, route, readonly = false)->
       super(object, route, readonly)
-      viewModel = this
-      $.sammy( ->
-        this.get("#documents/:type/:id/apply", ->
-          viewModel.ajaxRequest('GET', "/#{this.params.type}/#{this.params.id}/apply"))
-        this.get("#documents/:type/:id/cancel", ->
-          viewModel.ajaxRequest('GET', "/#{this.params.type}/#{this.params.id}/cancel"))
-      )
 
     apply: =>
-      location.hash = "#documents/#{@route}/#{@object.id()}/apply"
+      @ajaxRequest('GET', "/#{@route}/#{@object.id()}/apply")
+      $.sammy().refresh()
     cancel: =>
-      location.hash = "#documents/#{@route}/#{@object.id()}/cancel"
+      @ajaxRequest('GET', "/#{@route}/#{@object.id()}/cancel")
+      $.sammy().refresh()
+    reverse: =>
+      @ajaxRequest('GET', "/#{@route}/#{@object.id()}/reverse")
+      $.sammy().refresh()
 
     getState: (state) ->
       switch state

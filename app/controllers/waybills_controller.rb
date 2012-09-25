@@ -7,9 +7,14 @@
 #
 # Please see ./COPYING for details
 
+require "helpers/state_change"
+
 class WaybillsController < ApplicationController
   authorize_resource class: Waybill.name
   layout 'comments'
+
+  include Helpers::StateChange
+  act_as_statable Waybill
 
   def index
     render 'index', layout: "data_with_filter"
@@ -161,23 +166,5 @@ class WaybillsController < ApplicationController
       @resources = waybill.items[(page - 1) * per_page, per_page]
     end
     @count = waybill.items.count
-  end
-
-  def apply
-    waybill = Waybill.find(params[:id])
-    if waybill.apply
-      render json: { result: 'success', id: waybill.id }
-    else
-      render json: waybill.errors.full_messages
-    end
-  end
-
-  def cancel
-    waybill = Waybill.find(params[:id])
-    if waybill.cancel
-      render json: { result: 'success', id: waybill.id }
-    else
-      render json: waybill.errors.full_messages
-    end
   end
 end

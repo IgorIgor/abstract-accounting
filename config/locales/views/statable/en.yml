@@ -7,3 +7,7 @@ en:
       canceled: Canceled
       reversed: Reversed
       applied: Applied
+      buttons:
+        apply: Apply
+        cancel: Cancel
+        reverse: Reverse

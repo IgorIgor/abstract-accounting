@@ -7,10 +7,14 @@
 #
 # Please see ./COPYING for details
 require "waybill"
+require "helpers/state_change"
 
 class AllocationsController < ApplicationController
   authorize_resource class: Allocation.name
   layout 'comments'
+
+  include Helpers::StateChange
+  act_as_statable Allocation
 
   def preview
     render 'preview'
@@ -116,24 +120,6 @@ class AllocationsController < ApplicationController
           @list = []
         end
       end
-    end
-  end
-
-  def apply
-    allocation = Allocation.find(params[:id])
-    if allocation.apply
-      render json: { result: 'success', id: allocation.id }
-    else
-      render json: allocation.errors.messages
-    end
-  end
-
-  def cancel
-    allocation = Allocation.find(params[:id])
-    if allocation.cancel
-      render json: { result: 'success', id: allocation.id }
-    else
-      render json: allocation.errors.messages
     end
   end
 

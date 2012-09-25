@@ -48,11 +48,11 @@ def should_present_allocation(allocations)
   check_group_content("#container_documents table", allocations) do |allocation|
     state =
         case allocation.state
-          when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-          when Statable::INWORK then I18n.t('views.statable.inwork')
-          when Statable::CANCELED then I18n.t('views.statable.canceled')
-          when Statable::APPLIED then I18n.t('views.statable.applied')
-          when Statable::REVERSED then I18n.t('views.statable.reversed')
+          when Allocation::UNKNOWN then I18n.t('views.statable.unknown')
+          when Allocation::INWORK then I18n.t('views.statable.inwork')
+          when Allocation::CANCELED then I18n.t('views.statable.canceled')
+          when Allocation::APPLIED then I18n.t('views.statable.applied')
+          when Allocation::REVERSED then I18n.t('views.statable.reversed')
         end
     [allocation.created.strftime('%Y-%m-%d'), allocation.storekeeper.tag,
      allocation.storekeeper_place.tag, allocation.foreman.tag, state]
@@ -63,11 +63,11 @@ def should_present_allocation_with_resource(allocations)
   check_content('#container_documents table', allocations) do |allocation|
     state =
         case allocation.state
-          when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-          when Statable::INWORK then I18n.t('views.statable.inwork')
-          when Statable::CANCELED then I18n.t('views.statable.canceled')
-          when Statable::APPLIED then I18n.t('views.statable.applied')
-          when Statable::REVERSED then I18n.t('views.statable.reversed')
+          when Allocation::UNKNOWN then I18n.t('views.statable.unknown')
+          when Allocation::INWORK then I18n.t('views.statable.inwork')
+          when Allocation::CANCELED then I18n.t('views.statable.canceled')
+          when Allocation::APPLIED then I18n.t('views.statable.applied')
+          when Allocation::REVERSED then I18n.t('views.statable.reversed')
         end
     [allocation.created.strftime('%Y-%m-%d'), allocation.storekeeper.tag,
      allocation.storekeeper_place.tag, allocation.foreman.tag, state,
@@ -275,10 +275,11 @@ feature 'allocation', %q{
           if i < count - per_page
             all("#available-resources tbody tr").count.should eq(per_page)
           else
+            wait_until(10) { all("#available-resources tbody tr").count == (count-i-1) }
             all("#available-resources tbody tr").count.should eq(count-i-1)
           end
         else
-          page.should_not have_selector('#available-resources tbody tr')
+          page.should have_no_selector('#available-resources tbody tr')
         end
         page.should have_selector('#selected-resources tbody tr', count: 1+i)
       end
@@ -355,6 +356,7 @@ feature 'allocation', %q{
     page.find('#mode-waybills').click_and_wait
     page.should have_no_selector('#available-resources')
     within('#available-resources-by-wb') do
+      wait_until { wbs.count == all("tbody tr").count }
       page.all('tbody tr').each do |tr|
         if tr.has_content?(wb.document_id)
           tr.find("td[@class='allocation-actions-by-wb'] span").click_and_wait
@@ -632,15 +634,12 @@ feature 'allocation', %q{
     ds.save!
 
     page_login
-
-    page.find(:xpath, "//td[@class='cell-title'][contains(.//text(),
-      'Allocation - #{wb.storekeeper.tag}')]").click_and_wait
-    click_button_and_wait(I18n.t('views.allocations.apply'))
+    visit "#documents/allocations/#{ds.id}"
+    click_button(I18n.t('views.statable.buttons.apply'))
     wait_until_hash_changed_to "documents/allocations/#{ds.id}"
-    wait_until do
-      !page.has_xpath?("//div[@class='actions']//input[@value='#{I18n.t(
-              'views.allocations.apply')}']")
-    end
+    wait_until { Allocation.find(ds.id).can_reverse? }
+
+    find_field('state').value.should eq(I18n.t('views.statable.applied'))
     PaperTrail.enabled = false
   end
 
@@ -660,16 +659,22 @@ feature 'allocation', %q{
     page_login
 
     visit("#documents/allocations/#{ds.id}")
-    click_button_and_wait(I18n.t('views.allocations.cancel'))
+    click_button(I18n.t('views.statable.buttons.cancel'))
     wait_until_hash_changed_to "documents/allocations/#{ds.id}"
-    wait_until do
-      !page.has_xpath?("//div[@class='actions']//input[@value='#{I18n.t(
-              'views.allocations.apply')}']")
-    end
-    page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
-        'views.allocations.cancel')}']")
+    wait_until { !Allocation.find(ds.id).can_apply? }
+
     find_field('state').value.should eq(I18n.t('views.statable.canceled'))
-    click_link I18n.t('views.home.logout')
+
+    PaperTrail.enabled = false
+  end
+
+  scenario 'reverse allocations', js: true do
+    PaperTrail.enabled = true
+
+    wb = build(:waybill)
+    wb.add_item(tag: "test resource", mu: "test mu", amount: 100, price: 10)
+    wb.save!
+    wb.apply
 
     ds = build(:allocation, storekeeper: wb.storekeeper,
                             storekeeper_place: wb.storekeeper_place)
@@ -678,17 +683,11 @@ feature 'allocation', %q{
     ds.apply
 
     page_login
+    visit "#documents/allocations/#{ds.id}"
+    click_button(I18n.t('views.statable.buttons.reverse'))
+    wait_until { !Allocation.find(ds.id).can_reverse? }
 
-    visit("#documents/allocations/#{ds.id}")
-    click_button_and_wait(I18n.t('views.allocations.cancel'))
-    wait_until_hash_changed_to "documents/allocations/#{ds.id}"
-    wait_until do
-      !page.has_xpath?("//div[@class='actions']//input[@value='#{I18n.t(
-              'views.allocations.cancel')}']")
-    end
     find_field('state').value.should eq(I18n.t('views.statable.reversed'))
-    click_link I18n.t('views.home.logout')
-
     PaperTrail.enabled = false
   end
 
@@ -922,11 +921,11 @@ feature 'allocation', %q{
           page.should have_content(allocation.foreman.tag)
           state =
             case allocation.state
-              when Statable::UNKNOWN then I18n.t('views.statable.unknown')
-              when Statable::INWORK then I18n.t('views.statable.inwork')
-              when Statable::CANCELED then I18n.t('views.statable.canceled')
-              when Statable::APPLIED then I18n.t('views.statable.applied')
-              when Statable::REVERSED then I18n.t('views.statable.reversed')
+              when Allocation::UNKNOWN then I18n.t('views.statable.unknown')
+              when Allocation::INWORK then I18n.t('views.statable.inwork')
+              when Allocation::CANCELED then I18n.t('views.statable.canceled')
+              when Allocation::APPLIED then I18n.t('views.statable.applied')
+              when Allocation::REVERSED then I18n.t('views.statable.reversed')
             end
           page.should have_content(state)
         end
@@ -1216,8 +1215,8 @@ feature 'allocation', %q{
       end
     end
 
-    click_button_and_wait(I18n.t('views.allocations.apply'))
-    wait_until_hash_changed_to "documents/allocations/#{Allocation.last.id}"
+    click_button(I18n.t('views.statable.buttons.apply'))
+    wait_until { !Allocation.last.can_apply? }
 
     within('#container_documents') do
       within("div[@class='comments']") do
@@ -1225,8 +1224,8 @@ feature 'allocation', %q{
       end
     end
 
-    click_button_and_wait(I18n.t('views.allocations.cancel'))
-    wait_until_hash_changed_to "documents/allocations/#{Allocation.last.id}"
+    click_button(I18n.t('views.statable.buttons.reverse'))
+    wait_until { !Allocation.last.can_reverse? }
 
     within('#container_documents') do
       within("div[@class='comments']") do
@@ -1258,8 +1257,9 @@ feature 'allocation', %q{
       wait_until_hash_changed_to "documents/allocations/#{Allocation.last.id}"
     }.should change(Allocation, :count).by(1)
 
-    click_button_and_wait(I18n.t('views.allocations.cancel'))
-    wait_until_hash_changed_to "documents/allocations/#{Allocation.last.id}"
+
+    click_button(I18n.t('views.statable.buttons.cancel'))
+    wait_until { !Allocation.last.can_cancel? }
 
     within('#container_documents') do
       within("div[@class='comments']") do

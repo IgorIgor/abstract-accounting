@@ -168,6 +168,7 @@ describe Allocation do
   end
 
   it 'should change state' do
+    PaperTrail.enabled = true
     user = create(:user)
     create(:credential, user: user, document_type: Allocation.name)
     PaperTrail.whodunnit = user
@@ -229,6 +230,7 @@ describe Allocation do
     db.state.should eq(Allocation::APPLIED)
 
     PaperTrail.whodunnit = nil
+    PaperTrail.enabled = false
   end
 
   it 'should create facts by rules after apply' do

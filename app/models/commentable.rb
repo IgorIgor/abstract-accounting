@@ -9,14 +9,15 @@
 
 module Commentable
   def send_comment(object, message)
-    unless PaperTrail.whodunnit.nil? || PaperTrail.whodunnit.root?
-      attrs = {}
-      attrs[:user_id] = PaperTrail.whodunnit.id
-      attrs[:item_id] = object.id
-      attrs[:item_type] = object.class.name
-      attrs[:message] = message
-      return !Comment.create(attrs).nil?
-    end
-    true
+    return true unless PaperTrail.enabled?
+    return true if PaperTrail.whodunnit.nil?
+    return true unless PaperTrail.whodunnit
+    return true if PaperTrail.whodunnit.root?
+    attrs = {}
+    attrs[:user_id] = PaperTrail.whodunnit.id
+    attrs[:item_id] = object.id
+    attrs[:item_type] = object.class.name
+    attrs[:message] = message
+    !Comment.create(attrs).nil?
   end
 end

@@ -285,6 +285,7 @@ describe Waybill do
   end
 
   it 'should change state' do
+    PaperTrail.enabled = true
     user = create(:user)
     create(:credential, user: user, document_type: Waybill.name)
     PaperTrail.whodunnit = user
@@ -337,6 +338,7 @@ describe Waybill do
     comment.message.should eq(I18n.t('activerecord.attributes.waybill.comment.reverse'))
 
     PaperTrail.whodunnit = nil
+    PaperTrail.enabled = false
   end
 
   it 'should create fact after apply' do

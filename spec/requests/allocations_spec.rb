@@ -682,12 +682,36 @@ feature 'allocation', %q{
     ds.save!
     ds.apply
 
-    page_login
+    password = "password"
+    user = create(:user, entity: wb.storekeeper, password: password)
+    create(:credential, user: user, place: wb.storekeeper_place,
+           document_type: Allocation.name)
+
+    manager = create(:user, password: password)
+    group = create(:group, manager: manager)
+    group.user_ids = [user.id]
+
+    page_login user.email, password
     visit "#documents/allocations/#{ds.id}"
+    page.should_not have_xpath(
+      ".//input[@type='button' and @value='#{I18n.t('views.statable.buttons.reverse')}']")
+    click_link I18n.t('views.home.logout')
+
+    page_login manager.email, password
+    visit "#documents/allocations/#{ds.id}"
+    page.should have_xpath(
+      ".//input[@type='button' and @value='#{I18n.t('views.statable.buttons.reverse')}']")
     click_button(I18n.t('views.statable.buttons.reverse'))
     wait_until { !Allocation.find(ds.id).can_reverse? }
 
     find_field('state').value.should eq(I18n.t('views.statable.reversed'))
+
+    within('#container_documents') do
+      within("div[@class='comments']") do
+        page.should have_content(I18n.t("activerecord.attributes.allocation.comment.reverse"))
+      end
+    end
+
     PaperTrail.enabled = false
   end
 
@@ -1196,7 +1220,6 @@ feature 'allocation', %q{
 
     within("#container_documents") do
       page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
-      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
 
       within('#selected-resources') do
         fill_in I18n.t('views.allocations.amount'), :with => 2
@@ -1224,40 +1247,13 @@ feature 'allocation', %q{
       end
     end
 
-    click_button(I18n.t('views.statable.buttons.reverse'))
-    wait_until { !Allocation.last.can_reverse? }
+    al1 = build(:allocation, created: DateTime.current.change(year: 2011),
+                storekeeper: wb.storekeeper,
+                storekeeper_place: wb.storekeeper_place)
+    al1.add_item(tag: 'roof2', mu: 'm2', amount: 2)
+    al1.save!
 
-    within('#container_documents') do
-      within("div[@class='comments']") do
-        page.should have_content(I18n.t("activerecord.attributes.allocation.comment.reverse"))
-      end
-    end
-
-    page.find("#btn_create").click
-    page.find("a[@href='#documents/allocations/new']").click
-
-    page.datepicker("created").prev_month.day(10)
-
-    within("#container_documents form") do
-      fill_in("foreman_entity", :with =>"entity")
-    end
-
-    within("#container_documents") do
-      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
-      page.find("#available-resources tbody tr td[@class='allocation-actions'] span").click
-
-      within('#selected-resources') do
-        fill_in I18n.t('views.allocations.amount'), :with => 2
-      end
-    end
-
-    lambda {
-      click_button_and_wait(I18n.t('views.allocations.save'))
-      wait_for_ajax
-      wait_until_hash_changed_to "documents/allocations/#{Allocation.last.id}"
-    }.should change(Allocation, :count).by(1)
-
-
+    visit "#documents/allocations/#{al1.id}"
     click_button(I18n.t('views.statable.buttons.cancel'))
     wait_until { !Allocation.last.can_cancel? }
 

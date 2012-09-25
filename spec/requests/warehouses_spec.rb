@@ -116,6 +116,7 @@ feature 'warehouses', %q{
     password = "password"
     user = create(:user, password: password)
     credential = create(:credential, user: user, document_type: Waybill.name)
+    create(:credential, user: user, place: credential.place, document_type: Allocation.name)
 
     wb = build(:waybill)
     5.times do |i|
@@ -153,8 +154,7 @@ feature 'warehouses', %q{
     page.find('#warehouses a').click
     current_hash.should eq('warehouses')
 
-    resources = Warehouse.all(where: { storekeeper_id: { equal: user.entity_id },
-                                       storekeeper_place_id: { equal: credential.place_id } })
+    resources = Warehouse.all(where: { warehouse_id: { equal: credential.place_id } })
 
     check_header("#container_documents table", titles)
     check_content("#container_documents table", resources) do |resource|
@@ -211,8 +211,8 @@ feature 'warehouses', %q{
       find(:xpath,
            ".//tr[1]//td[@class='distribution-tree-actions-by-wb']").click
 
-      page.should have_selector("#group_#{wb.
-          storekeeper_place.id} td[@class='td-inner-table']")
+      page.should have_xpath(".//tr[@id='group_#{wb.
+          storekeeper_place.id}']//td[@class='td-inner-table']")
 
 
       check_paginate("#group_#{wb.storekeeper_place.id} div[@class='paginate']",
@@ -328,13 +328,14 @@ feature 'warehouses', %q{
     password = "password"
     user = create(:user, password: password)
     credential = create(:credential, user: user, document_type: Waybill.name)
+    credential = create(:credential, user: user, document_type: Allocation.name)
     page_login(user.email, password)
 
     page.find('#btn_slide_conditions').click
     page.find('#warehouses a').click
     current_hash.should eq('warehouses')
 
-    page.should_not have_xpath("//select[@id='warehouse_group']")
+    page.should have_no_xpath("//select[@id='warehouse_group']")
   end
 
   scenario 'sort warehouses', js: true do

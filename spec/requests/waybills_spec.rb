@@ -402,16 +402,35 @@ feature "waybill", %q{
     wb.save!
     wb.apply
 
-    page_login
-    visit("#documents/waybills/#{wb.id}")
-    wait_until_hash_changed_to "documents/waybills/#{wb.id}"
-    click_button(I18n.t('views.statable.buttons.reverse'))
+    password = "password"
+    user = create(:user, entity: wb.storekeeper, password: password)
+    create(:credential, user: user, place: wb.storekeeper_place,
+           document_type: Waybill.name)
 
-    wait_until_hash_changed_to "documents/waybills/#{wb.id}"
-    wait_until { !Waybill.find(wb.id).can_cancel? }
+    manager = create(:user, password: password)
+    group = create(:group, manager: manager)
+    group.user_ids = [user.id]
+
+    page_login user.email, password
+    visit "#documents/waybills/#{wb.id}"
+    page.should_not have_xpath(
+      ".//input[@type='button' and @value='#{I18n.t('views.statable.buttons.reverse')}']")
+    click_link I18n.t('views.home.logout')
+
+    page_login manager.email, password
+    visit "#documents/waybills/#{wb.id}"
+    page.should have_xpath(
+      ".//input[@type='button' and @value='#{I18n.t('views.statable.buttons.reverse')}']")
+    click_button(I18n.t('views.statable.buttons.reverse'))
+    wait_until { !Waybill.find(wb.id).can_reverse? }
+
     wait_until { find_field('state').value == I18n.t('views.statable.reversed') }
-    page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
-        'views.statable.buttons.reverse')}']")
+
+    within('#container_documents') do
+      within("div[@class='comments']") do
+        page.should have_content(I18n.t("activerecord.attributes.waybill.comment.reverse"))
+      end
+    end
 
     PaperTrail.enabled = false
   end
@@ -917,16 +936,6 @@ feature "waybill", %q{
     within('#container_documents') do
       within("div[@class='comments']") do
         page.should have_content(I18n.t("activerecord.attributes.waybill.comment.apply"))
-      end
-    end
-
-    click_button_and_wait(I18n.t('views.statable.buttons.reverse'))
-
-    wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
-    wait_until { !Waybill.last.can_reverse? }
-    within('#container_documents') do
-      within("div[@class='comments']") do
-        page.should have_content(I18n.t("activerecord.attributes.waybill.comment.reverse"))
       end
     end
 

@@ -45,7 +45,7 @@ class WarehousesController < ApplicationController
         attrs[:where][:warehouse_id] = { equal: credential.place_id }
       else
         if current_user.managed_group
-          unless can?(:group_read, Waybill) && can?(:group_read, Allocation)
+          unless can?(:group_manage, Waybill) && can?(:group_manage, Allocation)
             @warehouse = []
             @count = 0
             return
@@ -84,7 +84,7 @@ class WarehousesController < ApplicationController
             attrs[:where][:warehouse_id] = { equal: credential.place_id }
           else
             if current_user.managed_group
-              unless can?(:group_read, Waybill) && can?(:group_read, Allocation)
+              unless can?(:group_manage, Waybill) && can?(:group_manage, Allocation)
                 @warehouse = []
                 @count = 0
                 @group_by = params[:group_by]

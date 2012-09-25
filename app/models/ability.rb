@@ -11,13 +11,14 @@ class Ability
   include CanCan::Ability
 
   def initialize(user)
-    alias_action :index, :preview, :show, :data, :list, :group, :resources, to: :group_read
+    alias_action :index, :preview, :show, :data, :list, :group, :resources,
+                 :reverse, to: :group_manage
     if user && user.root?
       can :manage, :all
     elsif user
       manage_by_credentials(user, :manage)
       user.managed_group.users.each do |u|
-        manage_by_credentials(u, :group_read)
+        manage_by_credentials(u, :group_manage)
       end if user.managed_group(:force_update)
     end
   end
@@ -25,6 +26,9 @@ class Ability
   def manage_by_credentials(user, action)
     user.credentials(:force_update).each do |c|
       can action, c.document_type.constantize
+      if action == :manage
+        cannot :reverse, c.document_type.constantize
+      end
     end
   end
 end

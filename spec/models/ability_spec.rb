@@ -31,11 +31,29 @@ describe Ability do
     group = create(:group, manager: boss)
     group.user_ids = [subordinate1.id, subordinate2.id]
 
-    Ability.new(boss).should be_able_to(:group_read, Entity)
-    Ability.new(boss).should be_able_to(:group_read, Asset)
+    Ability.new(boss).should be_able_to(:group_manage, Entity)
+    Ability.new(boss).should be_able_to(:group_manage, Asset)
 
     create(:credential, user: boss, document_type: Money.name)
 
     Ability.new(boss).should be_able_to(:manage, Money)
+  end
+
+  it "should not add ability to reverse document if user is not group manager" do
+    user = create(:user)
+    create(:credential, user: user, document_type: Waybill.name)
+
+    Ability.new(user).should_not be_able_to(:reverse, Waybill)
+  end
+
+  it "should  add ability to reverse document if user is group manager" do
+    user = create(:user)
+    create(:credential, user: user, document_type: Waybill.name)
+
+    manager = create(:user)
+    group = create(:group, manager: manager)
+    group.user_ids = [user.id]
+
+    Ability.new(manager).should be_able_to(:reverse, Waybill)
   end
 end

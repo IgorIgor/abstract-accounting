@@ -1,8 +1,12 @@
 <table>
   <thead>
     <tr>
-      <th><%=t 'views.groups.tag' %></th>
-      <th><%=t 'views.groups.manager' %></th>
+      <th id="tag" data-bind="click: sortBy">
+        <%=t 'views.groups.tag' %><span></span>
+      </th>
+      <th id="manager" data-bind="click: sortBy">
+        <%=t 'views.groups.manager' %><span></span>
+      </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">

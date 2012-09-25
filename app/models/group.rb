@@ -24,6 +24,10 @@ class Group < ActiveRecord::Base
   belongs_to :manager, :class_name => 'User'
   has_and_belongs_to_many :users, before_add: :evaluate_user
 
+  custom_sort(:manager) do |dir|
+    scoped.joins{manager.entity}.order{manager.entity.tag.__send__(dir)}
+  end
+
   def evaluate_user(user)
     if user.id == manager_id
       errors[:users] << I18n.t(

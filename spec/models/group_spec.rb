@@ -48,4 +48,16 @@ describe Group do
       expect { group.users << user }.to raise_error
     end.to change{ group.errors[:users].size }.from(0).to(1)
   end
+
+  it "should sort groups" do
+    10.times { create(:group) }
+
+    grsort = Group.sort_by_manager("asc")
+    grsort_test = Group.joins{manager.entity}.order{manager.entity.tag}.all
+    grsort.should eq(grsort_test)
+    grsort = Group.sort_by_manager("desc")
+    grsort_test = Group.joins{manager.entity}.order{manager.entity.tag.desc}.all
+    grsort.should eq(grsort_test)
+  end
+
 end

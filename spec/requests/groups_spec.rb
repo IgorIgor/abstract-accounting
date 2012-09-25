@@ -28,7 +28,6 @@ feature "group", %q{
 
     current_hash.should eq('documents/groups/new')
     page.should have_selector("div[@id='container_documents'] form")
-    page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
     click_button(I18n.t('views.groups.save'))
 
     within("#container_documents form") do
@@ -264,4 +263,44 @@ feature "group", %q{
       end
     end
   end
+
+  scenario 'sort groups', js: true do
+    create(:group)
+    create(:group)
+    group1 = Group.first
+    group2 = Group.last
+    3.times { group1.users << create(:user); group2.users << create(:user) }
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.groups')
+    current_hash.should eq('groups')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='groups' and @class='sidebar-selected']")
+
+    test_order = lambda do |field, type|
+      groups = Group.sort(field, type)
+      within('#container_documents table') do
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      check_content("#container_documents table", groups) do |group|
+        [group.tag, group.manager.entity.tag]
+      end
+    end
+
+    test_order.call('tag','asc')
+    test_order.call('tag','desc')
+
+    test_order.call('manager','asc')
+    test_order.call('manager','desc')
+  end
+
 end

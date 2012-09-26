@@ -1,7 +1,9 @@
 <table>
   <thead>
     <tr>
-      <th><%= t 'views.places.tag' %></th>
+      <th id="tag" data-bind="click: sortBy">
+        <%= t 'views.places.tag' %><span></span>
+      </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">

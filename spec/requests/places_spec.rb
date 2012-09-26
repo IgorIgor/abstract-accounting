@@ -143,4 +143,39 @@ feature 'places', %q{
     find_field('place_tag')[:disabled].should eq("true")
     find_field('place_tag')[:value].should eq('edited new place')
   end
+
+  scenario 'sort places', js: true do
+    create(:place)
+    create(:place)
+    create(:place)
+    create(:place)
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.places')
+    current_hash.should eq('places')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='places' and @class='sidebar-selected']")
+
+    test_order = lambda do |field, type|
+      places = Place.order("#{field} #{type}")
+      within('#container_documents table') do
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      check_content("#container_documents table", places) do |place|
+        [place.tag]
+      end
+    end
+
+    test_order.call('tag','asc')
+    test_order.call('tag','desc')
+  end
 end

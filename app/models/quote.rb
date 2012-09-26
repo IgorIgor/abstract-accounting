@@ -18,6 +18,10 @@ class Quote < ActiveRecord::Base
   has_many :balances_as_give, :class_name => "Balance", :through => :money, :source => :balances_gives
   has_many :balances_as_take, :class_name => "Balance", :through => :money, :source => :balances_takes
 
+  custom_sort(:alpha_code) do |dir|
+    joins{money}.order{money.alpha_code.__send__(dir)}
+  end
+
   private
   def do_initialize
     self.diff ||= 0.0 if self.attributes.has_key?('diff')

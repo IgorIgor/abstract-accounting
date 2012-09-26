@@ -134,4 +134,44 @@ feature 'quote', %q{
     find_field('quote_rate')[:value].should eq('3')
     find_field('quote_money')[:value].should eq(money.alpha_code)
   end
+
+  scenario 'sort quote', js: true do
+    create(:quote, money: create(:money))
+    create(:quote, money: create(:money))
+    create(:quote, money: create(:money))
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.quote')
+    current_hash.should eq('quote')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='quote' and @class='sidebar-selected']")
+
+    test_order = lambda do |field, type|
+      quotes = Quote.sort(field, type)
+      within('#container_documents table') do
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      check_content("#container_documents table", quotes) do |quote|
+        [quote.money.alpha_code, quote.day.strftime('%Y-%m-%d'), quote.rate.to_i]
+      end
+    end
+
+    test_order.call('alpha_code','asc')
+    test_order.call('alpha_code','desc')
+
+    test_order.call('day','asc')
+    test_order.call('day','desc')
+
+    test_order.call('rate','asc')
+    test_order.call('rate','desc')
+  end
 end

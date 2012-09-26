@@ -1,9 +1,15 @@
 <table>
   <thead>
     <tr>
-      <th><%=t 'views.quote.resource' %></th>
-      <th><%=t 'views.quote.date' %></th>
-      <th><%=t 'views.quote.rate' %></th>
+      <th id="alpha_code" data-bind="click: sortBy">
+        <%=t 'views.quote.resource' %><span></span>
+      </th>
+      <th id="day" data-bind="click: sortBy">
+        <%=t 'views.quote.date' %><span></span>
+      </th>
+      <th id="rate" data-bind="click: sortBy">
+        <%=t 'views.quote.rate' %><span></span>
+      </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">

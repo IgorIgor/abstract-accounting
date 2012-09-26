@@ -28,7 +28,10 @@ class QuoteController < ApplicationController
     page = params[:page].nil? ? 1 : params[:page].to_i
     per_page = params[:per_page].nil? ?
         Settings.root.per_page.to_i : params[:per_page].to_i
-    @quote = Quote.limit(per_page).offset((page - 1) * per_page).all
+    filter = { paginate: { page: page, per_page: per_page }}
+    filter[:sort] = params[:order] if params[:order]
+    #TODO: should get filtrate options from client
+    @quote = Quote.filtrate(filter)
     @count = Quote.count
   end
 
@@ -49,7 +52,7 @@ class QuoteController < ApplicationController
     quote = Quote.find(params[:id])
     begin
       Quote.transaction do
-        params[:quote][:day] = DateTime.strptime(params[:quote][:day], "%a %b %d %Y %H:%M:%S")
+        params[:quote][:day] = DateTime.parse(params[:quote][:day])
         quote.update_attributes(params[:quote])
         render json: { result: 'success', id: quote.id }
       end

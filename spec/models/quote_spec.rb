@@ -251,4 +251,15 @@ describe Quote do
       end
     end
   end
+
+  it "should sort quote" do
+    3.times { create(:quote, money: create(:money)) }
+
+    qs = Quote.sort_by_alpha_code("asc").all
+    qs_test = Quote.joins{money}.order{money.alpha_code}.all
+    qs.should eq(qs_test)
+    qs = Quote.sort_by_alpha_code("desc").all
+    qs_test = Quote.joins{money}.order{money.alpha_code.desc}.all
+    qs.should eq(qs_test)
+  end
 end

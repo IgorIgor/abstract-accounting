@@ -23,6 +23,8 @@ describe WarehouseResourceReport do
                                 warehouse_id: create(:place).id).should be_empty
     WarehouseResourceReport.count(resource_id: create(:asset).id,
                                    warehouse_id: create(:place).id).should eq(0)
+    WarehouseResourceReport.total(resource_id: create(:asset).id,
+                                   warehouse_id: create(:place).id).should eq(0.0)
   end
 
   it "should return states from waybills" do
@@ -42,7 +44,7 @@ describe WarehouseResourceReport do
     report = WarehouseResourceReport.all(resource_id: resource.id, warehouse_id: warehouse.id)
     WarehouseResourceReport.
         count(resource_id: resource.id, warehouse_id: warehouse.id).should eq(count)
-    state = 0
+    state = 0.0
     report.count.should eq(count)
     report.each do |item|
       item.should be_instance_of(WarehouseResourceReport)
@@ -64,6 +66,9 @@ describe WarehouseResourceReport do
       item.state.should eq(state)
       item.document_id.should eq(wb.document_id)
     end
+
+    WarehouseResourceReport.
+        total(resource_id: resource.id, warehouse_id: warehouse.id).should eq(state)
   end
 
   it "should return states from waybills and allocations" do
@@ -135,6 +140,9 @@ describe WarehouseResourceReport do
       item.state.should eq(state)
       item.document_id.should eq(document_id)
     end
+
+    WarehouseResourceReport.
+        total(resource_id: resource.id, warehouse_id: warehouse.id).should eq(state)
   end
 
   it "should return states from waybills and allocations by date" do
@@ -185,6 +193,9 @@ describe WarehouseResourceReport do
     end
 
     report.should eq(report_c)
+
+    WarehouseResourceReport.
+        total(resource_id: resource.id, warehouse_id: warehouse.id).should eq(state)
   end
 
   it "should return states from waybills and allocations by date and amount" do
@@ -235,6 +246,9 @@ describe WarehouseResourceReport do
     end
 
     report.should eq(report_c)
+
+    WarehouseResourceReport.
+        total(resource_id: resource.id, warehouse_id: warehouse.id).should eq(state)
   end
 
   it "should return states with paginate" do
@@ -288,6 +302,9 @@ describe WarehouseResourceReport do
         document_id: al.document_id)
     end
 
+    WarehouseResourceReport.
+        total(resource_id: resource.id, warehouse_id: warehouse.id).should_not eq(state)
+
     report.count.should eq(report_c.count)
     report.should eq(report_c)
 
@@ -316,5 +333,8 @@ describe WarehouseResourceReport do
 
     report.count.should eq(report_c.count)
     report.should eq(report_c)
+
+    WarehouseResourceReport.
+        total(resource_id: resource.id, warehouse_id: warehouse.id).should eq(state)
   end
 end

@@ -67,9 +67,9 @@ class Warehouse
           when "tag"
             "assets.tag"
           when "exp_amount"
-            "to_char(warehouse.exp_amount, '9999.99')"
+            "cast(warehouse.exp_amount as character(100))"
           when "real_amount"
-            "to_char(warehouse.real_amount, '9999.99')"
+            "cast(warehouse.real_amount as character(100))"
           else
             attr.to_s
         end

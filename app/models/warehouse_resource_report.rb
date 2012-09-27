@@ -51,6 +51,13 @@ class WarehouseResourceReport
       scope(args).count
     end
 
+    def total(args)
+      warehouse = Warehouse.all(where: { warehouse_id: { equal: args[:warehouse_id] },
+                             'assets.id' => { equal_attr: args[:resource_id] } }).
+          first
+      warehouse ? warehouse.real_amount : 0.0
+    end
+
     def scope(args)
       fact_scope = Fact.
                 where{(resource_id == my{args[:resource_id]}) & (resource_type == Asset.name)}

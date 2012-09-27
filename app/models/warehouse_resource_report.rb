@@ -67,17 +67,24 @@ class WarehouseResourceReport
       fact_scope = Fact.
                 where{(resource_id == my{args[:resource_id]}) & (resource_type == Asset.name)}
 
+      reverted_waybills_ids = fact_scope.joins{parent.to.waybill}.
+          where{parent.amount == -1.0}.select{parent.to.waybill.id}
+
       waybills_scope = fact_scope.
                 joins{parent.to.take}.
                 joins{parent.to.waybill}.
                 joins{from}.
                 where{parent.to.take.place_id == my{args[:warehouse_id]}}.
                 where{parent.amount == 1.0}.
+                where{parent.to.waybill.id.not_in(reverted_waybills_ids)}.
                 select{parent.to.waybill.created}.select{amount}.select{amount.as(:state)}.
                 select{from.entity_id}.select{from.entity_type}.
                 select("'#{WAYBILL_SIDE}' as side").
                 select{parent.to.waybill.document_id}.
                 select{parent.to.waybill.id.as(:item_id)}
+
+      reverted_allocation_ids = fact_scope.joins{parent.to.allocation}.
+          where{parent.amount == -1.0}.select{parent.to.allocation.id}
 
       allocations_scope = fact_scope.
                 joins{parent.to.give}.
@@ -85,6 +92,7 @@ class WarehouseResourceReport
                 joins{to}.
                 where{parent.to.give.place_id == my{args[:warehouse_id]}}.
                 where{parent.amount == 1.0}.
+                where{parent.to.allocation.id.not_in(reverted_allocation_ids)}.
                 select{parent.to.allocation.created}.
                 select{amount}.select{(amount * -1.0).as(:state)}.
                 select{to.entity_id}.select{to.entity_type}.

@@ -31,9 +31,9 @@ class WarehouseResourceReport
       state = 0.0
       scope = scope(args).order_by("created ASC, state DESC")
       if args[:page] && args[:per_page]
-        if args[:page] > 1
+        if args[:page].to_i > 1
           #need refactoring
-          state = scope(args).limit(args[:per_page] * (args[:page] - 1)).select("state").
+          state = scope(args).limit(args[:per_page] * (args[:page].to_i - 1)).select("state").
               inject(0.0) do |mem, value|
             mem += value.state.to_f
           end

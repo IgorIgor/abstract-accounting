@@ -8,11 +8,12 @@
 # Please see ./COPYING for details
 
 class Warehouse
-  attr_reader :place, :id, :tag, :real_amount, :exp_amount, :mu
+  attr_reader :place_id, :place, :id, :tag, :real_amount, :exp_amount, :mu
 
   def initialize(attrs)
     @place = attrs['place']
-    @id = attrs['asset_id']
+    @place_id = Converter.int(attrs['place_id'])
+    @id = Converter.int(attrs['asset_id'])
     @tag = attrs['tag']
     @real_amount = Converter.float(attrs['real_amount'])
     @exp_amount = Converter.float(attrs['exp_amount'])
@@ -51,7 +52,8 @@ class Warehouse
         if attrs[:select] == 'count'
           'COUNT(*) as count'
         elsif attrs[:select] == 'warehouse'
-          'places.tag as place, warehouse.*, assets.tag as tag, assets.mu as mu'
+          "places.tag as place, places.id as place_id, " +
+              "warehouse.*, assets.tag as tag, assets.mu as mu"
         end
 
       condition = ''

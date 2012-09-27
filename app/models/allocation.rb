@@ -114,7 +114,11 @@ class Allocation < ActiveRecord::Base
   end
 
   def document_id
-    Allocation.last.nil? ? 1 : Allocation.last.id + 1
+    if self.new_record?
+      Allocation.last.nil? ? 1 : Allocation.last.id + 1
+    else
+      self.id.to_s
+    end
   end
 
   def foreman_place_or_new

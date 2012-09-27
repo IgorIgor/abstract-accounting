@@ -511,6 +511,35 @@ describe Allocation do
     Allocation.search({"foreman" => al2.foreman.tag,
                        "storekeeper" => al2.storekeeper.tag}).should =~ [al2]
   end
+
+  describe "#document_id" do
+    context "new record" do
+      it "should return last id + 1" do
+        Allocation.new.document_id.should eq(Allocation.last.id + 1)
+      end
+
+      it "should return 1 if records is not exists" do
+        Allocation.delete_all
+        Allocation.new.document_id.should eq(1)
+      end
+    end
+
+    context "saved record" do
+      it "should return id as document_id" do
+        wb = build(:waybill)
+        wb.add_item(tag: 'roof', mu: 'm2',  amount: 500, price: 10.0)
+        wb.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1.0)
+        wb.save!
+        wb.apply
+
+        db = build(:allocation, storekeeper: wb.storekeeper,
+                                storekeeper_place: wb.storekeeper_place)
+        db.add_item(tag: 'roof', mu: 'm2', amount: 300)
+        db.save!
+        db.document_id.should eq(db.id.to_s)
+      end
+    end
+  end
 end
 
 describe AllocationItemsValidator do

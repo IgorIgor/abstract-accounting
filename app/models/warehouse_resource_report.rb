@@ -11,7 +11,7 @@ class WarehouseResourceReport
   WAYBILL_SIDE = Waybill.name
   ALLOCATION_SIDE = Allocation.name
 
-  attr_reader :date, :entity, :amount, :state, :side
+  attr_reader :date, :entity, :amount, :state, :side, :document_id
 
   def initialize(attrs)
     @date = attrs[:date]
@@ -19,6 +19,7 @@ class WarehouseResourceReport
     @amount = attrs[:amount]
     @state = attrs[:state]
     @side = attrs[:side]
+    @document_id = attrs[:document_id]
   end
 
   class << self
@@ -41,7 +42,8 @@ class WarehouseResourceReport
                  amount: resource.amount.to_f,
                  state: state,
                  entity: resource.entity_type.constantize.find(resource.entity_id),
-                 side: resource.side)
+                 side: resource.side,
+                 document_id: resource.document_id)
       end
     end
 
@@ -61,18 +63,19 @@ class WarehouseResourceReport
                 where{parent.amount == 1.0}.
                 select{parent.to.waybill.created}.select{amount}.select{amount.as(:state)}.
                 select{from.entity_id}.select{from.entity_type}.
-                select("'#{WAYBILL_SIDE}' as side")
+                select("'#{WAYBILL_SIDE}' as side").select{parent.to.waybill.document_id}
 
       allocations_scope = fact_scope.
-                      joins{parent.to.give}.
-                      joins{parent.to.allocation}.
-                      joins{to}.
-                      where{parent.to.give.place_id == my{args[:warehouse_id]}}.
-                      where{parent.amount == 1.0}.
-                      select{parent.to.allocation.created}.
-                      select{amount}.select{(amount * -1.0).as(:state)}.
-                      select{to.entity_id}.select{to.entity_type}.
-                      select("'#{ALLOCATION_SIDE}' as side")
+                joins{parent.to.give}.
+                joins{parent.to.allocation}.
+                joins{to}.
+                where{parent.to.give.place_id == my{args[:warehouse_id]}}.
+                where{parent.amount == 1.0}.
+                select{parent.to.allocation.created}.
+                select{amount}.select{(amount * -1.0).as(:state)}.
+                select{to.entity_id}.select{to.entity_type}.
+                select("'#{ALLOCATION_SIDE}' as side").
+                select{cast(parent.to.allocation.id.as("character(100)")).as(:document_id)}
 
       SqlRecord.union(waybills_scope.to_sql, allocations_scope.to_sql)
     end

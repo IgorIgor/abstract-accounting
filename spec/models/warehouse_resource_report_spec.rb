@@ -13,7 +13,7 @@ WarehouseResourceReport.class_eval do
   def ==(other)
     return false unless other.instance_of?(WarehouseResourceReport)
     date == other.date && entity == other.entity && amount == other.amount &&
-        state == other.state && side == other.side
+        state == other.state && side == other.side && document_id == other.document_id
   end
 end
 
@@ -50,6 +50,7 @@ describe WarehouseResourceReport do
       item.entity.should_not be_nil
       item.amount.should_not be_nil
       item.state.should_not be_nil
+      item.document_id.should_not be_nil
 
       distributor = item.entity
       wb = Waybill.joins{deal.rules.from}.
@@ -61,6 +62,7 @@ describe WarehouseResourceReport do
       item.amount.should eq(wb.items[0].amount)
       item.entity.should eq(wb.distributor)
       item.state.should eq(state)
+      item.document_id.should eq(wb.document_id)
     end
   end
 
@@ -96,10 +98,12 @@ describe WarehouseResourceReport do
       item.amount.should_not be_nil
       item.state.should_not be_nil
       item.side.should_not be_nil
+      item.document_id.should_not be_nil
 
       date = nil
       amount = nil
       entity = nil
+      document_id = nil
 
       if item.side == WarehouseResourceReport::WAYBILL_SIDE
         distributor = item.entity
@@ -111,6 +115,7 @@ describe WarehouseResourceReport do
         date = wb.created
         amount = wb.items[0].amount
         entity = wb.distributor
+        document_id = wb.document_id
       elsif item.side == WarehouseResourceReport::ALLOCATION_SIDE
         foreman = item.entity
         al = Allocation.joins{deal.rules.to}.
@@ -121,12 +126,14 @@ describe WarehouseResourceReport do
         date = al.created
         amount = al.items[0].amount
         entity = al.foreman
+        document_id = al.document_id
       end
 
       item.date.should eq(date)
       item.amount.should eq(amount)
       item.entity.should eq(entity)
       item.state.should eq(state)
+      item.document_id.should eq(document_id)
     end
   end
 
@@ -166,13 +173,15 @@ describe WarehouseResourceReport do
       amount = w.items[0].amount
       state += amount
       report_c << WarehouseResourceReport.new(date: w.created, entity: w.distributor,
-        amount: amount, state: state, side: WarehouseResourceReport::WAYBILL_SIDE)
+        amount: amount, state: state, side: WarehouseResourceReport::WAYBILL_SIDE,
+        document_id: w.document_id)
 
       al = Allocation.all[ind]
       amount = al.items[0].amount
       state -= amount
       report_c << WarehouseResourceReport.new(date: al.created, entity: al.foreman,
-        amount: amount, state: state, side: WarehouseResourceReport::ALLOCATION_SIDE)
+        amount: amount, state: state, side: WarehouseResourceReport::ALLOCATION_SIDE,
+        document_id: al.document_id)
     end
 
     report.should eq(report_c)
@@ -214,13 +223,15 @@ describe WarehouseResourceReport do
       amount = w.items[0].amount
       state += amount
       report_c << WarehouseResourceReport.new(date: w.created, entity: w.distributor,
-        amount: amount, state: state, side: WarehouseResourceReport::WAYBILL_SIDE)
+        amount: amount, state: state, side: WarehouseResourceReport::WAYBILL_SIDE,
+        document_id: w.document_id)
 
       al = Allocation.all[ind]
       amount = al.items[0].amount
       state -= amount
       report_c << WarehouseResourceReport.new(date: al.created, entity: al.foreman,
-        amount: amount, state: state, side: WarehouseResourceReport::ALLOCATION_SIDE)
+        amount: amount, state: state, side: WarehouseResourceReport::ALLOCATION_SIDE,
+        document_id: al.document_id)
     end
 
     report.should eq(report_c)
@@ -266,13 +277,15 @@ describe WarehouseResourceReport do
       amount = w.items[0].amount
       state += amount
       report_c << WarehouseResourceReport.new(date: w.created, entity: w.distributor,
-        amount: amount, state: state, side: WarehouseResourceReport::WAYBILL_SIDE)
+        amount: amount, state: state, side: WarehouseResourceReport::WAYBILL_SIDE,
+        document_id: w.document_id)
 
       al = Allocation.all[ind]
       amount = al.items[0].amount
       state -= amount
       report_c << WarehouseResourceReport.new(date: al.created, entity: al.foreman,
-        amount: amount, state: state, side: WarehouseResourceReport::ALLOCATION_SIDE)
+        amount: amount, state: state, side: WarehouseResourceReport::ALLOCATION_SIDE,
+        document_id: al.document_id)
     end
 
     report.count.should eq(report_c.count)
@@ -290,14 +303,15 @@ describe WarehouseResourceReport do
       amount = w.items[0].amount
       state += amount
       report_c << WarehouseResourceReport.new(date: w.created, entity: w.distributor,
-        amount: amount, state: state, side: WarehouseResourceReport::WAYBILL_SIDE)
+        amount: amount, state: state, side: WarehouseResourceReport::WAYBILL_SIDE,
+        document_id: w.document_id)
 
       al = Allocation.offset(count / 2).all[ind]
       amount = al.items[0].amount
       state -= amount
       report_c << WarehouseResourceReport.new(date: al.created, entity: al.foreman,
-        amount: amount, state: state, side: WarehouseResourceReport::ALLOCATION_SIDE)
-
+        amount: amount, state: state, side: WarehouseResourceReport::ALLOCATION_SIDE,
+        document_id: al.document_id)
     end
 
     report.count.should eq(report_c.count)

@@ -7,11 +7,14 @@
 #
 # Please see ./COPYING for details
 
+#TODO: проверить есть ли возможность что стронированный ресурс будет с не актуальным балансом
+#TODO: вынести в модуль Warehouse
+
 class WarehouseResourceReport
   WAYBILL_SIDE = Waybill.name
   ALLOCATION_SIDE = Allocation.name
 
-  attr_reader :date, :entity, :amount, :state, :side, :document_id
+  attr_reader :date, :entity, :amount, :state, :side, :document_id, :item_id
 
   def initialize(attrs)
     @date = attrs[:date]
@@ -20,6 +23,7 @@ class WarehouseResourceReport
     @state = attrs[:state]
     @side = attrs[:side]
     @document_id = attrs[:document_id]
+    @item_id = Converter.int(attrs[:item_id])
   end
 
   class << self
@@ -43,7 +47,8 @@ class WarehouseResourceReport
                  state: state,
                  entity: resource.entity_type.constantize.find(resource.entity_id),
                  side: resource.side,
-                 document_id: resource.document_id)
+                 document_id: resource.document_id,
+                 item_id: resource.item_id)
       end
     end
 
@@ -70,7 +75,9 @@ class WarehouseResourceReport
                 where{parent.amount == 1.0}.
                 select{parent.to.waybill.created}.select{amount}.select{amount.as(:state)}.
                 select{from.entity_id}.select{from.entity_type}.
-                select("'#{WAYBILL_SIDE}' as side").select{parent.to.waybill.document_id}
+                select("'#{WAYBILL_SIDE}' as side").
+                select{parent.to.waybill.document_id}.
+                select{parent.to.waybill.id.as(:item_id)}
 
       allocations_scope = fact_scope.
                 joins{parent.to.give}.
@@ -82,7 +89,8 @@ class WarehouseResourceReport
                 select{amount}.select{(amount * -1.0).as(:state)}.
                 select{to.entity_id}.select{to.entity_type}.
                 select("'#{ALLOCATION_SIDE}' as side").
-                select{cast(parent.to.allocation.id.as("character(100)")).as(:document_id)}
+                select{cast(parent.to.allocation.id.as("character(100)")).as(:document_id)}.
+                select{parent.to.allocation.id.as(:item_id)}
 
       SqlRecord.union(waybills_scope.to_sql, allocations_scope.to_sql)
     end

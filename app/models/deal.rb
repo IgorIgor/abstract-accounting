@@ -22,6 +22,8 @@ class Deal < ActiveRecord::Base
   has_one :give, :class_name => "Term", :conditions => {:side => false}
   has_one :take, :class_name => "Term", :conditions => {:side => true}
   has_one :deal_state
+  has_one :waybill
+  has_one :allocation
 
   def self.income
     income = Deal.where(:id => INCOME_ID).first

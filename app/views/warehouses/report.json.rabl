@@ -8,7 +8,19 @@
 # Please see ./COPYING for details
 
 object false
-child(@warehouse => :objects) { attributes :place_id, :place, :id, :tag, :real_amount,
-                                           :exp_amount, :mu }
+child(@warehouse => :objects) do
+  attributes :item_id, :side, :amount, :state, :document_id
+  node(:date) { |state| state.date.strftime('%Y-%m-%d') }
+  glue :entity do
+    attributes :name
+  end
+end
+child(@resource => :resource) do
+  attributes :tag, :mu
+end
+child(@place => :place) do
+  attributes :tag
+end
+node(:total) { @total }
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

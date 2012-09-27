@@ -43,7 +43,7 @@
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">
-    <tr>
+    <tr data-bind="click: $parent.showReport">
       <td data-bind="text: place"></td>
       <td data-bind="text: tag"></td>
       <td data-bind="text: mu"></td>

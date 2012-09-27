@@ -67,6 +67,9 @@ Abstract::Application.routes.draw do
       get 'data'
       get 'group'
     end
+    member do
+      get 'report'
+    end
   end
   resources :allocations, except: [:edit, :update, :destroy] do
     collection do

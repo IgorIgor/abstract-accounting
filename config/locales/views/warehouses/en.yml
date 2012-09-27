@@ -9,3 +9,12 @@ en:
       group_none: No grouping
       group_place: Place
       group_tag: Tag
+      resource:
+        report:
+          date: Date
+          income: Income
+          document_id: "Document #"
+          amount: Amount
+          consumption: Consumption
+          state: State
+          total: Total

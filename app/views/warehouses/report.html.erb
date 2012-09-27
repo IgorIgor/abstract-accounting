@@ -1,0 +1,56 @@
+<table>
+  <thead>
+    <tr>
+      <td><%=t 'views.warehouses.tag' %></td>
+      <td colspan="6" data-bind="text: resource.tag"></td>
+    </tr>
+    <tr>
+      <td><%=t 'views.warehouses.mu' %></td>
+      <td colspan="6" data-bind="text: resource.mu"></td>
+    </tr>
+    <tr>
+      <td><%=t 'views.warehouses.place' %></td>
+      <td colspan="6" data-bind="text: place.tag"></td>
+    </tr>
+    <tr>
+      <th><%=t 'views.warehouses.resource.report.date' %></th>
+      <th><%=t 'views.warehouses.resource.report.income' %></th>
+      <th><%=t 'views.warehouses.resource.report.document_id' %></th>
+      <th><%=t 'views.warehouses.resource.report.amount' %></th>
+      <th><%=t 'views.warehouses.resource.report.consumption' %></th>
+      <th><%=t 'views.warehouses.resource.report.amount' %></th>
+      <th><%=t 'views.warehouses.resource.report.state' %></th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+  <!-- ko if: side == '<%= WarehouseResourceReport::WAYBILL_SIDE %>' -->
+    <tr data-bind="click: $parent.showWaybill">
+      <td data-bind="text: date"></td>
+      <td data-bind="text: name"></td>
+      <td data-bind="text: document_id"></td>
+      <td data-bind="text: amount"></td>
+      <td></td>
+      <td></td>
+      <td data-bind="text: state"></td>
+    </tr>
+  <!-- /ko -->
+  <!-- ko if: side == '<%= WarehouseResourceReport::ALLOCATION_SIDE %>' -->
+    <tr data-bind="click: $parent.showAllocation">
+      <td data-bind="text: date"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td data-bind="text: name"></td>
+      <td data-bind="text: amount"></td>
+      <td data-bind="text: state"></td>
+    </tr>
+  <!-- /ko -->
+  </tbody>
+  <tfoot>
+    <tr>
+      <td><%=t 'views.warehouses.resource.report.total' %></td>
+      <td colspan="5"></td>
+      <td data-bind="text: total"></td>
+    </tr>
+  </tfoot>
+</table>

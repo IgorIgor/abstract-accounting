@@ -432,6 +432,21 @@ $ ->
             )
           )
         )
+        this.get('#warehouses/:warehouse_id/report', ->
+          warehouse_id = this.params.warehouse_id
+          delete this.params.warehouse_id
+          filter = this.params.toHash()
+          $.get("/warehouses/#{warehouse_id}/report", {}, (form) ->
+            $.getJSON("/warehouses/#{warehouse_id}/report.json", normalizeHash(filter), (data) ->
+              $('.paginate').show()
+              filter.warehouse_id = warehouse_id
+              viewModel = new WarehouseResourceReportViewModel(data, filter)
+              $('#container_documents').html(form)
+              ko.cleanNode($('#main').get(0))
+              ko.applyBindings(viewModel, $('#main').get(0))
+            )
+          )
+        )
         this.get('#:report', ->
           report = this.params.report
           delete this.params.report
@@ -506,7 +521,7 @@ $ ->
         )
       ).run()
 
-      location.hash = 'inbox' if $('#main').length
+      location.hash = 'inbox' if $('#main').length && location.hash.length == 0
 
     expandResources: (object, event) =>
       @expand($('#slide_menu_resources'), $('#arrow_resources_actions'))

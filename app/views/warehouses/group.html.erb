@@ -44,7 +44,7 @@
       </div>
       <table class="inner-table">
         <tbody data-bind="foreach: documents">
-        <tr>
+        <tr data-bind="click: $parent.showReport">
           <td class="warehouse-place" data-bind="text: place"></td>
           <td class="warehouse-tag" data-bind="text: tag"></td>
           <td class="warehouse-mu" data-bind="text: mu"></td>

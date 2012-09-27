@@ -46,3 +46,27 @@ $ ->
         location.hash = "#warehouses"
       else
         location.hash = "#warehouses?group_by=#{@group_by()}"
+
+    showReport: (object) ->
+      params =
+        resource_id: object.id
+      location.hash = "#warehouses/#{object.place_id}/report?#{$.param(params)}"
+
+  class self.WarehouseResourceReportViewModel extends FolderViewModel
+    constructor: (data, params = {}) ->
+      @url = "/warehouses/#{params.warehouse_id}/report.json"
+      @resource = ko.mapping.fromJS(data["resource"])
+      @place = ko.mapping.fromJS(data["place"])
+      @total = data["total"]
+      super(data)
+
+      @params =
+        page: @page
+        per_page: @per_page
+        resource_id: params.resource_id
+
+    showWaybill: (object) ->
+      location.hash = "documents/waybills/#{object.item_id}"
+
+    showAllocation: (object) ->
+      location.hash = "documents/allocations/#{object.item_id}"

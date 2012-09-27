@@ -109,4 +109,49 @@ class WarehousesController < ApplicationController
       end
     end
   end
+
+  def report
+    respond_to do |format|
+      format.html { render :report, layout: false }
+      format.json do
+        params[:page] ||= 1
+        params[:per_page] ||= Settings.root.per_page
+
+        @resource = nil
+        @place = nil
+        @warehouse = []
+        @count = 0
+        @total = 0.0
+
+        unless current_user.root?
+          credential = current_user.credentials(:force_update).
+            where{(document_type == Waybill.name) & (place_id == my{params[:id]})}.
+            first
+          credential = current_user.credentials.
+              where{(document_type == Allocation.name) & (credential.place_id == place_id)}.
+              first if credential
+          unless credential
+            if current_user.managed_group
+              unless can?(:group_manage, Waybill) && can?(:group_manage, Allocation)
+                return
+              end
+            else
+              return
+            end
+          end
+        end
+
+        if params.has_key?(:resource_id) && params.has_key?(:id)
+          @resource = Asset.find(params[:resource_id])
+          @place = Place.find(params[:id])
+          @warehouse = WarehouseResourceReport.all(resource_id: params[:resource_id],
+            warehouse_id: params[:id], page: params[:page], per_page: params[:per_page])
+          @count = WarehouseResourceReport.count(resource_id: params[:resource_id],
+                      warehouse_id: params[:id])
+          @total = WarehouseResourceReport.total(resource_id: params[:resource_id],
+                                                 warehouse_id: params[:id])
+        end
+      end
+    end
+  end
 end

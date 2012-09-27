@@ -301,4 +301,58 @@ feature 'deals', %q{
     find('#fact_side_0')[:checked].should eq('true')
     find('#change_side_0')[:checked].should eq('true')
   end
+
+  scenario 'sort deals', js: true do
+    10.times { create(:deal) }
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.deals')
+    current_hash.should eq('deals')
+    page.should have_xpath("//ul[@id='slide_menu_lists']" +
+                               "/div[@class='slide_action']" +
+                               "/a[@id='deals' and " +
+                               "@class='btn_slide_action sidebar-selected']")
+
+    test_order = lambda do |field, type|
+      deals = Deal.sort(field, type)
+      within('#container_documents table') do
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      check_group_content("#container_documents table", deals) do |deal|
+        if deal.take.resource.instance_of? Asset
+          [deal.tag, deal.entity.tag,
+           "#{deal.give.resource.tag}, #{deal.give.resource.mu}",
+           "#{deal.take.resource.tag}, #{deal.take.resource.mu}",
+           deal.rate]
+        elsif deal.take.resource.instance_of? Money
+          [deal.tag, deal.entity.tag, "#{deal.give.resource.tag}", "#{money.tag}", deal.rate]
+        end
+      end
+    end
+
+    test_order.call('tag','asc')
+    test_order.call('tag','desc')
+
+    test_order.call('name','asc')
+    test_order.call('name','desc')
+
+    test_order.call('give','asc')
+    test_order.call('give','desc')
+
+    test_order.call('take','asc')
+    test_order.call('take','desc')
+
+    test_order.call('rate','asc')
+    test_order.call('rate','desc')
+  end
 end

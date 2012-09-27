@@ -2,11 +2,21 @@
   <thead>
     <tr>
       <th></th>
-      <th><%= t 'views.deals.tag' %></th>
-      <th><%= t 'views.deals.entity' %></th>
-      <th><%= t 'views.deals.give' %></th>
-      <th><%= t 'views.deals.take' %></th>
-      <th><%= t 'views.deals.rate' %></th>
+      <th id="tag" data-bind="click: sortBy">
+        <%= t 'views.deals.tag' %><span></span>
+      </th>
+      <th id="name" data-bind="click: sortBy">
+        <%= t 'views.deals.entity' %><span></span>
+      </th>
+      <th id="give" data-bind="click: sortBy">
+        <%= t 'views.deals.give' %><span></span>
+      </th>
+      <th id="take" data-bind="click: sortBy">
+        <%= t 'views.deals.take' %><span></span>
+      </th>
+      <th id="rate" data-bind="click: sortBy">
+        <%= t 'views.deals.rate' %><span></span>
+      </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">

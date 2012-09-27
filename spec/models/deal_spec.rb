@@ -46,4 +46,47 @@ describe Deal do
     b.should eq(b.deal.balance),
              "Balance from first deal is not equal to saved balance"
   end
+
+  it "should sort deals" do
+    10.times { create(:deal) }
+
+    ds = Deal.sort_by_name("asc").all
+    query = "case entity_type
+                  when 'Entity'      then entities.tag
+                  when 'LegalEntity' then legal_entities.name
+             end"
+    ds_test = Deal.joins{entity(Entity).outer}.joins{entity(LegalEntity).outer}.
+        order("#{query}").all
+    ds.should eq(ds_test)
+    ds = Deal.sort_by_name("desc").all
+    ds_test = Deal.joins{entity(Entity).outer}.joins{entity(LegalEntity).outer}.
+        order("#{query} DESC").all
+    ds.should eq(ds_test)
+
+    ds = Deal.sort_by_give("asc").all
+    query = "case resource_type
+                  when 'Asset' then assets.tag
+                  when 'Money' then money.alpha_code
+             end"
+    ds_test = Deal.joins{give.resource(Asset).outer}.joins{give.resource(Money).outer}.
+        order("#{query}").all
+    ds.should eq(ds_test)
+    ds = Deal.sort_by_give("desc").all
+    ds_test = Deal.joins{give.resource(Asset).outer}.joins{give.resource(Money).outer}.
+        order("#{query} DESC").all
+    ds.should eq(ds_test)
+
+    ds = Deal.sort_by_take("asc").all
+    query = "case resource_type
+                  when 'Asset' then assets.tag
+                  when 'Money' then money.alpha_code
+             end"
+    ds_test = Deal.joins{take.resource(Asset).outer}.joins{take.resource(Money).outer}.
+        order("#{query}").all
+    ds.should eq(ds_test)
+    ds = Deal.sort_by_take("desc").all
+    ds_test = Deal.joins{take.resource(Asset).outer}.joins{take.resource(Money).outer}.
+        order("#{query} DESC").all
+    ds.should eq(ds_test)
+  end
 end

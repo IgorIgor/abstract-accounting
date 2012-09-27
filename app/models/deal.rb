@@ -24,6 +24,32 @@ class Deal < ActiveRecord::Base
   has_one :waybill
   has_one :allocation
 
+  custom_sort(:name) do |dir|
+    query = "case entity_type
+                  when 'Entity'      then entities.tag
+                  when 'LegalEntity' then legal_entities.name
+             end"
+    joins{entity(Entity).outer}.joins{entity(LegalEntity).outer}.order("#{query} #{dir}")
+  end
+
+  custom_sort(:give) do |dir|
+    query = "case resource_type
+                  when 'Asset' then assets.tag
+                  when 'Money' then money.alpha_code
+             end"
+    joins{give.resource(Asset).outer}.joins{give.resource(Money).outer}.
+        order("#{query} #{dir}")
+  end
+
+  custom_sort(:take) do |dir|
+    query = "case resource_type
+                  when 'Asset' then assets.tag
+                  when 'Money' then money.alpha_code
+             end"
+    joins{take.resource(Asset).outer}.joins{take.resource(Money).outer}.
+        order("#{query} #{dir}")
+  end
+
   def self.income
     income = Deal.where(:id => INCOME_ID).first
     if income.nil?

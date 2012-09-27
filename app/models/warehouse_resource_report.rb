@@ -23,8 +23,35 @@ class WarehouseResourceReport
 
   class << self
     def all(args)
+      state = 0.0
+      scope = scope(args).order_by("created ASC, state DESC")
+      if args[:page] && args[:per_page]
+        if args[:page] > 1
+          #need refactoring
+          state = scope(args).limit(args[:per_page] * (args[:page] - 1)).select("state").
+              inject(0.0) do |mem, value|
+            mem += value.state.to_f
+          end
+        end
+        scope = scope.paginate(page: args[:page], per_page: args[:per_page])
+      end
+      scope.all.collect do |resource|
+        state += resource.state.to_f
+        self.new(date: DateTime.parse(resource.created),
+                 amount: resource.amount.to_f,
+                 state: state,
+                 entity: resource.entity_type.constantize.find(resource.entity_id),
+                 side: resource.side)
+      end
+    end
+
+    def count(args)
+      scope(args).count
+    end
+
+    def scope(args)
       fact_scope = Fact.
-          where{(resource_id == my{args[:resource_id]}) & (resource_type == Asset.name)}
+                where{(resource_id == my{args[:resource_id]}) & (resource_type == Asset.name)}
 
       waybills_scope = fact_scope.
                 joins{parent.to.take}.
@@ -47,28 +74,7 @@ class WarehouseResourceReport
                       select{to.entity_id}.select{to.entity_type}.
                       select("'#{ALLOCATION_SIDE}' as side")
 
-      state = 0.0
-      scope = SqlRecord.union(waybills_scope.to_sql, allocations_scope.to_sql).
-                order_by("created ASC, state DESC")
-      if args[:page] && args[:per_page]
-        if args[:page] > 1
-          #need refactoring
-          state = SqlRecord.union(waybills_scope.to_sql, allocations_scope.to_sql).
-              limit(args[:per_page] * (args[:page] - 1)).select("state").
-              inject(0.0) do |mem, value|
-            mem += value.state.to_f
-          end
-        end
-        scope = scope.paginate(page: args[:page], per_page: args[:per_page])
-      end
-      scope.all.collect do |resource|
-        state += resource.state.to_f
-        self.new(date: DateTime.parse(resource.created),
-                 amount: resource.amount.to_f,
-                 state: state,
-                 entity: resource.entity_type.constantize.find(resource.entity_id),
-                 side: resource.side)
-      end
+      SqlRecord.union(waybills_scope.to_sql, allocations_scope.to_sql)
     end
   end
 end

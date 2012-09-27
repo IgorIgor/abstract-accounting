@@ -21,6 +21,8 @@ describe WarehouseResourceReport do
   it "should return empty state for unknown resource" do
     WarehouseResourceReport.all(resource_id: create(:asset).id,
                                 warehouse_id: create(:place).id).should be_empty
+    WarehouseResourceReport.count(resource_id: create(:asset).id,
+                                   warehouse_id: create(:place).id).should eq(0)
   end
 
   it "should return states from waybills" do
@@ -38,6 +40,8 @@ describe WarehouseResourceReport do
     end
 
     report = WarehouseResourceReport.all(resource_id: resource.id, warehouse_id: warehouse.id)
+    WarehouseResourceReport.
+        count(resource_id: resource.id, warehouse_id: warehouse.id).should eq(count)
     state = 0
     report.count.should eq(count)
     report.each do |item|
@@ -81,6 +85,8 @@ describe WarehouseResourceReport do
     end
 
     report = WarehouseResourceReport.all(resource_id: resource.id, warehouse_id: warehouse.id)
+    WarehouseResourceReport.
+        count(resource_id: resource.id, warehouse_id: warehouse.id).should eq(count * 2)
     state = 0
     report.count.should eq(count * 2)
     report.each do |item|
@@ -150,6 +156,8 @@ describe WarehouseResourceReport do
     end
 
     report = WarehouseResourceReport.all(resource_id: resource.id, warehouse_id: warehouse.id)
+    WarehouseResourceReport.
+        count(resource_id: resource.id, warehouse_id: warehouse.id).should eq(count * 2)
     report.count.should eq(count * 2)
 
     report_c = []
@@ -196,6 +204,8 @@ describe WarehouseResourceReport do
     end
 
     report = WarehouseResourceReport.all(resource_id: resource.id, warehouse_id: warehouse.id)
+    WarehouseResourceReport.
+        count(resource_id: resource.id, warehouse_id: warehouse.id).should eq(count * 2)
     report.count.should eq(count * 2)
 
     report_c = []
@@ -243,6 +253,8 @@ describe WarehouseResourceReport do
 
     report = WarehouseResourceReport.all(resource_id: resource.id, warehouse_id: warehouse.id,
                                          page: 1, per_page: count)
+    WarehouseResourceReport.
+        count(resource_id: resource.id, warehouse_id: warehouse.id).should eq(count * 2)
     report.count.should eq(count)
 
     report_c = []

@@ -32,7 +32,7 @@
       <a id="btn_create"><%=t 'views.home.create' %>
         <div class="arrow_down"></div>
       </a>
-      <ul id='documents_list'>
+      <ul id='documents_list' style="position: relative;">
         <% @types.each do |type| %>
           <li>
             <%= link_to(t("views.home.#{type.underscore}"),
@@ -44,15 +44,17 @@
     <br />
     <% end %>
 
-    <ul>
-      <li id="inbox"><a href="#inbox"><%=t 'views.home.inbox' %></a></li>
-      <li><a><%=t 'views.home.starred' %></a></li>
-      <li><a><%=t 'views.home.drafts' %></a></li>
-      <li><a><%=t 'views.home.sent' %></a></li>
-      <li><a><%=t 'views.home.trash' %></a></li>
-      <li id="archive"><a href="#archive"><%=t 'views.home.archive' %></a></li>
-      <hr>
-    </ul>
+    <!-- Temporary removed: logic not implemented -->
+    <!--<ul>-->
+      <!--<li id="inbox"><a href="#inbox"><%=t 'views.home.inbox' %></a></li>-->
+      <!--<li><a><%=t 'views.home.starred' %></a></li>-->
+      <!--<li><a><%=t 'views.home.drafts' %></a></li>-->
+      <!--<li><a><%=t 'views.home.sent' %></a></li>-->
+      <!--<li><a><%=t 'views.home.trash' %></a></li>-->
+      <!--<li id="archive"><a href="#archive"><%=t 'views.home.archive' %></a></li>-->
+      <!--<hr>-->
+    <!--</ul>-->
+    <br>
 
     <% if current_user.root? %>
       <div class="slider">

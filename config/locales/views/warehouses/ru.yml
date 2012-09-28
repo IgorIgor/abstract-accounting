@@ -20,6 +20,7 @@ ru:
           total: Итого
       foremen:
         report:
+          print: Печать
           dates:
             from: С
             to: По

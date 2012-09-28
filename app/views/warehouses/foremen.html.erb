@@ -22,6 +22,9 @@
   </label>
   <input type="text" id="foremen_filter_to" style="width: 80px;"
          data-bind="datepicker: to, event: {change: filterData}">
+  <div class='buttons-separator'></div>
+  <input type='button' value="<%= t('views.warehouses.foremen.report.print') %>"
+         data-bind='click: print, visible: documents().length > 0'/>
 </div>
 
 <table>

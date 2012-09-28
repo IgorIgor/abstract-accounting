@@ -158,6 +158,50 @@ class WarehousesController < ApplicationController
   def foremen
     respond_to do |format|
       format.html { render :foremen, layout: false }
+      format.xls do
+
+        warehouse_id = params[:warehouse_id]
+        unless current_user.root?
+          credential = current_user.credentials(:force_update).
+            where{(document_type == Waybill.name)}.
+            first
+          credential = current_user.credentials.
+              where{(document_type == Allocation.name) & (credential.place_id == place_id)}.
+              first if credential
+          if credential
+            warehouse_id = credential.place_id
+          else
+            if current_user.managed_group
+              unless can?(:group_manage, Waybill) && can?(:group_manage, Allocation)
+                send_data [].to_xls, :filename => "empty.xls"
+              end
+            else
+              send_data [].to_xls, :filename => "empty.xls"
+            end
+          end
+        end
+
+        if warehouse_id && params[:foreman_id]
+          foreman = Entity.find(params[:foreman_id])
+          from = (params[:from] && DateTime.parse(params[:from])) || DateTime.current.beginning_of_month
+          to = (params[:to] && DateTime.parse(params[:to])) || DateTime.current
+          args = {warehouse_id: warehouse_id, foreman_id: params[:foreman_id],
+                  start: from, stop: to }
+          resources = WarehouseForemanReport.all(args)
+          send_data resources.to_xls(columns: [{resource: [:tag, :mu]}, :amount, :price, :sum],
+                                     headers: [
+                                       I18n.t('views.warehouses.foremen.report.resource.name'),
+                                       I18n.t('views.warehouses.foremen.report.resource.mu'),
+                                       I18n.t('views.warehouses.foremen.report.amount'),
+                                       I18n.t('views.warehouses.foremen.report.price'),
+                                       I18n.t('views.warehouses.foremen.report.sum')
+                                     ],
+                                     header_format: {weight: :bold, color: :red}),
+                    :filename => "#{foreman.tag}-#{DateTime.current.strftime("%Y-%m")}.xls"
+        else
+          send_data [].to_xls, :filename => "empty.xls"
+        end
+      end
       format.json do
         params[:page] ||= 1
         params[:per_page] ||= Settings.root.per_page

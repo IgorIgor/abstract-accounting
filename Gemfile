@@ -12,7 +12,6 @@ gem 'paper_trail'
 gem 'sorcery'
 gem 'settingslogic'
 gem 'cancan'
-gem 'wicked_pdf'
 
 group :assets do
   gem 'sass-rails'
@@ -26,8 +25,10 @@ gem 'rabl'
 gem 'squeel'
 
 gem 'heroku'
-
 gem 'thin'
+
+gem 'to_xls'
+gem 'wicked_pdf'
 
 # Use unicorn as the web server
 # gem 'unicorn'

@@ -7,7 +7,6 @@
 #
 # Please see ./COPYING for details
 
-#TODO: проверить есть ли возможность что стронированный ресурс будет с не актуальным балансом
 #TODO: вынести в модуль Warehouse
 
 class WarehouseResourceReport

@@ -9,7 +9,7 @@
 
 object false
 child(@resources => :objects) do
-  attributes :amount
+  attributes :amount, :price, :sum
   glue :resource do
     attributes :tag, :mu
   end

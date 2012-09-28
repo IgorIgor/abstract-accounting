@@ -30,4 +30,6 @@ en:
             name: Tag
             mu: MU
           amount: Amount
+          price: Price
+          sum: Sum
 

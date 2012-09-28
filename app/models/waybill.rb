@@ -41,7 +41,6 @@ class Waybill < ActiveRecord::Base
   end
 
   validates_presence_of :document_id
-  validates_uniqueness_of :document_id
   validates_with ItemsValidator
 
   after_apply :do_apply_txn

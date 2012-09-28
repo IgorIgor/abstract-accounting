@@ -24,7 +24,6 @@ describe Waybill do
     should validate_presence_of :created
     should validate_presence_of :storekeeper
     should validate_presence_of :storekeeper_place
-    should validate_uniqueness_of :document_id
     should have_many(Waybill.versions_association_name)
     should have_many :comments
   end

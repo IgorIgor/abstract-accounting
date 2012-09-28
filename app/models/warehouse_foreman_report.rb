@@ -16,7 +16,7 @@ class WarehouseForemanReport
   end
 
   class << self
-    def foremans(warehouse_id)
+    def foremen(warehouse_id)
       reversed_scope  = Allocation.joins{deal.to_facts}.where{deal.to_facts.amount == -1.0}.
           select{deal.id}
 

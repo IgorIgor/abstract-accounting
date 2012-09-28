@@ -18,3 +18,16 @@ en:
           consumption: Consumption
           state: State
           total: Total
+      foremen:
+        report:
+          dates:
+            from: From
+            to: To
+          select:
+            foremen: Choose foreman...
+            warehouse: Choose warehouse...
+          resource:
+            name: Tag
+            mu: MU
+          amount: Amount
+

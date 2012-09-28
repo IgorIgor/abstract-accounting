@@ -66,6 +66,7 @@ Abstract::Application.routes.draw do
     collection do
       get 'data'
       get 'group'
+      get 'foremen'
     end
     member do
       get 'report'

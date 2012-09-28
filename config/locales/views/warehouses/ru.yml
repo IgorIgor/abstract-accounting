@@ -18,3 +18,15 @@ ru:
           consumption: Расход
           state: Остаток
           total: Итого
+      foremen:
+        report:
+          dates:
+            from: С
+            to: По
+          select:
+            foremen: Выберите бригадира...
+            warehouse: Выберите склад...
+          resource:
+            name: Название
+            mu: Ед. изм.
+          amount: Количество

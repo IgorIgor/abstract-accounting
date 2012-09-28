@@ -1,6 +1,8 @@
 en:
   views:
     home:
+      reports:
+        foremen: Foreman resources
       create: "Create"
       inbox: "Inbox"
       starred: "Starred"

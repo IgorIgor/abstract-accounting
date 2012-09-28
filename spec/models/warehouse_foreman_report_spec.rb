@@ -21,12 +21,12 @@ describe WarehouseForemanReport do
     create(:chart)
   end
 
-  describe "#foremans" do
+  describe "#foremen" do
     it "should return empty list by unknown warehouse_id" do
-      WarehouseForemanReport.foremans(create(:place).id).should be_empty
+      WarehouseForemanReport.foremen(create(:place).id).should be_empty
     end
 
-    it "should return foremans" do
+    it "should return foremen" do
       storekeeper = create(:entity)
       warehouse = create(:place)
       resource = create(:asset)
@@ -46,11 +46,11 @@ describe WarehouseForemanReport do
         allocation.apply.should be_true
       end
 
-      foremans = Allocation.all.collect { |al| al.foreman }
-      WarehouseForemanReport.foremans(warehouse.id).should =~ foremans
+      foremen = Allocation.all.collect { |al| al.foreman }
+      WarehouseForemanReport.foremen(warehouse.id).should =~ foremen
     end
 
-    it "should return foremans by warehouse id" do
+    it "should return foremen by warehouse id" do
       storekeeper = create(:entity)
       warehouse = create(:place)
       resource = create(:asset)
@@ -70,9 +70,9 @@ describe WarehouseForemanReport do
         allocation.apply.should be_true
       end
 
-      foremans = Allocation.joins{deal.give}.
+      foremen = Allocation.joins{deal.give}.
           where{deal.give.place_id == warehouse.id}.all.collect { |al| al.foreman }
-      WarehouseForemanReport.foremans(warehouse.id).should =~ foremans
+      WarehouseForemanReport.foremen(warehouse.id).should =~ foremen
 
       storekeeper = create(:entity)
       warehouse2 = create(:place)
@@ -92,17 +92,17 @@ describe WarehouseForemanReport do
         allocation.save!
         allocation.apply.should be_true
 
-        foremans = Allocation.joins{deal.give}.
+        foremen = Allocation.joins{deal.give}.
             where{deal.give.place_id == warehouse.id}.all.collect { |al| al.foreman }
-        WarehouseForemanReport.foremans(warehouse.id).should =~ foremans
+        WarehouseForemanReport.foremen(warehouse.id).should =~ foremen
 
-        foremans = Allocation.joins{deal.give}.
+        foremen = Allocation.joins{deal.give}.
             where{deal.give.place_id == warehouse2.id}.all.collect { |al| al.foreman }
-        WarehouseForemanReport.foremans(warehouse2.id).should =~ foremans
+        WarehouseForemanReport.foremen(warehouse2.id).should =~ foremen
       end
     end
 
-    it "should return foremans only for applied allocations" do
+    it "should return foremen only for applied allocations" do
       storekeeper = create(:entity)
       warehouse = create(:place)
       resource = create(:asset)
@@ -169,16 +169,16 @@ describe WarehouseForemanReport do
         allocation.save!
       end
 
-      foremans = allocations.collect { |al| al.foreman }
-      WarehouseForemanReport.foremans(warehouse.id).should =~ foremans
+      foremen = allocations.collect { |al| al.foreman }
+      WarehouseForemanReport.foremen(warehouse.id).should =~ foremen
     end
 
-    it "should return uniq foremans" do
+    it "should return uniq foremen" do
       storekeeper = create(:entity)
       warehouse = create(:place)
       resource = create(:asset)
 
-      foremans = []
+      foremen = []
       3.times do |i|
         waybill = build(:waybill,
                         storekeeper: storekeeper, storekeeper_place: warehouse)
@@ -193,10 +193,10 @@ describe WarehouseForemanReport do
         allocation.save!
         allocation.apply.should be_true
 
-        foremans << allocation.foreman
+        foremen << allocation.foreman
       end
       foreman = create(:entity)
-      foremans << foreman
+      foremen << foreman
       3.times do |i|
         waybill = build(:waybill,
                         storekeeper: storekeeper, storekeeper_place: warehouse)
@@ -213,7 +213,7 @@ describe WarehouseForemanReport do
         allocation.apply.should be_true
       end
 
-      WarehouseForemanReport.foremans(warehouse.id).should =~ foremans
+      WarehouseForemanReport.foremen(warehouse.id).should =~ foremen
     end
   end
 

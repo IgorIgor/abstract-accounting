@@ -1,0 +1,42 @@
+
+<div class='actions'>
+  <% if current_user.root? || current_user.managed_group %>
+    <select id="warehouse_filter" size="1"
+            data-bind="options: warehouses, optionsText: 'tag', optionsValue: 'place_id',
+                       optionsCaption: '<%= t 'views.warehouses.foremen.report.select.warehouse' %>',
+                       value: warehouse_id, event: {change: assignForemen}">
+    </select>
+  <% end %>
+  <select id="foremen_filter" size="1"
+          data-bind="options: foremen, optionsText: 'name', optionsValue: 'id',
+                     optionsCaption: '<%= t 'views.warehouses.foremen.report.select.foremen' %>',
+                     value: foreman_id, event: {change: filterData}">
+  </select>
+  <label for="foremen_filter_from">
+    <%= t 'views.warehouses.foremen.report.dates.from' %>:
+  </label>
+  <input type="text" id="foremen_filter_from" style="width: 80px;"
+         data-bind="datepicker: from, event: {change: filterData}">
+  <label for="foremen_filter_to">
+    <%= t 'views.warehouses.foremen.report.dates.to' %>:
+  </label>
+  <input type="text" id="foremen_filter_to" style="width: 80px;"
+         data-bind="datepicker: to, event: {change: filterData}">
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th><%=t 'views.warehouses.foremen.report.resource.name' %></th>
+      <th><%=t 'views.warehouses.foremen.report.resource.mu' %></th>
+      <th><%=t 'views.warehouses.foremen.report.amount' %></th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr>
+      <td data-bind="text: tag"></td>
+      <td data-bind="text: mu"></td>
+      <td data-bind="text: amount"></td>
+    </tr>
+  </tbody>
+</table>

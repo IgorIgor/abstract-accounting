@@ -70,3 +70,34 @@ $ ->
 
     showAllocation: (object) ->
       location.hash = "documents/allocations/#{object.item_id}"
+
+  class self.WarehouseForemanReportViewModel extends FolderViewModel
+    constructor: (data) ->
+      @url = "/warehouses/foremen.json"
+      @foremen = ko.observable(data.foremen)
+      @foreman_id = ko.observable(null)
+      @from = ko.observable(data.from)
+      @to = ko.observable(data.to)
+
+      @warehouses = ko.observable(data.warehouses)
+      @warehouse_id = ko.observable(null)
+
+      super(data)
+
+      @params =
+        page: @page
+        per_page: @per_page
+        foreman_id: @foreman_id
+        from: @from
+        to: @to
+      if @warehouses().length > 0
+        @params['warehouse_id'] = @warehouse_id
+
+    assignForemen: () ->
+      if @warehouse_id()
+        $.each(@warehouses(), (idx, item)=>
+          if item.place_id == @warehouse_id()
+            @foremen(item.foremen)
+        )
+      else
+        @foremen([])

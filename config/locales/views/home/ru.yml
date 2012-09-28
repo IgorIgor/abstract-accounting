@@ -1,6 +1,8 @@
 ru:
   views:
     home:
+      reports:
+        foremen: Ресурсы по бригадам
       create: "Создать"
       inbox: "Новые"
       starred: "Помеченные"

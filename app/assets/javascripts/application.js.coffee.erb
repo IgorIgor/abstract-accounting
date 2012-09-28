@@ -447,6 +447,18 @@ $ ->
             )
           )
         )
+        this.get('#warehouses/foremen', ->
+          $.get("/warehouses/foremen", {}, (form) ->
+            $.getJSON("/warehouses/foremen.json", {}, (data) ->
+              toggleSelect("warehouses_foremen")
+              $('.paginate').show()
+              viewModel = new WarehouseForemanReportViewModel(data)
+              $('#container_documents').html(form)
+              ko.cleanNode($('#main').get(0))
+              ko.applyBindings(viewModel, $('#main').get(0))
+            )
+          )
+        )
         this.get('#:report', ->
           report = this.params.report
           delete this.params.report

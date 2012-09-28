@@ -154,4 +154,57 @@ class WarehousesController < ApplicationController
       end
     end
   end
+
+  def foremen
+    respond_to do |format|
+      format.html { render :foremen, layout: false }
+      format.json do
+        params[:page] ||= 1
+        params[:per_page] ||= Settings.root.per_page
+
+        warehouse_id = params[:warehouse_id]
+        @warehouses = []
+        @foremen = []
+        @resources = []
+        @count = 0
+        @from = (params[:from] && DateTime.parse(params[:from])) || DateTime.current.beginning_of_month
+        @to = (params[:to] && DateTime.parse(params[:to])) || DateTime.current
+
+        if current_user.root?
+          @warehouses = Waybill.warehouses
+        else
+          credential = current_user.credentials(:force_update).
+            where{(document_type == Waybill.name)}.
+            first
+          credential = current_user.credentials.
+              where{(document_type == Allocation.name) & (credential.place_id == place_id)}.
+              first if credential
+          if credential
+            warehouse_id = credential.place_id
+          else
+            if current_user.managed_group
+              if can?(:group_manage, Waybill) && can?(:group_manage, Allocation)
+                @warehouses = Waybill.warehouses
+              else
+                return
+              end
+            else
+              return
+            end
+          end
+        end
+
+        if warehouse_id
+          @foremen = WarehouseForemanReport.foremen(warehouse_id)
+          if params[:foreman_id]
+            args = {warehouse_id: warehouse_id, foreman_id: params[:foreman_id],
+                    start: @from, stop: @to,
+                    page: params[:page], per_page: params[:per_page] }
+            @resources = WarehouseForemanReport.all(args)
+            @count = WarehouseForemanReport.count(args)
+          end
+        end
+      end
+    end
+  end
 end

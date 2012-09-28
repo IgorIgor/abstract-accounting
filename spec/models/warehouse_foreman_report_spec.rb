@@ -12,7 +12,8 @@ require "spec_helper"
 WarehouseForemanReport.class_eval do
   def ==(other)
     return false unless other.instance_of?(WarehouseForemanReport)
-    resource == other.resource && amount == other.amount
+    resource == other.resource && amount == other.amount &&
+        price == other.price && sum == other.sum
   end
 end
 
@@ -308,7 +309,8 @@ describe WarehouseForemanReport do
 
       resources = allocations.inject([]) do |mem, al|
         al.items.each do |item|
-          mem << WarehouseForemanReport.new(resource: item.resource, amount: item.amount)
+          mem << WarehouseForemanReport.new(resource: item.resource, amount: item.amount,
+                                            price: 11.32)
         end
         mem
       end
@@ -336,7 +338,8 @@ describe WarehouseForemanReport do
         allocation.apply.should be_true
       end
 
-      resources << WarehouseForemanReport.new(resource: resource, amount: 75.75)
+      resources << WarehouseForemanReport.new(resource: resource, amount: 75.75,
+                                              price: 11.32)
 
       WarehouseForemanReport.all(warehouse_id: warehouse.id,
                                  foreman_id: foreman.id).should =~ resources
@@ -422,7 +425,7 @@ describe WarehouseForemanReport do
       resource = create(:asset)
       waybill = build(:waybill, created: date,
                       storekeeper: storekeeper, storekeeper_place: warehouse)
-      waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 100.0, price: 11.32)
+      waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 100.0, price: 13.32)
       waybill.save!
       waybill.apply.should be_true
 
@@ -469,12 +472,13 @@ describe WarehouseForemanReport do
         allocation.apply.should be_true
       end
 
-      resources << WarehouseForemanReport.new(resource: resource, amount: 151.5)
+      resources << WarehouseForemanReport.new(resource: resource, amount: 151.5,
+                                              price: 11.32)
 
       date += 10
       waybill = build(:waybill, created: date,
                       storekeeper: storekeeper, storekeeper_place: warehouse)
-      waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 100.0, price: 11.32)
+      waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 100.0, price: 4.32)
       waybill.save!
       waybill.apply.should be_true
 
@@ -539,9 +543,11 @@ describe WarehouseForemanReport do
         end
 
         if i < 10
-          resources << WarehouseForemanReport.new(resource: resource, amount: 25.25)
+          resources << WarehouseForemanReport.new(resource: resource, amount: 25.25,
+                                                  price: 11.32)
         else
-          resources << WarehouseForemanReport.new(resource: resource, amount: 75.75)
+          resources << WarehouseForemanReport.new(resource: resource, amount: 75.75,
+                                                  price: 11.32)
         end
       end
 
@@ -567,6 +573,134 @@ describe WarehouseForemanReport do
       WarehouseForemanReport.all(warehouse_id: warehouse.id,
                                  foreman_id: foreman.id,
                                  page: "2", per_page: "10").should =~ resources
+    end
+
+    it "should return list of resources with average price" do
+      storekeeper = create(:entity)
+      warehouse = create(:place)
+      foreman = create(:entity)
+      resource = create(:asset)
+
+      waybill = build(:waybill,
+                      storekeeper: storekeeper, storekeeper_place: warehouse)
+      waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 10.0, price: 11.32)
+      waybill.save!
+      waybill.apply.should be_true
+
+      waybill = build(:waybill,
+                      storekeeper: storekeeper, storekeeper_place: warehouse)
+      waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 100.0, price: 12.32)
+      waybill.save!
+      waybill.apply.should be_true
+
+      3.times do
+        allocation = build(:allocation,
+                           storekeeper: storekeeper, storekeeper_place: warehouse,
+                           foreman: foreman, foreman_place: warehouse)
+        allocation.add_item(tag: resource.tag, mu: resource.mu, amount: 25.25)
+        allocation.save!
+        allocation.apply.should be_true
+      end
+
+      resources = [WarehouseForemanReport.new(resource: resource, amount: 75.75,
+                    price: (((11.32 * 10.0) + (12.32 * 100.0)) / 110.0).accounting_norm)]
+
+      WarehouseForemanReport.all(warehouse_id: warehouse.id,
+                                 foreman_id: foreman.id).should =~ resources
+      WarehouseForemanReport.count(warehouse_id: warehouse.id,
+                                 foreman_id: foreman.id).should eq(resources.count)
+    end
+
+    it "should filter by dates and get price from last waybill before range" do
+      storekeeper = create(:entity)
+      warehouse = create(:place)
+      foreman = create(:entity)
+      resources = []
+      date = DateTime.current.change(year: 2011)
+      start = nil
+      stop = nil
+
+      resource = create(:asset)
+      waybill = build(:waybill, created: date - 10,
+                      storekeeper: storekeeper, storekeeper_place: warehouse)
+      waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 200.0, price: 3.32)
+      waybill.save!
+      waybill.apply.should be_true
+
+      waybill = build(:waybill, created: date,
+                      storekeeper: storekeeper, storekeeper_place: warehouse)
+      waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 200.0, price: 13.32)
+      waybill.save!
+      waybill.apply.should be_true
+
+      waybill = build(:waybill, created: date,
+                      storekeeper: storekeeper, storekeeper_place: warehouse)
+      waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 200.0, price: 1.32)
+      waybill.save!
+
+      waybill = build(:waybill, created: date,
+                      storekeeper: storekeeper, storekeeper_place: warehouse)
+      waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 200.0, price: 4.32)
+      waybill.save!
+      waybill.apply.should be_true
+      waybill.reverse.should be_true
+
+      waybill = build(:waybill, created: date,
+                      storekeeper: storekeeper, storekeeper_place: warehouse)
+      waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 200.0, price: 5.32)
+      waybill.save!
+      waybill.cancel.should be_true
+
+      date += 10
+      start = date
+
+      3.times do
+        allocation = build(:allocation, created: date,
+                           storekeeper: storekeeper, storekeeper_place: warehouse,
+                           foreman: foreman, foreman_place: warehouse)
+        allocation.add_item(tag: resource.tag, mu: resource.mu, amount: 25.25)
+        allocation.save!
+        allocation.apply.should be_true
+      end
+
+      date += 10
+      stop = date
+
+      3.times do
+        allocation = build(:allocation, created: date,
+                           storekeeper: storekeeper, storekeeper_place: warehouse,
+                           foreman: foreman, foreman_place: warehouse)
+        allocation.add_item(tag: resource.tag, mu: resource.mu, amount: 25.25)
+        allocation.save!
+        allocation.apply.should be_true
+      end
+
+      resources << WarehouseForemanReport.new(resource: resource, amount: 151.5,
+                                              price: 13.32)
+
+      date += 10
+      waybill = build(:waybill, created: date,
+                      storekeeper: storekeeper, storekeeper_place: warehouse)
+      waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 100.0, price: 4.32)
+      waybill.save!
+      waybill.apply.should be_true
+
+      3.times do
+        allocation = build(:allocation, created: date,
+                           storekeeper: storekeeper, storekeeper_place: warehouse,
+                           foreman: foreman, foreman_place: warehouse)
+        allocation.add_item(tag: resource.tag, mu: resource.mu, amount: 25.25)
+        allocation.save!
+        allocation.apply.should be_true
+      end
+
+      WarehouseForemanReport.all(warehouse_id: warehouse.id,
+                                 foreman_id: foreman.id,
+                                 start: start, stop: stop).should =~ resources
+
+      WarehouseForemanReport.count(warehouse_id: warehouse.id,
+                                 foreman_id: foreman.id,
+                                 start: start, stop: stop).should eq(resources.count)
     end
   end
 end

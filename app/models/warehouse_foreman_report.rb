@@ -8,11 +8,16 @@
 # Please see ./COPYING for details
 
 class WarehouseForemanReport
-  attr_reader :resource, :amount
+  attr_reader :resource, :amount, :price
 
   def initialize(attrs)
     @resource = attrs[:resource]
     @amount = Converter.float(attrs[:amount])
+    @price = Converter.float(attrs[:price])
+  end
+
+  def sum
+    @amount * @price
   end
 
   class << self
@@ -37,9 +42,40 @@ class WarehouseForemanReport
             offset(args[:per_page].to_i * (args[:page].to_i - 1))
       end
 
+      prices = prices_scoped_with_range(args).
+          joins{from.take}.where{from.take.resource_id.in(scope.select{resource_id})}.
+          select{resource_id}.select{resource_type}.
+          select{(sum(facts.amount / from.rate) / sum(facts.amount)).as(:price)}.all
+
+      prices_before = nil
+
       scope.select{resource_id}.select{resource_type}.select{sum(amount).as(:amount)}.
           includes(:resource).collect do |fact|
-        WarehouseForemanReport.new(resource: fact.resource, amount: fact.amount)
+        price = 1.0
+        price_obj = prices.select do |item|
+          item.resource_id == fact.resource_id && item.resource_type == fact.resource_type
+        end[0]
+        if price_obj
+          price = price_obj.price
+        else
+          unless prices_before
+            prices_before = prices_scoped_before(args).
+                joins{from.take}.where{from.take.resource_id.in(scope.select{resource_id})}.
+                select{resource_id}.select{resource_type}.
+                select{(max(parent.to.waybill.id)).as(:waybill_id)}.all
+          end
+          price_item = prices_before.select do |item|
+            item.resource_id == fact.resource_id && item.resource_type == fact.resource_type
+          end[0]
+
+          price_obj = Waybill.where{id == price_item.waybill_id}.
+              joins{deal.rules.from.take}.
+              where{deal.rules.from.take.resource_id == fact.resource_id}.
+              select{deal.rules.from.rate.as(:price)}.first
+          price = (1.0 / Converter.float(price_obj.price))
+        end
+        WarehouseForemanReport.new(resource: fact.resource, amount: fact.amount,
+                                   price: Converter.float(price).accounting_norm)
       end
     end
 
@@ -60,6 +96,33 @@ class WarehouseForemanReport
       if args[:start] && args[:stop]
         scope = scope.where{parent.to.allocation.created >= my{args[:start].beginning_of_day}}.
                       where{parent.to.allocation.created <= my{args[:stop].end_of_day}}
+      end
+      scope.group{resource_id}.group{resource_type}
+    end
+
+    def prices_scoped_with_range(args)
+      reversed_scope  = Waybill.joins{deal.to_facts}.where{deal.to_facts.amount == -1.0}.
+          select{deal.id}
+
+      scope = Fact.joins{parent.to.take}.where{parent.to.take.place_id == my{args[:warehouse_id]}}.
+                joins{parent.to.waybill}.
+                where{parent.to_deal_id.not_in(reversed_scope)}
+      if args[:start] && args[:stop]
+        scope = scope.where{parent.to.waybill.created >= my{args[:start].beginning_of_day}}.
+                      where{parent.to.waybill.created <= my{args[:stop].end_of_day}}
+      end
+      scope.group{resource_id}.group{resource_type}
+    end
+
+    def prices_scoped_before(args)
+      reversed_scope  = Waybill.joins{deal.to_facts}.where{deal.to_facts.amount == -1.0}.
+          select{deal.id}
+
+      scope = Fact.joins{parent.to.take}.where{parent.to.take.place_id == my{args[:warehouse_id]}}.
+                joins{parent.to.waybill}.
+                where{parent.to_deal_id.not_in(reversed_scope)}
+      if args[:start] && args[:stop]
+        scope = scope.where{parent.to.waybill.created <= my{args[:start].beginning_of_day}}
       end
       scope.group{resource_id}.group{resource_type}
     end

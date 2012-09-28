@@ -17,9 +17,12 @@ node(:state) do
   partial "state/can_do", :object => @waybill
 end
 child(LegalEntity.new => :distributor) do
-  attributes :name, :identifier_name, :identifier_value
+  attributes :name, :identifier_value
+  node(:identifier_name) { "VATIN" }
 end
-child(Place.new => :distributor_place) { attributes :tag }
+child(Place.new => :distributor_place) do
+  node(:tag) { I18n.t('views.waybills.defaults.distributor.place') }
+end
 child([] => :items)
 child(Waybill.warehouses => :warehouses) do
   attributes :id, :tag, :storekeeper

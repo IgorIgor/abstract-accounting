@@ -4,8 +4,8 @@
            data-bind='visible: !readonly()'/>
     <input type='button' value="<%= t 'views.waybills.back' %>"
            data-bind='click: back'/>
-    <input type='button' value="<%= t 'views.waybills.draft' %>"
-           data-bind='visible: !readonly()'/>
+    <!--<input type='button' value="<%= t 'views.waybills.draft' %>"-->
+           <!--data-bind='visible: !readonly()'/>-->
     <div class='buttons-separator' data-bind='visible: readonly'></div>
     <%= render :partial => "state/buttons", :locals => { :model => Waybill } %>
   </div>
@@ -76,22 +76,22 @@
                             value: name, disable: $parent.readonly" />
         </span>
       </div>
+      <!--<div>-->
+        <!--<span class="form-cell-label">-->
+          <!--<label for="waybill_ident_name"><%= t 'views.waybills.ident_name' %>:</label>-->
+        <!--</span>-->
+        <!--<span>-->
+          <!--<select id="waybill_ident_name" name="Distributor Ident. Name"-->
+                  <!--data-bind="value: object.distributor.identifier_name,-->
+                             <!--disable: readonly">-->
+            <!--<option value="MSRN"><%=t 'views.waybills.ident_name_MSRN' %></option>-->
+            <!--<option value="VATIN"><%=t 'views.waybills.ident_name_VATIN' %></option>-->
+          <!--</select>-->
+        <!--</span>-->
+      <!--</div>-->
       <div>
         <span class="form-cell-label">
-          <label for="waybill_ident_name"><%= t 'views.waybills.ident_name' %>:</label>
-        </span>
-        <span>
-          <select id="waybill_ident_name" name="Distributor Ident. Name"
-                  data-bind="value: object.distributor.identifier_name,
-                             disable: readonly">
-            <option value="MSRN"><%=t 'views.waybills.ident_name_MSRN' %></option>
-            <option value="VATIN"><%=t 'views.waybills.ident_name_VATIN' %></option>
-          </select>
-        </span>
-      </div>
-      <div>
-        <span class="form-cell-label">
-          <label for="waybill_ident_value"><%=t 'views.waybills.ident_value' %>:</label>
+          <label for="waybill_ident_value"><%=t 'views.waybills.ident_name_VATIN' %>:</label>
         </span>
         <span>
           <input id="waybill_ident_value" type="text"

@@ -1,14 +1,17 @@
 ru:
   views:
     waybills:
+      defaults:
+        distributor:
+          place: Москва
       created_at: "Дата создания"
       document_id: "№ документа"
       distributor: "Поставщик"
       distributor_place: "Место поставщика"
-      entity: "Лицо"
+      entity: Название
       ident_name: "Название идентификатора"
       ident_value: "Идентификатор"
-      place: "Место"
+      place: Откуда
       storekeeper: "Кладовщик"
       storekeeper_place: "Место кладовщика"
       waybill_entry: "Материалы"

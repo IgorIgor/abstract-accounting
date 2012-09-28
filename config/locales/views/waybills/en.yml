@@ -1,14 +1,17 @@
 en:
   views:
     waybills:
+      defaults:
+        distributor:
+          place: Moscow
       created_at: "Created at"
       document_id: "Document id"
       distributor: "Distributor"
       distributor_place: "Distributor place"
-      entity: "Entity"
+      entity: Tag
       ident_name: "Ident. name"
       ident_value: "Ident. value"
-      place: "Place"
+      place: From
       storekeeper: Storekeeper
       storekeeper_place: "Storekeeper place"
       waybill_entry: "Resources"

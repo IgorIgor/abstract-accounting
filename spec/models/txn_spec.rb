@@ -912,4 +912,37 @@ describe Txn do
     sale.state.amount.should eq(1250.0)
     sale.balance.value.should eq(1250.0)
   end
+
+  describe "#sort" do
+    it "should sort by resources" do
+      3.times do |ind|
+        rub = create(:money)
+        aasii = create(:asset)
+        create(:quote, money: rub)
+        share2 = create(:deal,
+                        give: build(:deal_give, resource: aasii),
+                        take: build(:deal_take, resource: rub),
+                        rate: 10000.0)
+        bank = create(:deal,
+                      give: build(:deal_give, resource: rub),
+                      take: build(:deal_take, resource: rub),
+                      rate: 1.0)
+        create(:txn, fact: create(:fact, from: share2,
+                     to: bank, resource: rub, amount: 100000.0))
+      end
+
+      query = "case resource_type
+                    when 'Asset' then assets.tag
+                    when 'Money' then money.alpha_code
+               end"
+      txns = Txn.sort_by_resource('asc').all
+      txns_test = Txn.joins{fact.resource(Asset).outer}.
+          joins{fact.resource(Money).outer}.order("#{query} asc")
+      txns.should eq(txns_test)
+      txns = Txn.sort_by_resource('desc').all
+      txns_test = Txn.joins{fact.resource(Asset).outer}.
+          joins{fact.resource(Money).outer}.order("#{query} desc")
+      txns.should eq(txns_test)
+    end
+  end
 end

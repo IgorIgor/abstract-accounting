@@ -7,14 +7,20 @@
 <table>
   <thead>
   <tr>
-    <th class=""><%=t 'views.general_ledger.date'%></th>
-    <th class=""><%=t 'views.general_ledger.resource'%></th>
-    <th class=""><%=t 'views.general_ledger.amount'%></th>
-    <th class=""><%=t 'views.general_ledger.type'%></th>
-    <th class=""><%=t 'views.general_ledger.account'%></th>
-    <th class=""><%=t 'views.general_ledger.price'%></th>
-    <th class=""><%=t 'views.general_ledger.debit'%></th>
-    <th class=""><%=t 'views.general_ledger.credit'%></th>
+    <th id="day" data-bind="click: sortBy" class="">
+      <%=t 'views.general_ledger.date'%><span></span>
+    </th>
+    <th id="resource" data-bind="click: sortBy" class="">
+      <%=t 'views.general_ledger.resource'%><span></span>
+    </th>
+    <th id="amount" data-bind="click: sortBy" class="">
+      <%=t 'views.general_ledger.amount'%><span></span>
+    </th>
+    <th><%=t 'views.general_ledger.type' %></th>
+    <th><%=t 'views.general_ledger.account' %></th>
+    <th><%=t 'views.general_ledger.price' %></th>
+    <th><%=t 'views.general_ledger.debit' %></th>
+    <th><%=t 'views.general_ledger.credit' %></th>
   </tr>
   </thead>
   <tbody data-bind="foreach: documents">

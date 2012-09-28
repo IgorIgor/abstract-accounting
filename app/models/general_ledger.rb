@@ -32,16 +32,20 @@ class GeneralLedger
     @current_scope = Txn
   end
 
+  scope :filtrate do |*args|
+    filtrate(*args)
+  end
+
+  scope :sort do |*args|
+    sort(*args)
+  end
+
   scope :on_date do |date = nil|
     on_date(date.nil? ? Date.today : Date.parse(date))
   end
 
-  scope :paginate do |attrs = {}|
-    unless attrs[:page].nil?
-      per_page = (!attrs[:per_page].nil? and attrs[:per_page].to_i) ||
-          Settings.root.per_page.to_i
-      limit(per_page).offset((attrs[:page].to_i - 1) * per_page)
-    end
+  scope :paginate do |*args|
+    paginate(*args)
   end
 
   scope :all do |attrs = {}|

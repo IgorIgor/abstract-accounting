@@ -109,7 +109,8 @@ describe GeneralLedger do
 
   describe "#paginate" do
     it "should paginate results" do
-      GeneralLedger.paginate(page: 1).all.should =~ Txn.limit(Settings.root.per_page).all
+      GeneralLedger.paginate(page: 1, per_page: Settings.root.per_page).
+          all.should =~ Txn.limit(Settings.root.per_page).all
       GeneralLedger.paginate(page: 1, per_page: (Txn.count / 2)).all.
           should =~ Txn.limit(Txn.count / 2).all
       GeneralLedger.paginate(page: 2, per_page: (Txn.count / 2)).all.
@@ -119,7 +120,8 @@ describe GeneralLedger do
 
   describe "#on_date" do
     it 'should depend on date' do
-      GeneralLedger.on_date(Date.yesterday.to_s).count.should eq(0)
+      GeneralLedger.on_date(Date.yesterday.to_s).
+          count.should eq(Txn.on_date(Date.parse(Date.yesterday.to_s)).count)
       GeneralLedger.on_date(nil).count.should eq(Txn.count)
       Fact.first.update_attributes!(day: (Date.today + 3))
       GeneralLedger.on_date((Date.today + 3).to_s).count.should eq(Txn.count)
@@ -150,6 +152,36 @@ describe GeneralLedger do
       wb.save!
       wb.apply
       GeneralLedger.by_deal(wb.deal_id).all.should eq(Txn.all[-2, 2])
+    end
+  end
+
+  describe "#app_utils" do
+    before :all do
+      3.times do |ind|
+        rub = create(:money)
+        aasii = create(:asset)
+        create(:quote, money: rub)
+        share2 = create(:deal,
+                        give: build(:deal_give, resource: aasii),
+                        take: build(:deal_take, resource: rub),
+                        rate: 10000.0)
+        bank = create(:deal,
+                      give: build(:deal_give, resource: rub),
+                      take: build(:deal_take, resource: rub),
+                      rate: 1.0)
+        create(:txn, fact: create(:fact, from: share2,
+                     to: bank, resource: rub, amount: 100000.0))
+      end
+    end
+
+    it "should proxy filtrate method to Txn" do
+      GeneralLedger.filtrate(sort: { field: "resource", type: "desc" }).
+          all.should eq(Txn.sort_by_resource("desc"))
+    end
+
+    it "should proxy sort method to Txn" do
+      GeneralLedger.sort({ field: "resource", type: "desc" }).
+          all.should eq(Txn.sort_by_resource("desc"))
     end
   end
 

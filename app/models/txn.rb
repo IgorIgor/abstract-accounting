@@ -16,6 +16,23 @@ class Txn < ActiveRecord::Base
   after_initialize :after_init
   before_save :before_save
 
+  custom_sort(:day) do |dir|
+    joins{fact}.order{fact.day.__send__(dir)}
+  end
+
+  custom_sort(:amount) do |dir|
+    joins{fact}.order{fact.amount.__send__(dir)}
+  end
+
+  custom_sort(:resource) do |dir|
+    query = "case resource_type
+                  when 'Asset' then assets.tag
+                  when 'Money' then money.alpha_code
+             end"
+    joins{fact.resource(Asset).outer}.joins{fact.resource(Money).outer}.
+        order("#{query} #{dir}")
+  end
+
   class << self
     def on_date(date)
       joins{fact}.where{fact.day < (date + 1)}

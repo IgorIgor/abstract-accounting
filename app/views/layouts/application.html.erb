@@ -10,7 +10,7 @@
     I18n.locale = "<%= I18n.locale %>";
     var defaultPage = "#inbox";
     <% if current_user && !current_user.root? &&
-          can?(:group_manage, Waybill) && can?(:group_manage, Allocation) %>
+          can?(:manage, Waybill) && can?(:manage, Allocation) %>
       defaultPage = "#warehouses";
     <% end %>
   </script>

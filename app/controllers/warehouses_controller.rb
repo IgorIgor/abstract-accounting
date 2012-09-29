@@ -45,7 +45,7 @@ class WarehousesController < ApplicationController
         attrs[:where][:warehouse_id] = { equal: credential.place_id }
       else
         if current_user.managed_group
-          unless can?(:group_manage, Waybill) && can?(:group_manage, Allocation)
+          unless can?(:reverse, Waybill) && can?(:reverse, Allocation)
             @warehouse = []
             @count = 0
             return
@@ -84,7 +84,7 @@ class WarehousesController < ApplicationController
             attrs[:where][:warehouse_id] = { equal: credential.place_id }
           else
             if current_user.managed_group
-              unless can?(:group_manage, Waybill) && can?(:group_manage, Allocation)
+              unless can?(:reverse, Waybill) && can?(:reverse, Allocation)
                 @warehouse = []
                 @count = 0
                 @group_by = params[:group_by]
@@ -132,7 +132,7 @@ class WarehousesController < ApplicationController
               first if credential
           unless credential
             if current_user.managed_group
-              unless can?(:group_manage, Waybill) && can?(:group_manage, Allocation)
+              unless can?(:reverse, Waybill) && can?(:reverse, Allocation)
                 return
               end
             else
@@ -172,7 +172,7 @@ class WarehousesController < ApplicationController
             warehouse_id = credential.place_id
           else
             if current_user.managed_group
-              unless can?(:group_manage, Waybill) && can?(:group_manage, Allocation)
+              unless can?(:reverse, Waybill) && can?(:reverse, Allocation)
                 send_data [].to_xls, :filename => "empty.xls"
               end
             else
@@ -227,7 +227,7 @@ class WarehousesController < ApplicationController
             warehouse_id = credential.place_id
           else
             if current_user.managed_group
-              if can?(:group_manage, Waybill) && can?(:group_manage, Allocation)
+              if can?(:reverse, Waybill) && can?(:reverse, Allocation)
                 @warehouses = Waybill.warehouses
               else
                 return

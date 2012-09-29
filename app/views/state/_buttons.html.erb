@@ -1,5 +1,5 @@
 
-<% if can? :manage, model %>
+<% if can? :modify, model %>
 <input type='button' value="<%= t('views.statable.buttons.apply') %>"
        data-bind='click: apply, visible: readonly() && object.state.can_apply()'/>
 <input type='button' value="<%= t('views.statable.buttons.cancel') %>"

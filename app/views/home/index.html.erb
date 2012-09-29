@@ -128,10 +128,10 @@
             </li>
           </ul>
         <% else %>
-          <% if can? :group_manage, Waybill %>
+          <% if can? :manage, Waybill %>
             <li id="waybills"><a href="#waybills"><%=t 'views.home.waybills' %></a></li>
           <% end %>
-          <% if can? :group_manage, Allocation %>
+          <% if can? :manage, Allocation %>
             <li id="allocations">
               <a href="#allocations"><%=t 'views.home.allocations' %></a>
             </li>
@@ -146,7 +146,7 @@
         <%=t 'views.home.conditions' %>
       </a>
       <ul id="slide_menu_conditions" class="slide_menu" style="display: none;">
-        <% if can?(:group_manage, Waybill) & can?(:group_manage, Allocation) %>
+        <% if can?(:manage, Waybill) & can?(:manage, Allocation) %>
           <li id="warehouses">
             <a href="#warehouses"><%=t 'views.home.warehouses' %></a>
           </li>

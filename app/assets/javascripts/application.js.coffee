@@ -574,7 +574,7 @@ $ ->
         )
       ).run()
 
-      location.hash = 'inbox' if $('#main').length && location.hash.length == 0
+      location.hash = defaultPage if $('#main').length && location.hash.length == 0
 
     expandResources: (object, event) =>
       @expand($('#slide_menu_resources'), $('#arrow_resources_actions'))

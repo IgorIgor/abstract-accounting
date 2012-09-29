@@ -8,6 +8,11 @@
   <script type="text/javascript">
     I18n.defaultLocale = "<%= I18n.default_locale %>";
     I18n.locale = "<%= I18n.locale %>";
+    var defaultPage = "#inbox";
+    <% if current_user && !current_user.root? &&
+          can?(:group_manage, Waybill) && can?(:group_manage, Allocation) %>
+      defaultPage = "#warehouses";
+    <% end %>
   </script>
 </head>
 <body>

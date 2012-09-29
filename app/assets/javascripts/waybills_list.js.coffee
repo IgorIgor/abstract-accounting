@@ -22,3 +22,6 @@ $ ->
       $.each(params, (key, value) =>
         @params[key] = value
       )
+
+    show: (object) ->
+      location.hash = "documents/waybills/#{object.id}"

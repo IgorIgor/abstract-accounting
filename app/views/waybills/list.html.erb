@@ -55,7 +55,7 @@
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">
-    <tr>
+    <tr data-bind="click: $parent.show">
       <td data-bind="text: created"></td>
       <td data-bind="text: document_id"></td>
       <td data-bind="text: distributor"></td>

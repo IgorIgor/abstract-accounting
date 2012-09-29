@@ -468,6 +468,7 @@ $ ->
           if filter.group_by?
             $.get("/#{report}/group",  {}, (form) ->
               $.getJSON("/#{report}/group.json", normalizeHash(filter), (data) ->
+                toggleSelect(report)
                 $('.paginate').show()
                 viewModel = switch report
                               when 'warehouses'
@@ -484,6 +485,7 @@ $ ->
               when 'table'
                 $.get("/#{report}/list", {}, (form) ->
                   $.getJSON("/#{report}/list.json", normalizeHash(filter), (data) ->
+                    toggleSelect(report)
                     viewModel = switch report
                                   when 'waybills'
                                     new WaybillsListViewModel(data, filter)

@@ -20,9 +20,46 @@
 #= require_tree .
 
 $ ->
+
+  self.slideShow = (slide_id, arrow_id) ->
+    unless $(slide_id).is(":visible")
+      $(arrow_id).removeClass('arrow-down-slide')
+      $(arrow_id).addClass('arrow-up-slide')
+      $(slide_id).slideToggle()
+
+  self.menuShow = (menu, actions) =>
+    unless menu.is(":visible")
+      actions.removeClass('arrow-right-expand')
+      actions.addClass('arrow-down-expand')
+      menu.slideToggle()
+
+  self.expander = (id) ->
+    parent = $("##{id}").parent()
+    switch parent.attr("id")
+      when "slide_menu_deals"
+        menuShow($('#slide_menu_deals'), $('#arrow_deals_actions'))
+        expander(parent.attr("id"))
+      when "slide_menu_resources"
+        menuShow($('#slide_menu_resources'), $('#arrow_resources_actions'))
+        expander(parent.attr("id"))
+      when "slide_menu_entities"
+        menuShow($('#slide_menu_entities'), $('#arrow_entities_actions'))
+        expander(parent.attr("id"))
+      when 'slide_menu_conditions'
+        slideShow('#slide_menu_conditions', '#arrow_conditions')
+      when 'slide_menu_lists'
+        slideShow('#slide_menu_lists', '#arrow_lists')
+      when 'slide_menu_services'
+        slideShow('#slide_menu_services', '#arrow_services')
+      else
+        false
+
+
   self.toggleSelect = (id = null) ->
     $('.sidebar-selected').removeClass('sidebar-selected')
-    $("##{id}").addClass('sidebar-selected') if id
+    if id
+      $("##{id}").addClass('sidebar-selected')
+      expander(id)
 
   self.normalizeHash = (hash) ->
     normalize = (hash) ->
@@ -580,12 +617,12 @@ $ ->
           @slideMenu('#slide_menu_services', '#arrow_services')
 
     slideMenu: (slide_id, arrow_id) ->
-      if $(slide_id).is(":visible")
-        $(arrow_id).removeClass('arrow-up-slide')
-        $(arrow_id).addClass('arrow-down-slide')
-      else
-        $(arrow_id).removeClass('arrow-down-slide')
-        $(arrow_id).addClass('arrow-up-slide')
-      $(slide_id).slideToggle()
+        if $(slide_id).is(":visible")
+          $(arrow_id).removeClass('arrow-up-slide')
+          $(arrow_id).addClass('arrow-down-slide')
+        else
+          $(arrow_id).removeClass('arrow-down-slide')
+          $(arrow_id).addClass('arrow-up-slide')
+        $(slide_id).slideToggle()
 
   ko.applyBindings(new HomeViewModel(), $('#body').get(0))

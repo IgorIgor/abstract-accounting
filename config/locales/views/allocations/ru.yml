@@ -2,8 +2,6 @@ ru:
   views:
     allocations:
       created_at: "Дата создания"
-      storekeeper: "Кладовщик"
-      storekeeper_place: "Место кладовщика"
       entity: "Лицо"
       place: "Место"
       foreman: "Прораб"
@@ -27,7 +25,7 @@ ru:
       distributor: Поставщик
       storekeeper: Кладовщик
       other_storekeeper: Получающий кладовщик
-      storekeeper_place: Объект
+      storekeeper_place: Склад
       warehouse:
         name: Склад
         remote: Другой склад

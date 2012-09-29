@@ -13,7 +13,7 @@ en:
       ident_value: "Ident. value"
       place: From
       storekeeper: Storekeeper
-      storekeeper_place: "Storekeeper place"
+      storekeeper_place: Warehouse
       waybill_entry: "Resources"
       entry_name: "Entry name"
       measure: "Measure"

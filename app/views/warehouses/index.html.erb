@@ -1,19 +1,17 @@
 <% content_for :search  do %>
+  <% if can?(:reverse, Waybill) && can?(:reverse, Allocation) %>
   <label><%=t 'views.warehouses.place' %></label>
   <input type="text" id="filter-place" data-bind="value: filter.place"/>
+  <% end %>
   <label><%=t 'views.warehouses.tag' %></label>
   <input type="text" id="filter-tag" data-bind="value: filter.tag"/>
-  <label><%=t 'views.warehouses.real_amount' %></label>
-  <input type="text" id="filter-real-amount" data-bind="value: filter.real_amount"/>
-  <label><%=t 'views.warehouses.expectation_amount' %></label>
-  <input type="text" id="filter-exp-amount" data-bind="value: filter.exp_amount"/>
   <label><%=t 'views.warehouses.mu' %></label>
   <input type="text" id="filter-mu" data-bind="value: filter.mu"/>
+  <label><%=t 'views.warehouses.real_amount' %></label>
+  <input type="text" id="filter-real-amount" data-bind="value: filter.real_amount"/>
 <% end %>
 
-<% if current_user.root? ||
-    (can?(:group_manage, Waybill) && can?(:group_manage, Allocation) &&
-        current_user.managed_group) %>
+<% if can?(:reverse, Waybill) && can?(:reverse, Allocation) %>
   <div class='actions'>
     <select id="warehouse_group" size="1" data-bind="value: group_by">
       <option value=""><%=t 'views.warehouses.group_none' %></option>
@@ -26,9 +24,11 @@
 <table>
   <thead>
     <tr>
-      <th id="place" class="warehouse-place" data-bind="click: sortBy">
-        <%=t 'views.warehouses.place' %><span></span>
-      </th>
+      <% if can?(:reverse, Waybill) && can?(:reverse, Allocation) %>
+        <th id="place" class="warehouse-place" data-bind="click: sortBy">
+          <%=t 'views.warehouses.place' %><span></span>
+        </th>
+      <% end %>
       <th id="tag" class="warehouse-tag" data-bind="click: sortBy">
         <%=t 'views.warehouses.tag' %><span></span>
       </th>
@@ -38,19 +38,16 @@
       <th id="real_amount" class="warehouse-rel-amount" data-bind="click: sortBy">
         <%=t 'views.warehouses.real_amount' %><span></span>
       </th>
-      <th id="exp_amount" class="warehouse-exp-amount"
-          data-bind="click: sortBy">
-        <%=t 'views.warehouses.expectation_amount' %><span></span>
-      </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">
     <tr data-bind="click: $parent.showReport">
-      <td data-bind="text: place"></td>
+      <% if can?(:reverse, Waybill) && can?(:reverse, Allocation) %>
+        <td data-bind="text: place"></td>
+      <% end %>
       <td data-bind="text: tag"></td>
       <td data-bind="text: mu"></td>
       <td data-bind="text: real_amount"></td>
-      <td data-bind="text: exp_amount"></td>
     </tr>
   </tbody>
 </table>

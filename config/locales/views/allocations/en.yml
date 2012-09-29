@@ -2,8 +2,6 @@ en:
   views:
     allocations:
       created_at: "Created at"
-      storekeeper: "Storekeeper"
-      storekeeper_place: "Storekeeper place"
       entity: "Entity"
       place: "Place"
       foreman: "Foreman"
@@ -27,7 +25,7 @@ en:
       distributor: Distributor
       storekeeper: Storekeeper
       other_storekeeper: Receive storekeeper
-      storekeeper_place: Place
+      storekeeper_place: Warehouse
       warehouse:
         name: Warehouse
         remote: Remote warehouse

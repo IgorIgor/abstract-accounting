@@ -13,7 +13,7 @@ ru:
       ident_value: "Идентификатор"
       place: Откуда
       storekeeper: "Кладовщик"
-      storekeeper_place: "Место кладовщика"
+      storekeeper_place: Склад
       waybill_entry: "Материалы"
       entry_name: "Название"
       measure: "Ед. изм."

@@ -4,10 +4,12 @@
 <input type="text" id="filter_document_id" data-bind="value: filter.document_id"/>
 <label><%=t 'views.waybills.distributor' %></label>
 <input type="text" id="filter_distributor" data-bind="value: filter.distributor"/>
+<% if can?(:reverse, Waybill) && can?(:reverse, Allocation) %>
 <label><%=t 'views.waybills.storekeeper' %></label>
 <input type="text" id="filter_storekeeper" data-bind="value: filter.storekeeper"/>
 <label><%=t 'views.waybills.storekeeper_place' %></label>
 <input type="text" id="filter_storekeeper_place" data-bind="value: filter.storekeeper_place"/>
+<% end %>
 <%= render :partial => "state/filter" %>
 <label><%=t 'views.waybills.resource.name' %></label>
 <input type="text" id="filter_resource_name" data-bind="value: filter.resource_tag"/>

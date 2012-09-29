@@ -19,12 +19,14 @@
       <th id="created" data-bind="click: sortBy">
         <%=t 'views.allocations.created_at' %><span></span>
       </th>
+      <% if can?(:reverse, Waybill) && can?(:reverse, Allocation) %>
       <th id="storekeeper" data-bind="click: sortBy">
         <%=t 'views.allocations.storekeeper' %><span></span>
       </th>
       <th id="storekeeper_place" data-bind="click: sortBy">
         <%=t 'views.allocations.storekeeper_place' %><span></span>
       </th>
+      <% end %>
       <th id="foreman" data-bind="click: sortBy">
         <%=t 'views.allocations.foreman' %><span></span>
       </th>
@@ -45,8 +47,10 @@
   <tbody data-bind="foreach: documents">
     <tr>
       <td data-bind="text: created"></td>
+      <% if can?(:reverse, Waybill) && can?(:reverse, Allocation) %>
       <td data-bind="text: storekeeper"></td>
       <td data-bind="text: storekeeper_place"></td>
+      <% end %>
       <td data-bind="text: foreman"></td>
       <td data-bind="text: state"></td>
       <td data-bind="text: resource_tag"></td>

@@ -26,12 +26,14 @@
       <th id="distributor" data-bind="click: sortBy">
         <%=t 'views.waybills.distributor' %><span></span>
       </th>
+      <% if can?(:reverse, Waybill) && can?(:reverse, Allocation) %>
       <th id="storekeeper" data-bind="click: sortBy">
         <%=t 'views.waybills.storekeeper' %><span></span>
       </th>
       <th id="storekeeper_place" data-bind="click: sortBy">
         <%=t 'views.waybills.storekeeper_place' %><span></span>
       </th>
+      <% end %>
       <th id="sum" data-bind="click: sortBy">
         <%=t 'views.waybills.sum' %><span></span>
       </th>
@@ -48,8 +50,10 @@
       <td data-bind="text: created, click: $parent.show"></td>
       <td data-bind="text: document_id, click: $parent.show"></td>
       <td data-bind="text: distributor, click: $parent.show"></td>
+      <% if can?(:reverse, Waybill) && can?(:reverse, Allocation) %>
       <td data-bind="text: storekeeper, click: $parent.show"></td>
       <td data-bind="text: storekeeper_place, click: $parent.show"></td>
+      <% end %>
       <td data-bind="text: sum, click: $parent.show"></td>
       <td data-bind="text: state, click: $parent.show"></td>
     </tr>
@@ -88,7 +92,13 @@
   </tbody>
   <tfoot>
     <tr>
-      <td colspan="6"><%=t 'views.waybills.total' %></td>
+      <% if can?(:reverse, Waybill) && can?(:reverse, Allocation) %>
+      <td colspan="6">
+      <% else %>
+        <td colspan="4">
+      <% end %>
+        <%=t 'views.waybills.total' %>
+      </td>
       <td data-bind="text: total"></td>
       <td></td>
     </tr>

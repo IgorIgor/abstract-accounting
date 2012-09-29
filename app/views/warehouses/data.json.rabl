@@ -9,6 +9,6 @@
 
 object false
 child(@warehouse => :objects) { attributes :place_id, :place, :id, :tag, :real_amount,
-                                           :exp_amount, :mu }
+                                           :mu }
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

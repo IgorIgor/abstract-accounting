@@ -30,6 +30,8 @@ gem 'thin'
 gem 'to_xls'
 gem 'wicked_pdf'
 
+gem 'i18n-js'
+
 # Use unicorn as the web server
 # gem 'unicorn'
 

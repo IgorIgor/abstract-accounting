@@ -14,6 +14,8 @@
 #= require sammy
 #= require knockout
 #= require knockout.mapping
+#= require i18n
+#= require i18n/opentask_translations
 #= require_self
 #= require_tree .
 
@@ -39,7 +41,7 @@ $ ->
     this.splice(this.indexOf(value), 1)
 
   $(document).ajaxStart( ->
-    $('#message_box').text("<%= I18n.t 'views.notifications.load' %>")
+    $('#message_box').text(I18n.t('views.notifications.load'))
     width = $('#message_box').css('width')
     width = - width / 2
     $('#message_box').css({'margin-left': "#{width}", 'left': '50%'})
@@ -52,20 +54,20 @@ $ ->
 
   $(document).ajaxError((e, jqXHR, settings) ->
     statusErrorMap =
-      "400": "<%= I18n.t 'views.notifications.bad_request' %>"
-      "401": "<%= I18n.t 'views.notifications.unauth' %>"
-      "403": "<%= I18n.t 'views.notifications.forbidden' %>"
-      "500": "<%= I18n.t 'views.notifications.internal_error' %>"
-      "503": "<%= I18n.t 'views.notifications.unavailable' %>"
-    message = "<%= I18n.t 'views.notifications.error' %>"
+      "400": I18n.t('views.notifications.bad_request')
+      "401": I18n.t('views.notifications.unauth')
+      "403": I18n.t('views.notifications.forbidden')
+      "500": I18n.t('views.notifications.internal_error')
+      "503": I18n.t('views.notifications.unavailable')
+    message = I18n.t('views.notifications.error')
     if jqXHR.status
       message = statusErrorMap[jqXHR.status]
     else if e == 'parsererror'
-      message = "<%= I18n.t 'views.notifications.parsererror' %>"
+      message = I18n.t('views.notifications.parsererror')
     else if e == 'timeout'
-      message = "<%= I18n.t 'views.notifications.timeout' %>"
+      message = I18n.t('views.notifications.timeout')
     else if e == 'abort'
-      message = "<%= I18n.t 'views.notifications.abort' %>"
+      message = I18n.t('views.notifications.abort')
     $('#message_box').text(message)
     width = $('#message_box').css('width')
     width = - width / 2
@@ -159,11 +161,11 @@ $ ->
 
     getState: (state) ->
       switch state
-        when 0 then "<%= I18n.t 'views.statable.unknown' %>"
-        when 1 then "<%= I18n.t 'views.statable.inwork' %>"
-        when 2 then "<%= I18n.t 'views.statable.canceled' %>"
-        when 3 then "<%= I18n.t 'views.statable.applied' %>"
-        when 4 then "<%= I18n.t 'views.statable.reversed' %>"
+        when 0 then I18n.t('views.statable.unknown')
+        when 1 then I18n.t('views.statable.inwork')
+        when 2 then I18n.t('views.statable.canceled')
+        when 3 then I18n.t('views.statable.applied')
+        when 4 then I18n.t('views.statable.reversed')
 
   class self.EditableObjectViewModel extends ObjectViewModel
     constructor: (object, route, readonly = false)->

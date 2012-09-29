@@ -5,14 +5,14 @@ init_rules = ->
     $(this).rules('add', {
       required: true
       messages: {
-        required: "#{$(this).attr('name')} : <%= I18n.t('errors.messages.blank') %>"
+        required: "#{$(this).attr('name')} : #{I18n.t('errors.messages.blank')}"
       }
     })
   $("select[rule='required']").each ->
     $(this).rules('add', {
       required: true
       messages: {
-        required: "#{$(this).attr('name')} : <%= I18n.t('errors.messages.blank') %>"
+        required: "#{$(this).attr('name')} : #{I18n.t('errors.messages.blank')}"
       }
     })
   $("input[rule='required_num']").each ->
@@ -20,8 +20,8 @@ init_rules = ->
       required: true
       min_strict: 0
       messages: {
-        required: "#{$(this).attr('name')} : <%= I18n.t('errors.messages.blank') %>"
-        min_strict: "#{$(this).attr('name')} : <%= I18n.t('errors.messages.greater_than', count: 0) %>"
+        required: "#{$(this).attr('name')} : #{I18n.t('errors.messages.blank')}"
+        min_strict: "#{$(this).attr('name')} : #{I18n.t('errors.messages.greater_than', {count: 0})}"
       }
     })
   $("input[rule='email']").each ->
@@ -29,8 +29,8 @@ init_rules = ->
       required: true
       email: true
       messages: {
-        required: "#{$(this).attr('name')} : #{$(this).attr('error-message-required') ? "<%= I18n.t('errors.messages.blank') %>"}"
-        email: "#{$(this).attr('name')} : #{$(this).attr('error-message-email') ? "<%= I18n.t('errors.messages.email') %>"}"
+        required: "#{$(this).attr('name')} : #{$(this).attr('error-message-required') ? I18n.t('errors.messages.blank')}"
+        email: "#{$(this).attr('name')} : #{$(this).attr('error-message-email') ? I18n.t('errors.messages.email')}"
       }
     })
   $("input[rule='min_length']").each ->
@@ -39,8 +39,8 @@ init_rules = ->
       required: true
       minlength: min_length
       messages: {
-        required: "#{$(this).attr('name')} : #{$(this).attr('error-message-required') ? "<%= I18n.t('errors.messages.blank') %>"}"
-        minlength: "#{$(this).attr('name')} : #{$(this).attr('error-message-min-length') ? "<%= I18n.t('errors.messages.too_short.few') %>"}"
+        required: "#{$(this).attr('name')} : #{$(this).attr('error-message-required') ? I18n.t('errors.messages.blank')}"
+        minlength: "#{$(this).attr('name')} : #{$(this).attr('error-message-min-length') ? I18n.t('errors.messages.too_short.few')}"
       }
     })
   $("input[rule='equal_to']").each ->
@@ -48,8 +48,8 @@ init_rules = ->
       required: true
       equalTo: "##{$(this).attr('equal_to')}"
       messages: {
-        required: "#{$(this).attr('name')} : #{$(this).attr('error-message-required') ? "<%= I18n.t('errors.messages.blank') %>"}"
-        equalTo: "#{$(this).attr('name')} : #{$(this).attr('error-message-equal-to') ? "<%= I18n.t('errors.messages.equal_to') %>"}"
+        required: "#{$(this).attr('name')} : #{$(this).attr('error-message-required') ? I18n.t('errors.messages.blank')}"
+        equalTo: "#{$(this).attr('name')} : #{$(this).attr('error-message-equal-to') ? I18n.t('errors.messages.equal_to')}"
       }
     })
 

@@ -1,7 +1,7 @@
 ko.bindingHandlers.datepicker =
   init: (element, valueAccessor) ->
     $(element).datepicker($.datepicker.
-    regional["<%= I18n.locale.to_s unless I18n.locale == :en %>"])
+    regional[I18n.locale])
     $( element ).datepicker( "option", "maxDate", "+0" );
 
     ko.utils.registerEventHandler(element, "change", ->

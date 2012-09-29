@@ -8,7 +8,7 @@ ru:
       foreman_place: "Место прораба"
       available_resources: "Доступные материалы"
       tag: "Название"
-      expectation_amount: "Ожидаемое кол-во"
+      real_amount: Количество
       amount: "Количество"
       mu: "Ед. Изм."
       selected_resources: "Выбранные материалы"

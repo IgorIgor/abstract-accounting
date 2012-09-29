@@ -163,8 +163,8 @@
       <th class="selected-resources-tag"><%= t 'views.allocations.tag' %></th>
       <th class="selected-resources-mu"><%= t 'views.allocations.mu' %></th>
       <!-- ko ifnot: readonly -->
-      <th class="selected-resources-exp-amount">
-        <%= t 'views.allocations.expectation_amount' %>
+      <th class="selected-resources-real-amount">
+        <%= t 'views.allocations.real_amount' %>
       </th>
       <!-- /ko -->
       <th class="selected-resources-count"><%= t 'views.allocations.amount' %></th>
@@ -180,7 +180,7 @@
       <td data-bind="text: tag"></td>
       <td data-bind="text: mu"></td>
       <!-- ko ifnot: $parent.readonly -->
-      <td data-bind="text: exp_amount"></td>
+      <td data-bind="text: real_amount"></td>
       <!-- /ko -->
       <td>
         <input type="text" size="8" name='<%= t 'views.allocations.amount' %>'
@@ -224,8 +224,8 @@
       <th id="mu" class="available-resources-mu" data-bind="click: sortBy">
         <%= t 'views.allocations.mu' %><span></span>
       </th>
-      <th id="exp_amount" class="available-resources-exp-amount" data-bind="click: sortBy">
-        <%= t 'views.allocations.expectation_amount' %><span></span>
+      <th id="real_amount" class="available-resources-real-amount" data-bind="click: sortBy">
+        <%= t 'views.allocations.real_amount' %><span></span>
       </th>
     </tr>
     <tr id="resource_filter" style="display: none">
@@ -241,9 +241,9 @@
       <th class="available-resources-mu">
         <input type="text" id="resource_filter_mu" data-bind="value: filter.mu" />
       </th>
-      <th class="available-resources-exp-amount">
-        <input type="text" id="resource_filter_exp_amount"
-               data-bind="value: filter.exp_amount" />
+      <th class="available-resources-real-amount">
+        <input type="text" id="resource_filter_real_amount"
+               data-bind="value: filter.real_amount" />
       </th>
     </tr>
     </thead>
@@ -254,7 +254,7 @@
       </td>
       <td data-bind="text: tag"></td>
       <td data-bind="text: mu"></td>
-      <td data-bind="text: exp_amount"></td>
+      <td data-bind="text: real_amount"></td>
     </tr>
     </tbody>
   </table>
@@ -278,60 +278,56 @@
       <%= t 'views.allocations.available_resources' %>
     </caption>
     <thead>
-    <tr>
-      <th></th>
-      <th></th>
-      <th><%= t 'views.allocations.document_id' %></th>
-      <th><%= t 'views.allocations.created_at' %></th>
-      <th><%= t 'views.allocations.distributor' %></th>
-      <th><%= t 'views.allocations.storekeeper' %></th>
-      <th><%= t 'views.allocations.storekeeper_place' %></th>
-    </tr>
+      <tr>
+        <th></th>
+        <th></th>
+        <th><%= t 'views.allocations.document_id' %></th>
+        <th><%= t 'views.allocations.created_at' %></th>
+        <th><%= t 'views.allocations.distributor' %></th>
+      </tr>
     </thead>
     <tbody data-bind="foreach: documents">
-    <tr>
-      <td class="allocation-actions-by-wb">
-        <span class="mini-icon add" data-bind="click: $root.selectWaybill"></span>
-      </td>
-      <td data-bind="click: $parent.expandTree" class="allocation-tree-actions-by-wb">
-        <div class="ui-corner-all ui-state-hover">
-          <span class="ui-icon ui-icon-circle-plus"></span>
-        </div>
-      </td>
-      <td data-bind="text: document_id"></td>
-      <td data-bind="text: created"></td>
-      <td data-bind="text: distributor"></td>
-      <td data-bind="text: storekeeper"></td>
-      <td data-bind="text: storekeeper_place"></td>
-    </tr>
-    <tr data-bind="with: subitems">
-      <td></td>
-      <td colspan="6">
-        <div class="paginate">
-          <span data-bind="text: range"></span> <%= t('views.home.of') %>
-          <span data-bind="text: count"></span>
-          <input type="button" value="<" data-bind="click: prev, disable: page() < 2"/>
-          <input type="button" class="paginate-right" value=">"
-                 data-bind="click: next, disable: page()*per_page() >= count()"/>
-        </div>
-        <table>
-          <thead>
-          <tr>
-            <th class="available-resources-tag"><%= t 'views.allocations.tag' %></th>
-            <th class="available-resources-mu"><%= t 'views.allocations.mu' %></th>
-            <th class="available-resources-amount"><%= t 'views.allocations.amount' %></th>
-          </tr>
-          </thead>
-          <tbody data-bind="foreach: documents">
-          <tr>
-            <td data-bind="text: tag"></td>
-            <td data-bind="text: mu"></td>
-            <td data-bind="text: amount"></td>
-          </tr>
-          </tbody>
-        </table>
-      </td>
-    </tr>
+      <tr>
+        <td class="allocation-actions-by-wb">
+          <span class="mini-icon add" data-bind="click: $root.selectWaybill"></span>
+        </td>
+        <td data-bind="click: $parent.expandTree" class="allocation-tree-actions-by-wb">
+          <div class="ui-corner-all ui-state-hover">
+            <span class="ui-icon ui-icon-circle-plus"></span>
+          </div>
+        </td>
+        <td data-bind="text: document_id"></td>
+        <td data-bind="text: created"></td>
+        <td data-bind="text: distributor"></td>
+      </tr>
+      <tr data-bind="with: subitems">
+        <td></td>
+        <td colspan="6">
+          <div class="paginate">
+            <span data-bind="text: range"></span> <%= t('views.home.of') %>
+            <span data-bind="text: count"></span>
+            <input type="button" value="<" data-bind="click: prev, disable: page() < 2"/>
+            <input type="button" class="paginate-right" value=">"
+                   data-bind="click: next, disable: page()*per_page() >= count()"/>
+          </div>
+          <table>
+            <thead>
+            <tr>
+              <th class="available-resources-tag"><%= t 'views.allocations.tag' %></th>
+              <th class="available-resources-mu"><%= t 'views.allocations.mu' %></th>
+              <th class="available-resources-amount"><%= t 'views.allocations.amount' %></th>
+            </tr>
+            </thead>
+            <tbody data-bind="foreach: documents">
+            <tr>
+              <td data-bind="text: tag"></td>
+              <td data-bind="text: mu"></td>
+              <td data-bind="text: amount"></td>
+            </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
     </tbody>
   </table>
   <!-- /ko -->

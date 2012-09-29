@@ -77,7 +77,7 @@ $ ->
       @getPaginateData()
 
     selectResource: (resource) =>
-      resource.amount = ko.observable(resource.exp_amount)
+      resource.amount = ko.observable(resource.real_amount)
       @object.items.push(resource)
       @getPaginateData()
 
@@ -97,6 +97,7 @@ $ ->
               resource.amount = ko.observable(resource.exp_amount)
             else
               resource.amount = ko.observable(resource.amount)
+            resource.real_amount = resource.exp_amount
             @object.items.push(resource)
         @getPaginateData()
       else
@@ -116,6 +117,7 @@ $ ->
                 resource.amount = ko.observable(resource.exp_amount)
               else
                 resource.amount = ko.observable(resource.amount)
+              resource.real_amount = resource.exp_amount
               @object.items.push(resource)
           @getPaginateData()
         )

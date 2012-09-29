@@ -8,7 +8,7 @@ en:
       foreman_place: "Foreman place"
       available_resources: "Available resources"
       tag: "Tag"
-      expectation_amount: "Expiration Amount"
+      real_amount: Amount
       amount: "Amount"
       mu: "MU"
       selected_resources: "Selected resources"

@@ -53,7 +53,7 @@ class AllocationsController < ApplicationController
         render json: { result: 'success', id: allocation.id }
       end
     rescue
-      render json: allocation.errors.messages
+      render json: allocation.errors.full_messages
     end
   end
 

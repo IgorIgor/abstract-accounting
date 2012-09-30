@@ -14,8 +14,10 @@ class ItemsValidator < ActiveModel::Validator
     record.items.each do |item|
       record.errors[:items] <<
         'invalid' if item.resource.nil? || item.resource.invalid?
-      record.errors[:items] << 'invalid amount' if item.amount <= 0
-      record.errors[:items] << 'invalid price' if item.price <= 0
+      record.errors[:items] << I18n.t("activerecord.errors.messages.greater_than",
+                                      count: 0) if item.amount <= 0
+      record.errors[:items] << I18n.t("activerecord.errors.messages.greater_than",
+                                      count: 0) if item.price <= 0
     end
   end
 end

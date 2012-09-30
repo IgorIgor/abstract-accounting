@@ -8,6 +8,9 @@ en:
       money: Money
       waybill: Waybill
     attributes:
+      country:
+        default:
+          tag: Russian Federation
       group:
         tag: Tag
         manager: Manager

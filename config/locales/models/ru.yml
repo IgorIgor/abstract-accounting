@@ -8,6 +8,9 @@ ru:
       money: Деньги
       waybill: Накладная
     attributes:
+      country:
+        default:
+          tag: Российская Федерация
       group:
         tag: Название группы
         manager: Управляющий

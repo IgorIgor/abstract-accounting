@@ -38,7 +38,9 @@ class WaybillsController < ApplicationController
         params[:waybill].delete(:warehouse_id)
         waybill = Waybill.new(params[:waybill])
         unless waybill.distributor
-          country = Country.find_or_create_by_tag(:tag => "Russian Federation")
+          country = Country.find_or_create_by_tag(
+              I18n.t("activerecord.attributes.country.default.tag")
+          )
           distributor = LegalEntity.find_all_by_name_and_country_id(
             params[:distributor][:name], country).first
           if distributor.nil?

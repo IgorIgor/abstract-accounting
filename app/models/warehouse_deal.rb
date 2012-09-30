@@ -156,12 +156,13 @@ module WarehouseDeal
 
       self.deal = Deal.new(entity: self.storekeeper, rate: 1.0, isOffBalance: true,
         tag: I18n.t("activerecord.attributes.#{self.class.name.downcase}.deal.tag",
-                    id: self.document_id))
+                    id: self.document_id, place: storekeeper_place.tag))
       shipment = Asset.find_or_create_by_tag('Warehouse Shipment')
       return false if self.deal.build_give(place: self.send("#{settings[:from]}_place"),
                                            resource: shipment).nil?
       return false if self.deal.build_take(place: self.send("#{settings[:to]}_place"),
                                            resource: shipment).nil?
+      p self.deal.errors if self.deal.invalid?
       return false unless self.deal.save
       self.deal_id = self.deal.id
 

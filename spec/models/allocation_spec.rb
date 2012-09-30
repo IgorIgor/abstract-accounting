@@ -76,7 +76,8 @@ describe Allocation do
 
     deal = Deal.find(db.deal)
     deal.tag.should eq(I18n.t('activerecord.attributes.allocation.deal.tag',
-                              id: Allocation.last.nil? ? 1 : Allocation.last.id))
+                              id: Allocation.last.nil? ? 1 : Allocation.last.id,
+                       place: db.storekeeper_place.tag))
     deal.entity.should eq(db.storekeeper)
     deal.isOffBalance.should be_true
 
@@ -113,7 +114,8 @@ describe Allocation do
 
     deal = Deal.find(db.deal)
     deal.tag.should eq(I18n.t('activerecord.attributes.allocation.deal.tag',
-                              id: Allocation.last.nil? ? 1 : Allocation.last.id))
+                              id: Allocation.last.nil? ? 1 : Allocation.last.id,
+                              place: db.storekeeper_place.tag))
     deal.entity.should eq(db.storekeeper)
     deal.isOffBalance.should be_true
 

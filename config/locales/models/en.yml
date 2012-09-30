@@ -18,9 +18,9 @@ en:
       waybill:
         items: Resources
         deal:
-          tag: Invoice %{id}
+          tag: "Invoice #%{id}; Warehouse: %{place}"
           resource:
-            tag: Invoice %{id} string %{index}
+            tag: "Invoice #%{id} string %{index}"
         comment:
           create: Create waybill
           apply: Apply waybill
@@ -29,9 +29,9 @@ en:
       allocation:
         items: Resources
         deal:
-          tag: WIP %{id}
+          tag: "WIP #%{id}; Warehouse: %{place}"
           resource:
-            tag: WIP %{id} string %{index}
+            tag: "WIP #%{id} string %{index}"
         comment:
           create: Create allocation
           apply: Apply allocation

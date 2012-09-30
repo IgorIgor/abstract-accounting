@@ -83,7 +83,7 @@ describe Waybill do
 
     deal = Deal.find(wb.deal)
     deal.tag.should eq(I18n.t('activerecord.attributes.waybill.deal.tag',
-                              id: wb.document_id))
+                              id: wb.document_id, place: wb.storekeeper_place.tag))
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 
@@ -113,7 +113,7 @@ describe Waybill do
 
     deal = Deal.find(wb.deal)
     deal.tag.should eq(I18n.t('activerecord.attributes.waybill.deal.tag',
-                              id: wb.document_id))
+                              id: wb.document_id, place: wb.storekeeper_place.tag))
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 

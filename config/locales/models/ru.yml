@@ -18,9 +18,9 @@ ru:
       waybill:
         items: Ресурсы
         deal:
-          tag: Накладная %{id}
+          tag: "Накладная №%{id}; Склад: %{place}"
           resource:
-            tag: Накладная %{id} строка %{index}
+            tag: "Накладная №%{id} строка %{index}"
         comment:
           create: Создание накладной
           apply: Принятие накладной
@@ -29,9 +29,9 @@ ru:
       allocation:
         items: Ресурсы
         deal:
-          tag: НЗП %{id}
+          tag: "НЗП №%{id}; Склад: %{place}"
           resource:
-            tag: НЗП %{id} строка %{index}
+            tag: "НЗП №%{id} строка %{index}"
         comment:
           create: Создание выдачи
           apply: Принятие выдачи

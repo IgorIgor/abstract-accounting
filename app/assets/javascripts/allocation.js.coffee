@@ -151,7 +151,21 @@ $ ->
       )
 
     search_area: =>
-      $('#resource_filter').toggle()
-      unless $('#resource_filter').is(":visible")
+      name = ""
+      if $("#resource_filter").length == 1
+        name = "#resource_filter"
+      else
+        name = "#waybill_filter"
+      $(name).toggle()
+      unless $(name).is(":visible")
         @warehouse().clearFilter()
         @warehouse().filterData()
+
+    serchByEnter: (object, event) =>
+      if event.keyCode == 13
+        @warehouse().filterData()
+        return false
+      if event.keyCode == 27
+        @search_area()
+        return false
+      true

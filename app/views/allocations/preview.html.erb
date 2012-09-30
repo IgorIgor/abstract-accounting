@@ -216,46 +216,47 @@
       <%= render 'home/paginate' %>
     </caption>
     <thead>
-    <tr>
-      <th class="allocation-actions"></th>
-      <th id="tag" class="available-resources-tag" data-bind="click: sortBy">
-        <%= t 'views.allocations.tag' %><span></span>
-      </th>
-      <th id="mu" class="available-resources-mu" data-bind="click: sortBy">
-        <%= t 'views.allocations.mu' %><span></span>
-      </th>
-      <th id="real_amount" class="available-resources-real-amount" data-bind="click: sortBy">
-        <%= t 'views.allocations.real_amount' %><span></span>
-      </th>
-    </tr>
-    <tr id="resource_filter" style="display: none">
-      <th class="allocation-tree-actions-by-wb" >
-        <div id="filtrate" class="ui-corner-all ui-state-hover"
-             data-bind="click: filterData">
-          <span class="ui-icon ui-icon-play"></span>
-        </div>
-      </th>
-      <th class="available-resources-tag">
-        <input type="text" id="resource_filter_tag" data-bind="value: filter.tag" />
-      </th>
-      <th class="available-resources-mu">
-        <input type="text" id="resource_filter_mu" data-bind="value: filter.mu" />
-      </th>
-      <th class="available-resources-real-amount">
-        <input type="text" id="resource_filter_real_amount"
-               data-bind="value: filter.real_amount" />
-      </th>
-    </tr>
+      <tr>
+        <th class="allocation-actions"></th>
+        <th id="tag" class="available-resources-tag" data-bind="click: sortBy">
+          <%= t 'views.allocations.tag' %><span></span>
+        </th>
+        <th id="mu" class="available-resources-mu" data-bind="click: sortBy">
+          <%= t 'views.allocations.mu' %><span></span>
+        </th>
+        <th id="real_amount" class="available-resources-real-amount" data-bind="click: sortBy">
+          <%= t 'views.allocations.real_amount' %><span></span>
+        </th>
+      </tr>
+      <tr id="resource_filter" style="display: none"
+          data-bind="event: { keyup: $parent.serchByEnter }">
+        <th class="allocation-tree-actions-by-wb" >
+          <div id="filtrate" class="ui-corner-all ui-state-hover"
+               data-bind="click: filterData">
+            <span class="ui-icon ui-icon-play"></span>
+          </div>
+        </th>
+        <th class="available-resources-tag">
+          <input type="text" id="resource_filter_tag" data-bind="value: filter.tag" />
+        </th>
+        <th class="available-resources-mu">
+          <input type="text" id="resource_filter_mu" data-bind="value: filter.mu" />
+        </th>
+        <th class="available-resources-real-amount">
+          <input type="text" id="resource_filter_real_amount"
+                 data-bind="value: filter.real_amount" />
+        </th>
+      </tr>
     </thead>
     <tbody data-bind="foreach: documents">
-    <tr>
-      <td class="allocation-actions">
-        <span class="mini-icon add" data-bind="click: $root.selectResource"></span>
-      </td>
-      <td data-bind="text: tag"></td>
-      <td data-bind="text: mu"></td>
-      <td data-bind="text: real_amount"></td>
-    </tr>
+      <tr>
+        <td class="allocation-actions">
+          <span class="mini-icon add" data-bind="click: $root.selectResource"></span>
+        </td>
+        <td data-bind="text: tag"></td>
+        <td data-bind="text: mu"></td>
+        <td data-bind="text: real_amount"></td>
+      </tr>
     </tbody>
   </table>
   <!-- /ko -->
@@ -263,6 +264,10 @@
   <!-- ko if: availableMode() == '1' -->
   <table id="available-resources-by-wb" data-bind="with: warehouse">
     <caption>
+      <div id="search_available_waybills" class="ui-corner-all ui-state-hover search-button"
+           data-bind="click: $parent.search_area">
+        <span class="ui-icon ui-icon-search"></span>
+      </div>
       <div class="table-mode">
         <input type="radio" id="mode-resources-by-wb" name="mode-by-wb"
                value="0" data-bind="checked: $parent.availableMode"/>
@@ -284,6 +289,25 @@
         <th><%= t 'views.allocations.document_id' %></th>
         <th><%= t 'views.allocations.created_at' %></th>
         <th><%= t 'views.allocations.distributor' %></th>
+      </tr>
+      <tr id="waybill_filter" style="display: none"
+          data-bind="event: { keyup: $parent.serchByEnter }">
+        <th class="allocation-tree-actions-by-wb" >
+          <div id="filtrate_waybills" class="ui-corner-all ui-state-hover"
+               data-bind="click: filterData">
+            <span class="ui-icon ui-icon-play"></span>
+          </div>
+        </th>
+        <th></th>
+        <th class="available-resources-tag">
+          <input type="text" id="filter_document_id" data-bind="value: filter.document_id" />
+        </th>
+        <th class="available-resources-mu">
+          <input type="text" id="filter_created_at" data-bind="value: filter.created" />
+        </th>
+        <th class="available-resources-real-amount">
+          <input type="text" id="filter_distributor" data-bind="value: filter.distributor" />
+        </th>
       </tr>
     </thead>
     <tbody data-bind="foreach: documents">

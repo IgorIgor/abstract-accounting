@@ -617,22 +617,24 @@ describe Waybill do
     ds_moscow.add_item(tag: 'nails', mu: 'pcs', amount: 10)
     ds_moscow.add_item(tag: 'roof', mu: 'rm', amount: 4)
     ds_moscow.save!
+    ds_moscow.apply.should be_true
     ds_minsk = build(:allocation, storekeeper: petrov,
                                   storekeeper_place: minsk)
     ds_minsk.add_item(tag: 'roof', mu: 'rm', amount: 400)
     ds_minsk.add_item(tag: 'nails', mu: 'kg', amount: 200)
     ds_minsk.save!
+    ds_minsk.apply.should be_true
 
     Waybill.in_warehouse.include?(wb1).should be_true
     Waybill.in_warehouse.include?(wb2).should be_true
     Waybill.in_warehouse.include?(wb3).should be_true
 
-    wbs = Waybill.in_warehouse(without_waybills: [ wb1.id ])
+    wbs = Waybill.without([ wb1.id ]).in_warehouse
     wbs.include?(wb1).should be_false
     wbs.include?(wb2).should be_true
     wbs.include?(wb3).should be_true
 
-    wbs = Waybill.in_warehouse(without_waybills: [ wb1.id, wb3.id ])
+    wbs = Waybill.without([ wb1.id, wb3.id ]).in_warehouse
     wbs.include?(wb1).should be_false
     wbs.include?(wb2).should be_true
     wbs.include?(wb3).should be_false
@@ -642,12 +644,13 @@ describe Waybill do
     ds_moscow.add_item(tag: 'roof', mu: 'rm', amount: 146)
     ds_moscow.add_item(tag: 'nails', mu: 'pcs', amount: 1890)
     ds_moscow.save!
+    ds_moscow.apply.should be_true
 
     Waybill.in_warehouse.include?(wb1).should be_false
     Waybill.in_warehouse.include?(wb2).should be_true
     Waybill.in_warehouse.include?(wb3).should be_true
 
-    wbs = Waybill.in_warehouse(where: { warehouse_id: { equal: minsk.id } })
+    wbs = Waybill.by_warehouse(minsk).in_warehouse
     wbs.include?(wb1).should be_false
     wbs.include?(wb2).should be_false
     wbs.include?(wb3).should be_true
@@ -657,8 +660,9 @@ describe Waybill do
     ds_minsk.add_item(tag: 'roof', mu: 'rm', amount: 100)
     ds_minsk.add_item(tag: 'nails', mu: 'kg', amount: 100)
     ds_minsk.save!
+    ds_minsk.apply.should be_true
 
-    wbs = Waybill.in_warehouse(where: { warehouse_id: { equal: minsk.id } })
+    wbs = Waybill.by_warehouse(minsk).in_warehouse
     wbs.include?(wb1).should be_false
     wbs.include?(wb2).should be_false
     wbs.include?(wb3).should be_false
@@ -677,6 +681,49 @@ describe Waybill do
     Waybill.in_warehouse.include?(wb2).should be_true
     Waybill.in_warehouse.include?(wb3).should be_false
     Waybill.in_warehouse.include?(wb4).should be_false
+  end
+
+  describe "#without" do
+    it 'should remove waybills with ids equal to scope attribute' do
+      moscow = create(:place)
+      minsk = create(:place)
+      ivanov = create(:entity)
+      petrov = create(:entity)
+
+      wb1 = build(:waybill, storekeeper: ivanov,
+                                    storekeeper_place: moscow)
+      wb1.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+      wb1.add_item(tag: 'nails', mu: 'pcs', amount: 700, price: 1.0)
+      wb1.save!
+      wb1.apply.should be_true
+      wb2 = build(:waybill, storekeeper: ivanov,
+                                    storekeeper_place: moscow)
+      wb2.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1.0)
+      wb2.add_item(tag: 'nails', mu: 'kg', amount: 10, price: 150.0)
+      wb2.add_item(tag: 'roof', mu: 'rm', amount: 50, price: 100.0)
+      wb2.save!
+      wb2.apply.should be_true
+      wb3 = build(:waybill, storekeeper: petrov,
+                                    storekeeper_place: minsk)
+      wb3.add_item(tag: 'roof', mu: 'rm', amount: 500, price: 120.0)
+      wb3.add_item(tag: 'nails', mu: 'kg', amount: 300, price: 150.0)
+      wb3.save!
+      wb3.apply.should be_true
+
+      Waybill.all.include?(wb1).should be_true
+      Waybill.all.include?(wb2).should be_true
+      Waybill.all.include?(wb3).should be_true
+
+      wbs = Waybill.without([ wb1.id ])
+      wbs.include?(wb1).should be_false
+      wbs.include?(wb2).should be_true
+      wbs.include?(wb3).should be_true
+
+      wbs = Waybill.without([ wb1.id, wb3.id ])
+      wbs.include?(wb1).should be_false
+      wbs.include?(wb2).should be_true
+      wbs.include?(wb3).should be_false
+    end
   end
 
   it "should filter by warehouse" do

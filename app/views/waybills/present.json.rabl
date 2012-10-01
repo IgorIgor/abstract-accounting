@@ -6,18 +6,10 @@
 # License, or (at your option) any later version.
 #
 # Please see ./COPYING for details
-# app/config/application.yml
 
-defaults: &defaults
-  root:
-    password: 123456
-    per_page: 30
-
-development:
-  <<: *defaults
-
-test:
-  <<: *defaults
-
-production:
-  <<: *defaults
+object false
+child(@waybills => :objects) do
+  extends "waybills/_waybill"
+end
+node(:per_page) { Settings.root.per_page }
+node(:count) { @count }

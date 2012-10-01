@@ -140,13 +140,14 @@ $ ->
           @params['without'] = $.map(@object.items(), (r) -> r.waybill_id)
       else if @params.hasOwnProperty('without')
         delete @params['without']
-      @params['equal']['warehouse_id'] = @findWarehouse(
+      @params['warehouse_id'] = @findWarehouse(
         @object.allocation.warehouse_id()).place_id()
       $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
         if @availableMode() == '0'
           @warehouse(new WarehouseViewModel(data, @params))
         else
           @params["exp_amount"] = true
+          @params["present"] = true
           @warehouse(new WaybillsViewModel(data, @params))
       )
 

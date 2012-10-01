@@ -69,36 +69,25 @@ class WaybillsController < ApplicationController
   end
 
   def present
-    attrs = {}
+    page = params[:page].nil? ? 1 : params[:page].to_i
+    per_page = params[:per_page].nil? ?
+        Settings.root.per_page.to_i : params[:per_page].to_i
 
-    if params.has_key?(:equal)
-      params[:equal].each do |key, value|
-        unless value.empty?
-          attrs[:where] ||= {}
-          attrs[:where][key] = {}
-          attrs[:where][key][:equal] = value
-        end
-      end
+    scope = autorize_warehouse(Waybill)
+    if scope
+      scope = scope.
+          by_warehouse(Place.find(params[:warehouse_id])) if params.has_key?(:warehouse_id)
+      scope = scope.without(params[:without]) if params.has_key?(:without)
+      scope = scope.search(params[:search]) if params[:search]
+      scope = scope.in_warehouse
+      @count = SqlRecord.from(scope.to_sql).count
+      @count = @count.length unless @count.instance_of? Fixnum
+      scope = scope.order_by(params[:order]) if params[:order]
+      @waybills = scope.limit(per_page).offset((page - 1) * per_page).includes_all
+    else
+      @count = 0
+      @waybills = []
     end
-    unless current_user.root?
-      credential = current_user.credentials(:force_update).
-          where{document_type == Waybill.name}.first
-      if credential
-        attrs[:where] = {} unless attrs.has_key?(:where)
-        attrs[:where][:warehouse_id] = { equal: credential.place_id }
-      else
-        @waybills = []
-        render :data
-        return
-      end
-    end
-
-    attrs[:without_waybills] =
-      params[:without] if params.has_key?(:without)
-
-    @waybills = Waybill.in_warehouse(attrs)
-
-    render :data
   end
 
   def data
@@ -113,10 +102,7 @@ class WaybillsController < ApplicationController
       @count = @count.length unless @count.instance_of? Fixnum
       @total = scope.total
       scope = scope.order_by(params[:order]) if params[:order]
-      @waybills = scope.limit(per_page).offset((page - 1) * per_page).
-        includes(deal: [:entity, terms: [:resource, :place],
-                 rules: [from: [:entity, terms: [:resource, :place]],
-                         to: [:entity, terms: [:resource, :place]]]])
+      @waybills = scope.limit(per_page).offset((page - 1) * per_page).includes_all
     else
       @count = 0
       @total = 0.0
@@ -143,9 +129,7 @@ class WaybillsController < ApplicationController
           @total = scope.total
           scope = scope.order_by(params[:order]) if params[:order]
           @list = scope.limit(per_page).offset((page - 1) * per_page).select_all.
-              includes(deal: [:entity, terms: [:resource, :place],
-                       rules: [from: [:entity, terms: [:resource, :place]],
-                               to: [:entity, terms: [:resource, :place]]]])
+              includes_all
         else
           @count = 0
           @total = 0.0

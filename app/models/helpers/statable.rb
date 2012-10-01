@@ -52,17 +52,16 @@ module Helpers
     end
 
     def state
-      return UNKNOWN if self.deal.nil? || self.deal.deal_state(:force).nil?
+      return UNKNOWN if self.deal.nil? || self.deal.deal_state.nil?
       if self.deal.deal_state.in_work?
         return INWORK
-      elsif self.deal.deal_state.closed? && Fact.where{to_deal_id == my{deal_id}}.count == 0
+      elsif self.deal.deal_state.closed? && self.deal.to_facts.size == 0
         return CANCELED
-      elsif self.deal.deal_state.closed? &&
-          Fact.where{to_deal_id == my{deal_id}}.count == 1 &&
-          Fact.where{to_deal_id == my{deal_id}}.where{amount == 1.0}.count == 1
+      elsif self.deal.deal_state.closed? && self.deal.to_facts.size == 1 &&
+          self.deal.to_facts.where{amount == 1.0}.size == 1
         return APPLIED
-      elsif self.deal.deal_state.closed? && Fact.where{to_deal_id == my{deal_id}}.count == 2 &&
-              Fact.where{to_deal_id == my{deal_id}}.where{amount == -1.0}.count == 1
+      elsif self.deal.deal_state.closed? && self.deal.to_facts.size == 2 &&
+          self.deal.to_facts.where{amount == -1.0}.size == 1
         return REVERSED
       end
       UNKNOWN

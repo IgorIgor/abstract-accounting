@@ -40,6 +40,14 @@ module WarehouseDeal
 
       before_apply :apply_fact
       before_reverse :reverse_fact
+
+      scope :includes_all, includes(deal: [:entity, :deal_state, :to_facts,
+                                             give: [:resource, :place],
+                                             take: [:resource, :place],
+                                             rules: [from: [:entity,
+                                                            terms: [:resource, :place]],
+                                                     to: [:entity,
+                                                          terms: [:resource, :place]]]])
     end
 
     def before_item_save(callback)

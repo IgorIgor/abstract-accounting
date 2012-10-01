@@ -83,10 +83,7 @@ class AllocationsController < ApplicationController
       @count = scope.count
       @count = @count.count unless @count.instance_of? Fixnum
       scope = scope.order_by(params[:order]) if params[:order]
-      @allocations = scope.limit(per_page).offset((page - 1) * per_page).
-          includes(deal: [:entity, terms: [:resource, :place],
-                   rules: [from: [:entity, terms: [:resource, :place]],
-                           to: [:entity, terms: [:resource, :place]]]])
+      @allocations = scope.limit(per_page).offset((page - 1) * per_page).includes_all
     else
       @count = 0
       @allocations = []
@@ -111,10 +108,7 @@ class AllocationsController < ApplicationController
             @count = @count.values[0]
           end
           scope = scope.order_by(params[:order]) if params[:order]
-          @list = scope.limit(per_page).offset((page - 1) * per_page).select_all.
-              includes(deal: [:entity, terms: [:resource, :place],
-                       rules: [from: [:entity, terms: [:resource, :place]],
-                               to: [:entity, terms: [:resource, :place]]]])
+          @list = scope.limit(per_page).offset((page - 1) * per_page).select_all.includes_all
         else
           @count = 0
           @list = []

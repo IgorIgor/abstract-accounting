@@ -281,14 +281,21 @@
         </label>
       </div>
       <%= t 'views.allocations.available_resources' %>
+      <%= render 'home/paginate' %>
     </caption>
     <thead>
       <tr>
         <th></th>
         <th></th>
-        <th><%= t 'views.allocations.document_id' %></th>
-        <th><%= t 'views.allocations.created_at' %></th>
-        <th><%= t 'views.allocations.distributor' %></th>
+        <th id="document_id" data-bind="click: sortBy">
+          <%= t 'views.allocations.document_id' %><span></span>
+        </th>
+        <th id="created" data-bind="click: sortBy">
+          <%= t 'views.allocations.created_at' %><span></span>
+        </th>
+        <th id="distributor" data-bind="click: sortBy">
+          <%= t 'views.allocations.distributor' %><span></span>
+        </th>
       </tr>
       <tr id="waybill_filter" style="display: none"
           data-bind="event: { keyup: $parent.serchByEnter }">

@@ -42,11 +42,13 @@ class BalanceSheet < Array
   filter_attr :place_id
   filter_attr :group_by
   filter_attr :search
+  filter_attr :order
 
   getter :all do |options = {}|
     build_scopes
-    if self.resource_value || self.entity_value || self.place_id_value || self.search_value
+    if self.resource_value || self.entity_value || self.place_id_value || self.search_value || self.order_value
       scope = @balance_scope
+      scope = sort(scope) if self.order_value
       scope = scope.paginate(self.paginate_value) if self.paginate_value
       scope.each do |o|
         self << o
@@ -112,6 +114,33 @@ class BalanceSheet < Array
   def liabilities
     retrieve_assets unless @assets_retrieved
     @liabilities
+  end
+
+  def sort(scope)
+    if self.order_value[:field] == 'deal'
+      scope = scope.joins{deal.outer}.order("deals.tag #{self.order_value[:type]}")
+    elsif self.order_value[:field] == 'entity'
+      query = "case entity_type
+                              when 'Entity'      then entities.tag
+                              when 'LegalEntity' then legal_entities.name
+                         end"
+      scope = scope.joins{deal.entity(Entity).outer}.
+          joins{deal.entity(LegalEntity).outer}.
+          order("#{query} #{self.order_value[:type]}")
+    elsif self.order_value[:field] == 'resource'
+      query = "case resource_type
+                              when 'Asset' then assets.tag
+                              when 'Money' then money.alpha_code
+                         end"
+      scope = scope.joins{give.resource(Asset).outer}.
+          joins{give.resource(Money).outer}.                #only give?
+          order("#{query} #{self.order_value[:type]}")
+    elsif self.order_value[:field] == 'place'
+      scope = scope.joins{give.place.outer}.
+          joins{give.place.outer}.                            #only give?
+          order("places.tag #{self.order_value[:type]}")
+    end
+    scope
   end
 
   protected

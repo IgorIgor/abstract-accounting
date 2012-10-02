@@ -183,4 +183,54 @@ describe BalanceSheet do
       BalanceSheet.search(resource: 'res').search_value.should eq(resource: 'res')
     end
   end
+
+  it "should sort balance_sheet" do
+    bss =  BalanceSheet.order({field: 'deal', type: 'asc'}).all
+    bss_test = Balance.joins{deal.outer}.order("deals.tag asc")
+    bss.should eq(bss_test)
+    bss =  BalanceSheet.order({field: 'deal', type: 'desc'}).all
+    bss_test = Balance.joins{deal.outer}.order("deals.tag desc")
+    bss.should eq(bss_test)
+
+    query = "case entity_type
+                              when 'Entity'      then entities.tag
+                              when 'LegalEntity' then legal_entities.name
+                         end"
+    bss =  BalanceSheet.order({field: 'entity', type: 'asc'}).all
+    bss_test = Balance.joins{deal.entity(Entity).outer}.
+                       joins{deal.entity(LegalEntity).outer}.
+                       order("#{query} asc")
+    bss.should eq(bss_test)
+    bss =  BalanceSheet.order({field: 'entity', type: 'desc'}).all
+    bss_test = Balance.joins{deal.entity(Entity).outer}.
+                       joins{deal.entity(LegalEntity).outer}.
+                       order("#{query} desc")
+    bss.should eq(bss_test)
+
+    query = "case resource_type
+                              when 'Asset' then assets.tag
+                              when 'Money' then money.alpha_code
+                         end"
+    bss =  BalanceSheet.order({field: 'resource', type: 'asc'}).all
+    bss_test = Balance.joins{give.resource(Asset).outer}.
+                       joins{give.resource(Money).outer}.
+                       order("#{query} asc")
+    bss.should eq(bss_test)
+    bss =  BalanceSheet.order({field: 'resource', type: 'desc'}).all
+    bss_test = Balance.joins{give.resource(Asset).outer}.
+                       joins{give.resource(Money).outer}.
+                       order("#{query} desc")
+    bss.should eq(bss_test)
+
+    bss =  BalanceSheet.order({field: 'place', type: 'asc'}).all
+    bss_test = Balance.joins{give.place.outer}.
+                       joins{give.place.outer}.
+                       order("places.tag asc")
+    bss.should eq(bss_test)
+    bss =  BalanceSheet.order({field: 'place', type: 'desc'}).all
+    bss_test = Balance.joins{give.place.outer}.
+                       joins{give.place.outer}.
+                       order("places.tag desc")
+    bss.should eq(bss_test)
+  end
 end

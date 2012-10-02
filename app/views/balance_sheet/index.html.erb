@@ -36,10 +36,18 @@
   <thead>
     <tr>
       <th class="cell-checkbox"></th>
-      <th class=""><%=t 'views.balance_sheet.deal'%></th>
-      <th class=""><%=t 'views.balance_sheet.entity'%></th>
-      <th class=""><%=t 'views.balance_sheet.resource'%></th>
-      <th class=""><%=t 'views.balance_sheet.place'%></th>
+      <th id="deal" data-bind="click: sortBy" class="">
+        <%=t 'views.balance_sheet.deal'%><span></span>
+      </th>
+      <th id="entity" data-bind="click: sortBy" class="">
+        <%=t 'views.balance_sheet.entity'%><span></span>
+      </th>
+      <th id="resource" data-bind="click: sortBy" class="">
+        <%=t 'views.balance_sheet.resource'%><span></span>
+      </th>
+      <th id="place" data-bind="click: sortBy" class="">
+        <%=t 'views.balance_sheet.place'%><span></span>
+      </th>
       <th class=""><%=t 'views.balance_sheet.debit'%></th>
       <th class=""><%=t 'views.balance_sheet.credit'%></th>
     </tr>

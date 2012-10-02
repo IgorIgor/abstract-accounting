@@ -18,6 +18,7 @@ class BalanceSheetController < ActionController::Base
     scope = scope.entity(params[:entity]) if params[:entity]
     scope = scope.place_id(params[:place_id]) if params[:place_id]
     scope = scope.search(params[:search]) if params[:search]
+    scope = scope.order(params[:order]) if params[:order]
     @balances = scope.
         date(params[:date].nil? ? DateTime.now : Date.parse(params[:date])).
         paginate(page: params[:page] || 1, per_page: params[:per_page]).

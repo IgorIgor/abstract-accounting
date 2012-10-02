@@ -587,4 +587,67 @@ feature "BalanceSheet", %q{
       page.should have_selector('tr', count: 4)
     end
   end
+
+  scenario "sort balance_sheet", js: true do
+    rub = Chart.first.currency
+    aasii = create(:asset)
+    share = create(:deal,
+                   give: build(:deal_give, resource: aasii),
+                   take: build(:deal_take, resource: rub),
+                   rate: 10000)
+    bank = create(:deal,
+                  give: build(:deal_give, resource: rub),
+                  take: build(:deal_take, resource: rub),
+                  rate: 1)
+    f = create(:fact, from: share, to: bank, resource: rub,
+               amount: 10000)
+    create(:txn, fact: f)
+
+    page_login
+    page.find('#btn_slide_conditions').click
+    click_link I18n.t('views.home.balance_sheet')
+    current_hash.should eq('balance_sheet')
+    page.should have_xpath("//li[@id='balance_sheet' and @class='sidebar-selected']")
+
+    test_order = lambda do |field, type|
+      balances = BalanceSheet.order({field: field, type: type}).all
+      within('#container_documents table') do
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end                            #[share.balance, bank.balance]
+      check_content("#container_documents table", balances) do |balance|
+        if Balance::PASSIVE == balance.side
+          find(:xpath, ".//td[5]").should have_content('')
+        else
+          find(:xpath, ".//td[4]").should have_content('')
+        end
+        [balance.deal.tag,
+         balance.deal.entity.name,
+         balance.resource.tag,
+         balance.place.tag,
+         balance.amount
+        ]
+      end
+    end
+
+    test_order.call('deal','asc')
+    test_order.call('deal','desc')
+
+    test_order.call('entity','asc')
+    test_order.call('entity','desc')
+
+    test_order.call('resource','asc')
+    test_order.call('resource','desc')
+
+    test_order.call('place','asc')
+    test_order.call('place','desc')
+  end
 end

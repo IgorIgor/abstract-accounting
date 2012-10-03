@@ -62,6 +62,8 @@ class Warehouse
         case attr.to_s
           when "warehouse_id"
             "places.id"
+          when "asset_id"
+            "assets.id"
           when "place"
             "places.tag"
           when "tag"

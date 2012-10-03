@@ -7,7 +7,7 @@ $ ->
       params = {}
       switch @group_by()
         when 'place'
-          params = {where: {place_id: {equal_attr: object.group_id}}}
+          params = {where: {warehouse_id: {equal_attr: object.group_id}}}
         when 'tag'
           params = {where: {asset_id: {equal_attr: object.group_id}}}
       params

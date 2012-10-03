@@ -144,8 +144,6 @@ class Warehouse
                  MAX(states.amount) as real_amount, 0.0 as exp_amount
           FROM rules
             INNER JOIN waybills ON waybills.deal_id = rules.deal_id
-            INNER JOIN deals ON deals.id = rules.deal_id
-            INNER JOIN entities ON entities.id = deals.entity_id
             INNER JOIN states ON states.deal_id = rules.to_id
             INNER JOIN terms ON terms.deal_id = rules.to_id AND terms.side = 'f'
           WHERE states.paid is NULL
@@ -155,8 +153,6 @@ class Warehouse
                  0.0 as real_amount, SUM(rules.rate) as exp_amount
           FROM rules
             INNER JOIN allocations ON allocations.deal_id = rules.deal_id
-            INNER JOIN deals ON deals.id = rules.deal_id
-            INNER JOIN entities ON entities.id = deals.entity_id
             INNER JOIN states ON states.deal_id = rules.from_id
             INNER JOIN terms ON terms.deal_id = rules.from_id AND terms.side = 'f'
             INNER JOIN deal_states ON allocations.deal_id = deal_states.deal_id

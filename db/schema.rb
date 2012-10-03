@@ -11,12 +11,14 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121002163706) do
+ActiveRecord::Schema.define(:version => 20121003062310) do
 
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
     t.datetime "created"
   end
+
+  add_index "allocations", ["deal_id"], :name => "index_allocations_on_deal_id", :unique => true
 
   create_table "assets", :force => true do |t|
     t.string  "tag"
@@ -327,6 +329,10 @@ ActiveRecord::Schema.define(:version => 20121002163706) do
     t.integer "to_id"
   end
 
+  add_index "rules", ["deal_id"], :name => "index_rules_on_deal_id"
+  add_index "rules", ["from_id"], :name => "index_rules_on_from_id"
+  add_index "rules", ["to_id"], :name => "index_rules_on_to_id"
+
   create_table "services", :force => true do |t|
     t.string  "tag"
     t.string  "mu"
@@ -344,6 +350,8 @@ ActiveRecord::Schema.define(:version => 20121002163706) do
     t.datetime "paid"
   end
 
+  add_index "states", ["deal_id", "start"], :name => "index_states_on_deal_id_and_start", :unique => true
+
   create_table "terms", :force => true do |t|
     t.integer "deal_id"
     t.boolean "side"
@@ -352,6 +360,12 @@ ActiveRecord::Schema.define(:version => 20121002163706) do
     t.string  "resource_type"
     t.integer "type_id"
   end
+
+  add_index "terms", ["deal_id", "side"], :name => "index_terms_on_deal_id_and_side", :unique => true
+  add_index "terms", ["place_id"], :name => "index_terms_on_place_id"
+  add_index "terms", ["resource_id"], :name => "index_terms_on_resource_id"
+  add_index "terms", ["resource_type"], :name => "index_terms_on_resource_type"
+  add_index "terms", ["type_id"], :name => "index_terms_on_type_id"
 
   create_table "txns", :force => true do |t|
     t.integer "fact_id"

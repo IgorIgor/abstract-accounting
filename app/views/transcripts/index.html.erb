@@ -34,7 +34,9 @@
       </td>
     </tr>
     <tr>
-      <th class=""><%=t 'views.transcripts.date' %></th>
+      <th id="day" data-bind="click: sortBy" class="">
+        <%=t 'views.transcripts.date' %><span></span>
+      </th>
       <th class=""><%=t 'views.transcripts.account' %></th>
       <th class=""><%=t 'views.transcripts.debit' %></th>
       <th class=""><%=t 'views.transcripts.credit' %></th>

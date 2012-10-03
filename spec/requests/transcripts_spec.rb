@@ -19,7 +19,7 @@ feature "Transcripts", %q{
     create(:chart)
   end
 
-  scenario 'visit transcripts page', js: true do
+  scenario 'visit transcripts page', js: true, focus: true do
     rub = Chart.first.currency
     aasii = create(:asset)
     share = create(:deal,
@@ -350,5 +350,72 @@ feature "Transcripts", %q{
         end
       end
     end
+  end
+
+  scenario 'sort transcripts', js: true do
+    rub = Chart.first.currency
+    aasii = create(:asset)
+    share = create(:deal,
+                   give: build(:deal_give, resource: aasii),
+                   take: build(:deal_take, resource: rub),
+                   rate: 10000)
+    bank = create(:deal,
+                  give: build(:deal_give, resource: rub),
+                  take: build(:deal_take, resource: rub),
+                  rate: 1)
+    per_page = Settings.root.per_page
+    facts = []
+    (per_page + 1).times do |i|
+      f = create(:fact, from: share, to: bank, resource: rub,
+                 amount: 10000 + i)
+      facts << f
+      create(:txn, fact: f)
+    end
+
+    page_login
+    page.find('#btn_slide_conditions').click
+    click_link I18n.t('views.home.transcripts')
+    current_hash.should eq('transcripts')
+    page.should have_xpath("//li[@id='transcripts' and @class='sidebar-selected']")
+
+    page.should have_datepicker("transcript_date_from")
+    page.should have_datepicker("transcript_date_to")
+
+    page.datepicker("transcript_date_from").prev_month.day(10)
+
+    click_button(I18n.t('views.transcripts.select_deal'))
+    page.should_not have_selector('#main')
+    page.find('#container_selection').visible?.should be_true
+    within('#container_selection table tbody') do
+      page.find(:xpath, ".//tr[1]/td[2]").click
+    end
+    page.find('#main').visible?.should be_true
+    page.should_not have_selector('#container_selection')
+
+    transcript = Transcript.new(share,
+                                DateTime.now.change(day: 10, month: DateTime.now.prev_month.month),
+                                DateTime.now)
+
+    test_order = lambda do |field, type|
+      trans = transcript.all(order: {field: field,type: type})
+      within('#container_documents table') do
+        within('thead tr[2]') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      check_content("#container_documents table", trans) do |txn|
+        [txn.fact.day.strftime('%Y-%m-%d'), txn.fact.to.tag || txn.fact.from.tag, txn.fact.amount]
+      end
+    end
+
+    test_order.call('day', 'asc')
+    test_order.call('day', 'desc')
   end
 end

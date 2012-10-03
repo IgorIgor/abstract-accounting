@@ -29,6 +29,7 @@ class Transcript
       per_page = attrs[:per_page].nil? ? Settings.root.per_page.to_i :
           attrs[:per_page].to_i
       page = attrs[:page].nil? ? 1 : attrs[:page].to_i
+      @txns = @txns.order("#{attrs[:order][:field]} #{attrs[:order][:type]}") if attrs[:order]
       return @txns.limit(per_page).offset((page - 1) * per_page)
     end
     @txns

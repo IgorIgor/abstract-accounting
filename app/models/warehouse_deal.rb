@@ -164,7 +164,8 @@ module WarehouseDeal
 
       self.deal = Deal.new(entity: self.storekeeper, rate: 1.0, isOffBalance: true,
         tag: I18n.t("activerecord.attributes.#{self.class.name.downcase}.deal.tag",
-                    id: self.document_id, place: storekeeper_place.tag))
+                    id: self.document_id, place: storekeeper_place.tag,
+                    deal_id: Deal.count > 0 ? Deal.last.id + 1 : 1))
       shipment = Asset.find_or_create_by_tag('Warehouse Shipment')
       return false if self.deal.build_give(place: self.send("#{settings[:from]}_place"),
                                            resource: shipment).nil?

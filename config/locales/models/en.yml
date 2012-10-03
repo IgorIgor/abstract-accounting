@@ -18,7 +18,7 @@ en:
       waybill:
         items: Resources
         deal:
-          tag: "Invoice #%{id}; Warehouse: %{place}"
+          tag: "Invoice #%{id}; Warehouse: %{place}; Deal: #%{deal_id}"
           resource:
             tag: "Invoice #%{id} string %{index}"
         comment:

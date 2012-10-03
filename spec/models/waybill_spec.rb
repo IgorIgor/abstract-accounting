@@ -79,11 +79,13 @@ describe Waybill do
   it 'should create deals' do
     wb = build(:waybill)
     wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
+    last_deal_id = Deal.count > 0 ? Deal.last.id + 1 : 1
     lambda { wb.save } .should change(Deal, :count).by(3)
 
     deal = Deal.find(wb.deal)
     deal.tag.should eq(I18n.t('activerecord.attributes.waybill.deal.tag',
-                              id: wb.document_id, place: wb.storekeeper_place.tag))
+                              id: wb.document_id, place: wb.storekeeper_place.tag,
+                              deal_id: last_deal_id))
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 
@@ -109,11 +111,13 @@ describe Waybill do
                                  storekeeper_place: wb.storekeeper_place)
     wb.add_item(tag: 'roof', mu: 'm2', amount: 100, price: 10.0)
     wb.add_item(tag: 'hammer', mu: 'th', amount: 500, price: 100.0)
+    last_deal_id = Deal.last.id + 1
     lambda { wb.save } .should change(Deal, :count).by(3)
 
     deal = Deal.find(wb.deal)
     deal.tag.should eq(I18n.t('activerecord.attributes.waybill.deal.tag',
-                              id: wb.document_id, place: wb.storekeeper_place.tag))
+                              id: wb.document_id, place: wb.storekeeper_place.tag,
+                              deal_id: last_deal_id))
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 

@@ -36,6 +36,8 @@ class WaybillsController < ApplicationController
         params[:waybill].delete(:state) if params[:waybill].has_key?(:state)
         params[:waybill].merge!(Waybill.extract_warehouse(params[:waybill][:warehouse_id]))
         params[:waybill].delete(:warehouse_id)
+        params[:waybill][:created] = DateTime.parse(params[:waybill][:created]).
+                                              change(offset: 0)
         waybill = Waybill.new(params[:waybill])
         unless waybill.distributor
           country = Country.find_or_create_by_tag(

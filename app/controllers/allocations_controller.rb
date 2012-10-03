@@ -37,6 +37,8 @@ class AllocationsController < ApplicationController
         params[:allocation].merge!(
             Allocation.extract_warehouse(params[:allocation][:warehouse_id]))
         params[:allocation].delete(:warehouse_id)
+        params[:allocation][:created] = DateTime.parse(params[:allocation][:created]).
+                                                 change(offset: 0)
         allocation = Allocation.new(params[:allocation])
         unless allocation.foreman
           foreman = Entity.find_or_create_by_tag(params[:foreman])

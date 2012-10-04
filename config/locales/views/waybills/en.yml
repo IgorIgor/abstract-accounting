@@ -30,6 +30,9 @@ en:
       page_title_show: "Show waybill"
       ident_name_MSRN: "MSRN"
       ident_name_VATIN: "VATIN"
+      distrib:
+        legal_entity: Legal Entity
+        entity: Entity
       warehouse:
         name: Warehouse
         select: Select warehouse ...

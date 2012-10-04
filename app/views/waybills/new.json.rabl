@@ -11,14 +11,18 @@ object true
 child(@waybill => :waybill) do
   attributes :created, :state, :document_id, :warehouse_id
   node(:distributor_id) { nil }
+  node(:distributor_type) { LegalEntity.name }
   node(:distributor_place_id) { nil }
 end
 node(:state) do
   partial "state/can_do", :object => @waybill
 end
-child(LegalEntity.new => :distributor) do
+child(LegalEntity.new => :legal_entity) do
   attributes :name, :identifier_value
   node(:identifier_name) { "VATIN" }
+end
+child(Entity.new => :entity) do
+  attributes :tag
 end
 child(Place.new => :distributor_place) do
   node(:tag) { I18n.t('views.waybills.defaults.distributor.place') }

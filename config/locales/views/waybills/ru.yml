@@ -30,6 +30,9 @@ ru:
       page_title_show: "Просмотр накладной"
       ident_name_MSRN: "ОГРН"
       ident_name_VATIN: "ИНН"
+      distrib:
+        legal_entity: Юр. Лицо
+        entity: Физ. Лицо
       warehouse:
         name: Склад
         select: Выберите склад ...

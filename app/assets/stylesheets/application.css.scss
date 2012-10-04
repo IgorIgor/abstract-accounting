@@ -366,6 +366,32 @@ input[type=text], input[type=password] {
           display: table;
           width: 700px;
 
+          div.tabs {
+            width: 100%;
+
+            div {
+              display: block;
+              width: 100%;
+
+              div.tab {
+                display: none;
+
+                div {
+                  display: table-row;
+                }
+              }
+
+              div.current {
+                display: table;
+                width: 100%;
+              }
+
+              div {
+                display: table;
+              }
+            }
+          }
+
           div {
             display: table-row;
 

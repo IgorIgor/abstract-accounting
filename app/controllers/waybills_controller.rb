@@ -32,7 +32,7 @@ class WaybillsController < ApplicationController
     waybill = nil
     begin
       Waybill.transaction do
-        params[:waybill][:distributor_type] = LegalEntity.name
+        distributor_type = params[:waybill][:distributor_type]
         params[:waybill].delete(:state) if params[:waybill].has_key?(:state)
         params[:waybill].merge!(Waybill.extract_warehouse(params[:waybill][:warehouse_id]))
         params[:waybill].delete(:warehouse_id)
@@ -40,15 +40,24 @@ class WaybillsController < ApplicationController
                                               change(offset: 0)
         waybill = Waybill.new(params[:waybill])
         unless waybill.distributor
-          country = Country.find_or_create_by_tag(
-              I18n.t("activerecord.attributes.country.default.tag")
-          )
-          distributor = LegalEntity.find_all_by_name_and_country_id(
-            params[:distributor][:name], country).first
-          if distributor.nil?
-            distributor = LegalEntity.new(params[:distributor])
-            distributor.country = country
-            distributor.save!
+          distributor = nil
+          if distributor_type == LegalEntity.name
+            country = Country.find_or_create_by_tag(
+                I18n.t("activerecord.attributes.country.default.tag")
+            )
+            distributor = LegalEntity.find_all_by_name_and_country_id(
+              params[:legal_entity][:name], country).first
+            if distributor.nil?
+              distributor = LegalEntity.new(params[:legal_entity])
+              distributor.country = country
+              distributor.save!
+            end
+          else
+            distributor = Entity.find_by_tag(params[:entity][:tag])
+            if distributor.nil?
+              distributor = Entity.new(params[:entity])
+              distributor.save!
+            end
           end
           waybill.distributor = distributor
         end

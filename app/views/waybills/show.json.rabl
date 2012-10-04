@@ -13,6 +13,9 @@ node(:type) { @waybill.class.name }
 child(@waybill => :waybill) do
   attributes :document_id, :state, :warehouse_id
   node(:created) { |waybill| waybill.created.strftime("%m/%d/%Y") }
+  node :distributor_type do
+    @waybill.distributor.class.name
+  end
   glue @waybill.distributor do
     attributes :id => :distributor_id
   end
@@ -23,8 +26,14 @@ end
 node(:state) do
   partial "state/can_do", :object => @waybill
 end
-child(@waybill.distributor => :distributor) do
-  attributes :name, :identifier_name, :identifier_value
+if @waybill.distributor.kind_of?(LegalEntity)
+  child(@waybill.distributor => :legal_entity) do
+    attributes :name, :identifier_name, :identifier_value
+  end
+else
+  child(@waybill.distributor => :entity) do
+    attributes :tag
+  end
 end
 child(@waybill.distributor_place => :distributor_place) { attributes :tag }
 child(@waybill.items => :items) do

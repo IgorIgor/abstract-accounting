@@ -27,7 +27,7 @@ class Waybill < ActiveRecord::Base
   act_as_warehouse_deal from: :distributor,
                         from_currency: lambda { Chart.first.currency },
                         to: :storekeeper,
-                        item: :find_or_initialize
+                        item: :initialize
 
   class << self
     def by_warehouse(warehouse)

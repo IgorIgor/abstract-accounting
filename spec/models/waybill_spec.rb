@@ -215,6 +215,29 @@ describe Waybill do
       deal.isOffBalance.should be_false
     end
 
+    wb = build(:waybill, distributor: wb.distributor,
+                         distributor_place: wb.distributor_place,
+                         storekeeper: wb.storekeeper,
+                         storekeeper_place: wb.storekeeper_place)
+    wb.add_item(tag: 'rOOf', mu: 'm2', amount: 100, price: 10.0)
+    lambda { wb.save } .should change(Deal, :count).by(1)
+
+    deal = Deal.find(wb.deal)
+    deal.entity.should eq(wb.storekeeper)
+    deal.isOffBalance.should be_true
+
+    wb.items.each do |i|
+      deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
+      deal.should_not be_nil
+      deal.rate.should eq(1 / i.price)
+      deal.isOffBalance.should be_false
+
+      deal = i.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+      deal.should_not be_nil
+      deal.rate.should eq(1.0)
+      deal.isOffBalance.should be_false
+    end
+
     wb = build(:waybill)
     wb.add_item(tag: 'roofer', mu: 'm2', amount: 100, price: 10.0)
     wb.add_item(tag: 'roofer', mu: 'm2', amount: 120.34, price: 10.0)

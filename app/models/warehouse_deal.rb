@@ -116,8 +116,12 @@ module WarehouseDeal
 
   def add_item(attrs = {})
     @items = Array.new unless @items
-    resource = Asset.send("#{self.class.warehouse_fields[:item]}_by_tag_and_mu",
-                          attrs[:tag], attrs[:mu])
+    resource = Asset.
+        where{(lower(tag) == lower(my{attrs[:tag]})) & (lower(mu) == lower(my{attrs[:mu]}))}.
+        first
+    if self.class.warehouse_fields[:item] == :initialize && resource.nil?
+      resource = Asset.new(tag: attrs[:tag], mu: attrs[:mu])
+    end
     attrs[:object] = self
 
     @items << WaybillItem.new(object: self, amount: attrs[:amount],

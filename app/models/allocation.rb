@@ -29,7 +29,7 @@ end
 
 class Allocation < ActiveRecord::Base
   include WarehouseDeal
-  act_as_warehouse_deal from: :storekeeper, to: :foreman, item: :find
+  act_as_warehouse_deal from: :storekeeper, to: :foreman
 
   class << self
     def by_warehouse(place)

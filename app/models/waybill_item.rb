@@ -46,9 +46,8 @@ class WaybillItem
       deal = Deal.new(entity: entity, rate: deal_rate,
         tag: I18n.t("activerecord.attributes.#{
                       @object.class.name.downcase}.deal.resource.tag",
-          id: @object.has_attribute?(:document_id) ? @object.document_id :
-              (Allocation.last.nil? ? 1 : Allocation.last.id + 1),
-          index: @object.items.rindex(self) + 1))
+          id: @object.document_id,
+          index: @object.items.rindex(self) + 1, deal_id: @object.deal_id))
       return nil if deal.build_give(place: place, resource: give_r).nil?
       return nil if deal.build_take(place: place, resource: self.resource).nil?
       return nil unless deal.save

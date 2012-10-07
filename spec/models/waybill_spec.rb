@@ -91,7 +91,7 @@ describe Waybill do
 
     roof_deal_tag = I18n.t("activerecord.attributes.waybill.deal.resource.tag",
                   id: wb.document_id,
-                  index: 1)
+                  index: 1, deal_id: wb.deal_id)
     deal = wb.items.first.warehouse_deal(Chart.first.currency,
       wb.distributor_place, wb.distributor)
     deal.should_not be_nil
@@ -124,7 +124,7 @@ describe Waybill do
     wb.items.each_with_index do |i, idx|
       deal_tag = I18n.t("activerecord.attributes.waybill.deal.resource.tag",
                         id: wb.document_id,
-                        index: idx + 1)
+                        index: idx + 1, deal_id: wb.deal_id)
       deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
       deal.tag.should eq(wb.items[idx].resource.tag == 'roof' ? roof_deal_tag : deal_tag)
       deal.should_not be_nil

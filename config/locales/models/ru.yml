@@ -20,7 +20,7 @@ ru:
         deal:
           tag: "Накладная №%{id}; Склад: %{place}; Сделка: №%{deal_id}"
           resource:
-            tag: "Накладная №%{id} строка %{index}"
+            tag: "Накладная №%{id} строка %{index} сделка №%{deal_id}"
         comment:
           create: Создание накладной
           apply: Принятие накладной

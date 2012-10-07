@@ -20,7 +20,7 @@ en:
         deal:
           tag: "Invoice #%{id}; Warehouse: %{place}; Deal: #%{deal_id}"
           resource:
-            tag: "Invoice #%{id} string %{index}"
+            tag: "Invoice #%{id} string %{index} deal #%{deal_id}"
         comment:
           create: Create waybill
           apply: Apply waybill

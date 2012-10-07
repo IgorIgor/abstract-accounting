@@ -121,12 +121,12 @@ describe GeneralLedger do
     it 'should depend on date' do
       GeneralLedger.on_date(Date.yesterday.to_s).count.should eq(0)
       GeneralLedger.on_date(nil).count.should eq(Txn.count)
-      Txn.first.fact.update_attributes!(day: 1.day.since)
-      GeneralLedger.on_date(1.day.since.to_s).count.should eq(Txn.count)
+      Fact.first.update_attributes!(day: (Date.today + 3))
+      GeneralLedger.on_date((Date.today + 3).to_s).count.should eq(Txn.count)
       GeneralLedger.on_date(nil).count.should eq(Txn.count - 1)
       GeneralLedger.on_date.count.should eq(Txn.count - 1)
-      GeneralLedger.on_date(1.day.since.to_s).all.first.should eq(
-        Txn.on_date(1.day.since).first)
+      GeneralLedger.on_date((Date.today + 3).to_s).all.first.should eq(
+        Txn.on_date((Date.today + 3)).first)
     end
   end
 

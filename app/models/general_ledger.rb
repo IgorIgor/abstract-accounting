@@ -33,7 +33,7 @@ class GeneralLedger
   end
 
   scope :on_date do |date = nil|
-    on_date(date.nil? ? Date.current : Date.parse(date))
+    on_date(date.nil? ? Date.today : Date.parse(date))
   end
 
   scope :paginate do |attrs = {}|

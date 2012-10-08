@@ -68,8 +68,6 @@ Abstract::Application.routes.draw do
       get 'group'
       get 'foremen'
       get 'print'
-    end
-    member do
       get 'report'
     end
   end
@@ -145,7 +143,7 @@ Abstract::Application.routes.draw do
       get 'preview'
     end
   end
-  resources :assets, except: :index do
+  resources :assets do
     collection do
       get 'preview'
     end

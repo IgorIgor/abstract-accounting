@@ -15,7 +15,11 @@ child(@warehouse => :objects) do
     attributes :name
   end
 end
-child(@resource => :resource) do
+node(:warehouse_id) { params[:warehouse_id] }
+child(@warehouses => :warehouses) do
+  attributes :place_id, :tag
+end
+child(@resource ? @resource : Asset.new => :resource) do
   attributes :tag, :mu
 end
 child(@place => :place) do

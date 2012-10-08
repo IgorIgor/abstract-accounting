@@ -471,14 +471,12 @@ $ ->
             )
           )
         )
-        this.get('#warehouses/:warehouse_id/report', ->
-          warehouse_id = this.params.warehouse_id
-          delete this.params.warehouse_id
+        this.get('#warehouses/report', ->
           filter = this.params.toHash()
-          $.get("/warehouses/#{warehouse_id}/report", {}, (form) ->
-            $.getJSON("/warehouses/#{warehouse_id}/report.json", normalizeHash(filter), (data) ->
+          $.get("/warehouses/report", {}, (form) ->
+            $.getJSON("/warehouses/report.json", normalizeHash(filter), (data) ->
+              toggleSelect("warehouses_report")
               $('.paginate').show()
-              filter.warehouse_id = warehouse_id
               viewModel = new WarehouseResourceReportViewModel(data, filter)
               $('#container_documents').html(form)
               ko.cleanNode($('#main').get(0))

@@ -9,6 +9,9 @@ ru:
       group_none: Без группировки
       group_place: По месту
       group_tag: По названию
+      filter:
+        select:
+          warehouse: Выберите склад...
       resource:
         report:
           date: Дата

@@ -8,6 +8,11 @@
 # Please see ./COPYING for details
 
 class AssetsController < ApplicationController
+  def index
+    @assets = Asset.where{lower(tag).like lower("%#{my{params[:term]}}%")}.
+        order("tag").limit(5)
+  end
+
   def preview
     render 'assets/preview', layout: false
   end

@@ -122,17 +122,28 @@ class WarehousesController < ApplicationController
         @warehouse = []
         @count = 0
         @total = 0.0
+        @warehouses = []
 
-        unless current_user.root?
+        if current_user.root?
+          @warehouses = Waybill.warehouses
+        else
           credential = current_user.credentials(:force_update).
-            where{(document_type == Waybill.name) & (place_id == my{params[:id]})}.
+            where{(document_type == Waybill.name) & (place_id == my{params[:warehouse_id]})}.
             first
+          if !credential && !params[:warehouse_id]
+            credential = current_user.credentials(:force_update).
+                        where{(document_type == Waybill.name)}.
+                        first
+            params[:warehouse_id] = credential.place_id if credential
+          end
           credential = current_user.credentials.
               where{(document_type == Allocation.name) & (credential.place_id == place_id)}.
               first if credential
           unless credential
             if current_user.managed_group
-              unless can?(:reverse, Waybill) && can?(:reverse, Allocation)
+              if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+                @warehouses = Waybill.warehouses
+              else
                 return
               end
             else
@@ -141,15 +152,16 @@ class WarehousesController < ApplicationController
           end
         end
 
-        if params.has_key?(:resource_id) && params.has_key?(:id)
+        if params.has_key?(:resource_id) && params.has_key?(:warehouse_id)
           @resource = Asset.find(params[:resource_id])
-          @place = Place.find(params[:id])
+          @place = Place.find(params[:warehouse_id])
           @warehouse = WarehouseResourceReport.all(resource_id: params[:resource_id],
-            warehouse_id: params[:id], page: params[:page], per_page: params[:per_page])
+            warehouse_id: params[:warehouse_id], page: params[:page],
+            per_page: params[:per_page])
           @count = WarehouseResourceReport.count(resource_id: params[:resource_id],
-                      warehouse_id: params[:id])
+                      warehouse_id: params[:warehouse_id])
           @total = WarehouseResourceReport.total(resource_id: params[:resource_id],
-                                                 warehouse_id: params[:id])
+                                                 warehouse_id: params[:warehouse_id])
         end
       end
     end

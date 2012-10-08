@@ -3,6 +3,7 @@ ru:
     home:
       reports:
         foremen: Ресурсы по бригадам
+        report: Карточка складского учета
       create: "Создать"
       inbox: "Новые"
       starred: "Помеченные"

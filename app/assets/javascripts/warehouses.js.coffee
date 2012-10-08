@@ -50,7 +50,8 @@ $ ->
     showReport: (object) ->
       params =
         resource_id: object.id
-      location.hash = "#warehouses/#{object.place_id}/report?#{$.param(params)}"
+        warehouse_id: object.place_id
+      location.hash = "#warehouses/report?#{$.param(params)}"
 
     print: =>
       url = "warehouses/print.pdf?#{$.param(normalizeHash(ko.mapping.toJS(@params)))}"
@@ -58,16 +59,22 @@ $ ->
 
   class self.WarehouseResourceReportViewModel extends FolderViewModel
     constructor: (data, params = {}) ->
-      @url = "/warehouses/#{params.warehouse_id}/report.json"
+      @url = "/warehouses/report.json"
       @resource = ko.mapping.fromJS(data["resource"])
+      @resource_id = ko.observable(params.resource_id)
+      @warehouse_id = ko.observable(params.warehouse_id ? data["warehouse_id"])
       @place = ko.mapping.fromJS(data["place"])
       @total = data["total"]
+      @warehouses = ko.observable(data.warehouses)
       super(data)
 
       @params =
         page: @page
         per_page: @per_page
-        resource_id: params.resource_id
+        resource_id: @resource_id
+        warehouse_id: @warehouse_id
+
+      @resource_id.subscribe(@filterData)
 
     showWaybill: (object) ->
       location.hash = "documents/waybills/#{object.item_id}"

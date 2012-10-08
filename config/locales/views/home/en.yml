@@ -3,6 +3,7 @@ en:
     home:
       reports:
         foremen: Foreman resources
+        report: Warehouse resource
       create: "Create"
       inbox: "Inbox"
       starred: "Starred"

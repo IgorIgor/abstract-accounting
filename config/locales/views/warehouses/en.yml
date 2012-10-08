@@ -9,6 +9,9 @@ en:
       group_none: No grouping
       group_place: Place
       group_tag: Tag
+      filter:
+          select:
+            warehouse: Choose warehouse...
       resource:
         report:
           date: Date

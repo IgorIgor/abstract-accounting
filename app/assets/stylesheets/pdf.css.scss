@@ -28,21 +28,19 @@
     font-weight: normal;
   }
 
-  table {
-    border-collapse: collapse;
-  }
-
-  table.allocations{
+  table{
     margin: 20px 0;
     width: 100%;
     padding: 4px;
     border: 1px solid black;
+    border-collapse: collapse;
 
     tr{
 
       th{
         text-align: center;
         background-color: #e8e8e8;
+        border: 1px solid #000;
       }
 
       td{

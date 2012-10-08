@@ -251,4 +251,59 @@ class WarehousesController < ApplicationController
       end
     end
   end
+
+  def print
+    attrs = { }
+
+    if params.has_key?(:like) || params.has_key?(:equal)
+      [:like, :equal].each { |type|
+        params[type].each { |key, value|
+          unless value.empty?
+            attrs[:where] ||= {}
+            attrs[:where][key] = {}
+            attrs[:where][key][type] = value
+          end
+        } if params[type]
+      }
+    end
+
+    unless current_user.root?
+      credential = current_user.credentials(:force_update).
+          where{document_type == Waybill.name}.first
+      credential = current_user.credentials.
+          where{(document_type == Allocation.name) & (credential.place_id == place_id)}.
+          first if credential
+      if credential
+        attrs[:where] = {} unless attrs.has_key?(:where)
+        attrs[:where][:warehouse_id] = { equal: credential.place_id }
+      else
+        if current_user.managed_group
+          unless can?(:reverse, Waybill) && can?(:reverse, Allocation)
+            @warehouse = []
+            @count = 0
+            return
+          end
+        else
+          @warehouse = []
+          @count = 0
+          return
+        end
+      end
+    end
+
+    attrs[:where] = params[:where] if params[:where]
+    attrs[:order_by] = params[:order] if params[:order]
+    @warehouse = Warehouse.all(attrs)
+
+
+    respond_to do |format|
+      format.html { render :print, layout: false }
+      format.pdf do
+        render pdf: 'warehouses.print.erb',
+               :formats => [:html],
+               encoding: 'utf-8',
+               layout: false
+      end
+    end
+  end
 end

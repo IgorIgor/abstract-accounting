@@ -52,6 +52,10 @@ $ ->
         resource_id: object.id
       location.hash = "#warehouses/#{object.place_id}/report?#{$.param(params)}"
 
+    print: =>
+      url = "warehouses/print.pdf?#{$.param(normalizeHash(ko.mapping.toJS(@params)))}"
+      window.open(url, '_blank');
+
   class self.WarehouseResourceReportViewModel extends FolderViewModel
     constructor: (data, params = {}) ->
       @url = "/warehouses/#{params.warehouse_id}/report.json"

@@ -1,0 +1,35 @@
+<html>
+<head>
+  <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+  <%= wicked_pdf_stylesheet_link_tag 'pdf' %>
+</head>
+<body>
+  <div id='pdf-wrapper'>
+    <table>
+      <thead>
+        <tr>
+          <td colspan="4">
+            <%= "#{t('views.warehouses.place')}: #{@warehouse.first.place}" %>
+          </td>
+        </tr>
+        <tr>
+          <th>#</th>
+          <th><%= t 'views.warehouses.tag' %></th>
+          <th><%= t 'views.warehouses.mu' %></th>
+          <th><%= t 'views.warehouses.real_amount' %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @warehouse.each_with_index do |item, idx| %>
+          <tr>
+            <td><%= idx + 1 %></td>
+            <td><%= item.tag %></td>
+            <td><%= item.mu %></td>
+            <td><%= item.real_amount %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

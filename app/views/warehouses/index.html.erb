@@ -11,15 +11,18 @@
   <input type="text" id="filter-real-amount" data-bind="value: filter.real_amount"/>
 <% end %>
 
-<% if can?(:reverse, Waybill) && can?(:reverse, Allocation) %>
-  <div class='actions'>
-    <select id="warehouse_group" size="1" data-bind="value: group_by">
-      <option value=""><%=t 'views.warehouses.group_none' %></option>
-      <option value="place"><%=t 'views.warehouses.group_place' %></option>
-      <option value="tag"><%=t 'views.warehouses.group_tag' %></option>
-    </select>
-  </div>
-<% end %>
+<div class='actions'>
+  <% if can?(:reverse, Waybill) && can?(:reverse, Allocation) %>
+  <select id="warehouse_group" size="1" data-bind="value: group_by">
+    <option value=""><%=t 'views.warehouses.group_none' %></option>
+    <option value="place"><%=t 'views.warehouses.group_place' %></option>
+    <option value="tag"><%=t 'views.warehouses.group_tag' %></option>
+  </select>
+  <% end %>
+  <div class='buttons-separator'></div>
+  <input type='button' value="<%= t('views.warehouses.foremen.report.print') %>"
+         data-bind='click: print, visible: documents().length > 0'/>
+</div>
 
 <table>
   <thead>

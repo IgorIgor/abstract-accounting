@@ -221,17 +221,21 @@ module WarehouseDeal
   end
 
   def do_apply
-    fact = Fact.create(amount: 1.0, resource: self.deal.give.resource,
-                            day: DateTime.current.change(hour: 12), to: self.deal)
+    Txn.transaction do
+      fact = Fact.create(amount: 1.0, resource: self.deal.give.resource,
+                              day: DateTime.current.change(hour: 12), to: self.deal)
 
-    return false unless fact
-    !Txn.create(fact: fact).nil?
+      return false unless fact
+      !Txn.create(fact: fact).nil?
+    end
   end
 
   def do_reverse
-    fact = Fact.create(amount: -1.0, resource: self.deal.give.resource,
-                            day: DateTime.current.change(hour: 12), to: self.deal)
-    return false unless fact
-    !Txn.create(fact: fact).nil?
+    Txn.transaction do
+      fact = Fact.create(amount: -1.0, resource: self.deal.give.resource,
+                              day: DateTime.current.change(hour: 12), to: self.deal)
+      return false unless fact
+      !Txn.create(fact: fact).nil?
+    end
   end
 end

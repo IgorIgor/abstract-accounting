@@ -32,14 +32,12 @@ module WarehouseDeal
       after_save :after_warehouse_deal_save
       class_attribute :before_item_save_callback
 
-      attr_accessor :fact
-
       after_apply :send_comment_after_apply
       after_reverse :send_comment_after_reverse
       after_cancel :send_comment_after_cancel
 
-      before_apply :apply_fact
-      before_reverse :reverse_fact
+      before_apply :do_apply
+      before_reverse :do_reverse
 
       scope :includes_all, includes(deal: [:entity, :deal_state, :to_facts,
                                              give: [:resource, :place],
@@ -175,7 +173,6 @@ module WarehouseDeal
                                            resource: shipment).nil?
       return false if self.deal.build_take(place: self.send("#{settings[:to]}_place"),
                                            resource: shipment).nil?
-      p self.deal.errors if self.deal.invalid?
       return false unless self.deal.save
       self.deal_id = self.deal.id
 
@@ -223,16 +220,18 @@ module WarehouseDeal
         "activerecord.attributes.#{self.class.name.downcase}.comment.cancel")
   end
 
-  def apply_fact
-    self.fact = Fact.create(amount: 1.0, resource: self.deal.give.resource,
+  def do_apply
+    fact = Fact.create(amount: 1.0, resource: self.deal.give.resource,
                             day: DateTime.current.change(hour: 12), to: self.deal)
 
-    !self.fact.nil?
+    return false unless fact
+    !Txn.create(fact: fact).nil?
   end
 
-  def reverse_fact
-    self.fact = Fact.create(amount: -1.0, resource: self.deal.give.resource,
+  def do_reverse
+    fact = Fact.create(amount: -1.0, resource: self.deal.give.resource,
                             day: DateTime.current.change(hour: 12), to: self.deal)
-    !self.fact.nil?
+    return false unless fact
+    !Txn.create(fact: fact).nil?
   end
 end

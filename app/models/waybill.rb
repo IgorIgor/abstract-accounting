@@ -58,8 +58,6 @@ class Waybill < ActiveRecord::Base
   validates_presence_of :document_id
   validates_with ItemsValidator
 
-  after_apply :do_apply_txn
-  after_reverse :do_apply_txn
   before_item_save :do_before_item_save
 
   def self.order_by(attrs = {})
@@ -151,11 +149,6 @@ class Waybill < ActiveRecord::Base
   private
   def initialize(attrs = nil)
     super(initialize_warehouse_attrs(attrs))
-  end
-
-  def do_apply_txn
-    return !Txn.create(fact: self.fact).nil? if self.fact
-    true
   end
 
   def do_before_item_save(item)

@@ -256,7 +256,7 @@ describe Allocation do
     nails_deal.state.amount.should eq(1190.0)
   end
 
-  it 'should create facts by rules after disable' do
+  it 'should create facts by rules after reverse' do
     db = build(:allocation, storekeeper: @wb.storekeeper,
                             storekeeper_place: @wb.storekeeper_place)
     db.add_item(tag: 'roof', mu: 'm2', amount: 5)
@@ -281,6 +281,64 @@ describe Allocation do
 
     roof_deal.state.amount.should eq(594.0)
     nails_deal.state.amount.should eq(1190.0)
+  end
+
+  it 'should create txns by rules after apply' do
+    db = build(:allocation, storekeeper: @wb.storekeeper,
+                            storekeeper_place: @wb.storekeeper_place)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 5)
+    db.add_item(tag: 'nails', mu: 'pcs', amount: 10)
+
+    roof_deal = db.items[0].warehouse_deal(nil, db.storekeeper_place,
+      db.storekeeper)
+    nails_deal = db.items[1].warehouse_deal(nil, db.storekeeper_place,
+      db.storekeeper)
+
+    roof_deal.balance.amount.should eq(594.0)
+    roof_deal.balance.value.should eq(5940.0)
+    nails_deal.balance.amount.should eq(1190.0)
+    nails_deal.balance.value.should eq(1190.0)
+
+    db.save.should be_true
+    expect { db.apply } .to change(Txn, :count).by(3)
+
+    roof_deal.balance.amount.should eq(589.0)
+    roof_deal.balance.value.should eq(5890.0)
+    nails_deal.balance.amount.should eq(1180.0)
+    nails_deal.balance.value.should eq(1180.0)
+  end
+
+  it 'should create txns by rules after reverse' do
+    db = build(:allocation, storekeeper: @wb.storekeeper,
+                            storekeeper_place: @wb.storekeeper_place)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 5)
+    db.add_item(tag: 'nails', mu: 'pcs', amount: 10)
+
+    roof_deal = db.items[0].warehouse_deal(nil, db.storekeeper_place,
+      db.storekeeper)
+    nails_deal = db.items[1].warehouse_deal(nil, db.storekeeper_place,
+      db.storekeeper)
+
+    roof_deal.balance.amount.should eq(589.0)
+    roof_deal.balance.value.should eq(5890.0)
+    nails_deal.balance.amount.should eq(1180.0)
+    nails_deal.balance.value.should eq(1180.0)
+
+    db.save.should be_true
+    expect { db.apply } .to change(Txn, :count).by(3)
+
+    roof_deal.balance.amount.should eq(584.0)
+    roof_deal.balance.value.should eq(5840.0)
+    nails_deal.balance.amount.should eq(1170.0)
+    nails_deal.balance.value.should eq(1170.0)
+
+    expect { db.reverse } .to change(Txn, :count).by(3)
+    db.state.should eq(Allocation::REVERSED)
+
+    roof_deal.balance.amount.should eq(589.0)
+    roof_deal.balance.value.should eq(5890.0)
+    nails_deal.balance.amount.should eq(1180.0)
+    nails_deal.balance.value.should eq(1180.0)
   end
 
   it "should filter by warehouse" do

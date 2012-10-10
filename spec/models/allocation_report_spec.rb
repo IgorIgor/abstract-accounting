@@ -147,7 +147,7 @@ describe AllocationReport do
 
     als = AllocationReport.select_all.with_resources.
         order_by(field: 'foreman', type: 'asc').all
-    als_test = AllocationReport.joins{deal.rules.to.entity(Entity)}.order('entities.tag').all
+    als_test = AllocationReport.joins{deal.rules.to.entity(Entity)}.order('entities.tag ASC').all
     als.should eq(als_test)
     als = AllocationReport.order_by(field: 'foreman', type: 'desc').all
     als_test = AllocationReport.joins{deal.rules.to.entity(Entity)}.

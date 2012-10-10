@@ -12,6 +12,8 @@ ru:
       filter:
         select:
           warehouse: Выберите склад...
+      report:
+        print: Печать
       resource:
         report:
           date: Дата
@@ -23,7 +25,6 @@ ru:
           total: Итого
       foremen:
         report:
-          print: Печать
           dates:
             from: С
             to: По

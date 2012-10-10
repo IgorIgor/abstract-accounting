@@ -60,11 +60,11 @@ $ ->
   class self.WarehouseResourceReportViewModel extends FolderViewModel
     constructor: (data, params = {}) ->
       @url = "/warehouses/report.json"
-      @resource = ko.mapping.fromJS(data["resource"])
+      @resource = ko.mapping.fromJS(data.resource)
       @resource_id = ko.observable(params.resource_id)
-      @warehouse_id = ko.observable(params.warehouse_id ? data["warehouse_id"])
-      @place = ko.mapping.fromJS(data["place"])
-      @total = data["total"]
+      @warehouse_id = ko.observable(params.warehouse_id ? data.warehouse_id)
+      @place = ko.mapping.fromJS(data.place)
+      @total = data.total
       @warehouses = ko.observable(data.warehouses)
       super(data)
 
@@ -74,13 +74,28 @@ $ ->
         resource_id: @resource_id
         warehouse_id: @warehouse_id
 
-      @resource_id.subscribe(@filterData)
+      @resource_id.subscribe(() =>
+        @page(1)
+        $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
+          @documents(data.objects)
+          @count(data.count)
+          @range(@rangeGenerate())
+          @place.tag(data.place.tag)
+        )
+      )
 
     showWaybill: (object) ->
       location.hash = "documents/waybills/#{object.item_id}"
 
     showAllocation: (object) ->
       location.hash = "documents/allocations/#{object.item_id}"
+
+    print: =>
+      params =
+        resource_id: @resource_id
+        warehouse_id: @warehouse_id
+      url = "/warehouses/report.pdf?#{$.param(normalizeHash(ko.mapping.toJS(@params)))}"
+      window.open(url, '_blank');
 
   class self.WarehouseForemanReportViewModel extends FolderViewModel
     constructor: (data) ->

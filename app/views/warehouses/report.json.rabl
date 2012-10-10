@@ -22,7 +22,7 @@ end
 child(@resource ? @resource : Asset.new => :resource) do
   attributes :tag, :mu
 end
-child(@place => :place) do
+child(@place ? @place : Place.new => :place) do
   attributes :tag
 end
 node(:total) { @total }

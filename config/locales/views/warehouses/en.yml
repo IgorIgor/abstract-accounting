@@ -12,6 +12,8 @@ en:
       filter:
           select:
             warehouse: Choose warehouse...
+      report:
+        print: Print
       resource:
         report:
           date: Date
@@ -23,7 +25,6 @@ en:
           total: Total
       foremen:
         report:
-          print: Print
           dates:
             from: From
             to: To

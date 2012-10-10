@@ -19,6 +19,9 @@
                                     onlySelect: true
                                   },
                     value: resource.tag">
+  <div class='buttons-separator'></div>
+  <input type='button' value="<%= t('views.warehouses.report.print') %>"
+         data-bind='click: print, visible: documents().length > 0'/>
 </div>
 
 <table>

@@ -164,6 +164,64 @@ class WarehousesController < ApplicationController
                                                  warehouse_id: params[:warehouse_id])
         end
       end
+      format.pdf do
+        @resource = nil
+        @place = nil
+        @warehouse = []
+        @total = 0.0
+
+        unless current_user.root?
+          credential = current_user.credentials(:force_update).
+            where{(document_type == Waybill.name) & (place_id == my{params[:warehouse_id]})}.
+            first
+          if !credential && !params[:warehouse_id]
+            credential = current_user.credentials(:force_update).
+                        where{(document_type == Waybill.name)}.
+                        first
+            params[:warehouse_id] = credential.place_id if credential
+          end
+          credential = current_user.credentials.
+              where{(document_type == Allocation.name) & (credential.place_id == place_id)}.
+              first if credential
+          unless credential
+            if current_user.managed_group
+              unless can?(:reverse, Waybill) && can?(:reverse, Allocation)
+                render pdf: 'blank.pdf',
+                       template: 'warehouses/report_print.html.erb',
+                       formats: [:html],
+                       encoding: 'utf-8',
+                       layout: false
+                return
+              end
+            else
+              render pdf: 'blank.pdf',
+                     template: 'warehouses/report_print.html.erb',
+                     formats: [:html],
+                     encoding: 'utf-8',
+                     layout: false
+              return
+            end
+          end
+        end
+
+        if params.has_key?(:resource_id) && params.has_key?(:warehouse_id)
+          @resource = Asset.find(params[:resource_id])
+          @place = Place.find(params[:warehouse_id])
+          @warehouse = WarehouseResourceReport.all(resource_id: params[:resource_id],
+            warehouse_id: params[:warehouse_id], page: params[:page],
+            per_page: params[:per_page])
+          @total = WarehouseResourceReport.total(resource_id: params[:resource_id],
+                                                 warehouse_id: params[:warehouse_id])
+        end
+        file_name = 'blank'
+        file_name = @resource.tag if @resource
+        render pdf: "#{file_name}.pdf",
+               template: 'warehouses/report_print.html.erb',
+               orientation: 'Landscape',
+               formats: [:html],
+               encoding: 'utf-8',
+               layout: false
+      end
     end
   end
 

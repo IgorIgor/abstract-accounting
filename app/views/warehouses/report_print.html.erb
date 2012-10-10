@@ -1,0 +1,67 @@
+<html>
+<head>
+  <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+  <%= wicked_pdf_stylesheet_link_tag 'pdf' %>
+</head>
+<body>
+  <div id='pdf-wrapper'>
+    <table>
+      <thead>
+        <tr>
+          <td><%=t 'views.warehouses.tag' %></td>
+          <td colspan="6"><%= @resource.tag %></td>
+        </tr>
+        <tr>
+          <td><%=t 'views.warehouses.mu' %></td>
+          <td colspan="6"><%= @resource.mu %></td>
+        </tr>
+        <tr>
+          <td><%=t 'views.warehouses.place' %></td>
+          <td colspan="6"><%= @place.tag %></td>
+        </tr>
+        <tr>
+          <th><%=t 'views.warehouses.resource.report.date' %></th>
+          <th><%=t 'views.warehouses.resource.report.income' %></th>
+          <th><%=t 'views.warehouses.resource.report.document_id' %></th>
+          <th><%=t 'views.warehouses.resource.report.amount' %></th>
+          <th><%=t 'views.warehouses.resource.report.consumption' %></th>
+          <th><%=t 'views.warehouses.resource.report.amount' %></th>
+          <th><%=t 'views.warehouses.resource.report.state' %></th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach: documents">
+      <% @warehouse.each do |item| %>
+        <% if item.side == WarehouseResourceReport::WAYBILL_SIDE %>
+          <tr>
+            <td><%= item.date.strftime('%Y-%m-%d') %></td>
+            <td><%= item.entity.name %></td>
+            <td><%= item.document_id %></td>
+            <td><%= item.amount %></td>
+            <td></td>
+            <td></td>
+            <td><%= item.state %></td>
+          </tr>
+        <% elsif item.side == WarehouseResourceReport::ALLOCATION_SIDE %>
+          <tr>
+            <td><%= item.date.strftime('%Y-%m-%d') %></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><%= item.entity.name %></td>
+            <td><%= item.amount %></td>
+            <td><%= item.state %></td>
+          </tr>
+        <% end %>
+      <% end %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td><%=t 'views.warehouses.resource.report.total' %></td>
+          <td colspan="5"></td>
+          <td><%= @total %></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</body>
+</html>

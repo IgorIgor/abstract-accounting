@@ -11,8 +11,7 @@ object true
 node(:id) { @waybill.id }
 node(:type) { @waybill.class.name }
 child(@waybill => :waybill) do
-  attributes :document_id, :state, :warehouse_id
-  node(:created) { |waybill| waybill.created.strftime("%m/%d/%Y") }
+  attributes :document_id, :state, :warehouse_id, :created
   node :distributor_type do
     @waybill.distributor.class.name
   end
@@ -23,6 +22,7 @@ child(@waybill => :waybill) do
     attributes :id => :distributor_place_id
   end
 end
+node(:owner) { @waybill.owner? }
 node(:state) do
   partial "state/can_do", :object => @waybill
 end

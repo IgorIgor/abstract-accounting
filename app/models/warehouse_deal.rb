@@ -160,6 +160,12 @@ module WarehouseDeal
     end
   end
 
+  def owner?
+    user = PaperTrail.whodunnit
+    return false if user.root?
+    self.storekeeper == user.entity
+  end
+
   def before_warehouse_deal_save
     if self.new_record?
       settings = self.class.warehouse_fields
@@ -198,6 +204,77 @@ module WarehouseDeal
       end
     end
     true
+  end
+
+  def update_attributes(attrs)
+    return false if attrs.nil? || attrs.empty?
+    return false unless self.state == Helpers::Statable::INWORK
+
+    self.class.transaction do
+      self.deal.rules.each do |rule|
+        rule.from.destroy if rule.from.states.count == 0
+        rule.to.destroy if rule.to.states.count == 0
+      end
+
+      self.deal.rules.destroy_all
+
+      give = self.deal.give
+      take = self.deal.take
+
+      settings = self.class.warehouse_fields
+
+      if attrs["#{settings[:from]}_id"]
+        from_entity = attrs["#{settings[:from]}_type"].constantize.
+            find(attrs["#{settings[:from]}_id"])
+      else
+        from_entity = self.send(settings[:from])
+      end
+
+      if attrs["#{settings[:to]}_id"]
+        to_entity = attrs["#{settings[:to]}_type"].constantize.
+            find(attrs["#{settings[:to]}_id"])
+      else
+        to_entity = self.send(settings[:to])
+      end
+
+      from_place = Place.find(attrs["#{settings[:from]}_place_id"])
+      to_place = Place.find(attrs["#{settings[:to]}_place_id"])
+
+      give.update_attributes(place_id: from_place.id)
+      take.update_attributes(place_id: to_place.id)
+
+      self.deal.update_attributes(entity_id: attrs[:storekeeper_id],
+                                  entity_type: attrs[:storekeeper_type])
+
+      # TODO create items put in separate function
+      @items.each do |item, idx|
+        return false if self.class.before_item_save_callback &&
+            !send(self.class.before_item_save_callback, item)
+
+        from_item = item.warehouse_deal(
+            settings[:from_currency] ? settings[:from_currency].call() : nil,
+            from_place, from_entity)
+        return false if from_item.nil?
+
+        to_item = item.warehouse_deal(
+            settings[:to_currency] ? settings[:to_currency].call() : nil,
+            to_place, to_entity)
+        return false if to_item.nil?
+        return false if self.deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
+                                               from: from_item, to: to_item, fact_side: false,
+                                               change_side: true, rate: item.amount).nil?
+      end
+
+      attrs.delete("#{settings[:from]}_id")
+      attrs.delete("#{settings[:from]}_place_id")
+      attrs.delete("#{settings[:from]}_type")
+      attrs.delete("#{settings[:to]}_id")
+      attrs.delete("#{settings[:to]}_place_id")
+      attrs.delete("#{settings[:to]}_type")
+      attrs.delete(:items)
+
+      super(attrs)
+    end
   end
 
   def after_warehouse_deal_save

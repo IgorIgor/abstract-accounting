@@ -14,6 +14,7 @@ child(@waybill => :waybill) do
   node(:distributor_type) { LegalEntity.name }
   node(:distributor_place_id) { nil }
 end
+node(:owner) { @waybill.owner? }
 node(:state) do
   partial "state/can_do", :object => @waybill
 end

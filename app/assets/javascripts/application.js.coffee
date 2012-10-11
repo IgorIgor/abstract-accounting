@@ -150,7 +150,24 @@ $ ->
     save: =>
       @ajaxRequest('POST', "/#{@route}", normalizeHash(ko.mapping.toJS(@object)))
 
-  class self.CommentableViewModel extends ObjectViewModel
+  class self.EditableObjectViewModel extends ObjectViewModel
+    constructor: (object, route, readonly = false)->
+      super(object, route, readonly)
+      @method = 'POST'
+      @id_presence = ko.observable(object.id?)
+
+    edit: =>
+      @readonly(false)
+      @method = 'PUT'
+      location.hash = "#documents/#{@route}/#{@object.id()}/edit"
+
+    save: =>
+      url = "/#{@route}"
+      if @method == 'PUT'
+        url = "/#{@route}/#{@object.id()}"
+      @ajaxRequest(@method, url, normalizeHash(ko.mapping.toJS(@object)))
+
+  class self.CommentableViewModel extends EditableObjectViewModel
     constructor: (object, route, readonly = false)->
       super(object, route, readonly)
       @message = ko.observable('')
@@ -203,23 +220,6 @@ $ ->
         when 2 then I18n.t('views.statable.canceled')
         when 3 then I18n.t('views.statable.applied')
         when 4 then I18n.t('views.statable.reversed')
-
-  class self.EditableObjectViewModel extends ObjectViewModel
-    constructor: (object, route, readonly = false)->
-      super(object, route, readonly)
-      @method = 'POST'
-      @id_presence = ko.observable(object.id?)
-
-    edit: =>
-      @readonly(false)
-      @method = 'PUT'
-      location.hash = "#documents/#{@route}/#{@object.id()}/edit"
-
-    save: =>
-      url = "/#{@route}"
-      if @method == 'PUT'
-        url = "/#{@route}/#{@object.id()}"
-      @ajaxRequest(@method, url, ko.mapping.toJS(@object))
 
   class self.FolderViewModel
     constructor: (data) ->

@@ -35,7 +35,7 @@ Abstract::Application.routes.draw do
       get 'elements'
     end
   end
-  resources :waybills, except: [:edit, :update, :destroy] do
+  resources :waybills, except: [:destroy] do
     collection do
       get 'preview'
       get 'data'

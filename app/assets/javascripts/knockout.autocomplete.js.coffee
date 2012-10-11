@@ -45,8 +45,8 @@ ko.bindingHandlers.autocomplete =
         ul = this.menu.element
         ul.outerWidth(this.element.outerWidth())
 
-      $(element).bind('autocompletechange', (e, ui) ->
-        if !ui.item
+      if allBindings().value?
+        allBindings().value.subscribe( ->
           if config.hasOwnProperty("bind")
             bind = config.bind
             for key, value of bind
@@ -58,10 +58,25 @@ ko.bindingHandlers.autocomplete =
                     value2(null)
               else
                 value(null)
-          if config.onlySelect
-            if allBindings().value?
-              allBindings().value('')
-            else
-              $(element).val('')
-            config.afterChange() if config.afterChange
-      )
+        )
+      else
+        $(element).bind('autocompletechange', (e, ui) ->
+          if !ui.item
+            if config.hasOwnProperty("bind")
+              bind = config.bind
+              for key, value of bind
+                if typeof value == "object"
+                  for key2, value2 of value
+                    if $.isArray(value2)
+                      bind_value(null) for bind_value in value2
+                    else
+                      value2(null)
+                else
+                  value(null)
+            if config.onlySelect
+              if allBindings().value?
+                allBindings().value('')
+              else
+                $(element).val('')
+              config.afterChange() if config.afterChange
+        )

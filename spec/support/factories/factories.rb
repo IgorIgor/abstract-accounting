@@ -154,7 +154,7 @@ FactoryGirl.define do
     distributor_place { |waybill| waybill.association(:place) }
     storekeeper { |waybill| waybill.association(:entity) }
     storekeeper_place { |waybill| waybill.association(:place) }
-    created Date.today
+    created DateTime.now
   end
 
   factory :term do

@@ -1,7 +1,7 @@
 $ ->
   class self.WaybillViewModel extends StatableViewModel
     constructor: (object, readonly = false) ->
-      @disable_warehouse = object.waybill.warehouse_id?
+      @disable_warehouse = ko.observable((object.owner || readonly))
       super(object, 'waybills', readonly)
       for item in @object.items()
         item.sum = ko.observable((item.amount() * item.price()).toFixed(2))
@@ -17,6 +17,10 @@ $ ->
           sum += parseFloat(item.sum())
         sum
       , self)
+      @readonly.subscribe(@changeDisable)
+
+    changeDisable: =>
+      @disable_warehouse(@object.owner() || @readonly())
 
     addResource: (resource) =>
       item =

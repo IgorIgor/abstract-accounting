@@ -264,6 +264,136 @@ feature "waybill", %q{
     show_waybill(Waybill.first)
 
     PaperTrail.enabled = false
+    end
+
+  scenario "update waybills", js: true, focus: true do
+    PaperTrail.enabled = true
+    3.times do
+      user = create(:user)
+      create(:credential, user: user, document_type: Waybill.name)
+    end
+    waybill = build(:waybill)
+    waybill.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
+    waybill.save
+
+    page_login
+
+    visit("/#documents/waybills/" + waybill.id.to_s)
+
+    show_waybill(waybill)
+    page.should have_selector("input[@value='#{I18n.t('views.users.edit')}']")
+    find("input[@value='#{I18n.t('views.users.edit')}']")[:disabled].should be_nil
+    find("input[@value='#{I18n.t('views.waybills.save')}']")[:disabled].should be_true
+    find("input[@value='#{I18n.t('views.waybills.apply')}']").visible?.should be_true
+    find("input[@value='#{I18n.t('views.waybills.cancel')}']").visible?.should be_true
+
+    click_button(I18n.t('views.users.edit'))
+
+    find("input[@value='#{I18n.t('views.users.edit')}']")[:disabled].should be_true
+    find("input[@value='#{I18n.t('views.waybills.save')}']")[:disabled].should be_nil
+    page.should_not have_selector("input[@value='#{I18n.t('views.waybills.apply')}']")
+    page.should_not have_selector("input[@value='#{I18n.t('views.waybills.cancel')}']")
+
+    find("#created")[:disabled].should be_nil
+    find("#waybill_document_id")[:disabled].should be_nil
+    find("#waybill_entity")[:disabled].should be_nil
+    find("#waybill_ident_name")[:disabled].should be_nil
+    find("#waybill_ident_value")[:disabled].should be_nil
+    find("#distributor_place")[:disabled].should be_nil
+    find("#warehouses")[:disabled].should be_nil
+
+    within("table tbody") do
+      waybill.items.each_with_index do |item, idx|
+        find("#tag_#{idx}")[:value].should eq(item.resource.tag)
+        find("#mu_#{idx}")[:value].should eq(item.resource.mu)
+        find("#count_#{idx}")[:value].to_f.should eq(item.amount)
+        find("#price_#{idx}")[:value].to_f.should eq(item.price)
+        page.find(:xpath, "//table//tbody//tr[#{idx + 1}]//td[5]").text.to_f.should eq(
+                                                                                        (item.amount * item.price).accounting_norm)
+        find("#tag_#{idx}")[:disabled].should be_nil
+        find("#mu_#{idx}")[:disabled].should be_nil
+        find("#count_#{idx}")[:disabled].should be_nil
+        find("#price_#{idx}")[:disabled].should be_nil
+      end
+      page.find(:xpath, "//table//tfoot//tr//td[2]").text.to_f.should eq(
+                                                                          (waybill.items.inject(0) { |mem, item| mem += item.amount }))
+      page.find(:xpath, "//table//tfoot//tr//td[4]").text.to_f.should eq(
+                                                                          (waybill.items.inject(0) do |mem, item|
+                                                                            mem += item.amount * item.price
+                                                                            mem.accounting_norm
+                                                                          end))
+    end
+
+    distributor = nil
+    distributor_place = nil
+    warehouse = nil
+
+    within('#container_documents form') do
+      page.datepicker("created").prev_month.day(11)
+      fill_in("waybill_document_id", :with => "404")
+
+      6.times { create(:legal_entity) }
+      items = LegalEntity.order("name").limit(6)
+      check_autocomplete('waybill_entity', items, :name) do |entity|
+        find('#waybill_ident_name')['value'].should eq(entity.identifier_name)
+        find('#waybill_ident_value')['value'].should eq(entity.identifier_value)
+      end
+
+      items[2].update_attributes!(identifier_name: 'MSRN')
+      fill_in('waybill_entity', :with => items[2].send(:name)[0..1])
+      within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
+          "contains(@style, 'display: block')]") do
+        all(:xpath, ".//li//a")[2].click
+      end
+      find('#waybill_ident_name')['value'].should eq(items[2].identifier_name)
+      distributor = items[2]
+
+      6.times { create(:place) }
+      items = Place.order(:tag).limit(6)
+      check_autocomplete("distributor_place", items, :tag)
+      distributor_place = items[1]
+
+      warehouse = Waybill.warehouses.last
+      select("#{warehouse.tag}(#{I18n.t('views.waybills.warehouse.storekeeper')}: "+
+                 "#{warehouse.storekeeper})", from: "warehouses")
+      find("#warehouses")[:value].should eq(warehouse.id.to_s)
+
+      page.find(:xpath, "//fieldset[@class='with-legend']" +
+          "//input[@value='#{I18n.t('views.waybills.add')}']").click
+      page.should have_xpath("//table//tbody//tr")
+      page.should have_xpath("//table//tbody//tr//td[@class='table-actions']")
+      fill_in("tag_1", :with => "new_res1")
+      fill_in("mu_1", :with => "mu1")
+      fill_in("count_1", :with => "100")
+      fill_in("price_1", :with => "25")
+    end
+
+    click_button_and_wait(I18n.t('views.waybills.save'))
+    wait_until{ page.find("input[@value='#{I18n.t('views.users.edit')}']")[:disabled].nil? }
+
+    page.find("input[@value='#{I18n.t('views.users.edit')}']")[:disabled].should be_nil
+    page.find("input[@value='#{I18n.t('views.waybills.save')}']")[:disabled].should be_true
+
+    waybill = Waybill.find(waybill.id)
+    waybill.created.should eq(1.months.ago.change(day: 11).change(hour: 12))
+    waybill.distributor.should eq(distributor)
+    waybill.distributor.identifier_name.should eq(distributor.identifier_name)
+    waybill.distributor_place.should eq(distributor_place)
+    waybill.warehouse_id.should eq(warehouse.id)
+    waybill.items.count.should eq(2)
+    waybill.items[1].resource.tag.should eq("new_res1")
+    waybill.items[1].resource.mu.should eq("mu1")
+    waybill.items[1].amount.to_i.should eq(100)
+    waybill.items[1].price.to_i.should eq(25)
+
+    show_waybill(waybill)
+
+    click_button_and_wait(I18n.t('views.waybills.apply'))
+    wait_until{ page.find("input[@value='#{I18n.t('views.users.edit')}']")[:disabled] }
+
+    page.find("input[@value='#{I18n.t('views.users.edit')}']")[:disabled].should be_true
+
+    PaperTrail.enabled = false
   end
 
   scenario "storekeeper should not input his entity and place", js: true do

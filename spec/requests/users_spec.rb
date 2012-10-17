@@ -27,7 +27,6 @@ feature "user", %q{
 
     current_hash.should eq('documents/users/new')
     page.should have_selector("div[@id='container_documents'] form")
-    page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
     click_button(I18n.t('views.users.save'))
 
 
@@ -94,11 +93,6 @@ feature "user", %q{
       wait_for_ajax
       wait_until_hash_changed_to "documents/users/#{User.last.id}"
     end.should change(User, :count).by(1) && change(Entity, :count).by(0)
-
-    page.find('#btn_create').click
-    page.find("a[@href='#documents/users/new']").click
-    click_button(I18n.t('views.users.back'))
-    page.should have_selector("#inbox[@class='sidebar-selected']")
 
     page.find('#btn_create').click
     page.find("a[@href='#documents/users/new']").click
@@ -288,7 +282,7 @@ feature "user", %q{
       click_button(I18n.t('views.users.save'))
       wait_until_hash_changed_to "documents/users/#{user.id}"
     end.should change(User, :count).by(0) && change(Entity, :count).by(1) &&
-        change(Credential, :count).by(1)
+        change(Credential, :count).by(0)
 
     Credential.where{place_id == Place.find_by_tag("Some cool place")}.count.should eq(1)
 
@@ -309,7 +303,6 @@ feature "user", %q{
     user.change_password!(password)
 
     page_login(user.email, password)
-    page.should have_selector("#inbox[@class='sidebar-selected']")
     click_link I18n.t('views.home.logout')
 
     page_login
@@ -333,10 +326,6 @@ feature "user", %q{
       click_button(I18n.t('views.users.save'))
       wait_until_hash_changed_to "documents/users/#{user.id}"
     end.should change(User, :count).by(0)
-    click_link I18n.t('views.home.logout')
-
-    page_login(user.email, password)
-    page.should have_selector("#inbox[@class='sidebar-selected']")
     click_link I18n.t('views.home.logout')
   end
 

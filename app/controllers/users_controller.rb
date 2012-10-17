@@ -67,7 +67,7 @@ class UsersController < ApplicationController
         unless user.entity.tag == params[:entity][:tag]
           user.entity = Entity.find_or_create_by_tag(params[:entity][:tag])
         end
-        user.credentials.delete_all
+        user.credentials.destroy_all
         if params[:credentials]
           params[:credentials].values.each do |credential|
             user.credentials.create!(

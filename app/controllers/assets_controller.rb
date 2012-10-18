@@ -9,8 +9,12 @@
 
 class AssetsController < ApplicationController
   def index
-    @assets = Asset.where{lower(tag).like lower("%#{my{params[:term]}}%")}.
-        order("tag").limit(5)
+    @assets = Asset
+    if params[:term]
+      @assets = Asset.where{lower(tag).like lower("%#{my{params[:term]}}%")}.
+          order("tag").limit(5)
+    end
+    @assets = @assets.all
   end
 
   def preview

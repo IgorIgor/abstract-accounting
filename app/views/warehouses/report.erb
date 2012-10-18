@@ -20,9 +20,33 @@
                                   },
                     value: resource.tag">
   <div class='buttons-separator'></div>
+  <input type='button' value="SELECT"
+         data-bind="click: openDialog.bind($data, 'resources_selector')"/>
   <input type='button' value="<%= t('views.warehouses.report.print') %>"
          data-bind='click: print, visible: documents().length > 0'/>
 </div>
+
+<div id="resources_selector" class="dialog"
+     data-bind="dialog: { autoOpen: false, modal: true },
+                template: { name: 'newDialogTmpl', 'if': dialog, data: dialog }">
+</div>
+
+<script id="newDialogTmpl" type="text/html">
+  <table>
+    <thead>
+      <tr>
+        <th><%= t 'views.resources.tag' %></th>
+        <th><%= t 'views.resources.mu' %></th>
+      </tr>
+    </thead>
+    <tbody data-bind="foreach: objects">
+      <tr data-bind="click: $root.select">
+        <td data-bind="text: tag"></td>
+        <td data-bind="text: mu"></td>
+      </tr>
+    </tbody>
+  </table>
+</script>
 
 <table>
   <thead>

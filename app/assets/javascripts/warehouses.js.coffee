@@ -57,6 +57,11 @@ $ ->
       url = "warehouses/print.pdf?#{$.param(normalizeHash(ko.mapping.toJS(@params)))}"
       window.open(url, '_blank');
 
+  class self.WarehouseAssetsViewModel extends FolderViewModel
+    constructor: (data) ->
+      @url = '/assets.json'
+      super(data)
+
   class self.WarehouseResourceReportViewModel extends FolderViewModel
     constructor: (data, params = {}) ->
       @url = "/warehouses/report.json"
@@ -64,9 +69,11 @@ $ ->
       @resource_id = ko.observable(params.resource_id)
       @warehouse_id = ko.observable(params.warehouse_id ? data.warehouse_id)
       @place = ko.mapping.fromJS(data.place)
-      @total = data.total
+      @total = ko.observable(data.total)
       @warehouses = ko.observable(data.warehouses)
       super(data)
+
+      @dialog = ko.observable(null)
 
       @params =
         page: @page
@@ -74,13 +81,15 @@ $ ->
         resource_id: @resource_id
         warehouse_id: @warehouse_id
 
-      @resource_id.subscribe(() =>
+      @resource_id.subscribe((val) =>
+        return true unless val
         @page(1)
         $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
           @documents(data.objects)
           @count(data.count)
           @range(@rangeGenerate())
           @place.tag(data.place.tag)
+          @total(data.total)
         )
       )
 
@@ -96,6 +105,25 @@ $ ->
         warehouse_id: @warehouse_id
       url = "/warehouses/report.pdf?#{$.param(normalizeHash(ko.mapping.toJS(@params)))}"
       window.open(url, '_blank');
+
+    openDialog: (elementId)=>
+      $("##{elementId}").dialog( "open" )
+      $.getJSON('/assets.json', {}, (objects) =>
+        objects = {objects: objects}
+        @dialog(objects)#new WarehouseAssetsViewModel(objects))
+#        toggleSelect('archive')
+#        $('.paginate').show()
+#        $('#container_documents').html(form)
+#        ko.cleanNode($('#main').get(0))
+#        ko.applyBindings(new DocumentsViewModel(objects, 'archive'), $('#main').get(0))
+      )
+
+    select: (object)=>
+      @resource_id(object.id)
+      @resource.tag(object.tag)
+      @resource.mu(object.mu)
+      @dialog(null)
+
 
   class self.WarehouseForemanReportViewModel extends FolderViewModel
     constructor: (data) ->

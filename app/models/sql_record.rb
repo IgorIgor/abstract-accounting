@@ -59,6 +59,11 @@ class SqlRecord
     self
   end
 
+  builder :order do |value|
+    @order_by = "ORDER BY #{value}"
+    self
+  end
+
   def initialize()
     @sql = ""
     @joins = ""

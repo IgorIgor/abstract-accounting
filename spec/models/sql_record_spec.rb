@@ -98,6 +98,17 @@ describe SqlRecord do
     end
   end
 
+  describe "#order" do
+    it "should create where statement with ORDER BY" do
+      SqlRecord.class_eval do
+        def order_by_test
+          @order_by
+        end
+      end
+      SqlRecord.order('tag').order_by_test.should eq("ORDER BY tag")
+    end
+  end
+
   describe "#select" do
     it "should raise error on empty sql" do
       expect { SqlRecord.new.select("some") }.should raise_error

@@ -87,6 +87,17 @@ describe SqlRecord do
     end
   end
 
+  describe "#offset" do
+    it "should create where statement with LIMIT" do
+      SqlRecord.class_eval do
+        def offset_test
+          @offset
+        end
+      end
+      SqlRecord.offset(10).offset_test.should eq("OFFSET 10")
+    end
+  end
+
   describe "#order_by" do
     it "should create where statement with ORDER BY" do
       SqlRecord.class_eval do

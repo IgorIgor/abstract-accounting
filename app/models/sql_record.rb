@@ -23,12 +23,13 @@ class SqlRecord
   end
 
   builder :paginate do |params = {}|
-    @page = 1
-    @per_page = Settings.root.per_page
+    page = 1
+    per_page = Settings.root.per_page
     unless params.nil? || params[:page].nil?
-      @per_page = params[:per_page].to_i if params[:per_page]
-      @page = params[:page].to_i
+      per_page = params[:per_page].to_i if params[:per_page]
+      page = params[:page].to_i
     end
+    limit(per_page).offset((page - 1) * per_page)
     self
   end
 
@@ -64,6 +65,11 @@ class SqlRecord
     self
   end
 
+  builder :offset do |value|
+    @offset = "OFFSET #{value}"
+    self
+  end
+
   def initialize()
     @sql = ""
     @joins = ""
@@ -75,11 +81,7 @@ class SqlRecord
 
   def select(str)
     raise Exception.new("Could not select from empty sql") if @sql.empty?
-    limit = @limit
-    if @page && @per_page
-      limit = "LIMIT #{@per_page} OFFSET #{(@page - 1) * @per_page}"
-    end
-    execute("SELECT #{str} FROM (#{@sql}) T #{@joins} #{@where} #{@order_by} #{limit}")
+    execute("SELECT #{str} FROM (#{@sql}) T #{@joins} #{@where} #{@order_by} #{@limit} #{@offset}")
   end
 
   def all

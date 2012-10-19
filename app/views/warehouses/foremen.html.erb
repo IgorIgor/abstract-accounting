@@ -7,11 +7,6 @@
                        value: warehouse_id, event: {change: assignForemen}">
     </select>
   <% end %>
-  <select id="foremen_filter" size="1"
-          data-bind="options: foremen, optionsText: 'name', optionsValue: 'id',
-                     optionsCaption: '<%= t 'views.warehouses.foremen.report.select.foremen' %>',
-                     value: foreman_id, event: {change: filterData}">
-  </select>
   <label for="foremen_filter_from">
     <%= t 'views.warehouses.foremen.report.dates.from' %>:
   </label>
@@ -26,6 +21,16 @@
   <input type='button' value="<%= t('views.warehouses.report.print') %>"
          data-bind='click: print, visible: documents().length > 0'/>
 </div>
+<!-- ko if: foremen().length != 0 -->
+<div id="foremen_tabs" data-bind="jqTabs: { current: 0, headers: foremen,
+                                            tabSelect: filterData },
+                                  value: foreman_id">
+  <div>
+    <ul id="head">
+    </ul>
+  </div>
+</div>
+<!-- /ko -->
 
 <table>
   <thead>

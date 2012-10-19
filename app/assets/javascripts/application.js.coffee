@@ -9,6 +9,8 @@
 #= require jquery
 #= require jquery-ui
 #= require jquery_ujs
+#= require jq.scrollabletabs
+#= require jquery.mousewheel
 #= require jquery.validate
 #= require jquery.datepick-ru
 #= require sammy
@@ -18,7 +20,6 @@
 #= require i18n/opentask_translations
 #= require_self
 #= require_tree .
-
 $ ->
 
   self.slideShow = (slide_id, arrow_id) ->

@@ -13,11 +13,7 @@ module AppUtils
   module ARFilters
     extend ActiveSupport::Concern
 
-    module ClassMethods
-      def custom_sort(name, &block)
-        define_singleton_method "sort_by_#{name}".to_sym, &block
-      end
-
+    module FilterMethods
       def filtrate(args)
         scope = scoped
         args.each { |key, value| scope = scope.send(key, value) }
@@ -47,6 +43,14 @@ module AppUtils
         page, per_page = *args
         scoped.limit(per_page).offset((page - 1) * per_page)
       end
+    end
+
+    module ClassMethods
+      def custom_sort(name, &block)
+        define_singleton_method "sort_by_#{name}".to_sym, &block
+      end
+
+      include FilterMethods
     end
   end
 end

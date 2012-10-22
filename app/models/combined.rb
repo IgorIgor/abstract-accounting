@@ -23,6 +23,11 @@ class Combined
   end
 
   class << self
+    def attribute_names
+      default_attrs = %w(id type)
+      default_attrs + self.configuration.keys.collect { |val| val.to_s }
+    end
+
     def klasses(klasses)
       self.klasses_i = klasses
     end
@@ -43,17 +48,30 @@ class Combined
       scope.limit(value)
     end
 
-    def order_by(value)
-      scope.order_by(value)
+    def order(value)
+      scope.order(value)
+    end
+    alias_method :order_by, :order
+    deprecate :order_by
+
+    def filtrate(*args)
+      scope.filtrate(*args)
+    end
+
+    def paginate(*args)
+      scope.paginate(*args)
+    end
+
+    def sort(*args)
+      scope.sort(*args)
+    end
+
+    def all
+      scope.all
     end
 
     def count
       scope.count
-    end
-
-    def all(attrs = {})
-      scope.paginate(page: attrs[:page], per_page: attrs[:per_page]).all.
-          collect { |item| self.new(item) }
     end
 
     private
@@ -69,7 +87,7 @@ class Combined
         sel = sel.join(', ')
         item.select("id, '#{item.name}' as type, #{sel}").to_sql
       end
-      CombinedRelation.new(SqlRecord.union(tables))
+      CombinedRelation.new(SqlRecord.union(tables), self)
     end
   end
 end

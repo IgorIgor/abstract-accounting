@@ -8,9 +8,15 @@
 # Please see ./COPYING for details
 
 class CombinedRelation
+  include AppUtils::ARFilters::FilterMethods
 
-  def initialize(sql_record)
+  def initialize(sql_record,klass)
     @scope = sql_record
+    @klass = klass
+  end
+
+  def attribute_names
+    @klass.attribute_names
   end
 
   def where(attrs)
@@ -23,10 +29,12 @@ class CombinedRelation
     self
   end
 
-  def order_by(value)
+  def order(value)
     @scope = @scope.order_by(value)
     self
   end
+  alias_method :order_by, :order
+  deprecate :order_by
 
   def paginate(attrs)
     @scope = @scope.paginate(attrs)
@@ -38,6 +46,11 @@ class CombinedRelation
   end
 
   def all
-    @scope.all
+    @scope.all.collect { |item| @klass.new(item) }
+  end
+
+  private
+  def scoped
+    self
   end
 end

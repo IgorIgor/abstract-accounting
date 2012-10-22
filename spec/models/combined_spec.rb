@@ -16,6 +16,10 @@ class CombinedTest < Combined
   def object
     @object
   end
+
+  def ==(other)
+    other.object == self.object
+  end
 end
 
 describe Combined do
@@ -86,8 +90,9 @@ describe Combined do
     end
 
     it "should return paginated data" do
-      CombinedTest.all(page: 1, per_page: 4).count.should eq(4)
-      CombinedTest.all(page: 2, per_page: 4).count.should eq(Money.count + Asset.count - 4)
+      CombinedTest.paginate(page: 1, per_page: 4).all.count.should eq(4)
+      CombinedTest.paginate(page: 2, per_page: 4).all.
+          count.should eq(Money.count + Asset.count - 4)
     end
   end
 
@@ -106,15 +111,40 @@ describe Combined do
     end
   end
 
-  describe "#order_by" do
+  describe "#order" do
     it "should select resources with order" do
-      arr = CombinedTest.order_by('tag').all.collect{ |item| item.id }
+      arr = CombinedTest.order('tag').all.collect{ |item| item.id }
       arr_test = (Money.order('alpha_code') + Asset.order('tag')).
           sort! do |x, y|
             (x.instance_of?(Money) ? x.alpha_code : x.tag) <=>
                 (y.instance_of?(Money) ? y.alpha_code : y.tag)
           end.map(&:id)
       arr.should eq(arr_test)
+    end
+  end
+
+  describe CombinedRelation do
+    it "should include filter methods" do
+      CombinedRelation.included_modules.should be_include(AppUtils::ARFilters::FilterMethods)
+    end
+  end
+
+  describe "#sort" do
+    it "should sort by combined attributes" do
+      CombinedTest.sort("id", "asc").all.should eq(CombinedTest.order("id asc").all)
+      CombinedTest.sort("type", "asc").all.should eq(CombinedTest.order("type asc").all)
+      CombinedTest.sort("tag", "asc").all.should eq(CombinedTest.order("tag asc").all)
+    end
+  end
+
+  describe "#filter" do
+    it "should filter" do
+      CombinedTest.filtrate(sort: {field: "id", type: "asc"}).
+          all.should eq(CombinedTest.order("id asc").all)
+      CombinedTest.filtrate(sort: {field: "type", type: "asc"}).
+          all.should eq(CombinedTest.order("type asc").all)
+      CombinedTest.filtrate(sort: {field: "tag", type: "asc"}).
+          all.should eq(CombinedTest.order("tag asc").all)
     end
   end
 end

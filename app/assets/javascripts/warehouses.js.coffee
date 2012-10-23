@@ -159,11 +159,12 @@ $ ->
         @foremen([])
         @clearData()
 
-    print: =>
+    print:(all) =>
       params =
-        foreman_id: @foreman_id()
         from: @from()
         to: @to()
+      unless all
+        params['foreman_id'] = @foreman_id()
       if @warehouses().length > 0
         params['warehouse_id'] = @warehouse_id()
       url = "warehouses/foremen.xls?#{$.param(params)}"

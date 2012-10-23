@@ -18,8 +18,11 @@
   <input type="text" id="foremen_filter_to" style="width: 80px;"
          data-bind="datepicker: to, event: {change: filterData}">
   <div class='buttons-separator'></div>
+  <input type='button' value="<%= t('views.warehouses.report.print_all') %>"
+         data-bind='click: function() { print(true); }, visible: foremen().length != 0'/>
+  <div class='buttons-separator'></div>
   <input type='button' value="<%= t('views.warehouses.report.print') %>"
-         data-bind='click: print, visible: documents().length > 0'/>
+         data-bind='click: function() { print(false); }, visible: documents().length > 0'/>
 </div>
 <!-- ko if: foremen().length != 0 -->
 <div id="foremen_tabs" data-bind="jqTabs: { current: 0, headers: foremen,

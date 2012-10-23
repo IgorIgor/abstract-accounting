@@ -256,14 +256,41 @@ class WarehousesController < ApplicationController
           end
         end
 
-        if warehouse_id && params[:foreman_id]
-          foreman = Entity.find(params[:foreman_id])
-          from = (params[:from] && DateTime.parse(params[:from])) || DateTime.current.beginning_of_month
-          to = (params[:to] && DateTime.parse(params[:to])) || DateTime.current
-          args = {warehouse_id: warehouse_id, foreman_id: params[:foreman_id],
-                  start: from, stop: to }
-          resources = WarehouseForemanReport.all(args)
-          send_data resources.to_xls(columns: [{resource: [:tag, :mu]}, :amount, :price, :sum],
+        if  warehouse_id
+          if params[:foreman_id]
+            foreman = Entity.find(params[:foreman_id])
+            from = (params[:from] && DateTime.parse(params[:from])) ||
+                DateTime.current.beginning_of_month
+            to = (params[:to] && DateTime.parse(params[:to])) || DateTime.current
+            args = {warehouse_id: warehouse_id, foreman_id: params[:foreman_id],
+                    start: from, stop: to }
+            resources = WarehouseForemanReport.all(args)
+            send_data resources.to_xls(name: foreman.tag,
+                                  columns: [{resource: [:tag, :mu]}, :amount, :price, :sum],
+                                  headers: [
+                                      I18n.t('views.warehouses.foremen.report.resource.name'),
+                                      I18n.t('views.warehouses.foremen.report.resource.mu'),
+                                      I18n.t('views.warehouses.foremen.report.amount'),
+                                      I18n.t('views.warehouses.foremen.report.price'),
+                                      I18n.t('views.warehouses.foremen.report.sum')
+                                  ],
+                                  header_format: {weight: :bold, color: :red}),
+                      :filename => "#{foreman.tag}-#{DateTime.current.strftime("%Y-%m")}.xls"
+          else
+            book = Spreadsheet::Workbook.new
+            foremen = WarehouseForemanReport.foremen(warehouse_id)
+            from = (params[:from] && DateTime.parse(params[:from])) ||
+                DateTime.current.beginning_of_month
+            to = (params[:to] && DateTime.parse(params[:to])) || DateTime.current
+            foremen.each do |foreman|
+              if foreman[:id]
+                args = {warehouse_id: warehouse_id, foreman_id: foreman[:id],
+                        start: from, stop: to }
+                resources = WarehouseForemanReport.all(args)
+                unless resources.empty?
+                  ToXls::Writer.new(resources,
+                                   { name: foreman.tag,
+                                     columns: [{resource: [:tag, :mu]}, :amount, :price, :sum],
                                      headers: [
                                        I18n.t('views.warehouses.foremen.report.resource.name'),
                                        I18n.t('views.warehouses.foremen.report.resource.mu'),
@@ -271,8 +298,21 @@ class WarehousesController < ApplicationController
                                        I18n.t('views.warehouses.foremen.report.price'),
                                        I18n.t('views.warehouses.foremen.report.sum')
                                      ],
-                                     header_format: {weight: :bold, color: :red}),
-                    :filename => "#{foreman.tag}-#{DateTime.current.strftime("%Y-%m")}.xls"
+                                     header_format: {weight: :bold, color: :red}
+                                   }).write_book(book)
+                end
+              end
+            end
+            if  book.worksheets.length > 0
+              io = StringIO.new('')
+              book.write(io)
+              send_data io.string,
+                        :filename => "#{I18n.t('views.warehouses.report.name')}-" +
+                            "#{DateTime.current.strftime("%Y-%m")}.xls"
+            else
+              send_data [].to_xls, :filename => "empty.xls"
+            end
+          end
         else
           send_data [].to_xls, :filename => "empty.xls"
         end
@@ -286,7 +326,8 @@ class WarehousesController < ApplicationController
         @foremen = []
         @resources = []
         @count = 0
-        @from = (params[:from] && DateTime.parse(params[:from])) || DateTime.current.beginning_of_month
+        @from = (params[:from] && DateTime.parse(params[:from])) ||
+            DateTime.current.beginning_of_month
         @to = (params[:to] && DateTime.parse(params[:to])) || DateTime.current
 
         if current_user.root?

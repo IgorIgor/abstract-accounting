@@ -221,6 +221,7 @@ module WarehouseDeal
   end
 
   def do_apply
+    return false if self.invalid?
     Txn.transaction do
       fact = Fact.create(amount: 1.0, resource: self.deal.give.resource,
                               day: DateTime.current.change(hour: 12), to: self.deal)

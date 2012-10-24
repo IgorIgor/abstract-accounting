@@ -90,7 +90,6 @@ class AllocationsController < ApplicationController
       @count = 0
       @allocations = []
     end
-
   end
 
   def list

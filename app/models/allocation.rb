@@ -11,17 +11,15 @@ require 'waybill'
 
 class AllocationItemsValidator < ActiveModel::Validator
   def validate(record)
-    if record.state == Allocation::UNKNOWN
-      record.errors[:items] << I18n.t('errors.messages.blank') if record.items.empty?
+    record.errors[:items] << I18n.t('errors.messages.blank') if record.items.empty?
 
-      record.items.each do |item|
-        deal = item.warehouse_deal(nil, record.storekeeper_place, record.storekeeper)
-        record.errors[:items] = 'invalid' if deal.nil?
-        warehouse_amount = item.exp_amount
-        if (item.amount > warehouse_amount) || (item.amount <= 0)
-          record.errors[:items] = I18n.t("errors.messages.less_than_or_equal_to",
-                                         count: warehouse_amount)
-        end
+    record.items.each do |item|
+      deal = item.warehouse_deal(nil, record.storekeeper_place, record.storekeeper)
+      record.errors[:items] = 'invalid' if deal.nil?
+      warehouse_amount = item.exp_amount
+      if (item.amount > warehouse_amount) || (item.amount <= 0)
+        record.errors[:items] = I18n.t("errors.messages.less_than_or_equal_to",
+                                       count: warehouse_amount)
       end
     end
   end

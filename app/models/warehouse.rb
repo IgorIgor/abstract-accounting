@@ -165,7 +165,7 @@ class Warehouse
         GROUP BY #{group_by}
       ) as warehouse
       #{inner_join}
-      WHERE warehouse.real_amount > 0.0 AND warehouse.exp_amount > 0.0 #{condition}
+      WHERE warehouse.real_amount > 0.0 #{condition}
       #{order_by}"
     end
   end

@@ -133,10 +133,13 @@ $ ->
         complete: (data) =>
           response = JSON.parse(data.responseText)
           if response['result'] == 'success'
+            hash = ''
             if response['id']
-              location.hash = "documents/#{@route}/#{response['id']}"
+              hash = "documents/#{@route}/#{response['id']}"
             else
-              location.hash = 'inbox'
+              hash = 'inbox'
+            $.sammy().refresh() unless location.hash == hash
+            location.hash = hash
           else
             $('#container_notification').css('display', 'block')
             $('#container_notification ul').css('display', 'block')
@@ -206,13 +209,12 @@ $ ->
 
     apply: =>
       @ajaxRequest('GET', "/#{@route}/#{@object.id()}/apply")
-      $.sammy().refresh()
+
     cancel: =>
       @ajaxRequest('GET', "/#{@route}/#{@object.id()}/cancel")
-      $.sammy().refresh()
+
     reverse: =>
       @ajaxRequest('GET', "/#{@route}/#{@object.id()}/reverse")
-      $.sammy().refresh()
 
     getState: (state) ->
       switch state

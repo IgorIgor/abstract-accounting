@@ -58,6 +58,11 @@ class WarehousesController < ApplicationController
       end
     end
 
+    if params[:warehouse_id] && !(attrs[:where] && attrs[:where][:warehouse_id])
+      attrs[:where] = {} unless attrs.has_key?(:where)
+      attrs[:where][:warehouse_id] = { equal: params[:warehouse_id] }
+    end
+
     attrs[:where] = params[:where] if params[:where]
     @count = Warehouse.count(attrs)
 

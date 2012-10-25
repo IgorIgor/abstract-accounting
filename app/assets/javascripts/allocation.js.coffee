@@ -2,7 +2,7 @@ $ ->
   class self.AllocationViewModel extends StatableViewModel
     constructor: (object, readonly = false) ->
       super(object, 'allocations', readonly)
-      @disable_warehouse = object.allocation.warehouse_id?
+      @disable_warehouse = ko.observable((object.owner || readonly))
       @motion = ko.observable("0")
       @motion.subscribe((val) =>
         @object.foreman.tag(null)
@@ -61,6 +61,13 @@ $ ->
 
       @loadAvailableResources() unless readonly
 
+      @readonly.subscribe( =>
+        @disable_warehouse(@object.owner() || @readonly())
+        unless @readonly()
+          @assignForemanPlace()
+          @loadAvailableResources(false)
+      )
+
     findWarehouse: (id) =>
       $.grep(@object.warehouses(), (item) ->
         item.id() == id
@@ -78,13 +85,13 @@ $ ->
 
     selectResource: (resource) =>
       resource.amount = ko.observable(resource.real_amount)
-      @object.items.push(resource)
+      @object.items.push(ko.mapping.fromJS(resource))
       @getPaginateData()
 
     selectWaybill: (waybill) =>
       if waybill.subitems() != null && waybill.subitems().documents.length
         for resource in waybill.subitems().documents
-          exist = $.grep(@object.items(), (r) -> return r.id == resource.id)[0]
+          exist = $.grep(@object.items(), (r) -> return r.id() == resource.id)[0]
           if exist
             exist.waybill_id = waybill.id
             if resource.amount + exist.amount() > resource.exp_amount
@@ -98,13 +105,13 @@ $ ->
             else
               resource.amount = ko.observable(resource.amount)
             resource.real_amount = resource.exp_amount
-            @object.items.push(resource)
+            @object.items.push(ko.mapping.fromJS(resource))
         @getPaginateData()
       else
         $.getJSON("/waybills/#{waybill.id}/resources.json", {all: true, exp_amount: true},
         (items) =>
           for resource in items.objects
-            exist = $.grep(@object.items(), (r) -> return r.id == resource.id)[0]
+            exist = $.grep(@object.items(), (r) -> return r.id() == resource.id)[0]
             if exist
               exist.waybill_id = waybill.id
               if resource.amount + exist.amount() > resource.exp_amount
@@ -118,7 +125,7 @@ $ ->
               else
                 resource.amount = ko.observable(resource.amount)
               resource.real_amount = resource.exp_amount
-              @object.items.push(resource)
+              @object.items.push(ko.mapping.fromJS(resource))
           @getPaginateData()
         )
 
@@ -135,7 +142,7 @@ $ ->
     getPaginateData: =>
       if @object.items().length > 0
         if @availableMode() == '0'
-          @params['without'] = $.map(@object.items(), (r) -> r.id)
+          @params['without'] = $.map(@object.items(), (r) -> r.id())
         else
           @params['without'] = $.map(@object.items(), (r) -> r.waybill_id)
       else if @params.hasOwnProperty('without')

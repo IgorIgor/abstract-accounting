@@ -13,6 +13,7 @@ child(@allocation => :allocation) do
   node(:foreman_id) { nil }
   node(:foreman_place_id) { |all| all.foreman_place_or_new.id }
 end
+node(:owner) { @allocation.owner? }
 node(:state) do
   partial "state/can_do", :object => @allocation
 end

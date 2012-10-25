@@ -11,7 +11,8 @@ object true
 node(:id) { @waybill.id }
 node(:type) { @waybill.class.name }
 child(@waybill => :waybill) do
-  attributes :document_id, :state, :warehouse_id, :created
+  attributes :document_id, :state, :warehouse_id
+  node(:created) { |waybill| waybill.created.strftime('%Y-%m-%d') }
   node :distributor_type do
     @waybill.distributor.class.name
   end

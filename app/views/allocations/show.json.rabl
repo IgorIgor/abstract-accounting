@@ -12,7 +12,7 @@ node(:id) { @allocation.id }
 node(:type) { @allocation.class.name }
 child(@allocation => :allocation) do
   attributes :id, :state, :warehouse_id
-  node(:created) { |allocation| allocation.created.strftime("%m/%d/%Y") }
+  node(:created) { |allocation| allocation.created.strftime('%Y-%m-%d') }
   glue @allocation.foreman do
     attributes :id => :foreman_id
   end
@@ -20,6 +20,7 @@ child(@allocation => :allocation) do
     attributes :id => :foreman_place_id
   end
 end
+node(:owner) { @allocation.owner? }
 node(:state) do
   partial "state/can_do", :object => @allocation
 end
@@ -27,8 +28,9 @@ child(@allocation.foreman => :foreman) { attributes :tag }
 child(@allocation.foreman_place => :foreman_place) { attributes :tag }
 child(@allocation.items => :items) do
   attributes :amount
+  node(:real_amount) { |item| item.exp_amount }
   glue :resource do
-    attributes :mu, :tag
+    attributes :id, :mu, :tag
   end
 end
 child(Allocation.warehouses => :warehouses) do

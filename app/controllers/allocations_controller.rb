@@ -38,7 +38,7 @@ class AllocationsController < ApplicationController
             Allocation.extract_warehouse(params[:allocation][:warehouse_id]))
         params[:allocation].delete(:warehouse_id)
         params[:allocation][:created] = DateTime.parse(params[:allocation][:created]).
-                                                 change(offset: 0)
+                                                 change(hour: 12, offset: 0)
         allocation = Allocation.new(params[:allocation])
         unless allocation.foreman
           foreman = Entity.find_or_create_by_tag(params[:foreman])
@@ -56,6 +56,40 @@ class AllocationsController < ApplicationController
       end
     rescue
       render json: allocation.errors.full_messages
+    end
+  end
+
+  def update
+    allocation = Allocation.find(params[:id])
+    begin
+      Allocation.transaction do
+        params[:allocation][:created] = DateTime.parse(params[:allocation][:created]).change(hour: 12, offset: 0)
+        params[:allocation][:foreman_type] = "Entity" if params[:allocation][:foreman_id]
+        params[:allocation].delete(:state) if params[:allocation].has_key?(:state)
+        params[:allocation].merge!(
+            Allocation.extract_warehouse(params[:allocation][:warehouse_id]))
+        params[:allocation].delete(:warehouse_id)
+
+        unless allocation.foreman.id == params[:allocation][:foreman_id].to_i
+          allocation.foreman = Entity.find_or_create_by_tag(params[:foreman])
+          params[:allocation][:foreman_id] = allocation.foreman.id
+          params[:allocation][:foreman_type] = allocation.foreman.class.name
+        end
+        unless allocation.foreman_place.id == params[:allocation][:foreman_place_id].to_i
+          allocation.foreman_place = Place.find_or_create_by_tag(params[:foreman_place])
+          params[:allocation][:foreman_place_id] = allocation.foreman_place.id
+        end
+
+        allocation.items.clear
+
+        params[:items].each_value { |item| allocation.add_item(item) } if params[:items]
+
+        allocation.update_attributes(params[:allocation])
+
+        render json: { result: 'success', id: allocation.id }
+      end
+    rescue
+      render json: allocation.errors.messages
     end
   end
 
@@ -90,7 +124,6 @@ class AllocationsController < ApplicationController
       @count = 0
       @allocations = []
     end
-
   end
 
   def list
@@ -127,5 +160,4 @@ class AllocationsController < ApplicationController
     @resources = allocation.items[(page - 1) * per_page, per_page]
     @count = allocation.items.count
   end
-
 end

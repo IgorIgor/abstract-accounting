@@ -3,7 +3,8 @@
     <input type='submit' value="<%= t 'views.waybills.save' %>"
            data-bind='disable: readonly'/>
     <input type='button' value="<%= t 'views.users.edit' %>"
-           data-bind='click: edit, disable: !(readonly() && object.waybill.state()==1)'/>
+           data-bind='click: edit, disable: !(readonly() &&
+                        object.waybill.state() == <%= ::Helpers::Statable::INWORK %>)'/>
     <input type='button' value="<%= t 'views.waybills.back' %>"
            data-bind='click: back'/>
     <!--<input type='button' value="<%= t 'views.waybills.draft' %>"-->

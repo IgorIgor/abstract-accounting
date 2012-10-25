@@ -71,7 +71,7 @@ Abstract::Application.routes.draw do
       get 'report'
     end
   end
-  resources :allocations, except: [:edit, :update, :destroy] do
+  resources :allocations, except: [:destroy] do
     collection do
       get 'preview'
       get 'data'

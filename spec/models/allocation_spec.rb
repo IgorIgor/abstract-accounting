@@ -641,9 +641,12 @@ describe AllocationItemsValidator do
     db2 = build(:allocation, storekeeper: wb.storekeeper,
                              storekeeper_place: wb.storekeeper_place)
     db2.add_item(tag: 'roof', mu: 'm2', amount: 201)
+    db2.should be_valid
+
+    db.apply.should be_true
     db2.should be_invalid
 
-    db.cancel
+    db.reverse
     db.add_item(tag: 'roof', mu: 'm2', amount: 201)
     db.should be_valid
   end

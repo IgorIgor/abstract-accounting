@@ -79,7 +79,7 @@ describe Warehouse do
                    (w.real_amount == 300) && (w.exp_amount == 215) &&
                    (w.mu == 'kg') && (w.place_id == minsk.id) } .should_not be_empty
     wh.select{ |w| (w.place == 'Minsk') && (w.tag == 'roof') && (w.mu == 'rm') &&
-                   (w.real_amount == 500) && (w.place_id == minsk.id) } .should be_empty
+                   (w.real_amount == 500) && (w.place_id == minsk.id) } .should_not be_empty
     Warehouse.count.should eq(wh.count)
 
     ds_minsk.cancel
@@ -323,8 +323,8 @@ describe Warehouse do
     Warehouse.all(where: { warehouse_id: { equal: minsk.id },
                            'assets.id' => { equal_attr: Asset.find_by_tag_and_mu('roof', 'rm').id } })
              .first.exp_amount.to_i.should eq(300)
-    wb.items.first.exp_amount.should eq(300)
-    wb.items.last.exp_amount.should eq(215)
+    wb.items.first.exp_amount.should eq(500)
+    wb.items.last.exp_amount.should eq(300)
 
     wh = Warehouse.group({group_by: 'place'})
     wh.select{ |w| (w[:value] == 'Moscow') &&

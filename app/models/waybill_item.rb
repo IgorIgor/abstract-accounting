@@ -21,7 +21,7 @@ class WaybillItem
                          warehouse_id: { equal: @object.storekeeper_place.id },
                          'assets.id' => { equal_attr: self.resource.id } }).first
     return 0.0 unless resource_state
-    resource_state.exp_amount
+    resource_state.real_amount
   end
 
   def initialize(attrs = {})

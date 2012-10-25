@@ -161,9 +161,7 @@ module WarehouseDeal
   end
 
   def owner?
-    user = PaperTrail.whodunnit
-    return false if user.root?
-    self.storekeeper == user.entity
+    !self.warehouse_id.nil?
   end
 
   def before_warehouse_deal_save

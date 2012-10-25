@@ -331,6 +331,19 @@ describe Waybill do
     comment.item_type.should eq(wb.class.name)
     comment.message.should eq(I18n.t('activerecord.attributes.waybill.comment.create'))
 
+    wb.update_attributes("created" => wb.created,
+                         "document_id" => wb.document_id,
+                         "storekeeper_place_id" => wb.storekeeper_place.id,
+                         "distributor_id" => create(:entity).id,
+                         "distributor_type" => Entity.name,
+                         "distributor_place_id" => create(:place).id)
+
+    comment = Comment.last
+    comment.user_id.should eq(user.id)
+    comment.item_id.should eq(wb.id)
+    comment.item_type.should eq(wb.class.name)
+    comment.message.should eq(I18n.t('activerecord.attributes.waybill.comment.update'))
+
     wb = Waybill.find(wb)
     wb.cancel.should be_true
     wb.state.should eq(Waybill::CANCELED)

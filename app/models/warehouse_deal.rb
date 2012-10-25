@@ -278,8 +278,13 @@ module WarehouseDeal
   end
 
   def after_warehouse_deal_save
-    send_comment self, I18n.t(
-          "activerecord.attributes.#{self.class.name.downcase}.comment.create")
+    if self.id_changed?
+      send_comment self, I18n.t(
+            "activerecord.attributes.#{self.class.name.downcase}.comment.create")
+    else
+      send_comment self, I18n.t(
+          "activerecord.attributes.#{self.class.name.downcase}.comment.update")
+    end
   end
 
   def send_comment_after_apply

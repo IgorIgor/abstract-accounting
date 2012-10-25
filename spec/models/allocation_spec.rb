@@ -191,6 +191,18 @@ describe Allocation do
     comment.item_type.should eq(db.class.name)
     comment.message.should eq(I18n.t('activerecord.attributes.allocation.comment.create'))
 
+    db.update_attributes("created" => db.created,
+                         "storekeeper_place_id" => db.storekeeper_place.id,
+                         "foreman_id" => create(:entity).id,
+                         "foreman_type" => Entity.name,
+                         "foreman_place_id" => create(:place).id)
+
+    comment = Comment.last
+    comment.user_id.should eq(user.id)
+    comment.item_id.should eq(db.id)
+    comment.item_type.should eq(db.class.name)
+    comment.message.should eq(I18n.t('activerecord.attributes.allocation.comment.update'))
+
     db = Allocation.find(db)
     db.cancel.should be_true
     db.state.should eq(Allocation::CANCELED)

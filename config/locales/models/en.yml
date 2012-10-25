@@ -23,6 +23,7 @@ en:
             tag: "Invoice #%{id} string %{index} deal #%{deal_id}"
         comment:
           create: Create waybill
+          update: Update waybill
           apply: Apply waybill
           cancel: Cancel waybill
           reverse: Reverse waybill
@@ -34,6 +35,7 @@ en:
             tag: "WIP #%{id} string %{index}"
         comment:
           create: Create allocation
+          update: Update allocation
           apply: Apply allocation
           cancel: Cancel allocation
           reverse: Reverse allocation

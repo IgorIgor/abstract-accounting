@@ -11,7 +11,7 @@ object false
 child(@resources => :objects) do
   attributes :amount, :price, :sum
   glue :resource do
-    attributes :tag, :mu
+    attributes :tag, :mu, :id
   end
 end
 child(@foremen => :foremen) do

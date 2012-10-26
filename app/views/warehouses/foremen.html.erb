@@ -38,6 +38,7 @@
 <table>
   <thead>
     <tr>
+      <th></th>
       <th><%=t 'views.warehouses.foremen.report.resource.name' %></th>
       <th><%=t 'views.warehouses.foremen.report.resource.mu' %></th>
       <th><%=t 'views.warehouses.foremen.report.amount' %></th>
@@ -47,6 +48,7 @@
   </thead>
   <tbody data-bind="foreach: documents">
     <tr>
+      <td><input type="checkbox" data-bind="value: id, checked: $root.resources[$root.foreman_id()]" /></td>
       <td data-bind="text: tag"></td>
       <td data-bind="text: mu"></td>
       <td data-bind="text: amount"></td>

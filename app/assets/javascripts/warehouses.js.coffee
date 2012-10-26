@@ -135,6 +135,11 @@ $ ->
 
       @warehouses = ko.observable(data.warehouses)
       @warehouse_id = ko.observable(null)
+      @resources = {}
+      @foreman_id.subscribe( =>
+        if @resources[@foreman_id()] == undefined
+          @resources[@foreman_id()] = ko.observableArray([])
+      )
 
       super(data)
 

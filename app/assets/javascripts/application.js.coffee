@@ -236,6 +236,11 @@ $ ->
         page: @page
         per_page: @per_page
 
+    clearData: =>
+      @documents([])
+      @count([])
+      @range(@rangeGenerate())
+
     prev: =>
       @page(@page() - 1)
       @getPaginateData()

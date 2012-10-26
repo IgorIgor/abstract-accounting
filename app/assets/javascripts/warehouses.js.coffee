@@ -152,9 +152,12 @@ $ ->
         $.each(@warehouses(), (idx, item)=>
           if item.place_id == @warehouse_id()
             @foremen(item.foremen)
+            if @foremen().length == 0
+              @clearData()
         )
       else
         @foremen([])
+        @clearData()
 
     print: =>
       params =

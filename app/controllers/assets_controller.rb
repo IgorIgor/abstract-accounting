@@ -14,7 +14,14 @@ class AssetsController < ApplicationController
       @assets = Asset.where{lower(tag).like lower("%#{my{params[:term]}}%")}.
           order("tag").limit(5)
     end
-    @assets = @assets.all
+    filter = {}
+    filter = {search: params[:like]} if params[:like]
+    @count = Asset.filtrate(filter).count
+    page = params[:page].nil? ? 1 : params[:page].to_i
+    per_page = params[:per_page].nil? ?
+        Settings.root.per_page.to_i : params[:per_page].to_i
+    filter[:paginate] = { page: page, per_page: per_page }
+    @assets = Asset.filtrate(filter)
   end
 
   def preview

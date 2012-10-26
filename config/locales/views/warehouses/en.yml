@@ -12,6 +12,7 @@ en:
       filter:
           select:
             warehouse: Choose warehouse...
+            asset: Choose asset
       report:
         print: Print
       resource:

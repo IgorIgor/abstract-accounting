@@ -12,6 +12,7 @@ ru:
       filter:
         select:
           warehouse: Выберите склад...
+          asset: Выбрать ресурс
       report:
         print: Печать
       resource:

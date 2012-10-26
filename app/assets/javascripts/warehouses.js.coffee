@@ -60,6 +60,10 @@ $ ->
   class self.WarehouseAssetsViewModel extends FolderViewModel
     constructor: (data) ->
       @url = '/assets.json'
+
+      @filter =
+        tag: ko.observable('')
+
       super(data)
 
   class self.WarehouseResourceReportViewModel extends FolderViewModel
@@ -74,6 +78,7 @@ $ ->
       super(data)
 
       @dialog = ko.observable(null)
+      @dialog_element = null
 
       @params =
         page: @page
@@ -107,15 +112,10 @@ $ ->
       window.open(url, '_blank');
 
     openDialog: (elementId)=>
+      @dialog_element = elementId
       $("##{elementId}").dialog( "open" )
-      $.getJSON('/assets.json', {}, (objects) =>
-        objects = {objects: objects}
-        @dialog(objects)#new WarehouseAssetsViewModel(objects))
-#        toggleSelect('archive')
-#        $('.paginate').show()
-#        $('#container_documents').html(form)
-#        ko.cleanNode($('#main').get(0))
-#        ko.applyBindings(new DocumentsViewModel(objects, 'archive'), $('#main').get(0))
+      $.getJSON('/assets.json', {}, (data) =>
+        @dialog(new WarehouseAssetsViewModel(data))
       )
 
     select: (object)=>
@@ -123,6 +123,8 @@ $ ->
       @resource.tag(object.tag)
       @resource.mu(object.mu)
       @dialog(null)
+      $("##{@dialog_element}").dialog( "close" )
+#      $("##{@dialog_element}").dialog( "destroy" )
 
 
   class self.WarehouseForemanReportViewModel extends FolderViewModel

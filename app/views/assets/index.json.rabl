@@ -7,5 +7,9 @@
 #
 # Please see ./COPYING for details
 
-collection @assets
-attributes :id, :tag, :mu
+object false
+child(@assets => :objects) do
+  attributes :id, :tag, :mu
+end
+node(:per_page) { Settings.root.per_page }
+node(:count) { @count }

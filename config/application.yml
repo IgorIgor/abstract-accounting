@@ -11,7 +11,7 @@
 defaults: &defaults
   root:
     password: 123456
-    per_page: 30
+    per_page: 5
 
 development:
   <<: *defaults

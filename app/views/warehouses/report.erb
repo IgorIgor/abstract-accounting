@@ -10,43 +10,45 @@
     <%= t 'views.warehouses.tag' %>:
   </label>
   <input type="text" id="report_resource" style="width: 200px;"
-         data-bind="autocomplete: { source: '/assets.json',
-                                    value: 'tag',
-                                    bind: {
-                                      mu: resource.mu,
-                                      id: resource_id
-                                    },
-                                    onlySelect: true
-                                  },
-                    value: resource.tag">
+         data-bind="value: resource.tag">
   <div class='buttons-separator'></div>
-  <input type='button' value="SELECT"
+  <input type='button' value="<%= t 'views.warehouses.filter.select.asset' %>"
          data-bind="click: openDialog.bind($data, 'resources_selector')"/>
   <input type='button' value="<%= t('views.warehouses.report.print') %>"
          data-bind='click: print, visible: documents().length > 0'/>
 </div>
 
 <div id="resources_selector" class="dialog"
-     data-bind="dialog: { autoOpen: false, modal: true },
-                template: { name: 'newDialogTmpl', 'if': dialog, data: dialog }">
-</div>
+     data-bind="dialog: { autoOpen: false, modal: true, minWidth: 480, minHeight: 300 }, with: dialog">
 
-<script id="newDialogTmpl" type="text/html">
   <table>
+    <caption>
+      <div class="table-mode">
+        <input type="text" id='dialog_search' data-bind="value: filter.tag"/>
+        <input type="button" value="<%= t('views.home.search') %>" data-bind="click: filterData"/>
+      </div>
+      <div class="paginate">
+        <span data-bind="text: range"></span> <%= t('views.home.of') %>
+        <span data-bind="text: count"></span>
+        <input type="button" value="<" data-bind="click: prev, disable: page() < 2"/>
+        <input type="button" class="paginate-right" value=">"
+               data-bind="click: next, disable: page()*per_page() >= count()"/>
+      </div>
+    </caption>
     <thead>
-      <tr>
-        <th><%= t 'views.resources.tag' %></th>
-        <th><%= t 'views.resources.mu' %></th>
-      </tr>
+    <tr>
+      <th><%= t 'views.resources.tag' %></th>
+      <th><%= t 'views.resources.mu' %></th>
+    </tr>
     </thead>
-    <tbody data-bind="foreach: objects">
-      <tr data-bind="click: $root.select">
-        <td data-bind="text: tag"></td>
-        <td data-bind="text: mu"></td>
-      </tr>
+    <tbody data-bind="foreach: documents">
+    <tr data-bind="click: $root.select">
+      <td data-bind="text: tag"></td>
+      <td data-bind="text: mu"></td>
+    </tr>
     </tbody>
   </table>
-</script>
+</div>
 
 <table>
   <thead>

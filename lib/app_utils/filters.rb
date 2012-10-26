@@ -35,6 +35,16 @@ module AppUtils
         end
       end
 
+      def search(*args)
+        scope = scoped
+        args.first.each do |key, value|
+          if self.attribute_names.include?(key) || self.attribute_names.include?(key.to_s)
+            scope = scope.where{lower(__send__(key)).like(lower("%#{value}%"))}
+          end
+        end
+        scope
+      end
+
       def paginate(*args)
         if args.count == 1
           args = [(args.first[:page] or args.first["page"]),

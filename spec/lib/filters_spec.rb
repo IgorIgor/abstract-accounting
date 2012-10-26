@@ -140,6 +140,32 @@ describe AppUtils::ARFilters do
     end
   end
 
+  describe "#search" do
+    it "should filter by like attribute" do
+      create(:entity, tag: "First CS")
+      create(:entity, tag: "Second CS")
+      create(:entity, tag: "Third CS")
+
+      Entity.search({tag: "i"}).count.should eq(2)
+      Entity.search({tag: "i"}).all.should =~ Entity.where{tag.like("%i%")}.all
+    end
+
+    it "should filter by like attribute case insensitive" do
+      create(:entity, tag: "FIrst")
+      create(:entity, tag: "Second")
+      create(:entity, tag: "Third")
+
+      Entity.search({tag: "i"}).count.should eq(4)
+      Entity.search({tag: "i"}).all.should =~ Entity.where{tag.like("%i%")}.all
+    end
+
+    it "should use scope before search" do
+      Entity.limit(1).search({tag: "i"}).count.should eq(1)
+      Entity.limit(1).search({tag: "i"}).all.should =~ Entity.limit(1).
+          where{tag.like("%i%")}.all
+    end
+  end
+
   describe "#filtrate" do
     it "should call order and paginate from params" do
       FiltrateClass.filtrate(sort: { field: "tag", type: "desc" },

@@ -375,8 +375,8 @@ $ ->
             $.getJSON('/inbox.json', {}, (objects) ->
               toggleSelect('inbox')
               $('.paginate').show()
-              $('#container_documents').html(form)
               ko.cleanNode($('#main').get(0))
+              $('#container_documents').html(form)
               ko.applyBindings(new DocumentsViewModel(objects, 'inbox'), $('#main').get(0))
             )
           )
@@ -386,8 +386,8 @@ $ ->
             $.getJSON('/archive.json', {}, (objects) ->
               toggleSelect('archive')
               $('.paginate').show()
-              $('#container_documents').html(form)
               ko.cleanNode($('#main').get(0))
+              $('#container_documents').html(form)
               ko.applyBindings(new DocumentsViewModel(objects, 'archive'), $('#main').get(0))
             )
           )
@@ -396,6 +396,7 @@ $ ->
           $.get('/settings/preview', {}, (form) ->
             $.getJSON('/settings/new.json', {}, (data) ->
               toggleSelect()
+              ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
               ko.applyBindings(new SettingsViewModel(data), $('#container_documents').get(0))
             )
@@ -405,6 +406,7 @@ $ ->
           $.get('/settings/preview', {}, (form) ->
             $.getJSON('/settings.json', {}, (data) ->
               toggleSelect()
+              ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
               ko.applyBindings(new SettingsViewModel(data, true), $('#container_documents').get(0))
             )
@@ -440,6 +442,7 @@ $ ->
                 when 'deals'
                   new DealViewModel(object)
 
+              ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))
             )
@@ -474,6 +477,7 @@ $ ->
                 when 'deals'
                   new DealViewModel(object, true)
 
+              ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))
             )
@@ -486,8 +490,8 @@ $ ->
               toggleSelect("warehouses_report")
               $('.paginate').show()
               viewModel = new WarehouseResourceReportViewModel(data, filter)
-              $('#container_documents').html(form)
               ko.cleanNode($('#main').get(0))
+              $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#main').get(0))
             )
           )
@@ -498,8 +502,8 @@ $ ->
               toggleSelect("warehouses_foremen")
               $('.paginate').show()
               viewModel = new WarehouseForemanReportViewModel(data)
-              $('#container_documents').html(form)
               ko.cleanNode($('#main').get(0))
+              $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#main').get(0))
             )
           )
@@ -518,8 +522,8 @@ $ ->
                                 new GroupedWarehouseViewModel(data, filter)
                               when 'balance_sheet'
                                 new GroupedBalanceSheetViewModel(data, filter)
-                $('#container_documents').html(form)
                 ko.cleanNode($('#main').get(0))
+                $('#container_documents').html(form)
                 ko.applyBindings(viewModel, $('#main').get(0))
               )
             )
@@ -534,8 +538,8 @@ $ ->
                                     new WaybillsListViewModel(data, filter)
                                   when 'allocations'
                                     new AllocationsListViewModel(data, filter)
-                    $('#container_documents').html(form)
                     ko.cleanNode($('#main').get(0))
+                    $('#container_documents').html(form)
                     ko.applyBindings(viewModel, $('#main').get(0))
                   )
                 )
@@ -572,8 +576,8 @@ $ ->
                   when 'quote'
                     new QuotesViewModel(data)
 
-                $('#container_documents').html(form)
                 ko.cleanNode($('#main').get(0))
+                $('#container_documents').html(form)
                 ko.applyBindings(viewModel, $('#main').get(0))
               )
             )

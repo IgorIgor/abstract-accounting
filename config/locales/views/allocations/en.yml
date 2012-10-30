@@ -26,6 +26,8 @@ en:
       storekeeper: Storekeeper
       other_storekeeper: Receive storekeeper
       storekeeper_place: Warehouse
+      freighter: Freighter
+      freighter_name: Name
       warehouse:
         name: Warehouse
         remote: Remote warehouse

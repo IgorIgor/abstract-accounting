@@ -32,14 +32,14 @@ class WaybillItem
         attrs[:price]
   end
 
-  def warehouse_deal(give_r, place, entity)
+  def warehouse_deal(give_r, from_place, to_place, entity)
     deal_rate = give_r.nil? ? 1.0 : 1.0 / self.price
     give_r ||= self.resource
     take_r = self.resource
 
     deal = Deal.joins(:give, :take).where do
-      (give.resource_id == give_r) & (give.place_id == place) &
-      (take.resource_id == take_r) & (give.place_id == place) &
+      (give.resource_id == give_r) & (give.place_id == from_place) &
+      (take.resource_id == take_r) & (take.place_id == to_place) &
       (entity_id == entity) & (entity_type == entity.class.name) & (self.rate == deal_rate)
     end.first
     if deal.nil? && !self.resource.nil?
@@ -48,8 +48,8 @@ class WaybillItem
                       @object.class.name.downcase}.deal.resource.tag",
           id: @object.document_id,
           index: @object.items.rindex(self) + 1, deal_id: @object.deal_id))
-      return nil if deal.build_give(place: place, resource: give_r).nil?
-      return nil if deal.build_take(place: place, resource: self.resource).nil?
+      return nil if deal.build_give(place: from_place, resource: give_r).nil?
+      return nil if deal.build_take(place: to_place, resource: self.resource).nil?
       return nil unless deal.save
     end
     deal

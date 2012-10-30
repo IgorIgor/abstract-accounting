@@ -14,7 +14,7 @@ class AllocationItemsValidator < ActiveModel::Validator
     record.errors[:items] << I18n.t('errors.messages.blank') if record.items.empty?
 
     record.items.each do |item|
-      deal = item.warehouse_deal(nil, record.storekeeper_place, record.storekeeper)
+      deal = item.warehouse_deal(nil, record.storekeeper_place, record.storekeeper_place, record.storekeeper)
       record.errors[:items] = 'invalid' if deal.nil?
       warehouse_amount = item.exp_amount
       if (item.amount > warehouse_amount) || (item.amount <= 0)
@@ -128,6 +128,10 @@ class Allocation < ActiveRecord::Base
     else
       Place.new
     end
+  end
+
+  def motion
+    self.deal.give.place_id == self.deal.take.place_id ? 0 : 1
   end
 
   private

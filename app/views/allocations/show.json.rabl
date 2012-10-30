@@ -36,3 +36,4 @@ end
 child(Allocation.warehouses => :warehouses) do
   attributes :id, :tag, :storekeeper, :place_id
 end
+node(:motion) { @allocation.motion }

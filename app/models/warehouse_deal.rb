@@ -190,11 +190,13 @@ module WarehouseDeal
         from_item = item.warehouse_deal(
             settings[:from_currency] ? settings[:from_currency].call() : nil,
             self.send("#{settings[:from]}_place"),
+            self.send("#{settings[:from]}_place"),
             self.send(settings[:from]))
         return false if from_item.nil?
 
         to_item = item.warehouse_deal(
             settings[:to_currency] ? settings[:to_currency].call() : nil,
+            self.send("#{settings[:from]}_place"),
             self.send("#{settings[:to]}_place"),
             self.send(settings[:to]))
         return false if to_item.nil?

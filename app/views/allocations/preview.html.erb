@@ -57,12 +57,12 @@
         </span>
         <span>
           <input type="radio" id="motion-allocation" name="motion" value="0"
-                         data-bind="checked: motion" disabled="disabled"/>
+                         data-bind="checked: motion"/>
           <label for="motion-allocation">
             <%= t 'views.allocations.motion.allocation' %>
           </label>
           <input type="radio" id="motion-warehouse" name="motion" value="1"
-                 data-bind="checked: motion" disabled="disabled"/>
+                 data-bind="checked: motion"/>
           <label for="motion-warehouse">
             <%= t 'views.allocations.motion.warehouse' %>
           </label>
@@ -103,12 +103,12 @@
       <%= t 'views.allocations.foreman' %>
       <!-- /ko -->
       <!-- ko if: motion() == '1' -->
-      <%= t 'views.allocations.other_storekeeper' %>
+      <%= t 'views.allocations.warehouse.remote' %>
       <!-- /ko -->
     </legend>
     <div>
-      <div>
         <!-- ko if: motion() == '0' -->
+        <div>
         <span class="form-cell-label">
           <label for="foreman_entity"><%= t 'views.allocations.entity' %>:</label>
         </span>
@@ -121,8 +121,20 @@
                               bind: { id: $parent.object.allocation.foreman_id }
                             }, value: tag, disable: $parent.readonly" />
         </span>
+        </div>
+        <div>
+        <span class="form-cell-label">
+          <label for="foreman_place"><%= t 'views.allocations.place' %>:</label>
+        </span>
+        <span data-bind='with: object.foreman_place'>
+          <input type='text' id='foreman_place'
+                 name='<%= t 'views.allocations.foreman_place' %>' rule='required'
+                 data-bind="value: tag" disabled="disabled" />
+        </span>
+        </div>
         <!-- /ko -->
         <!-- ko if: motion() == '1' -->
+        <div>
         <span class="form-cell-label">
           <label for="remote_warehouses"><%=t 'views.allocations.warehouse.name' %>:</label>
         </span>
@@ -137,24 +149,35 @@
                                  item.storekeeper() + ')'
                              },
                              optionsValue: 'id',
-                             value: remote_warehouse_id"></select>
+                             value: remote_warehouse_id,
+                             disable: readonly"></select>
         </span>
+        </div>
         <!-- /ko -->
-      </div>
-      <!-- ko if: motion() == '0' -->
-      <div>
-        <span class="form-cell-label">
-          <label for="foreman_place"><%= t 'views.allocations.place' %>:</label>
-        </span>
-        <span data-bind='with: object.foreman_place'>
-          <input type='text' id='foreman_place'
-                 name='<%= t 'views.allocations.foreman_place' %>' rule='required'
-                 data-bind="value: tag" disabled="disabled" />
-        </span>
-      </div>
-      <!-- /ko -->
     </div>
   </fieldset>
+  <!-- ko if: motion() == '1' -->
+  <fieldset>
+    <legend><%= t 'views.allocations.freighter' %></legend>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="freighter_entity"><%= t 'views.allocations.freighter_name' %>:</label>
+        </span>
+        <span data-bind='with: object.foreman'>
+          <input type='text' id='freighter_entity'
+                 name='<%= t 'views.allocations.freighter' %>' rule='required'
+                 data-bind="autocomplete: {
+                              source: '/entities.json',
+                              value: 'tag',
+                              bind: { id: $parent.object.allocation.foreman_id }
+                            }, value: tag, disable: $parent.readonly" />
+        </span>
+      </div>
+    </div>
+  </fieldset>
+  <!-- /ko -->
+
 
   <table id="selected-resources">
     <caption><%= t 'views.allocations.selected_resources' %></caption>

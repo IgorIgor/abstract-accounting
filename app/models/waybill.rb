@@ -25,7 +25,6 @@ end
 class Waybill < ActiveRecord::Base
   include WarehouseDeal
   act_as_warehouse_deal from: :distributor,
-                        from_currency: lambda { Chart.first.currency },
                         to: :storekeeper,
                         item: :initialize
 
@@ -146,13 +145,13 @@ class Waybill < ActiveRecord::Base
     Converter.float(sum)
   end
 
-  def initialize_limit(deal)
-    if deal.entity == self.distributor
-      unless deal.limit.side == Limit::PASSIVE && deal.limit.amount > 0
-        deal.limit.update_attributes(side: Limit::ACTIVE, amount: 0)
-      end
-    end
-    true
+  def create_distributor_deal(item, idx)
+    deal = create_deal(Chart.first.currency, item.resource,
+                      distributor_place, storekeeper_place,
+                      distributor, (1.0 / item.price), idx)
+
+    deal.limit.update_attributes(side: Limit::ACTIVE, amount: 0) if deal
+    deal
   end
 
   private

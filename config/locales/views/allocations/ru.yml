@@ -26,6 +26,8 @@ ru:
       storekeeper: Кладовщик
       other_storekeeper: Получающий кладовщик
       storekeeper_place: Склад
+      freighter: Грузоперевозчик
+      freighter_name: ФИО
       warehouse:
         name: Склад
         remote: Другой склад
@@ -33,7 +35,7 @@ ru:
         storekeeper: Кладовщик
       motion:
         name: Перемещение
-        warehouse: на другой склад
+        warehouse: внутреннее
         allocation: на выдачу
       resource:
         name: Название ресурса

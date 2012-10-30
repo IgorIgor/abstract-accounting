@@ -11,7 +11,7 @@ object true
 node(:id) { @allocation.id }
 node(:type) { @allocation.class.name }
 child(@allocation => :allocation) do
-  attributes :id, :state, :warehouse_id
+  attributes :id, :state, :warehouse_id, :motion
   node(:created) { |allocation| allocation.created.strftime('%Y-%m-%d') }
   glue @allocation.foreman do
     attributes :id => :foreman_id

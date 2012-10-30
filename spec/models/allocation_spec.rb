@@ -88,13 +88,13 @@ describe Allocation do
 
     roof_deal_tag = Waybill.first.deal.rules.joins{to.give}.
         where{to.give.resource_id == db.items.first.resource.id}.first.to.tag
-    deal = db.items.first.warehouse_deal(nil, db.storekeeper_place, db.storekeeper)
+    deal = db.create_storekeeper_deal(db.items[0], 0)
     deal.tag.should eq(roof_deal_tag)
     deal.should_not be_nil
     deal.rate.should eq(1.0)
     deal.isOffBalance.should be_false
 
-    deal = db.items.first.warehouse_deal(nil, db.foreman_place, db.foreman)
+    deal = db.create_foreman_deal(db.items[0], 0)
     deal.tag.should eq(I18n.t('activerecord.attributes.allocation.deal.resource.tag',
                               id: Allocation.last.nil? ? 1 : Allocation.last.id,
                               index: 1))
@@ -125,12 +125,12 @@ describe Allocation do
     deal.isOffBalance.should be_true
 
     db.items.each_with_index do |i, idx|
-      deal = i.warehouse_deal(nil, db.storekeeper_place, db.storekeeper)
+      deal = db.create_storekeeper_deal(i, idx)
       deal.should_not be_nil
       deal.rate.should eq(1.0)
       deal.isOffBalance.should be_false
 
-      deal = i.warehouse_deal(nil, db.foreman_place, db.foreman)
+      deal = db.create_foreman_deal(i, idx)
       deal.tag.should eq(I18n.t('activerecord.attributes.allocation.deal.resource.tag',
                                 id: Allocation.last.nil? ? 1 : Allocation.last.id,
                                 index: idx + 1))
@@ -148,10 +148,8 @@ describe Allocation do
 
     rule = db.deal.rules.first
     rule.rate.should eq(200)
-    db.items.first.warehouse_deal(nil, db.storekeeper_place,
-      db.storekeeper).should eq(rule.from)
-    db.items.first.warehouse_deal(nil, db.foreman_place,
-      db.foreman).should eq(rule.to)
+    deal = db.create_storekeeper_deal(db.items[0], 0).should eq(rule.from)
+    deal = db.create_foreman_deal(db.items[0], 0).should eq(rule.to)
 
     db = build(:allocation, storekeeper: db.storekeeper,
                             storekeeper_place: db.storekeeper_place)
@@ -159,13 +157,11 @@ describe Allocation do
     db.add_item(tag: 'nails', mu: 'pcs', amount: 300)
     lambda { db.save } .should change(Rule, :count).by(2)
 
-    db.items.each do |item|
+    db.items.each_with_index do |item, idx|
       rule = db.deal.rules.where{rate == item.amount}.first
       rule.should_not be_nil
-      item.warehouse_deal(nil, db.foreman_place,
-                          db.foreman).should eq(rule.to)
-      item.warehouse_deal(nil, db.storekeeper_place,
-                          db.storekeeper).should eq(rule.from)
+      deal = db.create_storekeeper_deal(item, idx).should eq(rule.from)
+      deal = db.create_foreman_deal(item, idx).should eq(rule.to)
     end
   end
 
@@ -253,10 +249,8 @@ describe Allocation do
     db.add_item(tag: 'roof', mu: 'm2', amount: 5)
     db.add_item(tag: 'nails', mu: 'pcs', amount: 10)
 
-    roof_deal = db.items[0].warehouse_deal(nil, db.storekeeper_place,
-      db.storekeeper)
-    nails_deal = db.items[1].warehouse_deal(nil, db.storekeeper_place,
-      db.storekeeper)
+    roof_deal = db.create_storekeeper_deal(db.items[0], 0)
+    nails_deal = db.create_storekeeper_deal(db.items[1], 1)
 
     roof_deal.state.amount.should eq(599.0)
     nails_deal.state.amount.should eq(1200.0)
@@ -274,10 +268,8 @@ describe Allocation do
     db.add_item(tag: 'roof', mu: 'm2', amount: 5)
     db.add_item(tag: 'nails', mu: 'pcs', amount: 10)
 
-    roof_deal = db.items[0].warehouse_deal(nil, db.storekeeper_place,
-      db.storekeeper)
-    nails_deal = db.items[1].warehouse_deal(nil, db.storekeeper_place,
-      db.storekeeper)
+    roof_deal = db.create_storekeeper_deal(db.items[0], 0)
+    nails_deal = db.create_storekeeper_deal(db.items[1], 1)
 
     roof_deal.state.amount.should eq(594.0)
     nails_deal.state.amount.should eq(1190.0)
@@ -301,10 +293,8 @@ describe Allocation do
     db.add_item(tag: 'roof', mu: 'm2', amount: 5)
     db.add_item(tag: 'nails', mu: 'pcs', amount: 10)
 
-    roof_deal = db.items[0].warehouse_deal(nil, db.storekeeper_place,
-      db.storekeeper)
-    nails_deal = db.items[1].warehouse_deal(nil, db.storekeeper_place,
-      db.storekeeper)
+    roof_deal = db.create_storekeeper_deal(db.items[0], 0)
+    nails_deal = db.create_storekeeper_deal(db.items[1], 1)
 
     roof_deal.balance.amount.should eq(594.0)
     roof_deal.balance.value.should eq(5940.0)
@@ -326,10 +316,8 @@ describe Allocation do
     db.add_item(tag: 'roof', mu: 'm2', amount: 5)
     db.add_item(tag: 'nails', mu: 'pcs', amount: 10)
 
-    roof_deal = db.items[0].warehouse_deal(nil, db.storekeeper_place,
-      db.storekeeper)
-    nails_deal = db.items[1].warehouse_deal(nil, db.storekeeper_place,
-      db.storekeeper)
+    roof_deal = db.create_storekeeper_deal(db.items[0], 0)
+    nails_deal = db.create_storekeeper_deal(db.items[1], 1)
 
     roof_deal.balance.amount.should eq(589.0)
     roof_deal.balance.value.should eq(5890.0)
@@ -555,7 +543,7 @@ describe Allocation do
         where{lower(deal.entity.tag).like(lower("%#{al1.storekeeper.tag[0, 4]}%"))}
     Allocation.search({"storekeeper" => create(:entity).tag}).should be_empty
 
-    Allocation.search({"foreman" => al1.foreman.tag}).should =~ [al1]
+    Allocation.search({"foreman" => al1.foreman.tag}).all.should =~ [al1]
     Allocation.search({"foreman" => al1.foreman.tag[0, 4]}).
         should =~ Allocation.joins{deal.rules.to.entity(Entity)}.
         where{lower(deal.rules.to.entity.tag).like(lower("%#{al1.foreman.tag[0, 4]}%"))}.
@@ -595,16 +583,16 @@ describe Allocation do
     deal.limit.amount.should eq(0)
     deal.limit.side.should eq(Limit::PASSIVE)
 
-    waybill_item = db.items.first
+    db_item = db.items.first
 
-    roof_deal_give = waybill_item.warehouse_deal(nil, db.storekeeper_place, db.storekeeper)
+    roof_deal_give = db.create_storekeeper_deal(db_item, 0)
     roof_deal_give.limit.should_not be_nil
     roof_deal_give.limit.amount.should eq(0)
     roof_deal_give.limit.side.should eq(Limit::PASSIVE)
 
-    roof_deal_take = waybill_item.warehouse_deal(nil, db.foreman_place, db.foreman)
+    roof_deal_take = db.create_foreman_deal(db_item, 0)
     roof_deal_take.limit.should_not be_nil
-    roof_deal_take.limit.amount.should eq(0)
+    roof_deal_take.limit.amount.should eq(db_item.amount)
     roof_deal_take.limit.side.should eq(Limit::PASSIVE)
   end
 

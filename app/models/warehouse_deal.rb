@@ -167,6 +167,30 @@ module WarehouseDeal
     self.storekeeper == user.entity
   end
 
+  def create_deal(give_resource, take_resource, from_place, to_place, entity, rate, item_idx)
+    deal = Deal.joins(:give, :take).where do
+      (give.resource_id == give_resource) & (give.place_id == from_place) &
+      (take.resource_id == take_resource) & (take.place_id == to_place) &
+      (entity_id == entity) & (entity_type == entity.class.name) & (self.rate == rate)
+    end.first
+    unless deal
+      deal = Deal.new(entity: entity, rate: rate,
+          tag: I18n.t("activerecord.attributes.#{
+                        self.class.name.downcase}.deal.resource.tag",
+                      id: self.document_id, index: item_idx + 1, deal_id: self.deal_id))
+      return nil unless deal.build_give(place: from_place, resource: give_resource)
+      return nil unless deal.build_take(place: to_place, resource: take_resource)
+      return nil unless deal.save
+    end
+    deal
+  end
+
+  def create_storekeeper_deal(item, index)
+    settings = self.class.warehouse_fields
+    create_deal(item.resource, item.resource, storekeeper_place, storekeeper_place,
+                storekeeper, 1.0, index)
+  end
+
   def before_warehouse_deal_save
     if self.new_record?
       settings = self.class.warehouse_fields
@@ -183,25 +207,15 @@ module WarehouseDeal
       return false unless self.deal.save
       self.deal_id = self.deal.id
 
-      @items.each do |item, idx|
+      @items.each_with_index do |item, idx|
         return false if self.class.before_item_save_callback &&
                         !send(self.class.before_item_save_callback, item)
 
-        from_item = item.warehouse_deal(
-            settings[:from_currency] ? settings[:from_currency].call() : nil,
-            self.send("#{settings[:from]}_place"),
-            self.send(settings[:from]))
+        from_item = send("create_#{settings[:from]}_deal", item, idx)
         return false if from_item.nil?
 
-        initialize_limit(from_item)
-
-        to_item = item.warehouse_deal(
-            settings[:to_currency] ? settings[:to_currency].call() : nil,
-            self.send("#{settings[:to]}_place"),
-            self.send(settings[:to]))
+        to_item = send("create_#{settings[:to]}_deal", item, idx)
         return false if to_item.nil?
-
-        initialize_limit(to_item)
 
         return false if self.deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
           from: from_item, to: to_item, fact_side: false,
@@ -252,23 +266,15 @@ module WarehouseDeal
                                   entity_type: attrs[:storekeeper_type])
 
       # TODO create items put in separate function
-      @items.each do |item, idx|
+      @items.each_with_index do |item, idx|
         return false if self.class.before_item_save_callback &&
             !send(self.class.before_item_save_callback, item)
 
-        from_item = item.warehouse_deal(
-            settings[:from_currency] ? settings[:from_currency].call() : nil,
-            from_place, from_entity)
+        from_item = send("create_#{settings[:from]}_deal", item, idx)
         return false if from_item.nil?
 
-        initialize_limit(from_item)
-
-        to_item = item.warehouse_deal(
-            settings[:to_currency] ? settings[:to_currency].call() : nil,
-            to_place, to_entity)
+        to_item = send("create_#{settings[:to]}_deal", item, idx)
         return false if to_item.nil?
-
-        initialize_limit(to_item)
 
         return false if self.deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
                                                from: from_item, to: to_item, fact_side: false,

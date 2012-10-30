@@ -96,14 +96,13 @@ describe Waybill do
     roof_deal_tag = I18n.t("activerecord.attributes.waybill.deal.resource.tag",
                   id: wb.document_id,
                   index: 1, deal_id: wb.deal_id)
-    deal = wb.items.first.warehouse_deal(Chart.first.currency,
-      wb.distributor_place, wb.distributor)
+    deal = wb.create_distributor_deal(wb.items.first, 0)
     deal.should_not be_nil
     deal.tag.should eq(roof_deal_tag)
     deal.rate.should eq(1 / wb.items.first.price)
     deal.isOffBalance.should be_false
 
-    deal = wb.items.first.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+    deal = wb.create_storekeeper_deal(wb.items.first, 0)
     deal.tag.should eq(roof_deal_tag)
     deal.should_not be_nil
     deal.rate.should eq(1.0)
@@ -129,13 +128,13 @@ describe Waybill do
       deal_tag = I18n.t("activerecord.attributes.waybill.deal.resource.tag",
                         id: wb.document_id,
                         index: idx + 1, deal_id: wb.deal_id)
-      deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
+      deal = wb.create_distributor_deal(i, idx)
       deal.tag.should eq(wb.items[idx].resource.tag == 'roof' ? roof_deal_tag : deal_tag)
       deal.should_not be_nil
       deal.rate.should eq(1 / i.price)
       deal.isOffBalance.should be_false
 
-      deal = i.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+      deal = wb.create_storekeeper_deal(i, idx)
       deal.tag.should eq(wb.items[idx].resource.tag == 'roof' ? roof_deal_tag : deal_tag)
       deal.should_not be_nil
       deal.rate.should eq(1.0)
@@ -162,13 +161,12 @@ describe Waybill do
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 
-    deal = wb.items.first.warehouse_deal(Chart.first.currency,
-      wb.distributor_place, wb.distributor)
+    deal = wb.create_distributor_deal(wb.items.first, 0)
     deal.should_not be_nil
     deal.rate.should eq(1 / wb.items.first.price)
     deal.isOffBalance.should be_false
 
-    deal = wb.items.first.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+    deal = wb.create_storekeeper_deal(wb.items.first, 0)
     deal.should_not be_nil
     deal.rate.should eq(1.0)
     deal.isOffBalance.should be_false
@@ -185,13 +183,13 @@ describe Waybill do
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 
-    wb.items.each do |i|
-      deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
+    wb.items.each do |i, idx|
+      deal = wb.create_distributor_deal(i, idx)
       deal.should_not be_nil
       deal.rate.accounting_norm.should eq((1 / i.price).accounting_norm)
       deal.isOffBalance.should be_false
 
-      deal = i.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+      deal = wb.create_storekeeper_deal(i, idx)
       deal.should_not be_nil
       deal.rate.should eq(1.0)
       deal.isOffBalance.should be_false
@@ -199,21 +197,22 @@ describe Waybill do
 
     wb = build(:waybill, distributor: wb.distributor,
                          distributor_place: wb.distributor_place,
-                         storekeeper: wb.storekeeper)
+                         storekeeper: wb.storekeeper,
+                         storekeeper_place: wb.storekeeper_place)
     wb.add_item(tag: 'roof', mu: 'm2', amount: 100, price: 10.0)
-    lambda { wb.save } .should change(Deal, :count).by(2)
+    lambda { wb.save } .should change(Deal, :count).by(1)
 
     deal = Deal.find(wb.deal)
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 
-    wb.items.each do |i|
-      deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
+    wb.items.each do |i, idx|
+      deal = wb.create_distributor_deal(i, idx)
       deal.should_not be_nil
       deal.rate.should eq(1 / i.price)
       deal.isOffBalance.should be_false
 
-      deal = i.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+      deal = wb.create_storekeeper_deal(i, idx)
       deal.should_not be_nil
       deal.rate.should eq(1.0)
       deal.isOffBalance.should be_false
@@ -230,13 +229,13 @@ describe Waybill do
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 
-    wb.items.each do |i|
-      deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
+    wb.items.each do |i, idx|
+      deal = wb.create_distributor_deal(i, idx)
       deal.should_not be_nil
       deal.rate.should eq(1 / i.price)
       deal.isOffBalance.should be_false
 
-      deal = i.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+      deal = wb.create_storekeeper_deal(i, idx)
       deal.should_not be_nil
       deal.rate.should eq(1.0)
       deal.isOffBalance.should be_false
@@ -252,13 +251,13 @@ describe Waybill do
     deal.entity.should eq(wb.storekeeper)
     deal.isOffBalance.should be_true
 
-    wb.items.each do |i|
-      deal = i.warehouse_deal(Chart.first.currency, wb.distributor_place, wb.distributor)
+    wb.items.each do |i, idx|
+      deal = wb.create_distributor_deal(i, idx)
       deal.should_not be_nil
       deal.rate.should eq(1 / i.price)
       deal.isOffBalance.should be_false
 
-      deal = i.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+      deal = wb.create_storekeeper_deal(i, idx)
       deal.should_not be_nil
       deal.rate.should eq(1.0)
       deal.isOffBalance.should be_false
@@ -272,10 +271,8 @@ describe Waybill do
 
     rule = wb.deal.rules.first
     rule.rate.should eq(500)
-    wb.items.first.warehouse_deal(Chart.first.currency,
-      wb.distributor_place, wb.distributor).should eq(rule.from)
-    wb.items.first.warehouse_deal(nil, wb.storekeeper_place,
-      wb.storekeeper).should eq(rule.to)
+    wb.create_distributor_deal(wb.items.first, 0).should eq(rule.from)
+    wb.create_storekeeper_deal(wb.items.first, 0).should eq(rule.to)
 
     wb = build(:waybill, distributor: wb.distributor,
                                  distributor_place: wb.distributor_place,
@@ -287,15 +284,11 @@ describe Waybill do
 
     wb.deal.rules.each do |rule|
       if rule.rate == 100
-        wb.items[0].warehouse_deal(Chart.first.currency,
-          wb.distributor_place, wb.distributor).should eq(rule.from)
-        wb.items[0].warehouse_deal(nil, wb.storekeeper_place,
-          wb.storekeeper).should eq(rule.to)
+        wb.create_distributor_deal(wb.items[0], 0).should eq(rule.from)
+        wb.create_storekeeper_deal(wb.items[0], 0).should eq(rule.to)
       elsif rule.rate == 500
-        wb.items[1].warehouse_deal(Chart.first.currency,
-          wb.distributor_place, wb.distributor).should eq(rule.from)
-        wb.items[1].warehouse_deal(nil, wb.storekeeper_place,
-          wb.storekeeper).should eq(rule.to)
+        wb.create_distributor_deal(wb.items[1], 1).should eq(rule.from)
+        wb.create_storekeeper_deal(wb.items[1], 1).should eq(rule.to)
       else
         false.should be_true
       end
@@ -307,13 +300,11 @@ describe Waybill do
     wb.add_item(tag: 'roofer', mu: 'm2', amount: 128.4, price: 10.0)
     lambda { wb.save } .should change(Rule, :count).by(3)
 
-    wb.items.each do |item|
+    wb.items.each_with_index do |item, idx|
       rule = wb.deal.rules.where{rate == item.amount}.first
       rule.should_not be_nil
-      item.warehouse_deal(Chart.first.currency, wb.distributor_place,
-                                   wb.distributor).should eq(rule.from)
-      item.warehouse_deal(nil, wb.storekeeper_place,
-                                   wb.storekeeper).should eq(rule.to)
+      wb.create_distributor_deal(item, idx).should eq(rule.from)
+      wb.create_storekeeper_deal(item, idx).should eq(rule.to)
     end
   end
 
@@ -393,14 +384,12 @@ describe Waybill do
     wb.save.should be_true
     wb.apply.should be_true
 
-    state = wb.items.first.warehouse_deal(Chart.first.currency,
-      wb.distributor_place, wb.distributor).state
+    state = wb.create_distributor_deal(wb.items.first, 0).state
     state.side.should eq("passive")
     state.amount.should eq(500 * 10.0)
     state.start.should eq(DateTime.current.change(hour: 12))
 
-    state = wb.items.first.warehouse_deal(nil, wb.storekeeper_place,
-      wb.storekeeper).state
+    state = wb.create_storekeeper_deal(wb.items.first, 0).state
     state.side.should eq("active")
     state.amount.should eq(500.0)
     state.start.should eq(DateTime.current.change(hour: 12))
@@ -414,26 +403,22 @@ describe Waybill do
     wb.save.should be_true
     wb.apply.should be_true
 
-    state = wb.items[0].warehouse_deal(Chart.first.currency,
-      wb.distributor_place, wb.distributor).state
+    state = wb.create_distributor_deal(wb.items[0], 0).state
     state.side.should eq("passive")
     state.amount.should eq(5000 + 100 * 10.0)
     state.start.should eq(DateTime.current.change(hour: 12))
 
-    state = wb.items[0].warehouse_deal(nil, wb.storekeeper_place,
-      wb.storekeeper).state
+    state = wb.create_storekeeper_deal(wb.items[0], 0).state
     state.side.should eq("active")
     state.amount.should eq(500 + 100)
     state.start.should eq(DateTime.current.change(hour: 12))
 
-    state = wb.items[1].warehouse_deal(Chart.first.currency,
-      wb.distributor_place, wb.distributor).state
+    state = wb.create_distributor_deal(wb.items[1], 1).state
     state.side.should eq("passive")
     state.amount.should eq(500 * 100)
     state.start.should eq(DateTime.current.change(hour: 12))
 
-    state = wb.items[1].warehouse_deal(nil, wb.storekeeper_place,
-      wb.storekeeper).state
+    state = wb.create_storekeeper_deal(wb.items[1], 1).state
     state.side.should eq("active")
     state.amount.should eq(500.0)
     state.start.should eq(DateTime.current.change(hour: 12))
@@ -445,14 +430,12 @@ describe Waybill do
     wb.save.should be_true
     wb.apply.should be_true
 
-    balance = wb.items.first.warehouse_deal(Chart.first.currency,
-                                          wb.distributor_place, wb.distributor).balance
+    balance = wb.create_distributor_deal(wb.items[0], 0).balance
     balance.side.should eq("passive")
     balance.amount.should eq(500 * 10.0)
     balance.start.should eq(DateTime.current.change(hour: 12))
 
-    balance = wb.items.first.warehouse_deal(nil, wb.storekeeper_place,
-                                          wb.storekeeper).balance
+    balance = wb.create_storekeeper_deal(wb.items[0], 0).balance
     balance.side.should eq("active")
     balance.amount.should eq(500.0)
     balance.start.should eq(DateTime.current.change(hour: 12))
@@ -466,26 +449,22 @@ describe Waybill do
     wb.save.should be_true
     wb.apply.should be_true
 
-    balance = wb.items[0].warehouse_deal(Chart.first.currency,
-                                       wb.distributor_place, wb.distributor).balance
+    balance = wb.create_distributor_deal(wb.items[0], 0).balance
     balance.side.should eq("passive")
     balance.amount.should eq(5000 + 100 * 10.0)
     balance.start.should eq(DateTime.current.change(hour: 12))
 
-    balance = wb.items[0].warehouse_deal(nil, wb.storekeeper_place,
-                                       wb.storekeeper).balance
+    balance = wb.create_storekeeper_deal(wb.items[0], 0).balance
     balance.side.should eq("active")
     balance.amount.should eq((500 + 100))
     balance.start.should eq(DateTime.current.change(hour: 12))
 
-    balance = wb.items[1].warehouse_deal(Chart.first.currency,
-                                       wb.distributor_place, wb.distributor).balance
+    balance = wb.create_distributor_deal(wb.items[1], 1).balance
     balance.side.should eq("passive")
     balance.amount.should eq(500 * 100)
     balance.start.should eq(DateTime.current.change(hour: 12))
 
-    balance = wb.items[1].warehouse_deal(nil, wb.storekeeper_place,
-                                       wb.storekeeper).balance
+    balance = wb.create_storekeeper_deal(wb.items[1], 1).balance
     balance.side.should eq("active")
     balance.amount.should eq(500)
     balance.start.should eq(DateTime.current.change(hour: 12))
@@ -497,14 +476,12 @@ describe Waybill do
     wb.save.should be_true
     wb.apply.should be_true
 
-    state = wb.items.first.warehouse_deal(Chart.first.currency,
-      wb.distributor_place, wb.distributor).state
+    state = wb.create_distributor_deal(wb.items[0], 0).state
     state.side.should eq("passive")
     state.amount.should eq(500 * 10.0)
     state.start.should eq(DateTime.current.change(hour: 12))
 
-    state = wb.items.first.warehouse_deal(nil, wb.storekeeper_place,
-      wb.storekeeper).state
+    state = wb.create_storekeeper_deal(wb.items[0], 0).state
     state.side.should eq("active")
     state.amount.should eq(500.0)
     state.start.should eq(DateTime.current.change(hour: 12))
@@ -519,26 +496,22 @@ describe Waybill do
     wb.save.should be_true
     wb.apply.should be_true
 
-    state = wb.items[0].warehouse_deal(Chart.first.currency,
-      wb.distributor_place, wb.distributor).state
+    state = wb.create_distributor_deal(wb.items[0], 0).state
     state.side.should eq("passive")
     state.amount.should eq(5000 + 100 * 10.0)
     state.start.should eq(DateTime.current.change(hour: 12))
 
-    state = wb.items[0].warehouse_deal(nil, wb.storekeeper_place,
-      wb.storekeeper).state
+    state = wb.create_storekeeper_deal(wb.items[0], 0).state
     state.side.should eq("active")
     state.amount.should eq(500 + 100)
     state.start.should eq(DateTime.current.change(hour: 12))
 
-    state = wb.items[1].warehouse_deal(Chart.first.currency,
-      wb.distributor_place, wb.distributor).state
+    state = wb.create_distributor_deal(wb.items[1], 1).state
     state.side.should eq("passive")
     state.amount.should eq(500 * 100)
     state.start.should eq(DateTime.current.change(hour: 12))
 
-    state = wb.items[1].warehouse_deal(nil, wb.storekeeper_place,
-      wb.storekeeper).state
+    state = wb.create_storekeeper_deal(wb.items[1], 1).state
     state.side.should eq("active")
     state.amount.should eq(500.0)
     state.start.should eq(DateTime.current.change(hour: 12))
@@ -546,15 +519,12 @@ describe Waybill do
     wb.reverse.should be_true
     wb.state.should eq(Waybill::REVERSED)
 
-    state = wb_old.items.first.warehouse_deal(Chart.first.currency,
-                                              wb_old.distributor_place,
-                                              wb_old.distributor).state
+    state = wb_old.create_distributor_deal(wb.items[0], 0).state
     state.side.should eq("passive")
     state.amount.should eq(500 * 10.0)
     state.start.should eq(DateTime.current.change(hour: 12))
 
-    state = wb_old.items.first.warehouse_deal(nil, wb_old.storekeeper_place,
-                                              wb_old.storekeeper).state
+    state = wb_old.create_storekeeper_deal(wb.items[0], 0).state
     state.side.should eq("active")
     state.amount.should eq(500.0)
     state.start.should eq(DateTime.current.change(hour: 12))
@@ -566,14 +536,12 @@ describe Waybill do
     wb.save.should be_true
     wb.apply.should be_true
 
-    balance = wb.items.first.warehouse_deal(Chart.first.currency,
-                                          wb.distributor_place, wb.distributor).balance
+    balance = wb.create_distributor_deal(wb.items[0], 0).balance
     balance.side.should eq("passive")
     balance.amount.should eq(500 * 10.0)
     balance.start.should eq(DateTime.current.change(hour: 12))
 
-    balance = wb.items.first.warehouse_deal(nil, wb.storekeeper_place,
-                                          wb.storekeeper).balance
+    balance = wb.create_storekeeper_deal(wb.items[0], 0).balance
     balance.side.should eq("active")
     balance.amount.should eq(500.0)
     balance.start.should eq(DateTime.current.change(hour: 12))
@@ -588,26 +556,22 @@ describe Waybill do
     wb.save.should be_true
     wb.apply.should be_true
 
-    balance = wb.items[0].warehouse_deal(Chart.first.currency,
-                                       wb.distributor_place, wb.distributor).balance
+    balance = wb.create_distributor_deal(wb.items[0], 0).balance
     balance.side.should eq("passive")
     balance.amount.should eq(5000 + 100 * 10.0)
     balance.start.should eq(DateTime.current.change(hour: 12))
 
-    balance = wb.items[0].warehouse_deal(nil, wb.storekeeper_place,
-                                       wb.storekeeper).balance
+    balance = wb.create_storekeeper_deal(wb.items[0], 0).balance
     balance.side.should eq("active")
     balance.amount.should eq((500 + 100))
     balance.start.should eq(DateTime.current.change(hour: 12))
 
-    balance = wb.items[1].warehouse_deal(Chart.first.currency,
-                                       wb.distributor_place, wb.distributor).balance
+    balance = wb.create_distributor_deal(wb.items[1], 1).balance
     balance.side.should eq("passive")
     balance.amount.should eq(500 * 100)
     balance.start.should eq(DateTime.current.change(hour: 12))
 
-    balance = wb.items[1].warehouse_deal(nil, wb.storekeeper_place,
-                                       wb.storekeeper).balance
+    balance = wb.create_storekeeper_deal(wb.items[1], 1).balance
     balance.side.should eq("active")
     balance.amount.should eq(500)
     balance.start.should eq(DateTime.current.change(hour: 12))
@@ -615,15 +579,12 @@ describe Waybill do
     wb.reverse.should be_true
     wb.state.should eq(Waybill::REVERSED)
 
-    balance = wb_old.items.first.warehouse_deal(Chart.first.currency,
-                                                wb_old.distributor_place,
-                                                wb_old.distributor).balance
+    balance = wb_old.create_distributor_deal(wb.items[0], 0).balance
     balance.side.should eq("passive")
     balance.amount.should eq(500 * 10.0)
     balance.start.should eq(DateTime.current.change(hour: 12))
 
-    balance = wb_old.items.first.warehouse_deal(nil, wb_old.storekeeper_place,
-                                                wb_old.storekeeper).balance
+    balance = wb_old.create_storekeeper_deal(wb.items[0], 0).balance
     balance.side.should eq("active")
     balance.amount.should eq(500.0)
     balance.start.should eq(DateTime.current.change(hour: 12))
@@ -989,13 +950,12 @@ describe Waybill do
 
     waybill_item = wb.items.first
 
-    roof_deal_give = waybill_item.warehouse_deal(Chart.first.currency,
-                                                 wb.distributor_place, wb.distributor)
+    roof_deal_give = wb.create_distributor_deal(waybill_item, 0)
     roof_deal_give.limit.should_not be_nil
     roof_deal_give.limit.amount.should eq(0)
     roof_deal_give.limit.side.should eq(Limit::ACTIVE)
 
-    roof_deal_take = waybill_item.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+    roof_deal_take = wb.create_storekeeper_deal(waybill_item, 0)
     roof_deal_take.limit.should_not be_nil
     roof_deal_take.limit.amount.should eq(0)
     roof_deal_take.limit.side.should eq(Limit::PASSIVE)

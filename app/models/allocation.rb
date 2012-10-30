@@ -13,9 +13,9 @@ class AllocationItemsValidator < ActiveModel::Validator
   def validate(record)
     record.errors[:items] << I18n.t('errors.messages.blank') if record.items.empty?
 
-    record.items.each do |item|
-      deal = item.warehouse_deal(nil, record.storekeeper_place, record.storekeeper)
-      record.errors[:items] = 'invalid' if deal.nil?
+    record.items.each_with_index do |item, index|
+      deal = record.create_storekeeper_deal(item, index)
+      record.errors[:items] = 'invalid' if !deal || deal.new_record?
       warehouse_amount = item.exp_amount
       if (item.amount > warehouse_amount) || (item.amount <= 0)
         record.errors[:items] = I18n.t("errors.messages.less_than_or_equal_to",
@@ -39,6 +39,9 @@ class Allocation < ActiveRecord::Base
   validates_with AllocationItemsValidator
 
   before_item_save :do_before_item_save
+
+  MOTION_ALLOCATION = 0
+  MOTION_INNER = 1
 
   def self.order_by(attrs = {})
     field = nil
@@ -130,9 +133,16 @@ class Allocation < ActiveRecord::Base
     end
   end
 
-  def initialize_limit(deal)
-    #TODO add if motion is inner
-    true
+  def motion
+    self.deal.give.place_id == self.deal.take.place_id ? MOTION_ALLOCATION : MOTION_INNER
+  end
+
+  def create_foreman_deal(item, idx)
+    deal = create_deal(item.resource, item.resource,
+                      storekeeper_place, foreman_place,
+                      foreman, 1.0, idx)
+    deal.limit.update_attributes(amount: item.amount) if deal && self.motion == MOTION_INNER
+    deal
   end
 
   private

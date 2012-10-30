@@ -3,7 +3,7 @@ $ ->
     constructor: (object, readonly = false) ->
       super(object, 'allocations', readonly)
       @disable_warehouse = ko.observable((object.owner || readonly))
-      @motion = ko.observable("0")
+      @motion = ko.observable(object.allocation.motion || '0')
       @motion.subscribe((val) =>
         @object.foreman.tag(null)
         @object.allocation.foreman_id(null)
@@ -39,7 +39,8 @@ $ ->
       )
 
       #used when motion to storekeeper
-      @remote_warehouse_id = ko.observable(null)
+      @remote_warehouse_id = ko.observable(
+        @findWarehouseByPlaceID(object.allocation.foreman_place_id))
       @remote_warehouse_id.subscribe((val) =>
         if @motion() == '1'
           if val
@@ -72,6 +73,15 @@ $ ->
       $.grep(@object.warehouses(), (item) ->
         item.id() == id
       )[0]
+
+    findWarehouseByPlaceID: (id) =>
+      warehouse = $.grep(@object.warehouses(), (item) ->
+        item.place_id() == id
+      )[0]
+      if warehouse != undefined
+        warehouse.id()
+      else
+        null
 
     assignForemanPlace: () =>
       @object.foreman_place.tag(@findWarehouse(@object.allocation.warehouse_id()).tag())

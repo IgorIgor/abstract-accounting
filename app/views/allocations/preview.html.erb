@@ -66,6 +66,11 @@
           <label for="motion-warehouse">
             <%= t 'views.allocations.motion.warehouse' %>
           </label>
+          <input type="radio" id="write-off-resources" name="motion" value="2"
+                 data-bind="checked: motion"/>
+          <label for="write-off-resources">
+            <%= t 'views.allocations.motion.write_off_resources' %>
+          </label>
         </span>
       </div>
       <!-- /ko -->
@@ -104,6 +109,9 @@
       <!-- /ko -->
       <!-- ko if: motion() == '1' -->
       <%= t 'views.allocations.warehouse.remote' %>
+      <!-- /ko -->
+      <!-- ko if: motion() == '2' -->
+      <%= t 'views.allocations.acceptor' %>
       <!-- /ko -->
     </legend>
     <div>
@@ -152,6 +160,22 @@
                              value: remote_warehouse_id,
                              disable: readonly"></select>
         </span>
+        </div>
+        <!-- /ko -->
+        <!-- ko if: motion() == '2' -->
+        <div>
+          <span class="form-cell-label">
+            <label for="acceptor_entity"><%= t 'views.allocations.acceptor' %>:</label>
+          </span>
+          <span data-bind='with: object.foreman'>
+            <input type='text' id='acceptor_entity'
+                   name='<%= t 'views.allocations.acceptor' %>' rule='required'
+                   data-bind="autocomplete: {
+                                source: '/entities.json',
+                                value: 'tag',
+                                bind: { id: $parent.object.allocation.foreman_id }
+                              }, value: tag, disable: $parent.readonly" />
+          </span>
         </div>
         <!-- /ko -->
     </div>

@@ -6,6 +6,7 @@ en:
       place: "Place"
       foreman: "Foreman"
       foreman_place: "Foreman place"
+      acceptor: Acceptor
       available_resources: "Available resources"
       tag: "Tag"
       real_amount: Amount
@@ -37,6 +38,7 @@ en:
         name: Motion
         warehouse: to other warehouse
         allocation: to allocation
+        write_off_resources: write off resources
       resource:
         name: Resource name
         tag: Name

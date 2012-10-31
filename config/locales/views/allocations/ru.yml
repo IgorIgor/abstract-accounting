@@ -6,6 +6,7 @@ ru:
       place: "Место"
       foreman: "Прораб"
       foreman_place: "Место прораба"
+      acceptor: Приёмщик
       available_resources: "Доступные материалы"
       tag: "Название"
       real_amount: Количество
@@ -37,6 +38,7 @@ ru:
         name: Перемещение
         warehouse: на другой склад
         allocation: на выдачу
+        write_off_resources: списание товара
       resource:
         name: Название ресурса
         tag: Название

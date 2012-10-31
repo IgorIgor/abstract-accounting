@@ -45,7 +45,7 @@ class AllocationsController < ApplicationController
           foreman.save!
           allocation.foreman = foreman
         end
-        unless allocation.foreman_place
+        if !allocation.foreman_place && params[:foreman_place]
           foreman_place = Place.find_or_create_by_tag(params[:foreman_place])
           foreman_place.save!
           allocation.foreman_place = foreman_place
@@ -75,9 +75,13 @@ class AllocationsController < ApplicationController
           params[:allocation][:foreman_id] = allocation.foreman.id
           params[:allocation][:foreman_type] = allocation.foreman.class.name
         end
-        unless allocation.foreman_place.id == params[:allocation][:foreman_place_id].to_i
-          allocation.foreman_place = Place.find_or_create_by_tag(params[:foreman_place])
-          params[:allocation][:foreman_place_id] = allocation.foreman_place.id
+
+        if params[:allocation][:motion].to_i != Allocation::CHARGE_OFF
+          if allocation.foreman_place.nil? ||
+              allocation.foreman_place.id != params[:allocation][:foreman_place_id].to_i
+            allocation.foreman_place = Place.find_or_create_by_tag(params[:foreman_place])
+            params[:allocation][:foreman_place_id] = allocation.foreman_place.id
+          end
         end
 
         allocation.items.clear

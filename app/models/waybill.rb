@@ -55,7 +55,7 @@ class Waybill < ActiveRecord::Base
     end
   end
 
-  validates_presence_of :document_id
+  validates_presence_of :document_id, :distributor_place, :storekeeper_place
   validates_with ItemsValidator
 
   before_item_save :do_before_item_save

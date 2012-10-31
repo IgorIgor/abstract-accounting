@@ -7,6 +7,17 @@
 #
 # Please see ./COPYING for details
 
+class DealTermsValidator < ActiveModel::Validator
+  def validate(record)
+    if record.take.nil?
+      record.errors[:take] << I18n.t("errors.messages.empty")
+    end
+    if record.give.nil?
+      record.errors[:give] << I18n.t("errors.messages.empty")
+    end
+  end
+end
+
 class Deal < ActiveRecord::Base
   has_paper_trail
 
@@ -23,6 +34,8 @@ class Deal < ActiveRecord::Base
   has_one :deal_state
   has_one :waybill
   has_one :allocation
+
+  validates_with DealTermsValidator
 
   custom_sort(:name) do |dir|
     query = "case entity_type

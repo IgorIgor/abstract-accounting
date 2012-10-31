@@ -11,13 +11,20 @@ object true
 node(:id) { @allocation.id }
 node(:type) { @allocation.class.name }
 child(@allocation => :allocation) do
-  attributes :id, :state, :warehouse_id
+  attributes :id, :state, :warehouse_id, :motion
   node(:created) { |allocation| allocation.created.strftime('%Y-%m-%d') }
   glue @allocation.foreman do
     attributes :id => :foreman_id
   end
-  glue @allocation.foreman_place do
-    attributes :id => :foreman_place_id
+#  glue @allocation.foreman_place do |allocation|
+#    attribute :id => :foreman_place_id unless allocation.motion == Allocation::CHARGE_OFF
+#  end
+  node :foreman_place_id do |allocation|
+    if @allocation.foreman_place.nil?
+      nil
+    else
+      allocation.foreman_place.id
+    end
   end
 end
 node(:owner) { @allocation.owner? }
@@ -25,7 +32,16 @@ node(:state) do
   partial "state/can_do", :object => @allocation
 end
 child(@allocation.foreman => :foreman) { attributes :tag }
-child(@allocation.foreman_place => :foreman_place) { attributes :tag }
+#child(@allocation.foreman_place => :foreman_place) do
+#  node(:tag) { @allocation.motion == Allocation::CHARGE_OFF ? nil : foreman_place.tag }
+#end
+node :foreman_place do
+  if @allocation.foreman_place.nil?
+    { :tag => Place.new.tag }
+  else
+    { :tag => @allocation.foreman_place.tag }
+  end
+end
 child(@allocation.items => :items) do
   attributes :amount
   node(:real_amount) { |item| item.exp_amount }
@@ -36,4 +52,3 @@ end
 child(Allocation.warehouses => :warehouses) do
   attributes :id, :tag, :storekeeper, :place_id
 end
-node(:motion) { @allocation.motion }

@@ -56,7 +56,7 @@ module WarehouseDeal
       attr_name = name.kind_of?(String) ? name : name.to_s
       attr_place = "#{attr_name}_place"
       attr_writer attr_name.to_sym, attr_place.to_sym
-      validates_presence_of attr_name.to_sym, attr_place.to_sym
+      validates_presence_of attr_name.to_sym
 
       send :define_method, attr_name.to_sym do
         self.instance_variable_get("@#{attr_name}".to_sym) ||
@@ -178,8 +178,11 @@ module WarehouseDeal
       shipment = Asset.find_or_create_by_tag('Warehouse Shipment')
       return false if self.deal.build_give(place: self.send("#{settings[:from]}_place"),
                                            resource: shipment).nil?
-      return false if self.deal.build_take(place: self.send("#{settings[:to]}_place"),
-                                           resource: shipment).nil?
+      to_place = nil
+      unless !self.motion.nil? && self.motion == Allocation::CHARGE_OFF
+        to_place = self.send("#{settings[:to]}_place")
+      end
+      return false if self.deal.build_take(place: to_place, resource: shipment).nil?
       return false unless self.deal.save
       self.deal_id = self.deal.id
 
@@ -197,7 +200,7 @@ module WarehouseDeal
         to_item = item.warehouse_deal(
             settings[:to_currency] ? settings[:to_currency].call() : nil,
             self.send("#{settings[:from]}_place"),
-            self.send("#{settings[:to]}_place"),
+            to_place,
             self.send(settings[:to]))
         return false if to_item.nil?
 
@@ -241,10 +244,14 @@ module WarehouseDeal
       end
 
       from_place = Place.find(attrs["#{settings[:from]}_place_id"])
-      to_place = Place.find(attrs["#{settings[:to]}_place_id"])
+      write_out = !self.motion.nil? && attrs[:motion].to_i == Allocation::CHARGE_OFF
+      to_place = nil
+      unless write_out
+        to_place = Place.find(attrs["#{settings[:to]}_place_id"])
+      end
 
       give.update_attributes(place_id: from_place.id)
-      take.update_attributes(place_id: to_place.id)
+      take.update_attributes(place_id: to_place.id) unless write_out
 
       self.deal.update_attributes(entity_id: attrs[:storekeeper_id],
                                   entity_type: attrs[:storekeeper_type])
@@ -256,12 +263,12 @@ module WarehouseDeal
 
         from_item = item.warehouse_deal(
             settings[:from_currency] ? settings[:from_currency].call() : nil,
-            from_place, from_entity)
+            from_place, from_place, from_entity)
         return false if from_item.nil?
 
         to_item = item.warehouse_deal(
             settings[:to_currency] ? settings[:to_currency].call() : nil,
-            to_place, to_entity)
+            from_place, to_place, to_entity)
         return false if to_item.nil?
         return false if self.deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
                                                from: from_item, to: to_item, fact_side: false,

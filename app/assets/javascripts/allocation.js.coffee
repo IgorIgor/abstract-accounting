@@ -3,8 +3,9 @@ $ ->
     constructor: (object, readonly = false) ->
       super(object, 'allocations', readonly)
       @disable_warehouse = ko.observable((object.owner || readonly))
-      @motion = ko.observable(object.motion || '0')
+      @motion = ko.observable(object.allocation.motion || '0')
       @motion.subscribe((val) =>
+        @object.allocation.motion(@motion())
         @object.foreman.tag(null)
         @object.allocation.foreman_id(null)
         if val == '0' && @object.allocation.warehouse_id()

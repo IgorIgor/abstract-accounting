@@ -9,7 +9,7 @@
 
 object true
 child(@allocation => :allocation) do
-  attributes :created, :state, :warehouse_id
+  attributes :created, :state, :warehouse_id, :motion
   node(:foreman_id) { nil }
   node(:foreman_place_id) { |all| all.foreman_place_or_new.id }
 end

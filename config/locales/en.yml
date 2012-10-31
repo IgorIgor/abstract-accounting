@@ -5,12 +5,14 @@ en:
   errors:
     messages:
       blank: can't be empty.
+      empty: can't be empty
       taken: already exist
       greater_than: may have a value greater than %{count}
       greater_than_or_equal_to: may have a value greater than or equal %{count}
       email: must be a valid email-address
       min_length: must have length greater or equal than %{count}
       equal_to: value of field must equal to %{value}
+      not_equal_to: value of field must not be equal to %{value}
       too_short:
         few: insufficient length (can not be less than %{count} characters)
         many: insufficient length (can not be less than %{count} characters)

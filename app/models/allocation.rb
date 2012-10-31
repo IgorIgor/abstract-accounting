@@ -25,6 +25,22 @@ class AllocationItemsValidator < ActiveModel::Validator
   end
 end
 
+class AllocationMotionValidator < ActiveModel::Validator
+  def validate(record)
+    case record.motion
+      when Allocation::ALLOCATION
+        if record.foreman_place.nil?
+          record.errors[:foreman_place] = I18n.t("errors.messages.blank")
+        end
+      when Allocation::INNER_MOTION
+        if record.storekeeper_place == record.foreman_place
+          record.errors[:foreman_place] = I18n.t("errors.messages.not_equal_to",
+                                                 value: record.storekeeper_place)
+        end
+    end
+  end
+end
+
 class Allocation < ActiveRecord::Base
   include WarehouseDeal
   act_as_warehouse_deal from: :storekeeper, to: :foreman
@@ -36,9 +52,14 @@ class Allocation < ActiveRecord::Base
     end
   end
 
-  validates_with AllocationItemsValidator
+  validates_presence_of :document_id, :storekeeper_place
+  validates_with AllocationItemsValidator, AllocationMotionValidator
 
   before_item_save :do_before_item_save
+
+  ALLOCATION = 0
+  INNER_MOTION = 1
+  CHARGE_OFF = 2
 
   def self.order_by(attrs = {})
     field = nil
@@ -128,10 +149,6 @@ class Allocation < ActiveRecord::Base
     else
       Place.new
     end
-  end
-
-  def motion
-    self.deal.give.place_id == self.deal.take.place_id ? 0 : 1
   end
 
   private

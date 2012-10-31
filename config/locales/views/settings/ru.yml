@@ -6,3 +6,8 @@ ru:
       tag: Название
       code: Код
       save: Сохранить
+    help:
+      tag: Помощь
+      notification:
+        tag: Натификация
+        clear: Очистить

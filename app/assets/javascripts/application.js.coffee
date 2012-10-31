@@ -16,6 +16,7 @@
 #= require sammy
 #= require knockout
 #= require knockout.mapping
+#= require sticky
 #= require i18n
 #= require i18n/opentask_translations
 #= require_self
@@ -137,7 +138,7 @@ $ ->
             if response['id']
               hash = "documents/#{@route}/#{response['id']}"
             else
-              hash = 'inbox'
+              hash = location.hash
             $.sammy().refresh() unless location.hash == hash
             location.hash = hash
           else
@@ -370,6 +371,20 @@ $ ->
   class HomeViewModel
     constructor: ->
       $.sammy( ->
+        this.get('#helps', ->
+          $.get('/helps', {}, (form) ->
+            $('.paginate').hide()
+            $('#container_documents').html(form)
+          )
+        )
+        this.get('#helps/:id', ->
+          id = this.params.id
+          $.get("/helps/#{id}", {}, (form) ->
+            $('.paginate').hide()
+            $('#container_documents').html(form)
+            scrolling()
+          )
+        )
         this.get('#inbox', ->
           $.get('/inbox', {}, (form) ->
             $.getJSON('/inbox.json', {}, (objects) ->

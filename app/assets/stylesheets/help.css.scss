@@ -1,0 +1,23 @@
+div.help{
+  padding: 10px;
+
+  h1{
+    text-align:center
+  }
+  ol.counter>li{
+    display:block
+  }
+  ol.counter>li:before{
+    content:counters(item,".") ". ";
+    counter-increment:item
+  }
+  ol.counter{
+    counter-reset:item
+  }
+  ul{
+    list-style-type: none;
+  }
+  div{
+    margin-right: 30px;
+  }
+}

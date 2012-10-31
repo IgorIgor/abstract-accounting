@@ -6,3 +6,8 @@ en:
       tag: Tag
       code: Code
       save: Save
+    help:
+      tag: Help
+      notification:
+        tag: Notification
+        clear: Clear

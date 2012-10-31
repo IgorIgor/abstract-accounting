@@ -273,6 +273,11 @@ ActiveRecord::Schema.define(:version => 20121106132405) do
 
   add_index "mus", ["tag"], :name => "index_mus_on_tag", :unique => true
 
+  create_table "notifications", :force => true do |t|
+    t.integer "user_id"
+    t.boolean "looked"
+  end
+
   create_table "organizations", :force => true do |t|
     t.string  "full_name"
     t.string  "short_name"

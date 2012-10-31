@@ -13,6 +13,7 @@
 *= require jquery.ui.core
 *= require jquery.ui.theme
 *= require jquery-ui
+*= require sticky
 *= require_tree .
 */
 
@@ -346,6 +347,10 @@ input[type=text], input[type=password] {
         input[type=button] {
           margin: 0;
           float: right;
+        }
+
+        input[type=button].without_float {
+          float: none;
         }
 
         table {

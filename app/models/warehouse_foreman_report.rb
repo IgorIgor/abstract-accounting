@@ -42,6 +42,11 @@ class WarehouseForemanReport
             offset(args[:per_page].to_i * (args[:page].to_i - 1))
       end
 
+      if args[:resource_ids] && !args[:resource_ids].nil?
+        resource_ids =  args[:resource_ids].split(',')
+        scope = scope.where{resource_id.in resource_ids}
+      end
+
       prices = prices_scoped_with_range(args).
           joins{from.take}.where{from.take.resource_id.in(scope.select{resource_id})}.
           select{resource_id}.select{resource_type}.

@@ -702,5 +702,41 @@ describe WarehouseForemanReport do
                                  foreman_id: foreman.id,
                                  start: start, stop: stop).should eq(resources.count)
     end
+
+    it "should return resources by ids" do
+      storekeeper = create(:entity)
+      warehouse = create(:place)
+      foreman = create(:entity)
+      resources = []
+
+      20.times do |i|
+        resource = create(:asset)
+        waybill = build(:waybill,
+                        storekeeper: storekeeper, storekeeper_place: warehouse)
+        waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 100.0, price: 11.32)
+        waybill.save!
+        waybill.apply.should be_true
+
+        allocation = build(:allocation,
+                           storekeeper: storekeeper, storekeeper_place: warehouse,
+                           foreman: foreman, foreman_place: warehouse)
+        allocation.add_item(tag: resource.tag, mu: resource.mu, amount: 25.25)
+        allocation.save!
+        allocation.apply.should be_true
+
+        if i % 2 == 0
+          resources << WarehouseForemanReport.new(resource: resource, amount: 25.25,
+                                                  price: 11.32)
+        end
+      end
+
+      WarehouseForemanReport.count(warehouse_id: warehouse.id,
+                                   foreman_id: foreman.id).should eq(20)
+
+      WarehouseForemanReport.all(warehouse_id: warehouse.id,
+                                 foreman_id: foreman.id,
+                                 resource_ids: resources.collect{ |item| item.resource.id }.join(",")
+      ).should =~ resources
+    end
   end
 end

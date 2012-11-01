@@ -189,12 +189,12 @@ input[type=text], input[type=password] {
         display: inline-block;
       }
 
-      ul{
+      .view-nav {
         list-style-type: none;
         margin: 0px;
         padding: 0px;
 
-        li{
+        .item {
           display: inline-block;
           cursor: pointer;
           margin-left: 4px;

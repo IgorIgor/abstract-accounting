@@ -1,4 +1,11 @@
 $ ->
+  Object.keys = Object.keys || (o) ->
+      result = [];
+      for name in o
+          if o.hasOwnProperty(name)
+            result.push(name)
+      return result
+
   class self.GroupedWarehouseViewModel extends GroupedViewModel
     constructor: (data, filter) ->
       super(data, "warehouses", filter)
@@ -110,12 +117,7 @@ $ ->
       $("##{elementId}").dialog( "open" )
       $.getJSON('/assets.json', {}, (objects) =>
         objects = {objects: objects}
-        @dialog(objects)#new WarehouseAssetsViewModel(objects))
-#        toggleSelect('archive')
-#        $('.paginate').show()
-#        $('#container_documents').html(form)
-#        ko.cleanNode($('#main').get(0))
-#        ko.applyBindings(new DocumentsViewModel(objects, 'archive'), $('#main').get(0))
+        @dialog(objects)
       )
 
     select: (object)=>
@@ -135,10 +137,15 @@ $ ->
 
       @warehouses = ko.observable(data.warehouses)
       @warehouse_id = ko.observable(null)
-      @resources = {}
+      @resources = ko.observableHash({})
       @foreman_id.subscribe( =>
-        if @resources[@foreman_id()] == undefined
-          @resources[@foreman_id()] = ko.observableArray([])
+        unless @resources.hasKey(@foreman_id())
+          @resources.set(@foreman_id(), ko.observableArray([]))
+      )
+      @print_visibility = ko.computed( =>
+        for key in Object.keys(@resources())
+          return true if @resources.get(key)().length > 0
+        false
       )
 
       super(data)
@@ -164,12 +171,14 @@ $ ->
         @foremen([])
         @clearData()
 
-    print:(all) =>
+    print:(all,check) =>
       params =
         from: @from()
         to: @to()
       unless all
         params['foreman_id'] = @foreman_id()
+      if check
+        params['resource_ids'] = @resources()
       if @warehouses().length > 0
         params['warehouse_id'] = @warehouse_id()
       url = "warehouses/foremen.xls?#{$.param(params)}"

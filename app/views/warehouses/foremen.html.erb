@@ -17,12 +17,35 @@
   </label>
   <input type="text" id="foremen_filter_to" style="width: 80px;"
          data-bind="datepicker: to, event: {change: filterData}">
-  <div class='buttons-separator'></div>
-  <input type='button' value="<%= t('views.warehouses.report.print_all') %>"
-         data-bind='click: function() { print(true); }, visible: foremen().length != 0'/>
-  <div class='buttons-separator'></div>
-  <input type='button' value="<%= t('views.warehouses.report.print') %>"
-         data-bind='click: function() { print(false); }, visible: documents().length > 0'/>
+  <div data-bind="slidearea: { pressed: 'print_btn' }, visible: foremen().length > 0">
+    <div id="print_btn" class="button">
+      <div class="data print"></div>
+      <div class="data arrow_down"></div>
+    </div>
+    <ul>
+      <li>
+        <a data-bind='click: function() { print(true, false); }'>
+          <%= t('views.warehouses.report.print_all') %>
+        </a>
+      </li>
+      <li data-bind="visible: documents().length > 0">
+        <a data-bind='click: function() { print(false, false); }'>
+          <%= t('views.warehouses.report.print') %>
+        </a>
+      </li>
+      <li data-bind="visible: print_visibility">
+        <a data-bind="click: function() { print(true, true); }">
+          <%= t('views.warehouses.report.print_check_all') %>
+        </a>
+      </li>
+      <li data-bind="visible: resources.hasKey(foreman_id()) &&
+                              resources.get(foreman_id())().length != 0">
+        <a data-bind="click: function() { print(false, true); }">
+          <%= t('views.warehouses.report.print_check') %>
+        </a>
+      </li>
+    </ul>
+  </div>
 </div>
 <!-- ko if: foremen().length != 0 -->
 <div id="foremen_tabs" data-bind="jqTabs: { current: 0, headers: foremen,
@@ -33,7 +56,6 @@
     </ul>
   </div>
 </div>
-<!-- /ko -->
 
 <table>
   <thead>
@@ -48,7 +70,7 @@
   </thead>
   <tbody data-bind="foreach: documents">
     <tr>
-      <td><input type="checkbox" data-bind="value: id, checked: $root.resources[$root.foreman_id()]" /></td>
+      <td><input type="checkbox" data-bind="value: id, checked: $root.resources.get($root.foreman_id())" /></td>
       <td data-bind="text: tag"></td>
       <td data-bind="text: mu"></td>
       <td data-bind="text: amount"></td>
@@ -57,3 +79,4 @@
     </tr>
   </tbody>
 </table>
+<!-- /ko -->

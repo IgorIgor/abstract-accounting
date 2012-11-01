@@ -264,6 +264,9 @@ class WarehousesController < ApplicationController
             to = (params[:to] && DateTime.parse(params[:to])) || DateTime.current
             args = {warehouse_id: warehouse_id, foreman_id: params[:foreman_id],
                     start: from, stop: to }
+            args.merge!(
+                {:resource_ids => params[:resource_ids][params[:foreman_id]]}
+            ) if params[:resource_ids]
             resources = WarehouseForemanReport.all(args)
             send_data resources.to_xls(name: foreman.tag,
                                   columns: [{resource: [:tag, :mu]}, :amount, :price, :sum],
@@ -286,7 +289,15 @@ class WarehousesController < ApplicationController
               if foreman[:id]
                 args = {warehouse_id: warehouse_id, foreman_id: foreman[:id],
                         start: from, stop: to }
-                resources = WarehouseForemanReport.all(args)
+                resources = []
+                if params[:resource_ids]
+                  if params[:resource_ids].has_key?(foreman[:id].to_s)
+                    args.merge!({:resource_ids => params[:resource_ids][foreman[:id].to_s]})
+                    resources = WarehouseForemanReport.all(args)
+                  end
+                else
+                  resources = WarehouseForemanReport.all(args)
+                end
                 unless resources.empty?
                   ToXls::Writer.new(resources,
                                    { name: foreman.tag,

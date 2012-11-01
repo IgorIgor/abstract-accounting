@@ -56,6 +56,7 @@ class Allocation < ActiveRecord::Base
   validates_with AllocationItemsValidator, AllocationMotionValidator
 
   before_item_save :do_before_item_save
+  after_apply :create_waybill_after_apply
 
   ALLOCATION = 0
   INNER_MOTION = 1
@@ -159,5 +160,30 @@ class Allocation < ActiveRecord::Base
   def do_before_item_save(item)
     return false if item.resource.new_record?
     true
+  end
+
+  def create_waybill_after_apply
+    return false unless self.motion == Allocation::INNER_MOTION
+    waybill = nil
+    begin
+      Waybill.transaction do
+        storekeeper = Credential.find_all_by_document_type_and_place_id(
+            Waybill.name, self.foreman_place.id).first.user.entity
+        waybill = Waybill.new(created: self.created, document_id: self.id, deal_id: self.deal.id)
+        waybill.distributor = self.foreman
+        waybill.storekeeper = storekeeper
+        waybill.distributor_place = self.storekeeper_place
+        waybill.storekeeper_place = self.foreman_place
+        self.deal.rules.each do |rule|
+          waybill.add_item({ tag: rule.to.give.resource.tag,
+                             mu: rule.to.give.resource.mu,
+                             amount: rule.rate,
+                             price: rule.to.balance.value / rule.to.balance.amount })
+        end
+        waybill.save!
+      end
+    rescue
+      raise
+    end
   end
 end

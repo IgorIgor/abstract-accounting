@@ -179,7 +179,7 @@ module WarehouseDeal
       return false if self.deal.build_give(place: self.send("#{settings[:from]}_place"),
                                            resource: shipment).nil?
       to_place = nil
-      unless !self.motion.nil? && self.motion == Allocation::CHARGE_OFF
+      if !(self.respond_to? :motion) || self.motion != Allocation::CHARGE_OFF
         to_place = self.send("#{settings[:to]}_place")
       end
       return false if self.deal.build_take(place: to_place, resource: shipment).nil?
@@ -244,7 +244,7 @@ module WarehouseDeal
       end
 
       from_place = Place.find(attrs["#{settings[:from]}_place_id"])
-      write_out = !self.motion.nil? && attrs[:motion].to_i == Allocation::CHARGE_OFF
+      write_out = !(self.respond_to? :motion) || attrs[:motion].to_i != Allocation::CHARGE_OFF
       to_place = nil
       unless write_out
         to_place = Place.find(attrs["#{settings[:to]}_place_id"])

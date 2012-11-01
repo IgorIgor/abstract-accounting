@@ -94,6 +94,40 @@ input[type=text], input[type=password] {
   }
 }
 
+.print {
+  background: url('print.png') no-repeat transparent;
+  width: 16px;
+  height: 16px;
+}
+
+.button {
+  display: block;
+  background: #dddddd;
+  padding: 5px 12px;
+  text-decoration: none;
+  border: 1px solid #cccccc;
+  color: #000000;
+  white-space: nowrap;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  background: -webkit-gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
+  background: -moz-gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
+  background: -o-gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
+  background: -ms-gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
+  background: gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
+
+  .data {
+    vertical-align: middle;
+    display: inline-block;
+    position: relative;
+  }
+}
+
+.button:hover {
+  border: 1px solid #aaaaaa;
+}
+
 #main {
   padding: 0 0 0 10px;
 
@@ -139,7 +173,7 @@ input[type=text], input[type=password] {
 
     .actions {
       position: absolute;
-      top: 77px;
+      top: 72px;
 
       input {
         height: 25px;

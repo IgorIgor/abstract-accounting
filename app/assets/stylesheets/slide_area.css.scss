@@ -12,50 +12,30 @@ $menu_selected: #e5e5e5;
   display: inline-block;
 }
 
-#sidebar .button_drop_down_list {
-  margin: 0;
-  padding: 0;
-  float: left;
-  font: 12px Tahoma, Arial;
+.action_element {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
 
-  a {
-    display: block;
-    background: #dddddd;
-    padding: 5px 12px;
-    text-decoration: none;
-    border: 1px solid #cccccc;
-    color: #000000;
-    white-space: nowrap;
-    border-radius: 3px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    background: -webkit-gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
-    background: -moz-gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
-    background: -o-gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
-    background: -ms-gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
-    background: gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
-  }
-
-  a:hover {
-    border: 1px solid #aaaaaa;
-  }
-
-  ul {
+  .menu {
     margin: 0 !important;
-    padding: 0 5px 0 0;
+    padding: 0 0 0 0;
     background: #f5f5f5;
-    position: absolute;
+    position: fixed;
+    z-index: 1;
     display: none;
     box-shadow: 0 4px 8px #8b8b8b;
     -webkit-box-shadow: 0 4px 8px #8b8b8b;
     -moz-box-shadow: 0 4px 8px #8b8b8b;
 
-    li {
-      float: none;
-      display: inline;
+    .menu-item {
+      display: block;
 
-      a {
+      .menu-item-link {
+        display: block;
+        white-space: nowrap;
         width: auto;
+        padding: 5px 12px !important;
         background: #f5f5f5;
         color: #24313C;
         border: none;
@@ -64,7 +44,7 @@ $menu_selected: #e5e5e5;
         -moz-border-radius: 0
       }
 
-      a:hover {
+      .menu-item-link:hover {
         background: #ececec;
         border: none;
       }

@@ -27,12 +27,12 @@
 
   <div id="sidebar">
     <% unless @types.empty? %>
-    <div class="button_drop_down_list"
-         data-bind="slidemenu: { control: 'btn_create', list: 'documents_list' } ">
-      <a id="btn_create"><%=t 'views.home.create' %>
-        <div class="arrow_down"></div>
-      </a>
-      <ul id='documents_list' style="position: relative;">
+    <div data-bind="slidearea: { pressed: 'create_btn' }">
+      <div id="create_btn" class="button">
+        <div class="data"><%=t 'views.home.create' %></div>
+        <div class="data arrow_down"></div>
+      </div>
+      <ul>
         <% @types.each do |type| %>
           <li>
             <%= link_to(t("views.home.#{type.underscore}"),

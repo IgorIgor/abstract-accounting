@@ -76,15 +76,15 @@
   </fieldset>
 
   <fieldset>
-    <legend><%= t 'views.deals.give' %></legend>
+    <legend><%= t 'views.deals.give.tag' %></legend>
     <div>
       <div>
             <span class="form-cell-label">
-              <label for="deal_give_resource"><%=t 'views.deals.resource' %>:</label>
+              <label for="deal_give_resource"><%= t 'views.deals.give.resource' %>:</label>
             </span>
             <span>
               <input type='text' id='deal_give_resource'
-                     name='<%= t 'views.deals.resource' %>' rule='required'
+                     name='<%= t 'views.deals.give.resource' %>' rule='required'
                      data-bind="autocomplete: {
                        source: 'resources.json',
                        value: 'tag',
@@ -98,11 +98,11 @@
       </div>
       <div>
             <span class="form-cell-label">
-              <label for="deal_give_place"><%=t 'views.deals.place' %>:</label>
+              <label for="deal_give_place"><%= t 'views.deals.give.place' %>:</label>
             </span>
             <span>
               <input type='text' id='deal_give_place'
-                     name='<%= t 'views.deals.place' %>' rule='required'
+                     name='<%= t 'views.deals.give.place' %>' rule='required'
                      data-bind="autocomplete: {
                        source: 'places.json',
                        value: 'tag',
@@ -117,15 +117,15 @@
   </fieldset>
 
   <fieldset>
-    <legend><%= t 'views.deals.take' %></legend>
+    <legend><%= t 'views.deals.take.tag' %></legend>
     <div>
       <div>
             <span class="form-cell-label">
-              <label for="deal_take_resource"><%=t 'views.deals.resource' %>:</label>
+              <label for="deal_take_resource"><%= t 'views.deals.take.resource' %>:</label>
             </span>
             <span>
               <input type='text' id='deal_take_resource'
-                     name='<%= t 'views.deals.resource' %>' rule='required'
+                     name='<%= t 'views.deals.take.resource' %>' rule='required'
                      data-bind="autocomplete: {
                        source: 'resources.json',
                        value: 'tag',
@@ -139,11 +139,11 @@
       </div>
       <div>
             <span class="form-cell-label">
-              <label for="deal_take_place"><%=t 'views.deals.place' %>:</label>
+              <label for="deal_take_place"><%= t 'views.deals.take.place' %>:</label>
             </span>
             <span>
               <input type='text' id='deal_take_place'
-                     name='<%= t 'views.deals.place' %>' rule='required'
+                     name='<%= t 'views.deals.take.place' %>' rule='required'
                      data-bind="autocomplete: {
                        source: 'places.json',
                        value: 'tag',
@@ -186,6 +186,34 @@
     </div>
   </fieldset>
 
+  <fieldset>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="execution_date"><%= t 'views.deals.execution_date' %>:</label>
+        </span>
+        <span>
+          <input type="text" id="execution_date" name="<%= t 'views.deals.execution_date' %>"
+                 data-bind="datepicker: { value: object.deal.execution_date, minDate: '+0'},
+                            disable: readonly ">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+            <label for="period"><%= t 'views.deals.compensation_period' %>:</label>
+        </span>
+        <span>
+            <input type='text' id='period'
+                   rule="dependency_required digits"
+                   dependency_required="execution_date"
+                   name='<%= t 'views.deals.compensation_period' %>'
+                   data-bind="value: object.deal.compensation_period,
+                              disable: period_enable()"  />
+        </span>
+      </div>
+    </div>
+  </fieldset>
+
   <fieldset class="with-legend">
     <legend><%=t 'views.deals.rules' %></legend>
     <input type="button" value="<%= t('views.waybills.add') %>"
@@ -204,69 +232,70 @@
       </tr>
       </thead>
       <tbody data-bind="foreach: object.rules, elementValidate: object.rules">
-      <tr data-bind="attr: { idx: $parent.object.rules.indexOf($data) }">
-        <td>
-          <input type="text" rule="required"
-                 data-bind="disable: $root.readonly,
-                            autocomplete: {
-                                source: 'deals.json',
-                                value: 'tag',
-                                onlySelect: true,
-                                bind: {
-                                  id: from_id
-                                }
-                            }, value: from.tag,
-                            attr: { id: 'rule_from_tag_' + $root.object.rules.indexOf($data),
-                                    name: '<%=t 'views.deals.rules' %>#' +
-                                          $root.object.rules.indexOf($data) +
-                                          ' <%=t 'views.rules.from' %>'}" />
-        </td>
-        <td>
-          <input type="text" rule="required"
-                 data-bind="disable: $root.readonly,
-                            autocomplete: {
-                                source: 'deals.json',
-                                value: 'tag',
-                                onlySelect: true,
-                                bind: {
-                                  id: to_id
-                                }
-                            }, value: to.tag,
-                            attr: { id: 'rule_to_tag_' + $root.object.rules.indexOf($data),
-                                    name: '<%=t 'views.deals.rules' %>#' +
-                                    $root.object.rules.indexOf($data) +
-                                    ' <%=t 'views.rules.to' %>'}" />
-        </td>
-        <td>
-          <input type="text" rule="required_num"
-                 data-bind="value: rate, disable: $root.readonly,
-                            attr: { id: 'rule_rate_' + $root.object.rules.indexOf($data),
-                                    name: '<%=t 'views.deals.rules' %>#' +
-                                    $root.object.rules.indexOf($data) +
-                                    ' <%=t 'views.rules.rate' %>'}"/>
-        </td>
-        <td>
-          <input type="checkbox"
-                 data-bind="checked: fact_side, disable: $root.readonly,
-                            attr: { id: 'fact_side_' + $root.object.rules.indexOf($data),
-                                    name: '<%=t 'views.deals.rules' %>#' +
-                                    $root.object.rules.indexOf($data) +
-                                    ' <%=t 'views.rules.fact_side' %>'}" />
-        </td>
-        <td>
-          <input type="checkbox"
-                 data-bind="checked: change_side, disable: $root.readonly,
-                            attr: { id: 'change_side_' + $root.object.rules.indexOf($data),
-                                    name: '<%=t 'views.deals.rules' %>#' +
-                                    $root.object.rules.indexOf($data) +
-                                    ' <%=t 'views.rules.change_side' %>'}" />
-        </td>
-        <!-- ko ifnot: $parent.readonly -->
-        <td class="table-actions">
-          <label data-bind="click: $parent.removeRule"></label>
-        </td>
-        <!-- /ko -->
-      </tr>
+          <tr data-bind="attr: { idx: $parent.object.rules.indexOf($data),
+                                 name: '<%=t 'views.deals.rules' %>' }">
+            <td>
+              <input type="text" rule="required"
+                     data-bind="disable: $root.readonly,
+                                autocomplete: {
+                                    source: 'deals.json',
+                                    value: 'tag',
+                                    onlySelect: true,
+                                    bind: {
+                                      id: from_id
+                                    }
+                                }, value: from.tag,
+                                attr: { id: 'rule_from_tag_' + $root.object.rules.indexOf($data),
+                                        name: '<%=t 'views.deals.rules' %>#' +
+                                              $root.object.rules.indexOf($data) +
+                                              ' <%=t 'views.rules.from' %>'}" />
+            </td>
+            <td>
+              <input type="text" rule="required"
+                     data-bind="disable: $root.readonly,
+                                autocomplete: {
+                                    source: 'deals.json',
+                                    value: 'tag',
+                                    onlySelect: true,
+                                    bind: {
+                                      id: to_id
+                                    }
+                                }, value: to.tag,
+                                attr: { id: 'rule_to_tag_' + $root.object.rules.indexOf($data),
+                                        name: '<%=t 'views.deals.rules' %>#' +
+                                        $root.object.rules.indexOf($data) +
+                                        ' <%=t 'views.rules.to' %>'}" />
+            </td>
+            <td>
+              <input type="text" rule="required_num"
+                     data-bind="value: rate, disable: $root.readonly,
+                                attr: { id: 'rule_rate_' + $root.object.rules.indexOf($data),
+                                        name: '<%=t 'views.deals.rules' %>#' +
+                                        $root.object.rules.indexOf($data) +
+                                        ' <%=t 'views.rules.rate' %>'}"/>
+            </td>
+            <td>
+              <input type="checkbox"
+                     data-bind="checked: fact_side, disable: $root.readonly,
+                                attr: { id: 'fact_side_' + $root.object.rules.indexOf($data),
+                                        name: '<%=t 'views.deals.rules' %>#' +
+                                        $root.object.rules.indexOf($data) +
+                                        ' <%=t 'views.rules.fact_side' %>'}" />
+            </td>
+            <td>
+              <input type="checkbox"
+                     data-bind="checked: change_side, disable: $root.readonly,
+                                attr: { id: 'change_side_' + $root.object.rules.indexOf($data),
+                                        name: '<%=t 'views.deals.rules' %>#' +
+                                        $root.object.rules.indexOf($data) +
+                                        ' <%=t 'views.rules.change_side' %>'}" />
+            </td>
+            <!-- ko ifnot: $parent.readonly -->
+            <td class="table-actions">
+              <label data-bind="click: $parent.removeRule"></label>
+            </td>
+            <!-- /ko -->
+          </tr>
       </tbody>
     </table>
     <input type="button" value="<%= t('views.waybills.add') %>"

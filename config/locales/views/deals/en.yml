@@ -5,17 +5,24 @@ en:
       mu: MU
       entity: Entity
       rate: Rate
-      give: Give
-      take: Take
       page:
         title:
           show: Show deal
           edit: Edit deal
           new: New deal
-      place: Place
+      give:
+        tag: Give
+        resource: Resource give
+        place: Place give
+      take:
+        tag: Take
+        resource: Resource take
+        place: Place take
       resource: Resource
       rules: Rules
       limit_passive: To give
       limit_active: To take
       where: Where
       limit: Limit
+      execution_date: Execution date
+      compensation_period: Сompensation period(days)

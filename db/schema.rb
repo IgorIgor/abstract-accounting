@@ -132,11 +132,13 @@ ActiveRecord::Schema.define(:version => 20121106132405) do
   add_index "deal_states", ["deal_id"], :name => "index_deal_states_on_deal_id", :unique => true
 
   create_table "deals", :force => true do |t|
-    t.string  "tag"
-    t.float   "rate"
-    t.integer "entity_id"
-    t.boolean "isOffBalance", :default => false
-    t.string  "entity_type"
+    t.string   "tag"
+    t.float    "rate"
+    t.integer  "entity_id"
+    t.boolean  "isOffBalance",        :default => false
+    t.string   "entity_type"
+    t.datetime "execution_date"
+    t.integer  "compensation_period"
   end
 
   add_index "deals", ["entity_id", "entity_type", "tag"], :name => "index_deals_on_entity_id_and_entity_type_and_tag", :unique => true

@@ -83,6 +83,11 @@ class Deal < ActiveRecord::Base
     return false if fact.nil?
     return true if self.income?
     state = self.state
+
+    if state.nil? && !self.execution_date.nil? && fact.day > self.execution_date
+      raise 'warning # execution'
+    end
+
     state = self.states.build(:start => fact.day) if state.nil?
     if !state.new_record? && state.start < fact.day
       state_clone = self.states.build(state.attributes)
@@ -92,6 +97,7 @@ class Deal < ActiveRecord::Base
     elsif !state.new_record? && state.start > fact.day
       raise "State start day is great then fact day"
     end
+
     return false unless state.update_amount(self.id == fact.from_deal_id ? State::PASSIVE : State::ACTIVE,
                                             fact.amount)
 
@@ -112,6 +118,10 @@ class Deal < ActiveRecord::Base
 
     if self.limit.amount > 0 && amount > self.limit.amount
       #raise "Ohoho amount > limit! it's not goood"
+    end
+
+    if !state.zero? && !self.execution_date.nil? && (self.execution_date + self.compensation_period.days) < fact.day
+      raise 'warning # compensation'
     end
 
     return state.destroy if state.zero? && !state.new_record?

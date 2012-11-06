@@ -11,7 +11,7 @@
 <div class="left">
   <label for="balance_date_start"><%= t 'views.balance_sheet.date' %>:</label>
   <input type="text" id="balance_date_start"
-         data-bind="datepicker: balances_date, event: {change: filter}">
+         data-bind="datepicker:{ value: balances_date, maxDate: '+0'}, event: {change: filter}">
 </div>
 <div class="left">
   <span><%= t 'views.balance_sheet.mu' %>:</span>

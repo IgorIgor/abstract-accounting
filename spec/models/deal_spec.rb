@@ -96,4 +96,120 @@ describe Deal do
     deal.limit.amount.should eq(0)
     deal.limit.side.should eq(0)
   end
+
+
+  describe '#execution date and compensation period' do
+    before :all do
+      @rub = create(:chart).currency
+      @aasii = create(:asset)
+      @dis = create(:deal,
+                    :give => build(:deal_give, :resource => @rub),
+                    :take => build(:deal_take, :resource => @aasii),
+                    :rate => 20.0)
+      @store = create(:deal,
+                      :give => build(:deal_take, :resource => @aasii),
+                      :take => build(:deal_give, :resource => @aasii))
+      @bank = create(:deal,
+                     :give => build(:deal_give, :resource => @rub),
+                     :take => build(:deal_take, :resource => @rub))
+    end
+
+    it 'without notification' do
+      create(:fact, :day => Date.today - 3.days, :from => @dis,
+             :to => @store, :resource => @aasii, :amount => 300.0)
+      create(:fact, :day => Date.today - 2, :from => @bank,
+             :to => @dis, :resource => @rub, :amount => 6000.0)
+
+      @dis.execution_date = Date.today - 3.days
+      @dis.compensation_period = 3
+      @dis.states.destroy_all
+      @store.execution_date = Date.today - 3.days
+      @store.compensation_period = 3
+      @store.states.destroy_all
+      @bank.execution_date = Date.today
+      @bank.compensation_period = 3
+      @bank.states.destroy_all
+
+      create(:fact, :day => Date.today - 2, :from => @dis,
+             :to => @store, :resource => @aasii, :amount => 300.0)
+      create(:fact, :day => Date.today - 1, :from => @bank,
+             :to => @dis, :resource => @rub, :amount => 6000.0)
+
+      @dis.execution_date = Date.today
+      @dis.compensation_period = 3
+      @dis.states.destroy_all
+      @store.execution_date = Date.today
+      @store.compensation_period = 3
+      @store.states.destroy_all
+      @bank.execution_date = Date.today
+      @bank.compensation_period = 3
+      @bank.states.destroy_all
+
+      create(:fact, :day => Date.today - 1, :from => @bank,
+             :to => @dis, :resource => @rub, :amount => 6000.0)
+      create(:fact, :day => Date.today, :from => @dis,
+             :to => @store, :resource => @aasii, :amount => 300.0)
+    end
+
+    it 'should raise notification' do
+      State.destroy_all
+
+      @dis.execution_date = Date.today - 2
+      @dis.compensation_period = 1
+      @dis.states.destroy_all
+      @store.states.destroy_all
+      @bank.states.destroy_all
+
+      expect { create(:fact, :day => Date.today, :from => @dis,
+                      :to => @store, :resource => @aasii,
+                      :amount => 300.0)}.to raise_error("warning # execution")
+
+      expect {
+        create(:fact, :day => Date.today - 5, :from => @dis,
+                      :to => @store, :resource => @aasii, :amount => 300.0)
+        create(:fact, :day => Date.today, :from => @bank,
+                     :to => @dis, :resource => @rub,
+                     :amount => 6000.0)}.to  raise_error("warning # compensation")
+
+      expect {
+        create(:fact, :day => Date.today - 5, :from => @bank,
+               :to => @dis, :resource => @rub, :amount => 6000.0)
+        create(:fact, :day => Date.today + 1, :from => @dis,
+               :to => @store, :resource => @aasii,
+               :amount => 300.0)}.to  raise_error("warning # compensation")
+
+      @dis.execution_date = Date.today
+      @dis.compensation_period = 3
+      @dis.states.destroy_all
+      @store.execution_date = Date.today
+      @store.compensation_period = 3
+      @store.states.destroy_all
+      @bank.execution_date = Date.today + 4
+      @bank.compensation_period = 3
+      @bank.states.destroy_all
+
+      expect {
+        create(:fact, :day => Date.today - 5, :from => @dis,
+               :to => @store, :resource => @aasii, :amount => 300.0)
+        create(:fact, :day => Date.today + 4, :from => @bank,
+               :to => @dis, :resource => @rub,
+               :amount => 6000.0)}.to  raise_error("warning # compensation")
+
+      State.destroy_all
+
+      expect {
+        create(:fact, :day => Date.today - 5, :from => @dis,
+               :to => @store, :resource => @aasii, :amount => 300.0)
+        create(:fact, :day => Date.today + 5, :from => @bank,
+               :to => @dis, :resource => @rub,
+               :amount => 6000.0)}.to  raise_error("warning # execution")
+
+      expect {
+        create(:fact, :day => Date.today - 5, :from => @bank,
+               :to => @dis, :resource => @rub, :amount => 6000.0)
+        create(:fact, :day => Date.today + 5, :from => @dis,
+               :to => @store, :resource => @aasii,
+               :amount => 300.0)}.to  raise_error("warning # compensation")
+    end
+  end
 end

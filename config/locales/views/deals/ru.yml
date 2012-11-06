@@ -5,17 +5,24 @@ ru:
       mu: "Ед. изм."
       entity: Лицо
       rate: Курс
-      give: Взятый ресурс
-      take: Отданый ресурс
       page:
         title:
           show: Просмотр сделки
           edit: Редактирование сделки
           new: Новая сделка
-      place: Место
+      give:
+        tag: Получение
+        resource: Взятый ресурс
+        place: Место получения
+      take:
+        tag: Выдача
+        resource: Отданый ресурс
+        place: Место выдачи
       resource: Ресурс
       rules: Правила
       limit_passive: На выдачу
       limit_active: На приём
       where: Куда
       limit: Лимит
+      execution_date: Дата выполнения
+      compensation_period: Срок компенсации(дни)

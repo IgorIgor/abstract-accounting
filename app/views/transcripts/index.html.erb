@@ -6,12 +6,12 @@
 <div class="left">
   <label for="transcript_date_from"><%=t 'views.transcripts.from' %></label>
   <input type="text" id="transcript_date_from"
-         data-bind="datepicker: date_from">
+         data-bind="datepicker:{ value: date_from, maxDate: '+0' }">
 </div>
 <div class="left">
   <label for="transcript_date_to"><%=t 'views.transcripts.to' %></label>
   <input type="text" id="transcript_date_to"
-         data-bind="datepicker: date_to">
+         data-bind="datepicker:{ value: date_to, maxDate: '+0' }">
 </div>
 <div class="left clear">
   <span><%= t 'views.transcripts.mu' %>:</span>

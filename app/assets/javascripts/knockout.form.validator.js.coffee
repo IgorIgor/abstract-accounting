@@ -52,6 +52,21 @@ init_rules = ->
         equalTo: "#{$(this).attr('name')} : #{$(this).attr('error-message-equal-to') ? I18n.t('errors.messages.equal_to')}"
       }
     })
+  $("input[rule~='digits']").each ->
+    $(this).rules('add', {
+      digits: true
+      messages: {
+        digits: "#{$(this).attr('name')} : #{$(this).attr('error-message-digits') ? I18n.t('errors.messages.digits')}"
+      }
+    })
+  $("input[rule~='dependency_required']").each ->
+    $(this).rules('add', {
+      required: =>
+        $("##{$(this).attr('dependency_required')}").get(0).value.length > 0
+      messages: {
+        required: "#{$(this).attr('name')} : #{$(this).attr('error-message-required') ? I18n.t('errors.messages.blank')}"
+      }
+    })
 
 ko.bindingHandlers.validate =
   init: (element, valueAccessor) ->

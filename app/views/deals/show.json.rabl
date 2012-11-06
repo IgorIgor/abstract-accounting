@@ -10,7 +10,8 @@
 object false
 node(:id) { @deal.id }
 child(@deal => :deal) do
-  attributes :tag, :isOffBalance, :rate, :entity_id, :entity_type
+  attributes :tag, :isOffBalance, :rate, :entity_id, :entity_type, :compensation_period
+  node(:execution_date) { @deal.execution_date.strftime('%Y/%m/%d') unless @deal.execution_date.nil? }
 end
 child(@deal.entity => :entity) do
   node(:tag) do

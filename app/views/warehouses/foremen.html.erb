@@ -11,12 +11,12 @@
     <%= t 'views.warehouses.foremen.report.dates.from' %>:
   </label>
   <input type="text" id="foremen_filter_from" style="width: 80px;"
-         data-bind="datepicker: from, event: {change: filterData}">
+         data-bind="datepicker:{ value: from, maxDate: '+0' }, event: {change: filterData}">
   <label for="foremen_filter_to">
     <%= t 'views.warehouses.foremen.report.dates.to' %>:
   </label>
   <input type="text" id="foremen_filter_to" style="width: 80px;"
-         data-bind="datepicker: to, event: {change: filterData}">
+        data-bind="datepicker:{ value: to, maxDate: '+0' }, event: {change: filterData}">
   <div data-bind="slidearea: { pressed: 'print_btn' }, visible: foremen().length > 0">
     <div id="print_btn" class="button">
       <div class="data print"></div>

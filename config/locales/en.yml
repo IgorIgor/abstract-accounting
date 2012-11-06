@@ -11,6 +11,7 @@ en:
       email: must be a valid email-address
       min_length: must have length greater or equal than %{count}
       equal_to: value of field must equal to %{value}
+      digits: value of field must be digit only
       too_short:
         few: insufficient length (can not be less than %{count} characters)
         many: insufficient length (can not be less than %{count} characters)

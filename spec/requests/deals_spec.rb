@@ -59,7 +59,7 @@ feature 'deals', %q{
       "/a[@id='deals' and @class='btn_slide_action sidebar-selected']")
 
     titles = [I18n.t('views.deals.tag'), I18n.t('views.deals.entity'),
-              I18n.t('views.deals.give'), I18n.t('views.deals.take'),
+              I18n.t('views.deals.give.tag'), I18n.t('views.deals.take.tag'),
               I18n.t('views.deals.rate')]
 
     check_header("#container_documents table", titles)
@@ -168,9 +168,13 @@ feature 'deals', %q{
         page.should have_content("#{I18n.t(
             'views.deals.rate')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content("#{I18n.t(
-            'views.deals.resource')} : #{I18n.t('errors.messages.blank')}")
+            'views.deals.give.resource')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content("#{I18n.t(
-            'views.deals.place')} : #{I18n.t('errors.messages.blank')}")
+            'views.deals.take.resource')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.deals.give.place')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.deals.take.place')} : #{I18n.t('errors.messages.blank')}")
       end
     end
 
@@ -193,6 +197,19 @@ feature 'deals', %q{
     within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
       all(:xpath, ".//li//a")[3].click
     end
+    find('input#period')[:disabled].should be_true
+    page.should have_datepicker("execution_date")
+    page.datepicker("execution_date").next_month.day(11)
+    find('input#period')[:disabled].should be_false
+    find("#container_notification").visible?.should be_true
+      page.should have_content("#{I18n.t(
+          'views.deals.compensation_period')} : #{I18n.t('errors.messages.blank')}")
+    fill_in('period', :with => 5.1)
+    find("#container_notification").visible?.should be_true
+      page.should have_content("#{I18n.t(
+          'views.deals.compensation_period')} : #{I18n.t('errors.messages.digits')}")
+
+    fill_in('period', :with => 5)
 
     page.should_not have_selector("#container_notification")
 
@@ -245,6 +262,8 @@ feature 'deals', %q{
     find_field('deal_give_place')[:value].should eq(places[1].tag)
     find_field('deal_take_resource')[:value].should eq(resources[3].tag)
     find_field('deal_take_place')[:value].should eq(places[3].tag)
+    find_field('execution_date')[:value].should eq(Deal.last.execution_date.strftime('%d.%m.%Y'))
+    find_field('period')[:value].should eq(Deal.last.compensation_period.to_s)
     find_field('rule_from_tag_0')[:value].should eq(d1.tag)
     find_field('rule_to_tag_0')[:value].should eq(d2.tag)
     find_field('rule_rate_0')[:value].should eq('2')
@@ -271,6 +290,7 @@ feature 'deals', %q{
     within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
       all(:xpath, ".//li//a")[0].click
     end
+    fill_in('execution_date', :with => '')
     fill_in('deal_give_place', :with => places[0].tag)
     within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
       all(:xpath, ".//li//a")[0].click

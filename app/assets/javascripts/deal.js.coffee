@@ -3,6 +3,17 @@ $ ->
     constructor: (object, readonly = false) ->
       super(object, 'deals', readonly)
 
+      @object.deal.execution_date.subscribe(=>
+        if @object.deal.execution_date() == null || @object.deal.execution_date() == undefined
+          @object.deal.compensation_period = null
+      )
+
+      @period_enable = ko.computed(=>
+        @object.deal.execution_date() == null ||
+        @object.deal.execution_date() == undefined ||
+        @readonly()
+      )
+
     addRule: =>
       rule =
         from_id: ko.observable(null)

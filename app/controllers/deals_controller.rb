@@ -53,6 +53,9 @@ class DealsController < ApplicationController
 
   def create
     deal = nil
+    unless params[:deal][:execution_date].nil?
+      params[:deal][:execution_date] = DateTime.parse(params[:deal][:execution_date]).change(hour: 12, offset: 0)
+    end
     begin
       Deal.transaction do
         deal = Deal.new(params[:deal])
@@ -77,6 +80,12 @@ class DealsController < ApplicationController
 
   def update
     deal = Deal.find(params[:id])
+    if params[:deal][:execution_date].nil?
+      params[:deal][:execution_date] = nil
+      params[:deal][:compensation_period] = nil
+    else
+      params[:deal][:execution_date] = DateTime.parse(params[:deal][:execution_date]).change(hour: 12, offset: 0)
+    end
     begin
       Deal.transaction do
         deal.update_attributes(params[:deal])

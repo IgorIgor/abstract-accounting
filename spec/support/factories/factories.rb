@@ -36,6 +36,8 @@ FactoryGirl.define do
     take { |deal| deal.association(:deal_take, :strategy => :build) }
     entity
     rate 1.0
+    execution_date nil
+    compensation_period nil
   end
 
   factory :state do

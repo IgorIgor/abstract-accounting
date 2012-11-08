@@ -15,3 +15,7 @@ en:
       place: Place
       resource: Resource
       rules: Rules
+      limit_passive: To give
+      limit_active: To take
+      where: Where
+      limit: Limit

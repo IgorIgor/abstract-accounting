@@ -969,6 +969,30 @@ describe Waybill do
     PaperTrail.whodunnit = RootUser.new
     Waybill.new.warehouse_id.should eq(nil)
   end
+
+  it 'should create limits on deals by waybill items' do
+    wb = build(:waybill)
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
+    wb.save
+
+    deal = Deal.find(wb.deal)
+    deal.limit.should_not be_nil
+    deal.limit.amount.should eq(0)
+    deal.limit.side.should eq(Limit::PASSIVE)
+
+    waybill_item = wb.items.first
+
+    roof_deal_give = waybill_item.warehouse_deal(Chart.first.currency,
+                                                 wb.distributor_place, wb.distributor)
+    roof_deal_give.limit.should_not be_nil
+    roof_deal_give.limit.amount.should eq(0)
+    roof_deal_give.limit.side.should eq(Limit::ACTIVE)
+
+    roof_deal_take = waybill_item.warehouse_deal(nil, wb.storekeeper_place, wb.storekeeper)
+    roof_deal_take.limit.should_not be_nil
+    roof_deal_take.limit.amount.should eq(0)
+    roof_deal_take.limit.side.should eq(Limit::PASSIVE)
+  end
 end
 
 describe ItemsValidator do

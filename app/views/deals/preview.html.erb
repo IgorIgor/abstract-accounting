@@ -157,6 +157,35 @@
     </div>
   </fieldset>
 
+  <fieldset>
+    <legend><%= t 'views.deals.limit' %></legend>
+    <div>
+      <div>
+        <span>
+          <label><%= t('views.deals.where') %>:</label>
+        </span>
+        <div>
+          <input type="radio" id="limit_side_passive" name="limit_side" value="<%= Limit::PASSIVE %>"
+                 data-bind="checked: object.deal.limit.side, disable: readonly" />
+          <label for="limit_side_passive"><%= t('views.deals.limit_passive') %></label>
+          <span><input type="radio" id="limit_side_active" name="limit_side" value="<%= Limit::ACTIVE %>"
+                 data-bind="checked: object.deal.limit.side, disable: readonly" />
+          <label for="limit_side_active"><%= t('views.deals.limit_active') %></label>
+        </div>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="deal_limit"><%= t('views.deals.limit') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="deal_limit"
+                 name="<%= t('views.deals.limit') %>" rule='required'
+                 data-bind="value: object.deal.limit.amount, disable: readonly">
+        </span>
+      </div>
+    </div>
+  </fieldset>
+
   <fieldset class="with-legend">
     <legend><%=t 'views.deals.rules' %></legend>
     <input type="button" value="<%= t('views.waybills.add') %>"

@@ -130,6 +130,11 @@ class Allocation < ActiveRecord::Base
     end
   end
 
+  def initialize_limit(deal)
+    #TODO add if motion is inner
+    true
+  end
+
   private
   def initialize(attrs = nil)
     super(initialize_warehouse_attrs(attrs))

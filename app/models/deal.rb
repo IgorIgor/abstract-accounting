@@ -23,6 +23,8 @@ class Deal < ActiveRecord::Base
   has_one :deal_state
   has_one :waybill
   has_one :allocation
+  has_one :limit
+  before_save :before_save
 
   custom_sort(:name) do |dir|
     query = "case entity_type
@@ -90,7 +92,28 @@ class Deal < ActiveRecord::Base
     elsif !state.new_record? && state.start > fact.day
       raise "State start day is great then fact day"
     end
-    return false unless state.update_amount(self.id == fact.from_deal_id ? State::PASSIVE : State::ACTIVE, fact.amount)
+    return false unless state.update_amount(self.id == fact.from_deal_id ? State::PASSIVE : State::ACTIVE,
+                                            fact.amount)
+
+    if self.states.empty?
+      if self.limit.side == Limit::PASSIVE && self.id == fact.from_deal_id
+        #raise "not ok! need TO first"
+      end
+      if self.limit.side == Limit::ACTIVE && self.id == fact.to_deal_id
+        #raise "not ok! need FROM first"
+      end
+    end
+
+    if self.limit.side == Limit::PASSIVE
+      amount = state.amount / self.rate
+    else
+      amount = state.amount
+    end
+
+    if self.limit.amount > 0 && amount > self.limit.amount
+      #raise "Ohoho amount > limit! it's not goood"
+    end
+
     return state.destroy if state.zero? && !state.new_record?
     return true if state.zero? && state.new_record?
     state.save
@@ -111,6 +134,26 @@ class Deal < ActiveRecord::Base
     end
     return false unless balance.update_value(self.id == txn.fact.from.id ? Balance::PASSIVE : Balance::ACTIVE,
                                               txn.fact.amount, txn.value)
+
+    if self.balances.empty?
+      if self.limit.side == Limit::PASSIVE && self.id == fact.from_deal_id
+        #raise "not ok! need TO first"
+      end
+      if self.limit.side == Limit::ACTIVE && self.id == fact.to_deal_id
+        #raise "not ok! need FROM first"
+      end
+    end
+
+    if self.limit.side == Limit::PASSIVE
+      amount = balance.amount / self.rate
+    else
+      amount = balance.amount
+    end
+
+    if self.limit.amount > 0 && amount > self.limit.amount
+      #raise "Ohoho amount > limit! it's not goood"
+    end
+
     return balance.destroy if balance.zero? && !balance.new_record?
     return true if balance.zero? && balance.new_record?
     balance.save
@@ -140,8 +183,24 @@ class Deal < ActiveRecord::Base
     end
   end
 
+  def limit_amount
+    self.limit.nil? ? 0 : self.limit.amount
+  end
+
+  def limit_side
+    if self.limit.nil?
+      Limit::PASSIVE
+    else
+      self.limit.side
+    end
+  end
+
   private
   INCOME_ID = 0
+
+  def before_save
+    self.build_limit(side: Limit::PASSIVE, amount: 0) if self.limit.nil?
+  end
 end
 
 # vim: ts=2 sts=2 sw=2 et:

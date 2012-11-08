@@ -584,6 +584,30 @@ describe Allocation do
                        "storekeeper" => al2.storekeeper.tag}).should =~ [al2]
   end
 
+  it 'should create limits on deals by allocation items' do
+    db = build(:allocation, storekeeper: @wb.storekeeper,
+               storekeeper_place: @wb.storekeeper_place)
+    db.add_item(tag: 'roof', mu: 'm2', amount: 200)
+    db.save
+
+    deal = Deal.find(db.deal)
+    deal.limit.should_not be_nil
+    deal.limit.amount.should eq(0)
+    deal.limit.side.should eq(Limit::PASSIVE)
+
+    waybill_item = db.items.first
+
+    roof_deal_give = waybill_item.warehouse_deal(nil, db.storekeeper_place, db.storekeeper)
+    roof_deal_give.limit.should_not be_nil
+    roof_deal_give.limit.amount.should eq(0)
+    roof_deal_give.limit.side.should eq(Limit::PASSIVE)
+
+    roof_deal_take = waybill_item.warehouse_deal(nil, db.foreman_place, db.foreman)
+    roof_deal_take.limit.should_not be_nil
+    roof_deal_take.limit.amount.should eq(0)
+    roof_deal_take.limit.side.should eq(Limit::PASSIVE)
+  end
+
   describe "#document_id" do
     context "new record" do
       it "should return last id + 1" do

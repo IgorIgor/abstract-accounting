@@ -193,11 +193,15 @@ module WarehouseDeal
             self.send(settings[:from]))
         return false if from_item.nil?
 
+        initialize_limit(from_item)
+
         to_item = item.warehouse_deal(
             settings[:to_currency] ? settings[:to_currency].call() : nil,
             self.send("#{settings[:to]}_place"),
             self.send(settings[:to]))
         return false if to_item.nil?
+
+        initialize_limit(to_item)
 
         return false if self.deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
           from: from_item, to: to_item, fact_side: false,
@@ -257,10 +261,15 @@ module WarehouseDeal
             from_place, from_entity)
         return false if from_item.nil?
 
+        initialize_limit(from_item)
+
         to_item = item.warehouse_deal(
             settings[:to_currency] ? settings[:to_currency].call() : nil,
             to_place, to_entity)
         return false if to_item.nil?
+
+        initialize_limit(to_item)
+
         return false if self.deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
                                                from: from_item, to: to_item, fact_side: false,
                                                change_side: true, rate: item.amount).nil?

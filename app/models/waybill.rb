@@ -146,6 +146,15 @@ class Waybill < ActiveRecord::Base
     Converter.float(sum)
   end
 
+  def initialize_limit(deal)
+    if deal.entity == self.distributor
+      unless deal.limit.side == Limit::PASSIVE && deal.limit.amount > 0
+        deal.limit.update_attributes(side: Limit::ACTIVE, amount: 0)
+      end
+    end
+    true
+  end
+
   private
   def initialize(attrs = nil)
     super(initialize_warehouse_attrs(attrs))

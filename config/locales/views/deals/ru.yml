@@ -15,3 +15,7 @@ ru:
       place: Место
       resource: Ресурс
       rules: Правила
+      limit_passive: На выдачу
+      limit_active: На приём
+      where: Куда
+      limit: Лимит

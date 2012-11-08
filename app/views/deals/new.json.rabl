@@ -10,6 +10,10 @@
 object false
 child(@deal => :deal) do
   attributes :tag, :isOffBalance, :rate, :entity_id, :entity_type
+  child(Object.new => :limit) do
+    node(:amount) { @deal.limit_amount }
+    node(:side) { @deal.limit_side }
+  end
 end
 child(Object.new => :entity) do
   attributes :tag

@@ -11,11 +11,12 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121003062310) do
+ActiveRecord::Schema.define(:version => 20121106132405) do
 
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
     t.datetime "created"
+    t.integer  "motion",  :default => 0
   end
 
   add_index "allocations", ["deal_id"], :name => "index_allocations_on_deal_id", :unique => true
@@ -252,6 +253,12 @@ ActiveRecord::Schema.define(:version => 20121003062310) do
   add_index "legal_entities", ["country_id"], :name => "index_legal_entities_on_country_id"
   add_index "legal_entities", ["detail_id"], :name => "index_legal_entities_on_detail_id"
   add_index "legal_entities", ["name", "country_id"], :name => "index_legal_entities_on_name_and_country_id", :unique => true
+
+  create_table "limits", :force => true do |t|
+    t.integer "deal_id"
+    t.integer "side"
+    t.float   "amount"
+  end
 
   create_table "money", :force => true do |t|
     t.integer "num_code"

@@ -89,4 +89,11 @@ describe Deal do
         order("#{query} DESC").all
     ds.should eq(ds_test)
   end
+
+  it "create limit with deal" do
+    deal = create(:deal)
+    deal.limit.should_not be_nil
+    deal.limit.amount.should eq(0)
+    deal.limit.side.should eq(0)
+  end
 end

@@ -47,6 +47,10 @@ child(@deal.take => :take) do
   end
   child(:place => :place) { attributes :tag }
 end
+child(@deal.limit => :limit) do
+  node(:amount) { @deal.limit_amount }
+  node(:side) { @deal.limit_side }
+end
 child(@deal.rules => :rules) do
   attributes :rate, :fact_side, :change_side, :from_id, :to_id
   child(:from => :from) { attributes :tag }

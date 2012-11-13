@@ -66,11 +66,13 @@ class DealsController < ApplicationController
                         resource_type: params[:take][:resource_type],
                         place_id: params[:take][:place_id])
         deal.save!
-        params[:rules].values.each { |item| deal.rules.create!(fact_side: item[:fact_side],
-                                                               change_side: item[:change_side],
-                                                               rate: item[:rate],
-                                                               from_id: item[:from_id],
-                                                               to_id: item[:to_id]) }
+        if params[:rules]
+          params[:rules].values.each { |item| deal.rules.create!(fact_side: item[:fact_side],
+                                                                 change_side: item[:change_side],
+                                                                 rate: item[:rate],
+                                                                 from_id: item[:from_id],
+                                                                 to_id: item[:to_id]) }
+        end
         render json: { result: 'success', id: deal.id }
       end
     rescue
@@ -96,11 +98,13 @@ class DealsController < ApplicationController
                                     resource_type: params[:take][:resource_type],
                                     place_id: params[:take][:place_id])
         deal.rules.delete_all
-        params[:rules].values.each { |item| deal.rules.create!(fact_side: item[:fact_side],
-                                                               change_side: item[:change_side],
-                                                               rate: item[:rate],
-                                                               from_id: item[:from_id],
-                                                               to_id: item[:to_id]) }
+        if params[:rules]
+          params[:rules].values.each { |item| deal.rules.create!(fact_side: item[:fact_side],
+                                                                 change_side: item[:change_side],
+                                                                 rate: item[:rate],
+                                                                 from_id: item[:from_id],
+                                                                 to_id: item[:to_id]) }
+        end
         render json: { result: 'success', id: deal.id }
       end
     rescue

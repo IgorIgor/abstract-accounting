@@ -93,17 +93,7 @@ $ ->
         resource_id: @resource_id
         warehouse_id: @warehouse_id
 
-      @resource_id.subscribe((val) =>
-        return true unless val
-        @page(1)
-        $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
-          @documents(data.objects)
-          @count(data.count)
-          @range(@rangeGenerate())
-          @place.tag(data.place.tag)
-          @total(data.total)
-        )
-      )
+      @resource_id.subscribe(@filterData)
 
     showWaybill: (object) ->
       location.hash = "documents/waybills/#{object.item_id}"
@@ -132,6 +122,9 @@ $ ->
       @dialog(null)
       $("##{@dialog_element}").dialog( "close" )
 
+    onDataReceived: (data) =>
+      @place.tag(data.place.tag)
+      @total(data.total)
 
   class self.WarehouseForemanReportViewModel extends FolderViewModel
     constructor: (data) ->

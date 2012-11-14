@@ -69,16 +69,11 @@ $ ->
         entity: @entity()
         place_id: @place_id()
         group_by: @group_by()
-      $.getJSON(@url, normalizeHash(@params), (data) =>
-        for object in data.objects
-          object.subitems = ko.observable(null)
-        @documents(data.objects)
-        @page(1)
-        @count(data.count)
-        @range(@rangeGenerate())
-        @total_debit(data.total_debit)
-        @total_credit(data.total_credit)
-      )
+      @filterData()
+
+    onDataReceived: (data) =>
+      @total_debit(data.total_debit)
+      @total_credit(data.total_credit)
 
     reportOnSelected: () =>
       if @selected_balances.length == 1
@@ -149,7 +144,6 @@ $ ->
         location.hash = "#balance_sheet?group_by=#{@group_by()}"
 
     filterData: =>
-      @page(1)
       @params =
         search: @filter
         date: @balances_date().toString()

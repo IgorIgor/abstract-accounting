@@ -13,13 +13,15 @@
 </div>
 
 <div id="resources_selector" class="dialog"
-     data-bind="dialog: { autoOpen: false, modal: true, minWidth: 480, minHeight: 300 }, with: dialog">
+     data-bind="dialog: { autoOpen: false, modal: true, minWidth: 480, minHeight: 300 },
+                with: dialog">
 
   <table>
     <caption>
       <div class="table-mode">
         <input type="text" id='dialog_search' data-bind="value: filter.tag"/>
-        <input type="button" value="<%= t('views.home.search') %>" data-bind="click: filterData"/>
+        <input type="button" value="<%= t('views.home.search') %>"
+               data-bind="click: filterData"/>
       </div>
       <div class="paginate">
         <span data-bind="text: range"></span> <%= t('views.home.of') %>

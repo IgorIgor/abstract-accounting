@@ -44,15 +44,13 @@ $ ->
         deal_id: @deal_id()
         page: @page
         per_page: @per_page
-      $.getJSON(@url, @params, (data) =>
-        @documents(data.objects)
-        @page(1)
-        @count(data.count)
-        @range(@rangeGenerate())
-        @from(ko.mapping.fromJS(data.from))
-        @to(ko.mapping.fromJS(data.to))
-        @totals(ko.mapping.fromJS(data.totals))
-      )
+      @filterData()
+
+    onDataReceived: (data) =>
+      @from(ko.mapping.fromJS(data.from))
+      @to(ko.mapping.fromJS(data.to))
+      @totals(ko.mapping.fromJS(data.totals))
+
 
     selectDeals: =>
       $('<div id="container_selection"></div>').insertAfter('#main')

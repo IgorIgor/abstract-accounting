@@ -238,6 +238,9 @@ $ ->
         page: @page
         per_page: @per_page
 
+    onDataReceived: (data) =>
+      #do something
+
     clearData: =>
       @documents([])
       @count([])
@@ -256,6 +259,7 @@ $ ->
         @documents(data.objects)
         @count(data.count)
         @range(@rangeGenerate())
+        @onDataReceived(data)
       )
 
     rangeGenerate: =>
@@ -266,11 +270,7 @@ $ ->
 
     filterData: =>
       @page(1)
-      $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
-        @documents(data.objects)
-        @count(data.count)
-        @range(@rangeGenerate())
-      )
+      @getPaginateData()
 
     clearFilter: =>
       for attr, value of @filter

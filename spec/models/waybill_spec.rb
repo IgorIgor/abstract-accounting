@@ -57,15 +57,19 @@ describe Waybill do
 
     wb = Waybill.find(wb)
     wb.items.count.should eq(2)
-    wb.items[0].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'pcs').first)
-    wb.items[0].amount.should eq(1200)
-    wb.items[0].price.should eq(1.0)
-    wb.items[0].sum.should eq((wb.items[0].amount * wb.items[0].price).accounting_norm)
-    wb.items[1].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'kg').first)
-    wb.items[1].amount.should eq(10)
-    wb.items[1].price.should eq(150.0)
-    wb.items[1].sum.should eq((wb.items[1].amount * wb.items[1].price).accounting_norm)
-    wb.sum.should eq(wb.items.inject(0.0) { |mem, item| mem += item.sum })
+    wb.items.each do |item|
+      if item.resource == Asset.find_all_by_tag_and_mu('nails', 'pcs').first
+        item.amount.should eq(1200)
+        item.price.should eq(1.0)
+        item.sum.should eq((item.amount * item.price).accounting_norm)
+      elsif item.resource == Asset.find_all_by_tag_and_mu('nails', 'kg').first
+        item.amount.should eq(10)
+        item.price.should eq(150.0)
+        item.sum.should eq((item.amount * item.price).accounting_norm)
+      else
+        false.should be_true
+      end
+    end
 
     wb = build(:waybill)
     wb.add_item(tag: 'nails', mu: 'pcs', amount: 1200, price: 1)
@@ -281,19 +285,21 @@ describe Waybill do
     wb.add_item(tag: 'hammer', mu: 'th', amount: 500, price: 100.0)
     lambda { wb.save } .should change(Rule, :count).by(2)
 
-    rule = wb.deal.rules[0]
-    rule.rate.should eq(100)
-    wb.items[0].warehouse_deal(Chart.first.currency,
-      wb.distributor_place, wb.distributor).should eq(rule.from)
-    wb.items[0].warehouse_deal(nil, wb.storekeeper_place,
-      wb.storekeeper).should eq(rule.to)
-
-    rule = wb.deal.rules[1]
-    rule.rate.should eq(500)
-    wb.items[1].warehouse_deal(Chart.first.currency,
-      wb.distributor_place, wb.distributor).should eq(rule.from)
-    wb.items[1].warehouse_deal(nil, wb.storekeeper_place,
-      wb.storekeeper).should eq(rule.to)
+    wb.deal.rules.each do |rule|
+      if rule.rate == 100
+        wb.items[0].warehouse_deal(Chart.first.currency,
+          wb.distributor_place, wb.distributor).should eq(rule.from)
+        wb.items[0].warehouse_deal(nil, wb.storekeeper_place,
+          wb.storekeeper).should eq(rule.to)
+      elsif rule.rate == 500
+        wb.items[1].warehouse_deal(Chart.first.currency,
+          wb.distributor_place, wb.distributor).should eq(rule.from)
+        wb.items[1].warehouse_deal(nil, wb.storekeeper_place,
+          wb.storekeeper).should eq(rule.to)
+      else
+        false.should be_true
+      end
+    end
 
     wb = build(:waybill)
     wb.add_item(tag: 'roofer', mu: 'm2', amount: 100, price: 10.0)
@@ -301,11 +307,12 @@ describe Waybill do
     wb.add_item(tag: 'roofer', mu: 'm2', amount: 128.4, price: 10.0)
     lambda { wb.save } .should change(Rule, :count).by(3)
 
-    wb.deal.rules.each_with_index do |rule, idx|
-      rule.rate.should eq(wb.items[idx].amount)
-      wb.items[idx].warehouse_deal(Chart.first.currency, wb.distributor_place,
+    wb.items.each do |item|
+      rule = wb.deal.rules.where{rate == item.amount}.first
+      rule.should_not be_nil
+      item.warehouse_deal(Chart.first.currency, wb.distributor_place,
                                    wb.distributor).should eq(rule.from)
-      wb.items[idx].warehouse_deal(nil, wb.storekeeper_place,
+      item.warehouse_deal(nil, wb.storekeeper_place,
                                    wb.storekeeper).should eq(rule.to)
     end
   end

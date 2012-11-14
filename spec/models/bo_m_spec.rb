@@ -49,8 +49,8 @@ describe BoM do
       deal.rate.should eq(1.00)
       deal.isOffBalance.should be_true
       deal.rules.count.should eq(2)
-      [deal.rules.first.from.give.resource,
-       deal.rules.last.from.give.resource].should =~ [@compressor, @truck]
+      [deal.rules.all.first.from.give.resource,
+       deal.rules.all.last.from.give.resource].should =~ [@compressor, @truck]
       deal.rules.each do |rule|
         if rule.from.give == @truck
           rule.rate.should eq(0.33 * (74.03 * 4.70))
@@ -69,8 +69,8 @@ describe BoM do
     it "should resend physical volume to rule creation" do
       deal = @bom.to_deal(@entity, create(:place), @prices, 2)
       deal.rules.count.should eq(2)
-      [deal.rules.first.from.give.resource,
-       deal.rules.last.from.give.resource].should =~ [@compressor, @truck]
+      [deal.rules.all.first.from.give.resource,
+       deal.rules.all.last.from.give.resource].should =~ [@compressor, @truck]
       deal.rules.each do |rule|
         if rule.from.give == @truck
           rule.rate.should eq(0.33 * (74.03 * 4.70) * 2)

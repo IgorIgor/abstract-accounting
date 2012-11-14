@@ -62,10 +62,15 @@ describe Allocation do
 
     db = Allocation.find(db)
     db.items.count.should eq(2)
-    db.items[0].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'pcs').first)
-    db.items[0].amount.should eq(500)
-    db.items[1].resource.should eq(Asset.find_all_by_tag_and_mu('nails', 'kg').first)
-    db.items[1].amount.should eq(2)
+    db.items.each do |item|
+      if item.resource == Asset.find_all_by_tag_and_mu('nails', 'pcs').first
+        item.amount.should eq(500)
+      elsif item.resource == Asset.find_all_by_tag_and_mu('nails', 'kg').first
+        item.amount.should eq(2)
+      else
+        false.should be_true
+      end
+    end
   end
 
   it 'should create deals' do
@@ -81,8 +86,8 @@ describe Allocation do
     deal.entity.should eq(db.storekeeper)
     deal.isOffBalance.should be_true
 
-    roof_deal_tag = Waybill.first.items.first.warehouse_deal(nil,
-      db.storekeeper_place, db.storekeeper).tag
+    roof_deal_tag = Waybill.first.deal.rules.joins{to.give}.
+        where{to.give.resource_id == db.items.first.resource.id}.first.to.tag
     deal = db.items.first.warehouse_deal(nil, db.storekeeper_place, db.storekeeper)
     deal.tag.should eq(roof_deal_tag)
     deal.should_not be_nil
@@ -154,19 +159,14 @@ describe Allocation do
     db.add_item(tag: 'nails', mu: 'pcs', amount: 300)
     lambda { db.save } .should change(Rule, :count).by(2)
 
-    rule = db.deal.rules[0]
-    rule.rate.should eq(150)
-    db.items[0].warehouse_deal(nil, db.storekeeper_place,
-      db.storekeeper).should eq(rule.from)
-    db.items[0].warehouse_deal(nil, db.foreman_place,
-      db.foreman).should eq(rule.to)
-
-    rule = db.deal.rules[1]
-    rule.rate.should eq(300)
-    db.items[1].warehouse_deal(nil, db.storekeeper_place,
-      db.storekeeper).should eq(rule.from)
-    db.items[1].warehouse_deal(nil, db.foreman_place,
-      db.foreman).should eq(rule.to)
+    db.items.each do |item|
+      rule = db.deal.rules.where{rate == item.amount}.first
+      rule.should_not be_nil
+      item.warehouse_deal(nil, db.foreman_place,
+                          db.foreman).should eq(rule.to)
+      item.warehouse_deal(nil, db.storekeeper_place,
+                          db.storekeeper).should eq(rule.from)
+    end
   end
 
   it 'should change state' do

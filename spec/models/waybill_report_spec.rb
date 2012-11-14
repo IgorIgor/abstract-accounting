@@ -26,7 +26,7 @@ describe WaybillReport do
     wbs = WaybillReport.with_resources.select_all.joins{deal.rules.from.take.resource}.
         order("resource_mu DESC")
 
-    wbs[0].created.should eq(wb.created)
+    wbs[0].created.to_s.should eq(wb.created.to_s)
     wbs[0].document_id.should eq(wb.document_id)
     wbs[0].distributor.name.should eq(wb.distributor.name)
     wbs[0].storekeeper.tag.should eq(wb.storekeeper.tag)
@@ -41,7 +41,7 @@ describe WaybillReport do
     Converter.float(wbs[0].resource_sum).
         accounting_norm.should eq((wb.items[0].amount * wb.items[0].price).accounting_norm)
 
-    wbs[1].created.should eq(wb.created)
+    wbs[1].created.to_s.should eq(wb.created.to_s)
     wbs[1].document_id.should eq(wb.document_id)
     wbs[1].distributor.name.should eq(wb.distributor.name)
     wbs[1].storekeeper.tag.should eq(wb.storekeeper.tag)
@@ -57,7 +57,7 @@ describe WaybillReport do
             accounting_norm.should eq((wb.items[1].amount * wb.items[1].price).
                                           accounting_norm)
 
-    wbs[2].created.should eq(wb2.created)
+    wbs[2].created.to_s.should eq(wb2.created.to_s)
     wbs[2].document_id.should eq(wb2.document_id)
     wbs[2].distributor.name.should eq(wb2.distributor.name)
     wbs[2].storekeeper.tag.should eq(wb2.storekeeper.tag)

@@ -60,8 +60,8 @@ describe Estimate do
       pl.items.create!(:resource => @truck, :rate => (74.03 * 4.70))
       @estimate.items.build(:bom => bom, :amount => 2.0)
       @estimate.deal.rules.count.should eq(2)
-      [@estimate.deal.rules.first.to.give.resource,
-      @estimate.deal.rules.last.to.give.resource].should =~ [@compaction, @covering]
+      [@estimate.deal.rules.all.first.to.give.resource,
+      @estimate.deal.rules.all.last.to.give.resource].should =~ [@compaction, @covering]
     end
 
     it "should remove rules from deal when item removed" do

@@ -188,20 +188,11 @@ input[type=text], input[type=password] {
         vertical-align: top;
         display: inline-block;
       }
-    }
-
-    .with-padding {
-      padding-left: 10px;
-    }
-
-    .view-nav {
-      margin: 5px;
-      position: absolute;
-      top: 53px;
-      left: 129px;
 
       ul{
         list-style-type: none;
+        margin: 0px;
+        padding: 0px;
 
         li{
           display: inline-block;
@@ -212,6 +203,7 @@ input[type=text], input[type=password] {
             display: block;
             width: 32px;
             height: 32px;
+            padding: 0px;
           }
 
           .table-view {
@@ -230,6 +222,10 @@ input[type=text], input[type=password] {
           }
         }
       }
+    }
+
+    .with-padding {
+      padding-left: 10px;
     }
 
     table {

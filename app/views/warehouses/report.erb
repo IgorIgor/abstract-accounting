@@ -6,12 +6,6 @@
                        value: warehouse_id, event: {change: filterData}">
     </select>
   <% end %>
-  <label for="report_resource">
-    <%= t 'views.warehouses.tag' %>:
-  </label>
-  <input type="text" id="report_resource" style="width: 200px;"
-         data-bind="value: resource.tag">
-  <div class='buttons-separator'></div>
   <input type='button' value="<%= t 'views.warehouses.filter.select.asset' %>"
          data-bind="click: openDialog.bind($data, 'resources_selector')"/>
   <input type='button' value="<%= t('views.warehouses.report.print') %>"

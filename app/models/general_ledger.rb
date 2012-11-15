@@ -33,7 +33,7 @@ class GeneralLedger
   end
 
   def initialize
-    @current_scope = Txn
+    @current_scope = Txn.without_nullable
   end
 
   scope :filtrate do |*args|

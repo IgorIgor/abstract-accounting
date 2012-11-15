@@ -844,8 +844,8 @@ describe Txn do
 
   it "should produce general ledger" do
     Txn.all.count.should eq(20)
-    GeneralLedger.all.count.should eq(20)
-    GeneralLedger.all.should =~ Txn.all
+    GeneralLedger.all.should =~ Txn.without_nullable.all
+    GeneralLedger.all.count.should eq(18)
   end
 
   it "should filter txns by date" do
@@ -944,5 +944,27 @@ describe Txn do
           joins{fact.resource(Money).outer}.order("#{query} desc")
       txns.should eq(txns_test)
     end
+  end
+
+  it 'should show txns with amount > 0' do
+    shipment = create(:deal,
+                      :give => build(:deal_give, :resource => Asset.create(tag: "HAHA")),
+                      :take => build(:deal_take, :resource => Asset.find_by_tag("HAHA")),
+                      :rate => 1.0, isOffBalance: true)
+    sale = create(:deal,
+                  :give => build(:deal_give, :resource => @rub),
+                  :take => build(:deal_take, :resource => @aasii),
+                  :rate => 1 / 25.0)
+    store = create(:deal,
+                   :give => build(:deal_give, :resource => @aasii),
+                   :take => build(:deal_take, :resource => @aasii),
+                   :rate => 1.0)
+    shipment.rules.create(tag: "#{shipment.tag}; rule1",
+                          from: sale, to: store, fact_side: false,
+                          change_side: true, rate: 100)
+    fact = create(:fact, :day => DateTime.now.change(hour: 12, min: 0, sec: 0),
+                  :from => nil, :to => shipment, :resource => @aasii, :amount => 1.0)
+    Txn.create!(fact: fact)
+    Txn.without_nullable.should eq(Txn.where{value != 0})
   end
 end

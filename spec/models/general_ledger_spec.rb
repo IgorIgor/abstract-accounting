@@ -139,6 +139,10 @@ describe GeneralLedger do
   end
 
   describe "#current_scope" do
+    it 'should' do
+      GeneralLedger.all.should eq(Txn.without_nullable.all)
+    end
+
     it "should return txns paginated" do
       GeneralLedger.paginate(page: 1, per_page: (Txn.count / 2)).all.
                 should =~ Txn.limit(Txn.count / 2).all
@@ -152,7 +156,7 @@ describe GeneralLedger do
       wb.save!
       wb.apply
       GeneralLedger.by_deal(wb.deal_id).all.should eq(GeneralLedger.by_deals([wb.deal_id]).all)
-      GeneralLedger.by_deal(wb.deal_id).all.should =~ Txn.all[-2, 2]
+      GeneralLedger.by_deal(wb.deal_id).all.should =~ Txn.without_nullable.all[3, 1]
     end
   end
 
@@ -177,12 +181,12 @@ describe GeneralLedger do
 
     it "should proxy filtrate method to Txn" do
       GeneralLedger.filtrate(sort: { field: "resource", type: "desc" }).
-          all.should eq(Txn.sort_by_resource("desc"))
+          all.should eq(Txn.without_nullable.sort_by_resource("desc"))
     end
 
     it "should proxy sort method to Txn" do
       GeneralLedger.sort({ field: "resource", type: "desc" }).
-          all.should eq(Txn.sort_by_resource("desc"))
+          all.should eq(Txn.without_nullable.sort_by_resource("desc"))
     end
   end
 
@@ -197,7 +201,7 @@ describe GeneralLedger do
       end
       fact_ids = Fact.where{from_deal_id.in(deal_ids) | to_deal_id.in(deal_ids)}.select(:id)
       child_fact_ids = Fact.where{parent_id.in(fact_ids)}.select(:id)
-      GeneralLedger.by_deals(deal_ids).all.should eq(Txn.joins{fact}.
+      GeneralLedger.by_deals(deal_ids).all.should eq(Txn.without_nullable.joins{fact}.
           where{fact.id.in(child_fact_ids + fact_ids)})
     end
   end

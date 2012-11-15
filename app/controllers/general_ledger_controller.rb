@@ -24,7 +24,7 @@ class GeneralLedgerController < ApplicationController
     filter = { paginate: { page: page, per_page: per_page }}
     filter[:sort] = params[:order] if params[:order]
     #TODO: should get filtrate options from client
-    @gl = scope.filtrate(filter).all(include: [fact: [:resource]])
+    @gl = scope.filtrate(filter).all(include: [fact: [:resource, :to, :from]])
     @count = scope.count
   end
 end

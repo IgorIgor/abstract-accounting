@@ -128,7 +128,7 @@ describe GeneralLedger do
       GeneralLedger.on_date(nil).count.should eq(Txn.count - 1)
       GeneralLedger.on_date.count.should eq(Txn.count - 1)
       GeneralLedger.on_date((Date.today + 3).to_s).all.first.should eq(
-        Txn.on_date((Date.today + 3)).first)
+        Txn.on_date((Date.today + 3)).all.first)
     end
   end
 
@@ -151,7 +151,8 @@ describe GeneralLedger do
       wb.add_item(tag: 'roof', mu: 'rm', amount: 100, price: 120.0)
       wb.save!
       wb.apply
-      GeneralLedger.by_deal(wb.deal_id).all.should eq(Txn.all[-2, 2])
+      GeneralLedger.by_deal(wb.deal_id).all.should eq(GeneralLedger.by_deals([wb.deal_id]).all)
+      GeneralLedger.by_deal(wb.deal_id).all.should =~ Txn.all[-2, 2]
     end
   end
 
@@ -194,8 +195,10 @@ describe GeneralLedger do
       deal_ids = Txn.limit(Txn.count / 2).collect do |item|
         (item.fact_id % 2) == 0 ? item.fact.from_deal_id : item.fact.to_deal_id
       end
-      GeneralLedger.by_deals(deal_ids).all.should =~ Txn.joins(:fact).
-        where{(fact.from_deal_id.in(deal_ids) | fact.to_deal_id.in(deal_ids))}
+      fact_ids = Fact.where{from_deal_id.in(deal_ids) | to_deal_id.in(deal_ids)}.select(:id)
+      child_fact_ids = Fact.where{parent_id.in(fact_ids)}.select(:id)
+      GeneralLedger.by_deals(deal_ids).all.should eq(Txn.joins{fact}.
+          where{fact.id.in(child_fact_ids + fact_ids)})
     end
   end
 end

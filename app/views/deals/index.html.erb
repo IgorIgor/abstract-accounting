@@ -1,6 +1,13 @@
+<div class='actions with-padding'>
+  <input type="button"
+         value="<%= t 'views.deals.report_on_selected' %>"
+         id="report_on_selected"
+         data-bind="click: toReport,  disable: selected().length == 0" />
+</div>
 <table>
   <thead>
     <tr>
+      <th></th>
       <th></th>
       <th id="tag" data-bind="click: sortBy">
         <%= t 'views.deals.tag' %><span></span>
@@ -21,6 +28,9 @@
   </thead>
   <tbody data-bind="foreach: documents">
     <tr>
+      <td>
+        <input type="checkbox" data-bind="value: id, checked: $parent.selected">
+      </td>
       <td class="tree-actions"
           data-bind="click: has_rules > 0 ? $parent.expandTree : null">
         <div class="ui-corner-all"
@@ -28,11 +38,11 @@
           <span class="ui-icon ui-icon-circle-plus"></span>
         </div>
       </td>
-      <td data-bind="text: tag, click: $parent.canSelect() ? $parent.select : $parent.toConditions"></td>
-      <td data-bind="text: entity_tag, click: $parent.canSelect() ? $parent.select : $parent.toConditions"></td>
-      <td data-bind="text: give, click: $parent.canSelect() ? $parent.select : $parent.toConditions"></td>
-      <td data-bind="text: take, click: $parent.canSelect() ? $parent.select : $parent.toConditions"></td>
-      <td data-bind="text: rate, click: $parent.canSelect() ? $parent.select : $parent.toConditions"></td>
+      <td data-bind="text: tag, click: $parent.show"></td>
+      <td data-bind="text: entity_tag, click: $parent.show"></td>
+      <td data-bind="text: give, click: $parent.show"></td>
+      <td data-bind="text: take, click: $parent.show"></td>
+      <td data-bind="text: rate, click: $parent.show"></td>
     </tr>
     <tr data-bind="attr: {id: 'rules_' + id}, with: subitems">
       <td></td>

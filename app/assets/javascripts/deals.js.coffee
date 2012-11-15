@@ -6,9 +6,29 @@ $ ->
 
       super(data)
 
+      @selected = ko.observableArray()
       @params =
         page: @page
         per_page: @per_page
+
+    toReport: =>
+      rules = ko.utils.arrayFirst(@documents(), (item) =>
+        item.id == @selected()[0] && item.has_rules
+      )
+      date = $.datepicker.formatDate('yy-mm-dd', new Date())
+      if @selected().length == 1 && !rules
+        filter =
+          deal_id: @selected()[0]
+        filter["date_to"] = filter["date_from"] = date
+        location.hash = "transcripts?#{$.param(filter)}"
+      else
+        filter =
+          deal_ids: ko.mapping.toJS(@selected())
+          date: date
+        location.hash = "general_ledger?#{$.param(filter)}"
+
+    show: (deal) =>
+      location.hash = "documents/deals/#{deal.id}"
 
     select: (object) =>
       ko.dataFor($('#main').get(0)).deal_id(object.id)
@@ -16,17 +36,6 @@ $ ->
       ko.cleanNode($('#container_selection').get(0))
       $('#container_selection').remove()
       $('#main').show()
-
-    toConditions: (object) ->
-      date = $.datepicker.formatDate('yy-mm-dd', new Date())
-      filter =
-        deal_id: object.id
-      if object.has_rules
-        filter["date"] = date
-        location.hash = "general_ledger?#{$.param(filter)}"
-      else
-        filter["date_to"] = filter["date_from"] = date
-        location.hash = "transcripts?#{$.param(filter)}"
 
     generateItemsUrl: (object) => "/deals/#{object.id}/rules.json"
 

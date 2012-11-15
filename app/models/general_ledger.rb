@@ -9,10 +9,14 @@
 
 class GeneralLedger
   class << self
-    def scope(name, &filter)
+    def scope(name, unscoped = false, &filter)
       if block_given?
         define_method name do |*args|
-          value = @current_scope.instance_exec *args, &filter
+          if unscoped
+            value = filter.call(*args)
+          else
+            value = @current_scope.instance_exec *args, &filter
+          end
           if value.instance_of?(ActiveRecord::Relation)
             ledger_scope = clone
             ledger_scope.instance_variable_set(:@current_scope, value)
@@ -56,13 +60,13 @@ class GeneralLedger
     count
   end
 
-  scope :by_deal do |deal_id|
-    fact_ids = Fact.where{(from_deal_id == deal_id) | (to_deal_id == deal_id)}.select(:id)
-    children_fact_ids = Fact.where{parent_id.in(fact_ids)}.select(:id)
-    joins{fact}.where{fact.id.in(children_fact_ids + fact_ids)}
+  scope :by_deals do |deal_ids|
+    fact_ids = Fact.where{from_deal_id.in(deal_ids) | to_deal_id.in(deal_ids)}.select(:id)
+    child_fact_ids = Fact.where{parent_id.in(fact_ids)}.select(:id)
+    joins{fact}.where{fact.id.in(child_fact_ids + fact_ids)}
   end
 
-  scope :by_deals do |deal_ids|
-    joins{fact}.where{fact.from_deal_id.in(deal_ids) | fact.to_deal_id.in(deal_ids)}
+  scope(:by_deal, :unscoped) do |deal_id|
+    by_deals([deal_id])
   end
 end

@@ -375,4 +375,297 @@ feature 'deals', %q{
     test_order.call('rate','asc')
     test_order.call('rate','desc')
   end
+
+  scenario "go to deal page from deals", js: true do
+    Chart.first.currency
+    deal = create(:deal)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.deals')
+    current_hash.should eq('deals')
+
+    within('#container_documents') do
+      page.find(:xpath, ".//table/tbody/tr/td[contains(./text(), '#{deal.tag}')]").click
+    end
+
+    current_hash.should eq("documents/deals/#{deal.id}")
+  end
+
+  scenario 'go to general_ledger page from deals if deal with rules', js: true do
+    rub = Chart.first.currency
+    x = create(:asset)
+    y = create(:asset)
+    keeper = create(:entity)
+    shipment = create(:asset)
+    supplier = create(:entity)
+    purchase_x = create(:deal,
+                        :entity => supplier,
+                        :give => build(:deal_give, :resource => rub),
+                        :take => build(:deal_take, :resource => x),
+                        :rate => (1.0 / 100.0))
+    purchase_y = create(:deal,
+                        :entity => supplier,
+                        :give => build(:deal_give, :resource => rub),
+                        :take => build(:deal_take, :resource => y),
+                        :rate => (1.0 / 150.0))
+    storage_x = create(:deal,
+                       :entity => keeper,
+                       :give => build(:deal_give, :resource => x),
+                       :take => build(:deal_take, :resource => x))
+    storage_y = create(:deal,
+                       :entity => keeper,
+                       :give => build(:deal_give, :resource => y),
+                       :take => build(:deal_take, :resource => y))
+    shipment_deal = create(:deal,
+                           :entity => supplier,
+                           :give => build(:deal_give, :resource => shipment),
+                           :take => build(:deal_take, :resource => shipment),
+                           :isOffBalance => true)
+    shipment = create(:deal,
+                           :entity => supplier,
+                           :give => build(:deal_give, :resource => shipment),
+                           :take => build(:deal_take, :resource => shipment),
+                           :isOffBalance => true)
+    create(:rule, :deal => shipment_deal, :from => purchase_x,
+           :to => storage_x, :rate => 27.0)
+    create(:rule, :deal => shipment, :from => purchase_y,
+           :to => storage_y, :rate => 42.0)
+
+    f = create(:fact, :day => DateTime.civil(2008, 9, 22, 12, 0, 0),
+               :from => nil, :to => shipment_deal, :resource => shipment_deal.give.resource)
+    create(:txn, :fact => f)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.deals')
+    current_hash.should eq('deals')
+
+    find("#report_on_selected")[:disabled].should be_true
+
+    find(:xpath, ".//div[@id='container_documents']/table/tbody/tr[9]/td[1]/input").click
+
+    find("#report_on_selected")[:disabled].should be_false
+
+    find("#report_on_selected").click
+
+    date = DateTime.now.strftime('%Y-%m-%d')
+    page.find('#general_ledger_date')[:value].
+        should eq(DateTime.now.strftime('%d.%m.%Y'))
+
+    current_hash.should eq("general_ledger?deal_ids%5B%5D=#{shipment_deal.id}&date=#{date}")
+
+    scope = GeneralLedger.on_date(date).paginate(page: 1, per_page: Settings.root.per_page)
+    items = scope.by_deal(shipment_deal.id).all
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: items.count * 2)
+
+      items.each do |item|
+        page.should have_content(item.fact.day.strftime('%Y-%m-%d'))
+        page.should have_content(item.fact.amount.to_s)
+        page.should have_content(item.fact.resource.tag)
+        page.should have_content(item.fact.from.tag) unless item.fact.from.nil?
+        page.should have_content(item.fact.to.tag)
+        page.should have_content(item.value)
+        page.should have_content(item.earnings)
+      end
+
+      scope.by_deal(shipment.id).all.each do |item|
+        page.should_not have_content(item.fact.amount.to_s) unless item.fact.from.nil?
+        page.should_not have_content(item.fact.from.tag) unless item.fact.from.nil?
+        page.should_not have_content(item.fact.to.tag)
+        page.should_not have_content(item.value) unless item.fact.from.nil?
+      end
+    end
+  end
+
+  scenario 'go to general_ledger page from deals if checked 2 deals', js: true do
+    rub = Chart.first.currency
+    x = create(:asset)
+    y = create(:asset)
+    keeper = create(:entity)
+    shipment = create(:asset)
+    supplier = create(:entity)
+    purchase_x = create(:deal,
+                        :entity => supplier,
+                        :give => build(:deal_give, :resource => rub),
+                        :take => build(:deal_take, :resource => x),
+                        :rate => (1.0 / 100.0))
+    purchase_y = create(:deal,
+                        :entity => supplier,
+                        :give => build(:deal_give, :resource => rub),
+                        :take => build(:deal_take, :resource => y),
+                        :rate => (1.0 / 150.0))
+    storage_x = create(:deal,
+                       :entity => keeper,
+                       :give => build(:deal_give, :resource => x),
+                       :take => build(:deal_take, :resource => x))
+    storage_y = create(:deal,
+                       :entity => keeper,
+                       :give => build(:deal_give, :resource => y),
+                       :take => build(:deal_take, :resource => y))
+    shipment_deal = create(:deal,
+                           :entity => supplier,
+                           :give => build(:deal_give, :resource => shipment),
+                           :take => build(:deal_take, :resource => shipment),
+                           :isOffBalance => true)
+    create(:rule, :deal => shipment_deal, :from => purchase_x,
+           :to => storage_x, :rate => 27.0)
+    create(:rule, :deal => shipment_deal, :from => purchase_y,
+           :to => storage_y, :rate => 42.0)
+
+    f = create(:fact, :day => DateTime.civil(2008, 9, 22, 12, 0, 0),
+               :from => nil, :to => shipment_deal, :resource => shipment_deal.give.resource)
+    create(:txn, :fact => f)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.deals')
+    current_hash.should eq('deals')
+
+    find("#report_on_selected")[:disabled].should be_true
+
+    find(:xpath, ".//div[@id='container_documents']/table/tbody/tr[1]/td[1]/input").click
+
+    find("#report_on_selected")[:disabled].should be_false
+
+    find(:xpath, ".//div[@id='container_documents']/table/tbody/tr[9]/td[1]/input").click
+
+    find("#report_on_selected").click
+
+    date = DateTime.now.strftime('%Y-%m-%d')
+    page.find('#general_ledger_date')[:value].
+        should eq(DateTime.now.strftime('%d.%m.%Y'))
+
+    current_hash.should eq("general_ledger?deal_ids%5B%5D=#{purchase_x.id}&deal_ids%5B%5D=#{shipment_deal.id}&date=#{date}")
+
+    scope = GeneralLedger.on_date(date).paginate(page: 1, per_page: Settings.root.per_page)
+    items = scope.by_deals([purchase_x.id, shipment_deal.id]).all
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: items.count * 2)
+
+      items.each do |item|
+        page.should have_content(item.fact.day.strftime('%Y-%m-%d'))
+        page.should have_content(item.fact.amount.to_s)
+        page.should have_content(item.fact.resource.tag)
+        page.should have_content(item.fact.from.tag) unless item.fact.from.nil?
+        page.should have_content(item.fact.to.tag)
+        page.should have_content(item.value)
+        page.should have_content(item.earnings)
+      end
+    end
+  end
+
+  scenario 'go to transcript page from deals if deal without rules', js: true do
+    rub = Chart.first.currency
+    x = create(:asset)
+    purchase_x = create(:deal,
+                        :give => build(:deal_give, :resource => rub),
+                        :take => build(:deal_take, :resource => x))
+
+    storage_x = create(:deal,
+                       :give => build(:deal_give, :resource => x),
+                       :take => build(:deal_take, :resource => x))
+
+
+    f = create(:fact, :day => DateTime.now,
+               :from => purchase_x, :to => storage_x, :resource => storage_x.give.resource)
+    create(:txn, :fact => f)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.deals')
+    current_hash.should eq('deals')
+
+    find("#report_on_selected")[:disabled].should be_true
+
+    find(:xpath, ".//div[@id='container_documents']/table/tbody/tr[1]/td[1]/input").click
+
+    find("#report_on_selected")[:disabled].should be_false
+
+    find("#report_on_selected").click
+
+    date = DateTime.now.strftime('%Y-%m-%d')
+
+    current_hash.should eq("transcripts?deal_id=#{purchase_x.id}&date_from=#{date}&date_to=#{date}")
+
+    page.find('#main').visible?.should be_true
+    page.should_not have_selector('#container_selection')
+
+    transcript = Transcript.new(purchase_x, Date.today, Date.today)
+    txns = transcript.all
+    within('#container_documents table') do
+      within(:xpath, './/thead//tr[1]') do
+        page.find(:xpath, './/td[1]').
+            should have_content(transcript.start.strftime('%Y-%m-%d'))
+        if transcript.opening.nil? ||
+            transcript.opening.side != Balance::PASSIVE
+          debit_from = 0.0
+        else
+          debit_from = transcript.opening.amount
+        end
+        page.find(:xpath, './/td[2]').should have_content(debit_from)
+        if transcript.opening.nil? ||
+            transcript.opening.side != Balance::ACTIVE
+          credit_from = 0.0
+        else
+          credit_from = transcript.opening.amount
+        end
+        page.find(:xpath, './/td[3]').should have_content(credit_from)
+      end
+      within(:xpath, './/thead//tr[2]') do
+        page.should have_content(I18n.t('views.transcripts.date'))
+        page.should have_content(I18n.t('views.transcripts.account'))
+        page.should have_content(I18n.t('views.transcripts.debit'))
+        page.should have_content(I18n.t('views.transcripts.credit'))
+      end
+
+      within(:xpath, './/tfoot//tr[1]') do
+        page.should have_content(I18n.t('views.transcripts.total_circulation'))
+        page.find(:xpath, './/td[2]').should have_content(
+                                                 transcript.total_debits)
+        page.find(:xpath, './/td[3]').should have_content(
+                                                 transcript.total_credits)
+      end
+
+      within(:xpath, './/tfoot//tr[2]') do
+        page.should have_content(I18n.t('views.transcripts.rate_differences'))
+        page.find(:xpath, './/td[2]').should have_content('')
+        page.find(:xpath, './/td[3]').should have_content('')
+      end
+
+      within(:xpath, './/tfoot//tr[3]') do
+        page.find(:xpath, './/td[1]').
+            should have_content(transcript.stop.strftime('%Y-%m-%d'))
+        if transcript.closing.nil? ||
+            transcript.closing.side != Balance::PASSIVE
+          debit_to = 0.0
+        else
+          debit_to = transcript.closing.amount
+        end
+        page.find(:xpath, './/td[2]').should have_content(debit_to)
+        if transcript.closing.nil? ||
+            transcript.closing.side != Balance::ACTIVE
+          credit_to = 0.0
+        else
+          credit_to = transcript.closing.amount
+        end
+        page.find(:xpath, './/td[3]').should have_content(credit_to)
+      end
+
+      within(:xpath, './/tbody') do
+        page.should have_content(txns[0].fact.day.strftime('%Y-%m-%d'))
+        if purchase_x.id == txns[0].fact.to.id
+          page.find(:xpath, ".//tr[1]/td[3]").
+              should have_content(txns[0].fact.amount)
+          page.should have_content(txns[0].fact.from.tag)
+        else
+          page.find(:xpath, ".//tr[1]/td[4]").
+              should have_content(txns[0].fact.amount)
+          page.should have_content(txns[0].fact.to.tag)
+        end
+        page.should have_content(txns[0].fact.amount)
+      end
+    end
+  end
 end

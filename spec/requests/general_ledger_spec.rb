@@ -112,60 +112,6 @@ feature "GeneralLedger", %q{
     end
   end
 
-  scenario "go to general ledger page from deals", js: true do
-    create(:chart)
-    wb = build(:waybill)
-    3.times do |i|
-      wb.add_item(tag: "resource##{i}", mu: "mu#{i}", amount: 100+i, price: 10+i)
-    end
-    wb.save!
-    wb.apply
-    wb2 = build(:waybill)
-    3.times do |i|
-      wb2.add_item(tag: "resource2##{i}", mu: "mu2#{i}", amount: 200+i, price: 20+i)
-    end
-    wb2.save!
-    wb2.apply
-
-    page_login
-    page.find('#btn_slide_lists').click
-    click_link I18n.t('views.home.deals')
-    current_hash.should eq('deals')
-
-    within('#container_documents') do
-      page.find(:xpath, ".//table/tbody/tr/td[contains(./text(), '#{wb.deal.tag}')]").click
-    end
-
-    date = DateTime.now.strftime('%Y-%m-%d')
-    current_hash.should eq("general_ledger?deal_id=#{wb.deal_id}&date=#{date}")
-
-    page.find('#general_ledger_date')[:value].
-        should eq(DateTime.now.strftime('%d.%m.%Y'))
-
-    scope = GeneralLedger.on_date(date).paginate(page: 1, per_page: Settings.root.per_page)
-    items = scope.by_deal(wb.deal_id).all
-    within('#container_documents table tbody') do
-      page.should have_selector('tr', count: items.count * 2)
-
-      items.each do |item|
-        page.should have_content(item.fact.day.strftime('%Y-%m-%d'))
-        page.should have_content(item.fact.amount.to_s)
-        page.should have_content(item.fact.resource.tag)
-        page.should have_content(item.fact.from.tag) unless item.fact.from.nil?
-        page.should have_content(item.fact.to.tag)
-        page.should have_content(item.value)
-        page.should have_content(item.earnings)
-      end
-
-      scope.by_deal(wb2.deal_id).all.each do |item|
-        page.should_not have_content(item.fact.amount.to_s) unless item.fact.from.nil?
-        page.should_not have_content(item.fact.from.tag) unless item.fact.from.nil?
-        page.should_not have_content(item.fact.to.tag)
-        page.should_not have_content(item.value) unless item.fact.from.nil?
-      end
-    end
-  end
-
   scenario "sort general_ledger", js: true do
     create(:chart)
     wb = build(:waybill)

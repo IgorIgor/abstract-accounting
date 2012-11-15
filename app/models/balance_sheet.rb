@@ -50,7 +50,7 @@ class BalanceSheet < Array
       scope = @balance_scope
       scope = sort(scope) if self.order_value
       scope = scope.paginate(self.paginate_value) if self.paginate_value
-      scope.each do |o|
+      scope.all(options).each do |o|
         self << o
       end
     elsif self.group_by_value
@@ -76,13 +76,21 @@ class BalanceSheet < Array
         self << object
       end
     else
+      balance_ids = []
+      income_ids = []
       scope = SqlRecord
       scope = scope.paginate(self.paginate_value) if self.paginate_value
       scope.union(@balance_scope.select("id, '#{Balance.name}' as type").to_sql,
                   @income_scope.select("id, '#{Income.name}' as type").to_sql).
             all.each do |object|
-        self << object.type.constantize.find(object.id, options)
+        if object.type == Balance.name
+          balance_ids << object.id
+        else
+          income_ids << object.id
+        end
       end
+      self.concat(Balance.where{id.in(balance_ids)}.find(:all, options))
+      self.concat(Income.where{id.in(income_ids)}.find(:all, options))
     end
     self
   end

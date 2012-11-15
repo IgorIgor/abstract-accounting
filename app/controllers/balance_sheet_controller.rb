@@ -22,7 +22,7 @@ class BalanceSheetController < ActionController::Base
     @balances = scope.
         date(params[:date].nil? ? DateTime.now : Date.parse(params[:date])).
         paginate(page: params[:page] || 1, per_page: params[:per_page]).
-        all(include: [deal: [:entity, give: [:resource]]])
+        all(include: [deal: [:entity, give: [:resource,:place], take: [:resource, :place]]])
   end
 
   def group
@@ -37,8 +37,7 @@ class BalanceSheetController < ActionController::Base
         @balances_nogroup = scope.clone
         scope = scope.group_by(params[:group_by]) if params[:group_by]
         @balances = scope.
-            paginate(page: params[:page] || 1, per_page: params[:per_page]).
-            all(include: [deal: [:entity, give: [:resource]]])
+            paginate(page: params[:page] || 1, per_page: params[:per_page]).all
         @group_by = params[:group_by]
       end
     end

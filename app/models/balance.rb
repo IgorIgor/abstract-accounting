@@ -36,9 +36,18 @@ class Balance < ActiveRecord::Base
       end
     end
 
-    def with_entity(id, type)
-      type_i = type.instance_of?(Class) ? type.name : type
-      where{(deal.entity_id == id) & (deal.entity_type == type_i)}
+    def with_entities(entities)
+      scoped.where do
+        scope = nil
+        entities.inject({}) do |mem, item|
+          (mem[item['type']] ||= []).push(item['id'])
+          mem
+        end.each do |key, value|
+          tmp_scope = (deal.entity_type == key) & (deal.entity_id.in(value))
+          scope = scope ? scope | tmp_scope : tmp_scope
+        end
+        scope
+      end
     end
 
     def with_places(ids)

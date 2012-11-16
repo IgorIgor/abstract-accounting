@@ -789,14 +789,14 @@ describe Txn do
     bs.assets.should eq(101900.0)
     bs.liabilities.should eq(0.0)
 
-    bs = BalanceSheet.entity(id: @bank.entity_id, type: @bank.entity.class.name).
+    bs = BalanceSheet.entities([{'id' => @bank.entity_id, 'type' => @bank.entity.class.name}]).
         date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
     bs.count.should eq(1)
     bs.db_count.should eq(1)
     bs.assets.should eq(87920.0)
     bs.liabilities.should eq(0.0)
 
-    bs = BalanceSheet.entity(id: @bank.entity_id, type: @bank.entity.class.name).all
+    bs = BalanceSheet.entities([{'id' => @bank.entity_id, 'type' => @bank.entity.class.name}]).all
     bs.count.should eq(1)
     bs.db_count.should eq(1)
     bs.assets.should eq(101900.0)

@@ -54,7 +54,7 @@ describe Balance do
       create(:balance, deal: create(:deal, entity:
           Entity.find_or_create_by_tag("entity#{i == 2 ? 0 : i}")))
     end
-    Balance.joins(:deal).with_entity(Entity.find_by_tag("entity0").id, Entity).
+    Balance.joins(:deal).with_entities([{'id' => Entity.find_by_tag("entity0").id.to_s, 'type' => Entity.name}]).
         count.should eq(2)
   end
 

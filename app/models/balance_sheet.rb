@@ -38,7 +38,7 @@ class BalanceSheet < Array
   filter_attr :date, default: DateTime.now
   filter_attr :paginate
   filter_attr :resource
-  filter_attr :entity
+  filter_attr :entities
   filter_attr :place_ids
   filter_attr :group_by
   filter_attr :search
@@ -46,7 +46,7 @@ class BalanceSheet < Array
 
   getter :all do |options = {}|
     build_scopes
-    if self.resource_value || self.entity_value || self.place_ids_value || self.search_value || self.order_value
+    if self.resource_value || self.entities_value || self.place_ids_value || self.search_value || self.order_value
       scope = @balance_scope
       scope = sort(scope) if self.order_value
       scope = scope.paginate(self.paginate_value) if self.paginate_value
@@ -97,7 +97,7 @@ class BalanceSheet < Array
 
   getter :db_count do
     build_scopes
-    if self.resource_value || self.entity_value || self.place_ids_value || self.group_by_value
+    if self.resource_value || self.entities_value || self.place_ids_value || self.group_by_value
       SqlRecord.from(@balance_scope.to_sql).count
     else
       SqlRecord.union(@balance_scope.select(:id).to_sql, @income_scope.select(:id).to_sql).
@@ -160,9 +160,9 @@ class BalanceSheet < Array
         @balance_scope = @balance_scope.joins(:take).joins(:give).
             with_resource(self.resource_value[:id], self.resource_value[:type])
       end
-      if self.entity_value
+      if self.entities_value
         @balance_scope = @balance_scope.joins(:deal).
-            with_entity(self.entity_value[:id], self.entity_value[:type])
+            with_entities(self.entities_value)
       end
       if self.place_ids_value
         @balance_scope = @balance_scope.joins(:take).joins(:give).
@@ -208,7 +208,7 @@ class BalanceSheet < Array
 
   def retrieve_assets
     build_scopes
-    object = if self.resource_value || self.entity_value || self.place_ids_value ||
+    object = if self.resource_value || self.entities_value || self.place_ids_value ||
         self.search_value
         SqlRecord.from(@balance_scope.select(build_select_statement(Balance)).to_sql).
                  select("SUM(assets) as assets, SUM(liabilities) as liabilities").first

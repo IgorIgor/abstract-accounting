@@ -51,9 +51,12 @@ feature 'entities', %q{
   end
 
   scenario 'view balances by entity', js: true do
-    entity = create(:entity)
+    entity = create(:legal_entity)
     deal = create(:deal, entity: entity, rate: 10)
     create(:balance, deal: deal)
+    entity2 = create(:entity)
+    deal2 = create(:deal, entity: entity2, rate: 10)
+    create(:balance, deal: deal2)
 
     page_login
     page.find('#btn_slide_lists').click
@@ -63,16 +66,58 @@ feature 'entities', %q{
                            "//li[@id='entities' and @class='sidebar-selected']")
 
     within('#container_documents table tbody') do
-      page.find(:xpath, ".//tr[1]/td[1]").click
+      page.find(:xpath, ".//tr[1]/td[1]/input").click
+      page.find(:xpath, ".//tr[2]/td[1]/input").click
     end
-    current_hash.should eq("balance_sheet?entity%5Bid%5D=#{entity.id}&"+
-                                   "entity%5Btype%5D=#{entity.class.name}")
+    find("#report_on_selected").click
+    current_hash.should eq("balance_sheet?entities%5B0%5D%5Bid%5D=#{entity2.id}&"+
+                                   "entities%5B0%5D%5Btype%5D=#{entity2.class.name}&"+
+                                    "entities%5B1%5D%5Bid%5D=#{entity.id}&"+
+                                  "entities%5B1%5D%5Btype%5D=#{entity.class.name}")
     find('#slide_menu_conditions').visible?.should be_true
     within('#container_documents table tbody') do
-      page.should have_selector('tr', count: 1)
+      page.should have_selector('tr', count: 2)
       page.should have_content(deal.tag)
       page.should have_content(deal.entity.name)
+      page.should have_content(deal2.tag)
+      page.should have_content(deal2.entity.name)
     end
+  end
+
+  scenario 'show entity', js: true do
+    entity = create(:entity)
+    deal = create(:deal, entity: entity, rate: 10)
+    create(:balance, deal: deal)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.entities')
+    current_hash.should eq('entities')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='entities' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      page.find(:xpath, ".//tr[1]/td[2]").click
+    end
+    current_hash.should eq("documents/entities/#{entity.id}")
+  end
+
+  scenario 'show legal_entity', js: true do
+    entity = create(:legal_entity)
+    deal = create(:deal, entity: entity, rate: 10)
+    create(:balance, deal: deal)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.entities')
+    current_hash.should eq('entities')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='entities' and @class='sidebar-selected']")
+
+    within('#container_documents table tbody') do
+      page.find(:xpath, ".//tr[1]/td[2]").click
+    end
+    current_hash.should eq("documents/legal_entities/#{entity.id}")
   end
 
   scenario 'create/edit entity', js: true do

@@ -108,8 +108,8 @@ describe BalanceSheet do
 
   describe "#entity" do
     it "should have filter attribute" do
-      BalanceSheet.entity(id: 1, type: Entity.name).entity_value.
-          should eq(id: 1, type: Entity.name)
+      BalanceSheet.entities([{'id' => 1, 'type' => Entity.name}]).entities_value.
+          should eq([{'id' => 1, 'type' => Entity.name}])
     end
   end
 
@@ -156,9 +156,9 @@ describe BalanceSheet do
     it "should paginate balances" do
       entity = create(:entity)
       5.times { create(:balance, deal: create(:deal, entity: entity)) }
-      BalanceSheet.entity(id: entity.id, type: entity.class.name).
+      BalanceSheet.entities([{'id' => entity.id.to_s, 'type' => entity.class.name}]).
           paginate(page: 1, per_page: 3).all.count.should eq(3)
-      BalanceSheet.entity(id: entity.id, type: entity.class.name).
+      BalanceSheet.entities([{'id' => entity.id.to_s, 'type' => entity.class.name}]).
           paginate(page: 2, per_page: 3).all.count.should eq(2)
     end
   end

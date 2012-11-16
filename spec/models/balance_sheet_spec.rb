@@ -115,7 +115,7 @@ describe BalanceSheet do
 
   describe "#place_id" do
     it "should have filter attribute" do
-      BalanceSheet.place_id(1).place_id_value.should eq(1)
+      BalanceSheet.place_ids(1).place_ids_value.should eq(1)
     end
   end
 

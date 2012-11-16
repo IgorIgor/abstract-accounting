@@ -60,10 +60,11 @@ feature 'places', %q{
     page.should have_xpath("//ul[@id='slide_menu_lists']"+
                                "//li[@id='places' and @class='sidebar-selected']")
 
-    within('#container_documents table tbody') do
-      page.find(:xpath, ".//tr[1]/td[1]").click
-    end
-    current_hash.should eq("balance_sheet?place_id=#{place.id}")
+    find("#report_on_selected")[:disabled].should be_true
+    find(:xpath, ".//tr[1]/td[1]/input").click
+    find("#report_on_selected")[:disabled].should be_false
+    find("#report_on_selected").click
+    current_hash.should eq("balance_sheet?place_ids%5B%5D=#{place.id}")
     find('#slide_menu_conditions').visible?.should be_true
     within('#container_documents table tbody') do
       page.should have_selector('tr', count: 1)
@@ -74,6 +75,49 @@ feature 'places', %q{
     within("div[@class='paginate']") do
       find("span[@data-bind='text: range']").should have_content("1-1")
       find("span[@data-bind='text: count']").should have_content("1")
+    end
+  end
+
+  scenario 'view balances by selected places', js: true do
+    place = create(:place)
+    place2 = create(:place)
+    deal = create(:deal,
+                  give: build(:deal_give, place: place),
+                  take: build(:deal_take, place: place2),
+                  rate: 10)
+    deal2 = create(:deal,
+                  give: build(:deal_give, place: place),
+                  take: build(:deal_take, place: place2),
+                  rate: 10)
+    create(:balance, side: Balance::PASSIVE, deal: deal)
+    create(:balance, side: Balance::PASSIVE, deal: deal2)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.places')
+    current_hash.should eq('places')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='places' and @class='sidebar-selected']")
+
+    find("#report_on_selected")[:disabled].should be_true
+    find(:xpath, ".//tr[1]/td[1]/input").click
+    find("#report_on_selected")[:disabled].should be_false
+    find(:xpath, ".//tr[2]/td[1]/input").click
+    find("#report_on_selected")[:disabled].should be_false
+    find("#report_on_selected").click
+    current_hash.should eq("balance_sheet?place_ids%5B%5D=#{place.id}&place_ids%5B%5D=#{place2.id}")
+    find('#slide_menu_conditions').visible?.should be_true
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 2)
+      page.should have_content(deal.tag)
+      page.should have_content(deal.entity.name)
+      page.should have_content(deal2.tag)
+      page.should have_content(deal2.entity.name)
+    end
+
+    within("div[@class='paginate']") do
+      find("span[@data-bind='text: range']").should have_content("1-2")
+      find("span[@data-bind='text: count']").should have_content("2")
     end
   end
 
@@ -177,5 +221,24 @@ feature 'places', %q{
 
     test_order.call('tag','asc')
     test_order.call('tag','desc')
+  end
+
+  scenario 'show place', js: true do
+    place = create(:place)
+    place2 = create(:place)
+    deal = create(:deal,
+                  give: build(:deal_give, place: place),
+                  take: build(:deal_take, place: place2),
+                  rate: 10)
+    create(:balance, side: Balance::PASSIVE, deal: deal)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.places')
+    current_hash.should eq('places')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='places' and @class='sidebar-selected']")
+    find(:xpath, ".//tr[1]/td[2]").click
+    current_hash.should eq("documents/places/#{place.id}")
   end
 end

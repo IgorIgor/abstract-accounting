@@ -67,8 +67,8 @@ describe Balance do
               build(:deal_take, place: Place.find_or_create_by_tag("place#{5 - i}"))))
     end
     Balance.joins(:give).joins(:take).
-        with_place(Place.find_by_tag("place0").id).count.should eq(2)
+        with_places(Place.find_by_tag("place0").id).count.should eq(2)
     Balance.joins(:give).joins(:take).
-        with_place(Place.find_by_tag("place1").id).count.should eq(0)
+        with_places(Place.find_by_tag("place1").id).count.should eq(0)
   end
 end

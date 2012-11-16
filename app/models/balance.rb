@@ -41,9 +41,9 @@ class Balance < ActiveRecord::Base
       where{(deal.entity_id == id) & (deal.entity_type == type_i)}
     end
 
-    def with_place(id)
-      where{((give.place_id == id) & (side == Balance::PASSIVE)) |
-            ((take.place_id == id) & (side == Balance::ACTIVE))}
+    def with_places(ids)
+      where{((give.place_id.in(ids)) & (side == Balance::PASSIVE)) |
+            ((take.place_id.in(ids)) & (side == Balance::ACTIVE))}
     end
 
     def in_time_frame(start, stop)

@@ -16,7 +16,7 @@ class BalanceSheetController < ActionController::Base
     scope = BalanceSheet
     scope = scope.resource(params[:resource]) if params[:resource]
     scope = scope.entity(params[:entity]) if params[:entity]
-    scope = scope.place_id(params[:place_id]) if params[:place_id]
+    scope = scope.place_ids(params[:place_ids]) if params[:place_ids]
     scope = scope.search(params[:search]) if params[:search]
     scope = scope.order(params[:order]) if params[:order]
     @balances = scope.
@@ -32,7 +32,7 @@ class BalanceSheetController < ActionController::Base
         scope = BalanceSheet
         scope = scope.resource(params[:resource]) if params[:resource]
         scope = scope.entity(params[:entity]) if params[:entity]
-        scope = scope.place_id(params[:place_id]) if params[:place_id]
+        scope = scope.place_ids(params[:place_ids]) if params[:place_ids]
         scope = scope.date(params[:date].nil? ? DateTime.now : Date.parse(params[:date]))
         @balances_nogroup = scope.clone
         scope = scope.group_by(params[:group_by]) if params[:group_by]

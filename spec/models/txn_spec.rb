@@ -802,7 +802,7 @@ describe Txn do
     bs.assets.should eq(101900.0)
     bs.liabilities.should eq(0.0)
 
-    bs = BalanceSheet.place_id(@bank.take.place_id).
+    bs = BalanceSheet.place_ids([@bank.take.place_id]).
         date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
     bs[0].place.should eq(@bank.take.place)
     bs.count.should eq(1)
@@ -810,7 +810,7 @@ describe Txn do
     bs.assets.should eq(87920.0)
     bs.liabilities.should eq(0.0)
 
-    bs = BalanceSheet.place_id(@bank.take.place_id).all
+    bs = BalanceSheet.place_ids([@bank.take.place_id]).all
     bs[0].place.should eq(@bank.take.place)
     bs.count.should eq(1)
     bs.db_count.should eq(1)

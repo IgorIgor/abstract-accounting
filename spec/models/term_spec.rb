@@ -13,7 +13,6 @@ describe Term do
   it "should have next behaviour" do
     create(:term, :deal_id => 0)
     should validate_presence_of :deal_id
-    should validate_presence_of :place_id
     should validate_presence_of :resource_id
     should validate_uniqueness_of(:deal_id).scoped_to(:side)
     should belong_to :deal

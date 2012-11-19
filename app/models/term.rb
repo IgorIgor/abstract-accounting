@@ -10,7 +10,7 @@
 class Term < ActiveRecord::Base
   has_paper_trail
 
-  validates :deal_id, :place_id, :resource_id, :presence => true
+  validates :deal_id, :resource_id, :presence => true
   validates_uniqueness_of :deal_id, :scope => [:side]
   belongs_to :deal
   belongs_to :place

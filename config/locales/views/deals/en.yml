@@ -5,6 +5,7 @@ en:
       mu: MU
       entity: Entity
       rate: Rate
+      is_off_balance: Is off balance
       page:
         title:
           show: Show deal

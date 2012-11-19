@@ -491,6 +491,8 @@ $ ->
                   new LegalEntityViewModel(object, true)
                 when 'deals'
                   new DealViewModel(object, true)
+                when 'quote'
+                  new QuoteViewModel(object, true)
 
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)

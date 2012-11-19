@@ -44,6 +44,22 @@ feature 'quote', %q{
     check_content("#container_documents table", quote) do |item|
       [item.money.alpha_code, item.day.strftime('%Y-%m-%d'), item.rate.to_i]
     end
+
+    prev_page("div[@class='paginate']")
+    first_quote = Quote.first
+    within('#container_documents table tbody') do
+      page.find(:xpath, ".//tr[1]/td[1]").click
+    end
+    current_hash.should eq("documents/quote/#{first_quote.id}")
+
+    find_button(I18n.t('views.users.save'))[:disabled].should eq("true")
+    find_button(I18n.t('views.users.edit'))[:disabled].should be_nil
+    find_field('quote_day')[:disabled].should eq("true")
+    find_field('quote_rate')[:disabled].should eq("true")
+    find_field('quote_money')[:disabled].should eq("true")
+    find_field('quote_day')[:value].should eq(first_quote.day.strftime('%d.%m.%Y'))
+    find_field('quote_rate')[:value].should eq(first_quote.rate.to_i.to_s)
+    find_field('quote_money')[:value].should eq(first_quote.money.alpha_code)
   end
 
   scenario 'create/edit quote', js: true do

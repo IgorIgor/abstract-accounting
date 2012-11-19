@@ -8,3 +8,6 @@ $ ->
       @params =
         page: @page
         per_page: @per_page
+
+    show: (object) ->
+      location.hash = "documents/quote/#{object.id}"

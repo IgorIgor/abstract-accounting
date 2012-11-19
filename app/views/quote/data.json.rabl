@@ -9,7 +9,7 @@
 
 object false
 child(@quote => :objects) do
-  attributes :rate
+  attributes :id, :rate
   node(:day) { |quote| quote.day.strftime('%Y-%m-%d') }
   node(:resource) { |quote| quote.money.alpha_code }
 end

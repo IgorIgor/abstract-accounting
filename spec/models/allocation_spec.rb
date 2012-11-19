@@ -624,6 +624,29 @@ describe Allocation do
       end
     end
   end
+
+  describe "#foreman_place_or_new" do
+    it "should return foreman_place if exists" do
+      place = create(:place)
+      al = Allocation.new(foreman_place_id: place.id)
+      al.foreman_place_or_new.should eq(place)
+    end
+
+    it "should return new record if warehouse_id is not exists" do
+      Allocation.new.foreman_place_or_new.should be_new_record
+    end
+
+    it "should return place by warehouse" do
+      storekeeper = create(:entity)
+      storekeeper_place = create(:place)
+      create(:credential, user: create(:user, entity: storekeeper),
+             document_type: Allocation.name, place: storekeeper_place)
+      al = Allocation.new
+      al.storekeeper = storekeeper
+      al.storekeeper_place = storekeeper_place
+      al.foreman_place_or_new.should eq(storekeeper_place)
+    end
+  end
 end
 
 describe AllocationItemsValidator do

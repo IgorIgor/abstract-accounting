@@ -1,6 +1,13 @@
+<div class='actions with-padding'>
+  <input type="button"
+         value="<%= t 'views.resources.report_on_selected' %>"
+         id="report_on_selected"
+         data-bind="click: showBalances,  disable: selected().length == 0" />
+</div>
 <table>
   <thead>
     <tr>
+      <th></th>
       <th id="tag" data-bind="click: sortBy">
         <%= t 'views.resources.tag' %><span></span>
       </th>
@@ -14,9 +21,14 @@
   </thead>
   <tbody data-bind="foreach: documents">
     <tr>
-      <td data-bind="text: tag, click: $parent.showBalances"></td>
-      <td data-bind="text: ext_info, click: $parent.showBalances"></td>
-      <td data-bind="text: type, click: $parent.showBalances"></td>
+      <td class="cell-checkbox">
+        <input type="checkbox"
+               data-bind="attr: { itemType: klass, value: id },
+                            polymorphic_checked: $parent.selected" />
+      </td>
+      <td data-bind="text: tag, click: $parent.show"></td>
+      <td data-bind="text: ext_info, click: $parent.show"></td>
+      <td data-bind="text: type, click: $parent.show"></td>
     </tr>
   </tbody>
 </table>

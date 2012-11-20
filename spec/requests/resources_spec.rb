@@ -68,12 +68,14 @@ feature 'assets', %q{
     current_hash.should eq('resources')
     page.should have_xpath("//ul[@id='slide_menu_lists']"+
                            "//li[@id='resources' and @class='sidebar-selected']")
-
+    find('#report_on_selected')[:disabled].should be_true
     within('#container_documents table tbody') do
-      page.find(:xpath, ".//tr[2]/td[1]").click
+      page.find(:xpath, ".//tr[2]/td[1]/input").click
     end
-    current_hash.should eq("balance_sheet?resource%5Bid%5D=#{res.id}&"+
-                               "resource%5Btype%5D=#{res.class.name}")
+    find('#report_on_selected')[:disabled].should be_nil
+    find('#report_on_selected').click
+    current_hash.should eq("balance_sheet?resources%5B0%5D%5Bid%5D=#{res.id}&"+
+                               "resources%5B0%5D%5Btype%5D=#{res.class.name}")
     find('#slide_menu_conditions').visible?.should be_true
     within('#container_documents table tbody') do
       page.should have_selector('tr', count: 1)
@@ -81,6 +83,85 @@ feature 'assets', %q{
       page.should have_content(deal.entity.name)
       page.should have_content(res.tag)
     end
+  end
+
+  scenario 'view balances by assets', js: true do
+    res2 = create(:asset)
+    res = create(:asset)
+    deal = create(:deal,
+                  give: build(:deal_give, resource: res),
+                  take: build(:deal_take, resource: res2),
+                  rate: 10)
+    create(:balance, side: Balance::PASSIVE, deal: deal)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.resources')
+    current_hash.should eq('resources')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='resources' and @class='sidebar-selected']")
+    find('#report_on_selected')[:disabled].should be_true
+    within('#container_documents table tbody') do
+      page.find(:xpath, ".//tr[1]/td[1]/input").click
+      page.find(:xpath, ".//tr[2]/td[1]/input").click
+    end
+    find('#report_on_selected')[:disabled].should be_nil
+    find('#report_on_selected').click
+    current_hash.should eq("balance_sheet?resources%5B0%5D%5Bid%5D=#{res2.id}&"+
+                               "resources%5B0%5D%5Btype%5D=#{res2.class.name}&"+
+                               "resources%5B1%5D%5Bid%5D=#{res.id}&"+
+                               "resources%5B1%5D%5Btype%5D=#{res.class.name}")
+    find('#slide_menu_conditions').visible?.should be_true
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 1)
+      page.should have_content(deal.tag)
+      page.should have_content(deal.entity.name)
+      page.should have_content(res.tag)
+    end
+  end
+
+  scenario 'show asset', js: true do
+    res2 = create(:asset)
+    res = create(:asset)
+    deal = create(:deal,
+                  give: build(:deal_give, resource: res),
+                  take: build(:deal_take, resource: res2),
+                  rate: 10)
+    create(:balance, side: Balance::PASSIVE, deal: deal)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.resources')
+    current_hash.should eq('resources')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='resources' and @class='sidebar-selected']")
+    find('#report_on_selected')[:disabled].should be_true
+    within('#container_documents table tbody') do
+      page.find(:xpath, ".//tr[1]/td[2]").click
+    end
+    current_hash.should eq("documents/assets/#{res.id}")
+  end
+
+  scenario 'show money', js: true do
+    res2 = create(:asset)
+    res = create(:money)
+    deal = create(:deal,
+                  give: build(:deal_give, resource: res),
+                  take: build(:deal_take, resource: res2),
+                  rate: 10)
+    create(:balance, side: Balance::PASSIVE, deal: deal)
+
+    page_login
+    page.find('#btn_slide_lists').click
+    click_link I18n.t('views.home.resources')
+    current_hash.should eq('resources')
+    page.should have_xpath("//ul[@id='slide_menu_lists']"+
+                               "//li[@id='resources' and @class='sidebar-selected']")
+    find('#report_on_selected')[:disabled].should be_true
+    within('#container_documents table tbody') do
+      page.find(:xpath, ".//tr[1]/td[2]").click
+    end
+    current_hash.should eq("documents/money/#{res.id}")
   end
 
   scenario 'create/edit asset', js: true do

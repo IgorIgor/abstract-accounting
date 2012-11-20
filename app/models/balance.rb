@@ -26,13 +26,20 @@ class Balance < ActiveRecord::Base
   scope :active, where(:side => Balance::ACTIVE)
 
   class << self
-    def with_resource(id, type)
-      type_i = type.instance_of?(Class) ? type.name : type
-      where do
-        ((give.resource_id == id) & (give.resource_type == type_i) &
+    def with_resources(resources)
+      scoped.where do
+        scope = nil
+        resources.inject({}) do |mem, item|
+          (mem[item['type']] ||= []).push(item['id'])
+          mem
+        end.each do |key, value|
+          tmp_scope = ((give.resource_id.in(value)) & (give.resource_type == key) &
             (side == Balance::PASSIVE)) |
-          ((take.resource_id == id) & (take.resource_type == type_i) &
-              (side == Balance::ACTIVE))
+            ((take.resource_id.in(value)) & (take.resource_type == key) &
+            (side == Balance::ACTIVE))
+          scope = scope ? scope | tmp_scope : tmp_scope
+        end
+        scope
       end
     end
 

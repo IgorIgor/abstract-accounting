@@ -101,8 +101,8 @@ describe BalanceSheet do
 
   describe "#resource" do
     it "should have filter attribute" do
-      BalanceSheet.resource(id: 1, type: Asset.name).resource_value.
-          should eq(id: 1, type: Asset.name)
+      BalanceSheet.resources([{'id' => 1, 'type' => Asset.name}]).resources_value.
+          should eq([{'id' => 1, 'type' => Asset.name}])
     end
   end
 

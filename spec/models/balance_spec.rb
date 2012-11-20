@@ -44,9 +44,9 @@ describe Balance do
               build(:deal_take, resource: Asset.find_or_create_by_tag("asset#{5 - i}"))))
     end
     Balance.joins(:give).joins(:take).
-        with_resource(Asset.find_by_tag("asset0").id, Asset).count.should eq(2)
+        with_resources([{'id' => Asset.find_by_tag("asset0").id, 'type' => Asset.name}]).count.should eq(2)
     Balance.joins(:give).joins(:take).
-        with_resource(Asset.find_by_tag("asset1").id, Asset).count.should eq(0)  #passive - give, active - take
+        with_resources([{'id' => Asset.find_by_tag("asset1").id, 'type' => Asset.name}]).count.should eq(0)  #passive - give, active - take
   end
 
   it "should filter by entity" do

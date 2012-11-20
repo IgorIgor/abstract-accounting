@@ -774,7 +774,7 @@ describe Txn do
     bs.to_a.should =~ Balance.in_time_frame(DateTime.civil(2011, 11, 27, 12, 0, 0),
                                             DateTime.civil(2011, 11, 26, 12, 0, 0))
 
-    bs = BalanceSheet.resource(id: @rub.id, type: @rub.class.name).
+    bs = BalanceSheet.resources([{'id' => @rub.id, 'type' => @rub.class.name}]).
         date(DateTime.civil(2011, 11, 26, 12, 0, 0)).all
     bs[0].resource.should eq(@rub)
     bs.count.should eq(1)
@@ -782,7 +782,7 @@ describe Txn do
     bs.assets.should eq(87920.0)
     bs.liabilities.should eq(0.0)
 
-    bs = BalanceSheet.resource(id: @rub.id, type: @rub.class.name).all
+    bs = BalanceSheet.resources([{'id' => @rub.id, 'type' => @rub.class.name}]).all
     bs[0].resource.should eq(@rub)
     bs.count.should eq(1)
     bs.db_count.should eq(1)

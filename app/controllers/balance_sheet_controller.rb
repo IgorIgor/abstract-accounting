@@ -14,7 +14,7 @@ class BalanceSheetController < ActionController::Base
 
   def data
     scope = BalanceSheet
-    scope = scope.resource(params[:resource]) if params[:resource]
+    scope = scope.resources(params[:resources].values) if params[:resources]
     scope = scope.entities(params[:entities].values) if params[:entities]
     scope = scope.place_ids(params[:place_ids]) if params[:place_ids]
     scope = scope.search(params[:search]) if params[:search]

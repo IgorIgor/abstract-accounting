@@ -37,7 +37,7 @@ class BalanceSheet < Array
 
   filter_attr :date, default: DateTime.now
   filter_attr :paginate
-  filter_attr :resource
+  filter_attr :resources
   filter_attr :entities
   filter_attr :place_ids
   filter_attr :group_by
@@ -46,7 +46,7 @@ class BalanceSheet < Array
 
   getter :all do |options = {}|
     build_scopes
-    if self.resource_value || self.entities_value || self.place_ids_value || self.search_value || self.order_value
+    if self.resources_value || self.entities_value || self.place_ids_value || self.search_value || self.order_value
       scope = @balance_scope
       scope = sort(scope) if self.order_value
       scope = scope.paginate(self.paginate_value) if self.paginate_value
@@ -97,7 +97,7 @@ class BalanceSheet < Array
 
   getter :db_count do
     build_scopes
-    if self.resource_value || self.entities_value || self.place_ids_value || self.group_by_value
+    if self.resources_value || self.entities_value || self.place_ids_value || self.group_by_value
       SqlRecord.from(@balance_scope.to_sql).count
     else
       SqlRecord.union(@balance_scope.select(:id).to_sql, @income_scope.select(:id).to_sql).
@@ -156,9 +156,9 @@ class BalanceSheet < Array
     unless @scopes_updated
       @balance_scope = @balance_scope.in_time_frame(self.date_value + 1, self.date_value)
       @income_scope = @income_scope.in_time_frame(self.date_value + 1, self.date_value)
-      if self.resource_value
+      if self.resources_value
         @balance_scope = @balance_scope.joins(:take).joins(:give).
-            with_resource(self.resource_value[:id], self.resource_value[:type])
+            with_resources(self.resources_value)
       end
       if self.entities_value
         @balance_scope = @balance_scope.joins(:deal).
@@ -208,7 +208,7 @@ class BalanceSheet < Array
 
   def retrieve_assets
     build_scopes
-    object = if self.resource_value || self.entities_value || self.place_ids_value ||
+    object = if self.resources_value || self.entities_value || self.place_ids_value ||
         self.search_value
         SqlRecord.from(@balance_scope.select(build_select_statement(Balance)).to_sql).
                  select("SUM(assets) as assets, SUM(liabilities) as liabilities").first

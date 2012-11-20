@@ -95,7 +95,7 @@ class Deal < ActiveRecord::Base
     return false unless state.update_amount(self.id == fact.from_deal_id ? State::PASSIVE : State::ACTIVE,
                                             fact.amount)
 
-    if self.states.empty?
+    if self.states(:force_update).empty?
       if self.limit.side == Limit::PASSIVE && self.id == fact.from_deal_id
         #raise "not ok! need TO first"
       end
@@ -134,26 +134,6 @@ class Deal < ActiveRecord::Base
     end
     return false unless balance.update_value(self.id == txn.fact.from.id ? Balance::PASSIVE : Balance::ACTIVE,
                                               txn.fact.amount, txn.value)
-
-    if self.balances.empty?
-      if self.limit.side == Limit::PASSIVE && self.id == fact.from_deal_id
-        #raise "not ok! need TO first"
-      end
-      if self.limit.side == Limit::ACTIVE && self.id == fact.to_deal_id
-        #raise "not ok! need FROM first"
-      end
-    end
-
-    if self.limit.side == Limit::PASSIVE
-      amount = balance.amount / self.rate
-    else
-      amount = balance.amount
-    end
-
-    if self.limit.amount > 0 && amount > self.limit.amount
-      #raise "Ohoho amount > limit! it's not goood"
-    end
-
     return balance.destroy if balance.zero? && !balance.new_record?
     return true if balance.zero? && balance.new_record?
     balance.save

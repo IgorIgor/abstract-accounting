@@ -23,7 +23,7 @@
     <tr>
       <td class="cell-checkbox">
         <input type="checkbox"
-               data-bind="attr: { itemType: klass, value: id },
+               data-bind="attr: { 'data-item-type': klass, value: id },
                             polymorphic_checked: $parent.selected" />
       </td>
       <td data-bind="text: tag, click: $parent.show"></td>

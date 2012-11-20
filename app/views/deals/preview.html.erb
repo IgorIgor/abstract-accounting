@@ -3,7 +3,7 @@
     <input type='submit' value="<%= t 'views.users.save' %>"
            data-bind='disable: readonly'/>
     <input type='button' value="<%= t 'views.users.edit' %>"
-           data-bind='click: edit, disable: !readonly()'/>
+           data-bind='click: edit, disable: !readonly() || object.deal.has_states'/>
     <input type='button' value="<%= t 'views.users.back' %>"
            data-bind='click: back'/>
   </div>
@@ -166,10 +166,10 @@
         </span>
         <div>
           <input type="radio" id="limit_side_passive" name="limit_side" value="<%= Limit::PASSIVE %>"
-                 data-bind="checked: object.deal.limit.side, disable: readonly" />
+                 data-bind="checked: object.limit.side, disable: readonly" />
           <label for="limit_side_passive"><%= t('views.deals.limit_passive') %></label>
           <span><input type="radio" id="limit_side_active" name="limit_side" value="<%= Limit::ACTIVE %>"
-                 data-bind="checked: object.deal.limit.side, disable: readonly" />
+                 data-bind="checked: object.limit.side, disable: readonly" />
           <label for="limit_side_active"><%= t('views.deals.limit_active') %></label>
         </div>
       </div>
@@ -180,7 +180,7 @@
         <span>
           <input type="text" id="deal_limit"
                  name="<%= t('views.deals.limit') %>" rule='required'
-                 data-bind="value: object.deal.limit.amount, disable: readonly">
+                 data-bind="value: object.limit.amount, disable: readonly">
         </span>
       </div>
     </div>

@@ -11,10 +11,6 @@ object false
 child(@deal => :deal) do
   attributes :tag, :isOffBalance, :rate, :entity_id, :entity_type,
              :execution_date, :compensation_period
-  child(Object.new => :limit) do
-    node(:amount) { @deal.limit_amount }
-    node(:side) { @deal.limit_side }
-  end
 end
 child(Object.new => :entity) do
   attributes :tag
@@ -24,5 +20,9 @@ child(Term.new => :give) do
 end
 child(Term.new => :take) do
   extends "deals/_term"
+end
+child(Object.new => :limit) do
+  node(:amount) { @deal.limit_amount }
+  node(:side) { @deal.limit_side }
 end
 child([] => :rules)

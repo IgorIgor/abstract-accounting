@@ -75,6 +75,10 @@ class Deal < ActiveRecord::Base
     ).where("paid > ? OR paid is NULL", day).first
   end
 
+  def has_states?
+    self.states.size > 0
+  end
+
   def balance
     balances.where("balances.paid IS NULL").first
   end

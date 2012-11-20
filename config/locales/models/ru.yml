@@ -7,6 +7,7 @@ ru:
       legal_entity: Юр. лицо
       money: Деньги
       waybill: Накладная
+      deal: Сделка
     attributes:
       country:
         default:
@@ -48,3 +49,5 @@ ru:
         waybill:
           items:
             blank: должны быть введены
+        deal:
+          has_states: уже использована

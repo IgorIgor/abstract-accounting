@@ -7,3 +7,6 @@ tmp/**/*
 vendor/bundle
 vendor/ruby
 bin
+tmp
+*.diff
+*.sqlite3

@@ -15,7 +15,8 @@ module WarehouseDeal
       has_paper_trail
       include Helpers::Statable
       act_as_statable
-      include Commentable
+      include Helpers::Commentable
+      has_comments
 
       class_attribute :warehouse_fields
 
@@ -26,7 +27,6 @@ module WarehouseDeal
       validates_presence_of :created
 
       belongs_to :deal
-      has_many :comments, :as => :item
 
       before_save :before_warehouse_deal_save
       after_save :after_warehouse_deal_save
@@ -295,27 +295,22 @@ module WarehouseDeal
 
   def after_warehouse_deal_save
     if self.id_changed?
-      send_comment self, I18n.t(
-            "activerecord.attributes.#{self.class.name.downcase}.comment.create")
+      add_comment(I18n.t("activerecord.attributes.#{self.class.name.downcase}.comment.create"))
     else
-      send_comment self, I18n.t(
-          "activerecord.attributes.#{self.class.name.downcase}.comment.update")
+      add_comment(I18n.t("activerecord.attributes.#{self.class.name.downcase}.comment.update"))
     end
   end
 
   def send_comment_after_apply
-    send_comment self, I18n.t(
-        "activerecord.attributes.#{self.class.name.downcase}.comment.apply")
+    add_comment(I18n.t("activerecord.attributes.#{self.class.name.downcase}.comment.apply"))
   end
 
   def send_comment_after_reverse
-    send_comment self, I18n.t(
-        "activerecord.attributes.#{self.class.name.downcase}.comment.reverse")
+    add_comment(I18n.t("activerecord.attributes.#{self.class.name.downcase}.comment.reverse"))
   end
 
   def send_comment_after_cancel
-    send_comment self, I18n.t(
-        "activerecord.attributes.#{self.class.name.downcase}.comment.cancel")
+    add_comment(I18n.t("activerecord.attributes.#{self.class.name.downcase}.comment.cancel"))
   end
 
   def do_apply

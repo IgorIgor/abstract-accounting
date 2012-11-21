@@ -27,33 +27,17 @@ class Balance < ActiveRecord::Base
 
   class << self
     def with_resources(resources)
-      scoped.where do
-        scope = nil
-        resources.inject({}) do |mem, item|
-          (mem[item['type']] ||= []).push(item['id'])
-          mem
-        end.each do |key, value|
-          tmp_scope = ((give.resource_id.in(value)) & (give.resource_type == key) &
+      scope_with(resources) do |key, value|
+        ((give.resource_id.in(value)) & (give.resource_type == key) &
             (side == Balance::PASSIVE)) |
             ((take.resource_id.in(value)) & (take.resource_type == key) &
             (side == Balance::ACTIVE))
-          scope = scope ? scope | tmp_scope : tmp_scope
-        end
-        scope
       end
     end
 
     def with_entities(entities)
-      scoped.where do
-        scope = nil
-        entities.inject({}) do |mem, item|
-          (mem[item['type']] ||= []).push(item['id'])
-          mem
-        end.each do |key, value|
-          tmp_scope = (deal.entity_type == key) & (deal.entity_id.in(value))
-          scope = scope ? scope | tmp_scope : tmp_scope
-        end
-        scope
+      scope_with(entities) do |key, value|
+        (deal.entity_type == key) & (deal.entity_id.in(value))
       end
     end
 
@@ -73,6 +57,20 @@ class Balance < ActiveRecord::Base
       per_page = params[:per_page].nil? ?
           Settings.root.per_page.to_i : params[:per_page].to_i
       limit(per_page).offset((page - 1) * per_page)
+    end
+
+    def scope_with(items, &block)
+      scoped.where do
+        scope = nil
+        items.inject({}) do |mem, item|
+          (mem[item['type']] ||= []).push(item['id'])
+          mem
+        end.each do |key, value|
+          tmp_scope = instance_exec(key, value, &block) if block_given?
+          scope = scope ? scope | tmp_scope : tmp_scope
+        end
+        scope
+      end
     end
   end
 

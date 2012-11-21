@@ -18,5 +18,5 @@ $ ->
         page: @page
         per_page: @per_page
 
-    show: (object) ->
-      location.hash = "documents/allocations/#{object.id}"
+    getType: (object) ->
+      'allocations'

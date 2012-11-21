@@ -23,8 +23,8 @@ $ ->
         @params[key] = value
       )
 
-    show: (object) ->
-      location.hash = "documents/waybills/#{object.id}"
+    getType: (object) ->
+      'waybills'
 
     generateItemsUrl: (object) => "/waybills/#{object.id}/resources.json"
 

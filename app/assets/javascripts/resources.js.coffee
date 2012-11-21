@@ -9,9 +9,11 @@ $ ->
         page: @page
         per_page: @per_page
 
-    show: (resource) ->
-      page = if resource.klass == "Asset" then "assets" else "money"
-      location.hash = "#documents/#{page}/#{resource.id}"
+    getType: (object) ->
+      if object.klass == "Asset"
+        "assets"
+      else
+        "money"
 
     showBalances: ->
       unless $('#slide_menu_conditions').is(":visible")

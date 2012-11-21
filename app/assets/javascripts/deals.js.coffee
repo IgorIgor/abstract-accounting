@@ -11,6 +11,9 @@ $ ->
         page: @page
         per_page: @per_page
 
+     getType: (object) =>
+      'deals'
+
     toReport: =>
       rules = ko.utils.arrayFirst(@documents(), (item) =>
         item.id == @selected()[0] && item.has_rules
@@ -26,9 +29,6 @@ $ ->
           deal_ids: ko.mapping.toJS(@selected())
           date: date
         location.hash = "general_ledger?#{$.param(filter)}"
-
-    show: (deal) =>
-      location.hash = "documents/deals/#{deal.id}"
 
     select: (object) =>
       ko.dataFor($('#main').get(0)).deal_id(object.id)

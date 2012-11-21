@@ -242,6 +242,10 @@ $ ->
     onDataReceived: (data) =>
       #do something
 
+    show: (object) =>
+      type = @getType(object)
+      location.hash = "documents/#{type}/#{object.id}"
+
     clearData: =>
       @documents([])
       @count([])

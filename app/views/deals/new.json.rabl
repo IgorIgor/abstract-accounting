@@ -11,7 +11,7 @@ object false
 child(@deal => :deal) do
   attributes :tag, :isOffBalance, :rate, :entity_id, :entity_type,
              :execution_date, :compensation_period
-  child(Object.new => :limit) do
+  child(Limit.new => :limit_attributes) do
     node(:amount) { @deal.limit_amount }
     node(:side) { @deal.limit_side }
   end

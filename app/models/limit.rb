@@ -8,7 +8,7 @@
 # Please see ./COPYING for details
 
 class Limit < ActiveRecord::Base
-  validates_presence_of :side, :amount, :deal_id
+  validates_presence_of :side, :amount
   belongs_to :deal
 
   PASSIVE = 0

@@ -25,6 +25,7 @@ class Deal < ActiveRecord::Base
   has_one :allocation
   has_one :limit
   before_save :before_save
+  accepts_nested_attributes_for :limit
 
   custom_sort(:name) do |dir|
     query = "case entity_type

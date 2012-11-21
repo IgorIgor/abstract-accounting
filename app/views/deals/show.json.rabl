@@ -12,6 +12,10 @@ node(:id) { @deal.id }
 child(@deal => :deal) do
   attributes :tag, :isOffBalance, :rate, :entity_id, :entity_type, :compensation_period
   node(:execution_date) { @deal.execution_date.strftime('%Y/%m/%d') unless @deal.execution_date.nil? }
+  child(@deal.limit => :limit_attributes) do
+    node(:amount) { @deal.limit_amount }
+    node(:side) { @deal.limit_side }
+  end
 end
 child(@deal.entity => :entity) do
   node(:tag) do
@@ -47,10 +51,6 @@ child(@deal.take => :take) do
     end
   end
   child(:place => :place) { attributes :tag }
-end
-child(@deal.limit => :limit) do
-  node(:amount) { @deal.limit_amount }
-  node(:side) { @deal.limit_side }
 end
 child(@deal.rules => :rules) do
   attributes :rate, :fact_side, :change_side, :from_id, :to_id

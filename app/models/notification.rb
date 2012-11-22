@@ -10,4 +10,10 @@
 class Notification < ActiveRecord::Base
   attr_accessible :date, :message, :title, :notification_type
   has_many :notified_users
+
+  def assign_users
+    User.pluck(:id).each do |user_id|
+      self.notified_users.create(user_id: user_id, looked: false)
+    end
+  end
 end

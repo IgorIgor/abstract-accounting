@@ -1,0 +1,47 @@
+<form data-bind="validate: { success: save }">
+  <div class="actions">
+    <input type='submit' value="<%= t 'views.user_notification.send' %>"
+           data-bind="disable: readonly"/>
+  </div>
+
+  <%= render 'home/errors' %>
+
+  <fieldset>
+    <legend><%= t 'views.user_notification.tag' %></legend>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="title"><%= t 'views.user_notification.title' %>:</label>
+        </span>
+        <span>
+          <input type="text" id="title" name="<%= t 'views.user_notification.title' %>"
+                 rule='required' data-bind="value: object.notification.title,
+                                            disable: readonly"  />
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="message"><%= t 'views.user_notification.message' %>:</label>
+        </span>
+        <span>
+          <textarea id="message" name="<%= t 'views.user_notification.message' %>"
+                 rule='required' data-bind="value: object.notification.message,
+                                            disable: readonly"
+                 rows='10'></textarea>
+        </span>
+      </div>
+      <!-- ko if: readonly -->
+        <div>
+          <span class="form-cell-label">
+            <label for="title"><%= t 'views.user_notification.date' %>:</label>
+          </span>
+          <span>
+            <input type="text" id="date" name="<%= t 'views.user_notification.date' %>"
+                   rule='required' data-bind="value: object.notification.date,
+                                              disable: readonly"  />
+          </span>
+        </div>
+      <!-- /ko -->
+    </div>
+  </fieldset>
+</form>

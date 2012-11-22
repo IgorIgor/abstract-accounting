@@ -8,6 +8,26 @@
 # Please see ./COPYING for details
 
 class NotificationsController < ApplicationController
+  def new
+    @notification = Notification.new
+  end
+
+  def create
+    params[:notification][:notification_type] = 1
+    params[:notification][:date] = DateTime.now
+    notification = Notification.create params[:notification]
+    notification.assign_users
+    render json: { result: 'success', id: notification.id }
+  end
+
+  def show
+    @notification = Notification.find(params[:id])
+  end
+
+  def preview
+    render 'notifications/preview', layout: false
+  end
+
   def check
     if current_user.root?
       render :json => { show: false }

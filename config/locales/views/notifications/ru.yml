@@ -11,3 +11,9 @@ ru:
       forbidden: Запрещенный ресурс не может быть получен
       internal_error: Ошибка на сервере
       unavailable: Сервис недоступен
+    user_notification:
+      tag: Уведомление
+      send: Отправить
+      title: Заголовок
+      message: Текст уведомления
+      date: Дата создания

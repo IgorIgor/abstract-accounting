@@ -11,3 +11,9 @@ en:
       forbidden: Forbidden resouce can't be accessed
       internal_error: Internal Server Error
       unavailable: Service Unavailable
+    user_notification:
+      tag: Notification
+      send: Send
+      title: Title
+      message: Message
+      date: Created date

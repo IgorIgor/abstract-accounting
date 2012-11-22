@@ -2,6 +2,7 @@
   <div class="div-logout"><%= link_to t('views.home.logout'), :logout %></div>
   <% if current_user.root? %>
     <div class="div-logout"><a href="#settings"><%=t 'views.home.settings' %></a></div>
+    <div class="div-logout"><a href="#documents/notifications/new"><%=t 'views.home.notify' %></a></div>
   <% end %>
   <div class="div-logout"><a href="#helps"><%=t 'views.home.help' %></a></div>
   <div>

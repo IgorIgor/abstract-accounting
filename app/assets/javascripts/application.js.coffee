@@ -460,6 +460,8 @@ $ ->
                   new LegalEntityViewModel(object)
                 when 'deals'
                   new DealViewModel(object)
+                when 'notifications'
+                  new NotificationViewModel(object)
 
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
@@ -495,6 +497,8 @@ $ ->
                   new LegalEntityViewModel(object, true)
                 when 'deals'
                   new DealViewModel(object, true)
+                when 'notifications'
+                  new NotificationViewModel(object, true)
 
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)

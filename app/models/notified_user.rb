@@ -7,13 +7,8 @@
 #
 # Please see ./COPYING for details
 
-require 'spec_helper'
-
-describe Notification do
-  it { should have_many :notified_users }
-
-  it { should allow_mass_assignment_of :date }
-  it { should allow_mass_assignment_of :message }
-  it { should allow_mass_assignment_of :title }
-  it { should allow_mass_assignment_of :notification_type }
+class NotifiedUser < ActiveRecord::Base
+  attr_accessible :looked, :user_id, :notification_id
+  belongs_to :user
+  belongs_to :notification
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121106132405) do
+ActiveRecord::Schema.define(:version => 20121123143242) do
 
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
@@ -276,8 +276,16 @@ ActiveRecord::Schema.define(:version => 20121106132405) do
   add_index "mus", ["tag"], :name => "index_mus_on_tag", :unique => true
 
   create_table "notifications", :force => true do |t|
+    t.integer  "notification_type"
+    t.string   "title"
+    t.text     "message"
+    t.datetime "date"
+  end
+
+  create_table "notified_users", :force => true do |t|
     t.integer "user_id"
     t.boolean "looked"
+    t.integer "notification_id"
   end
 
   create_table "organizations", :force => true do |t|

@@ -7,13 +7,14 @@
 #
 # Please see ./COPYING for details
 
-require 'spec_helper'
-
-describe Notification do
-  it { should have_many :notified_users }
-
-  it { should allow_mass_assignment_of :date }
-  it { should allow_mass_assignment_of :message }
-  it { should allow_mass_assignment_of :title }
-  it { should allow_mass_assignment_of :notification_type }
+class ChangeNotification < ActiveRecord::Migration
+  def change
+    drop_table :notifications
+    create_table :notifications do |t|
+      t.integer :notification_type
+      t.string :title
+      t.text :message
+      t.datetime :date
+    end
+  end
 end

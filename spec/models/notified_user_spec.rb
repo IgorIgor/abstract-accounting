@@ -9,11 +9,12 @@
 
 require 'spec_helper'
 
-describe Notification do
-  it { should have_many :notified_users }
+describe NotifiedUser do
+  it { should belong_to :user }
+  it { should belong_to :notification }
 
-  it { should allow_mass_assignment_of :date }
-  it { should allow_mass_assignment_of :message }
-  it { should allow_mass_assignment_of :title }
-  it { should allow_mass_assignment_of :notification_type }
+  it { should allow_mass_assignment_of :notification_id }
+  it { should allow_mass_assignment_of :user_id }
+  it { should allow_mass_assignment_of :looked }
 end
+

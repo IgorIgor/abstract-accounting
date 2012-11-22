@@ -8,6 +8,6 @@
 # Please see ./COPYING for details
 
 class Notification < ActiveRecord::Base
-  attr_accessible :looked, :user_id
-  belongs_to :user
+  attr_accessible :date, :message, :title, :notification_type
+  has_many :notified_users
 end

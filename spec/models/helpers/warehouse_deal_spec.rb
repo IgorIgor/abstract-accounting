@@ -10,6 +10,7 @@
 require "spec_helper"
 
 class TestWarehouseDeal
+  include ActiveModel::Dirty
 
   class << self
     def has_paper_trail
@@ -39,6 +40,10 @@ class TestWarehouseDeal
     end
 
     def scope(*args)
+    end
+
+    def columns_hash
+      @columns_hash ||= {}
     end
   end
   include Helpers::WarehouseDeal

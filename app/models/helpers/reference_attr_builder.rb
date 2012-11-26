@@ -56,6 +56,8 @@ module Helpers
       end
 
       def define_accessors
+        define_columns
+        define_dirty_methods
         define_readers
         define_writers
       end
@@ -71,8 +73,12 @@ module Helpers
         attr = name
         polymorphic = polymorphic?
         define_model_method(clear_sub_attribute_data_name) do
+          self.send("#{attr}_id_will_change!")
           self.instance_variable_set("@#{attr}_id", nil)
-          self.instance_variable_set("@#{attr}_type", nil) if polymorphic
+          if polymorphic
+            self.send("#{attr}_type_will_change!")
+            self.instance_variable_set("@#{attr}_type", nil)
+          end
         end
       end
 
@@ -102,6 +108,22 @@ module Helpers
         end
       end
 
+      def define_columns
+        column = ActiveRecord::ConnectionAdapters::Column.new("#{name}_id",
+                                                              nil, :integer.to_s, nil)
+        model.columns_hash[column.name] = column
+        if polymorphic?
+          column = ActiveRecord::ConnectionAdapters::Column.new("#{name}_type",
+                                                                nil, :string.to_s, nil)
+          model.columns_hash[column.name] = column
+        end
+      end
+
+      def define_dirty_methods
+        model.send :define_attribute_method, "#{name}_id"
+        model.send :define_attribute_method, "#{name}_type" if polymorphic?
+      end
+
       def define_readers
         def_attrs = [name, "#{name}_id"]
         load_method_name = load_attribute_data_name
@@ -119,12 +141,21 @@ module Helpers
       end
 
       def define_writers
-        def_attrs = { name => clear_sub_attribute_data_name,
-                      "#{name}_id" => clear_attribute_data_name}
-        def_attrs["#{name}_type"] = clear_attribute_data_name if polymorphic?
-        def_attrs.each do |attr_name, clear_method_name|
-          define_model_method("#{attr_name}=".to_sym) do |value|
-            self.instance_variable_set("@#{attr_name}", value)
+        attr_name = name
+        clear_sub_method_name = clear_sub_attribute_data_name
+        define_model_method("#{attr_name}=".to_sym) do |value|
+          self.instance_variable_set("@#{attr_name}", value)
+          self.send(clear_sub_method_name)
+        end
+
+        def_attrs = %W{ #{name}_id }
+        def_attrs << "#{name}_type" if polymorphic?
+        clear_method_name = clear_attribute_data_name
+        def_attrs.each do |sub_attr_name|
+          define_model_method("#{sub_attr_name}=".to_sym) do |value|
+            old_value = self.instance_variable_get("@#{sub_attr_name}")
+            self.send("#{sub_attr_name}_will_change!") unless old_value == value
+            self.instance_variable_set("@#{sub_attr_name}", value)
             self.send(clear_method_name)
           end
         end

@@ -7,9 +7,15 @@
 #
 # Please see ./COPYING for details
 
-require "rspec"
+require "spec_helper"
 
 class TestAttributes
+  include ActiveModel::Dirty
+
+  def self.columns_hash
+    @columns_hash ||= {}
+  end
+
   def variable(name)
     self.instance_variable_get("@#{name}")
   end
@@ -181,6 +187,47 @@ describe Helpers::ReferenceAttrBuilder do
         object.precord_type = TestRecord
         object.precord.should be_kind_of(TestRecord)
         object.precord.id.should eq(6)
+      end
+
+      it "should add columns to model" do
+        subject.new(TestAttributes, :column, class: TestRecord).build
+
+        TestAttributes.columns_hash.should be_has_key("column_id")
+
+        subject.new(TestAttributes, :pcolumn, polymorphic: true).build
+
+        TestAttributes.columns_hash.should be_has_key("pcolumn_id")
+
+        TestAttributes.columns_hash.should be_has_key("pcolumn_type")
+      end
+
+      it "should use notify about changes in sub attributes if main attribute is changed" do
+        subject.new(TestAttributes, :change_checked, class: TestRecord).build
+        object = TestAttributes.new
+        object.should_not be_change_checked_id_changed
+        object.change_checked = TestRecord.new(8)
+        object.should be_change_checked_id_changed
+
+        subject.new(TestAttributes, :pchange_checked, polymorphic: true).build
+        object = TestAttributes.new
+        object.should_not be_pchange_checked_id_changed
+        object.should_not be_pchange_checked_type_changed
+        object.pchange_checked = TestRecord.new(8)
+        object.should be_pchange_checked_id_changed
+        object.should be_pchange_checked_type_changed
+      end
+
+      it "should use notify about changes in main attribute if sub attributes are changed" do
+        object = TestAttributes.new
+        object.should_not be_change_checked_id_changed
+        object.change_checked_id = 9
+        object.should be_change_checked_id_changed
+
+        object = TestAttributes.new
+        object.should_not be_pchange_checked_type_changed
+        object.pchange_checked_type = TestRecord
+        object.should_not be_pchange_checked_id_changed
+        object.should be_pchange_checked_type_changed
       end
     end
   end

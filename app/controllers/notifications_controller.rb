@@ -37,7 +37,7 @@ class NotificationsController < ApplicationController
     per_page = params[:per_page].nil? ?
         Settings.root.per_page.to_i : params[:per_page].to_i
     filter = { paginate: { page: page, per_page: per_page }}
-    @notifications = Notification.notifications_for(current_user).filtrate(filter).all
+    @notifications = Notification.notifications_for(current_user).filtrate(filter)
     @count = @notifications.count
   end
 

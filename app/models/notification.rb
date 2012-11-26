@@ -11,6 +11,8 @@ class Notification < ActiveRecord::Base
   attr_accessible :date, :message, :title, :notification_type
   has_many :notified_users
 
+  default_scope order("date DESC")
+
   def assign_users
     User.pluck(:id).each do |user_id|
       self.notified_users.create(user_id: user_id, looked: false)
@@ -19,10 +21,9 @@ class Notification < ActiveRecord::Base
 
   def self.notifications_for user
     if user.root?
-      Notification.order 'date DESC'
+      scoped
     else
-      Notification.joins{notified_users}.where{ notified_users.user_id == my{user.id}}.
-                   order 'date DESC'
+      scoped.joins{notified_users}.where{ notified_users.user_id == my{user.id}}
     end
   end
 end

@@ -20,7 +20,7 @@ feature 'notifications', %q{
     3.times do |i|
       create :user
       n = Notification.create(title: "new#{i}", message: "msg#{i}",
-                              notification_type: 1, date: DateTime.now)
+                              notification_type: 1, date: DateTime.now - 10 + i)
       n.assign_users
     end
   end
@@ -45,7 +45,7 @@ feature 'notifications', %q{
     expect {
       click_button I18n.t('views.user_notification.send')
       wait_for_ajax
-      wait_until_hash_changed_to "documents/notifications/#{Notification.last.id}"
+      wait_until_hash_changed_to "documents/notifications/#{Notification.first.id}"
     }.to change(Notification, :count).by(1) &&
          change(NotifiedUser, :count).by(User.count)
 
@@ -55,7 +55,7 @@ feature 'notifications', %q{
     find_field('date')[:disabled].should eq('true')
     find_field('title')[:value].should eq('new notification')
     find_field('message')[:value].should eq('message of notification')
-    find_field('date')[:value].should eq(Notification.last.date.strftime('%Y/%m/%d'))
+    find_field('date')[:value].should eq(Notification.first.date.strftime('%Y/%m/%d'))
   end
 
   scenario 'view notifications for root_user', js: true do
@@ -87,5 +87,12 @@ feature 'notifications', %q{
         page.should have_content(item.title)
       end
     end
+  end
+
+  scenario 'show notification', js: true do
+    page_login
+    click_link I18n.t('views.home.notifications')
+    find(:xpath, "//div[@id='container_documents']/table/tbody/tr[1]/td[1]").click
+    current_hash.should eq "documents/notifications/#{Notification.first.id}"
   end
 end

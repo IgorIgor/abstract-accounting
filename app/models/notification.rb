@@ -16,4 +16,13 @@ class Notification < ActiveRecord::Base
       self.notified_users.create(user_id: user_id, looked: false)
     end
   end
+
+  def self.notifications_for user
+    if user.root?
+      Notification.order 'date DESC'
+    else
+      Notification.joins{notified_users}.where{ notified_users.user_id == my{user.id}}.
+                   order 'date DESC'
+    end
+  end
 end

@@ -598,6 +598,8 @@ $ ->
                     new AllocationsViewModel(data)
                   when 'quote'
                     new QuotesViewModel(data)
+                  when 'notifications'
+                    new NotificationsViewModel(data)
 
                 ko.cleanNode($('#main').get(0))
                 $('#container_documents').html(form)

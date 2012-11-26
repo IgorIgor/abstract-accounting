@@ -16,13 +16,18 @@ feature 'notifications', %q{
 
   before :each do
     create :chart
+
+    3.times do |i|
+      create :user
+      n = Notification.create(title: "new#{i}", message: "msg#{i}",
+                              notification_type: 1, date: DateTime.now)
+      n.assign_users
+    end
   end
 
   scenario 'create new notification', js: true do
-    3.times { create :user }
-
     page_login
-    click_link I18n.t('views.home.notification')
+    click_link I18n.t('views.home.notify')
     current_hash.should eq 'documents/notifications/new'
     click_button I18n.t('views.user_notification.send')
     within "#container_documents form" do
@@ -51,5 +56,36 @@ feature 'notifications', %q{
     find_field('title')[:value].should eq('new notification')
     find_field('message')[:value].should eq('message of notification')
     find_field('date')[:value].should eq(Notification.last.date.strftime('%Y/%m/%d'))
+  end
+
+  scenario 'view notifications for root_user', js: true do
+    page_login
+    click_link I18n.t('views.home.notifications')
+    current_hash.should eq 'notifications'
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 3)
+      Notification.all.each do |item|
+        page.should have_content(item.date.strftime('%Y/%m/%d'))
+        page.should have_content(item.title)
+      end
+    end
+  end
+
+  scenario 'view notifications for user', js: true do
+    user = create(:user, email: 'iv@mail.ru', password: '123456')
+    Notification.create(title: "note", message: "mes",
+                        notification_type: 1, date: DateTime.now).assign_users
+    page_login('iv@mail.ru', '123456')
+    click_link I18n.t('views.home.notifications')
+    current_hash.should eq 'notifications'
+    within('#container_documents table tbody') do
+      page.should have_selector('tr', count: 1)
+      Notification.joins{notified_users}.
+          where{ notified_users.user_id == user.id}.
+          order('date DESC').all.each do |item|
+        page.should have_content(item.date.strftime('%Y/%m/%d'))
+        page.should have_content(item.title)
+      end
+    end
   end
 end

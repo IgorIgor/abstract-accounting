@@ -29,4 +29,23 @@ describe Notification do
     NotifiedUser.last.notification_id.should eq(notify.id)
     NotifiedUser.last.looked.should be_false
   end
+
+  it 'should show all notifications' do
+    3.times do |i|
+      create :user
+      Notification.create(title: "new#{i}", message: "msg#{i}",
+                          notification_type: 1, date: DateTime.now)
+    end
+    Notification.notifications_for(RootUser.new).should eq(Notification.order('date DESC'))
+  end
+
+  it 'should show notification only for this user' do
+    3.times do |i|
+      create :user
+      Notification.create(title: "new#{i}", message: "msg#{i}",
+                          notification_type: 1, date: DateTime.now)
+    end
+    Notification.notifications_for(User.first).should eq( Notification.joins{notified_users}.
+      where{ notified_users.user_id == User.first.id}.order 'date DESC')
+  end
 end

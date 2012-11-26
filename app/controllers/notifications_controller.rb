@@ -28,6 +28,19 @@ class NotificationsController < ApplicationController
     render 'notifications/preview', layout: false
   end
 
+  def index
+    render 'index', layout: false
+  end
+
+  def data
+    page = params[:page].nil? ? 1 : params[:page].to_i
+    per_page = params[:per_page].nil? ?
+        Settings.root.per_page.to_i : params[:per_page].to_i
+    filter = { paginate: { page: page, per_page: per_page }}
+    @notifications = Notification.notifications_for(current_user).filtrate(filter).all
+    @count = @notifications.count
+  end
+
   def check
     if current_user.root?
       render :json => { show: false }

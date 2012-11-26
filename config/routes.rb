@@ -14,8 +14,9 @@ Abstract::Application.routes.draw do
   get "archive" => "home#archive"
 
   resources :helps, only:[:index, :show]
-  resources :notifications, only: [:new, :create, :show] do
+  resources :notifications, only: [:new, :create, :show, :index] do
     collection do
+      get 'data'
       get 'preview'
       get 'clear'
       get 'check'

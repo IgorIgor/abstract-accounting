@@ -16,5 +16,9 @@ describe NotifiedUser do
   it { should allow_mass_assignment_of :notification_id }
   it { should allow_mass_assignment_of :user_id }
   it { should allow_mass_assignment_of :looked }
+
+  it 'should unviewed notified_users' do
+    NotifiedUser.unviewed.should eq(NotifiedUser.where{looked == false})
+  end
 end
 

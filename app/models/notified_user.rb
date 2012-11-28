@@ -11,4 +11,6 @@ class NotifiedUser < ActiveRecord::Base
   attr_accessible :looked, :user_id, :notification_id
   belongs_to :user
   belongs_to :notification
+
+  scope :unviewed, -> { where{looked == false} }
 end

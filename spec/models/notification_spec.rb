@@ -19,8 +19,7 @@ describe Notification do
 
   it 'should assign users' do
     3.times { create :user }
-    notify = Notification.create(title: 'new', message: 'msg',
-                                 notification_type: 1, date: DateTime.now)
+    notify = create :notification
     expect { notify.assign_users }.to change(NotifiedUser, :count).by 3
     NotifiedUser.first.user_id.should eq(User.first.id)
     NotifiedUser.first.notification_id.should eq(notify.id)
@@ -31,21 +30,29 @@ describe Notification do
   end
 
   it 'should show all notifications' do
-    3.times do |i|
+    3.times do
       create :user
-      Notification.create(title: "new#{i}", message: "msg#{i}",
-                          notification_type: 1, date: DateTime.now)
+      create :notification
     end
     Notification.notifications_for(RootUser.new).should eq(Notification.order('date DESC'))
   end
 
   it 'should show notification only for this user' do
-    3.times do |i|
+    3.times do
       create :user
-      Notification.create(title: "new#{i}", message: "msg#{i}",
-                          notification_type: 1, date: DateTime.now)
+      create(:notification).assign_users
     end
-    Notification.notifications_for(User.first).should eq( Notification.joins{notified_users}.
+    Notification.notifications_for(User.first).should eq(Notification.joins{notified_users}.
       where{ notified_users.user_id == User.first.id}.order 'date DESC')
+  end
+
+  it 'should return notification_ids for user' do
+    3.times do
+      create :user
+      create(:notification).assign_users
+    end
+    Notification.unviewed_for(RootUser.new).should be_nil
+    Notification.unviewed_for(User.first).should eq(Notification.notifications_for(User.first).
+                                                                 merge(NotifiedUser.unviewed))
   end
 end

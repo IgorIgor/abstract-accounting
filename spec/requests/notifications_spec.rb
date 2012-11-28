@@ -14,14 +14,17 @@ feature 'notifications', %q{
   I want to view notifications
 } do
 
+  def show_notification
+    page.execute_script %Q{ notification() }
+    wait_for_ajax
+  end
+
   before :each do
     create :chart
 
     3.times do |i|
       create :user
-      n = Notification.create(title: "new#{i}", message: "msg#{i}",
-                              notification_type: 1, date: DateTime.now - 10 + i)
-      n.assign_users
+      create(:notification, date: DateTime.now - 10 + i).assign_users
     end
   end
 
@@ -48,7 +51,7 @@ feature 'notifications', %q{
       wait_until_hash_changed_to "documents/notifications/#{Notification.first.id}"
     }.to change(Notification, :count).by(1) &&
          change(NotifiedUser, :count).by(User.count)
-
+    #sometimes fail
     find_button(I18n.t('views.user_notification.send'))[:disabled].should eq('true')
     find_field('title')[:disabled].should eq('true')
     find_field('message')[:disabled].should eq('true')
@@ -73,8 +76,8 @@ feature 'notifications', %q{
 
   scenario 'view notifications for user', js: true do
     user = create(:user, email: 'iv@mail.ru', password: '123456')
-    Notification.create(title: "note", message: "mes",
-                        notification_type: 1, date: DateTime.now).assign_users
+    create(:notification, title: "note", message: "mes",
+                          notification_type: 1, date: DateTime.now).assign_users
     page_login('iv@mail.ru', '123456')
     click_link I18n.t('views.home.notifications')
     current_hash.should eq 'notifications'
@@ -89,10 +92,85 @@ feature 'notifications', %q{
     end
   end
 
-  scenario 'show notification', js: true do
+  scenario 'show notification page', js: true do
     page_login
     click_link I18n.t('views.home.notifications')
     find(:xpath, "//div[@id='container_documents']/table/tbody/tr[1]/td[1]").click
     current_hash.should eq "documents/notifications/#{Notification.first.id}"
+  end
+
+  scenario 'show notification and view', js: true do
+    user = create(:user, email: 'iv@mail.ru', password: '123456')
+    notify = create :notification
+    notify.assign_users
+    page_login('iv@mail.ru', '123456')
+    within("div.sticky") do
+      page.should have_selector('img')
+      page.should have_selector('a')
+      page.should have_content(I18n.t('views.user_notification.view'))
+      page.should have_content(notify.title)
+      click_link I18n.t('views.user_notification.view')
+      current_hash.should eq "documents/notifications/#{Notification.first.id}"
+    end
+    page.should_not have_selector("div.sticky")
+    NotifiedUser.find_by_notification_id_and_user_id(notify.id,user.id).looked.should be_true
+  end
+
+  scenario 'show notification and close', js: true do
+    user = create(:user, email: 'iv@mail.ru', password: '123456')
+    notify = create :notification
+    notify.assign_users
+    page_login('iv@mail.ru', '123456')
+    within("div.sticky") do
+      page.should have_selector('img')
+      page.should have_selector('a')
+      page.should have_content(I18n.t('views.user_notification.view'))
+      page.should have_content(notify.title)
+      old_hash = current_hash
+      page.find('img.sticky-close').click
+      current_hash.should eq old_hash
+    end
+    page.should_not have_selector("div.sticky")
+    NotifiedUser.find_by_notification_id_and_user_id(notify.id,user.id).looked.should be_true
+  end
+
+  scenario 'dont show notification for root_user', js: true do
+    notify = create :notification
+    notify.assign_users
+    page_login
+    page.should_not have_selector("div.sticky")
+  end
+
+  scenario 'show notification and close', js: true do
+    user = create(:user, email: 'iv@mail.ru', password: '123456')
+    notify = create :notification
+    notify.assign_users
+    page_login('iv@mail.ru', '123456')
+    within("div.sticky") do
+      page.should have_selector('img')
+      page.should have_selector('a')
+      page.should have_content(I18n.t('views.user_notification.view'))
+      page.should have_content(notify.title)
+      old_hash = current_hash
+      page.find('img.sticky-close').click
+      current_hash.should eq old_hash
+    end
+    page.should_not have_selector("div.sticky")
+    NotifiedUser.find_by_notification_id_and_user_id(notify.id,user.id).looked.should be_true
+    notify = create :notification
+    notify.assign_users
+    show_notification
+    page.should have_selector("div.sticky")
+    page.find('img.sticky-close').click
+    show_notification
+    page.should_not have_selector("div.sticky")
+    notify = create :notification
+    notify.assign_users
+    show_notification
+    page.should have_selector("div.sticky")
+    notify = create :notification
+    notify.assign_users
+    show_notification
+    page.should have_selector("div.sticky", count: 2)
   end
 end

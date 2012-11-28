@@ -10,6 +10,8 @@
 class PasswordResetsController < ApplicationController
   skip_before_filter :check_chart, :require_login
 
+  layout 'login'
+
   def new
   end
 

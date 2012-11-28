@@ -195,4 +195,11 @@ FactoryGirl.define do
   factory :classifier do
     tag
   end
+
+  factory :notification do
+    sequence(:title) { |n| "title#{n}" }
+    sequence(:message) { |n| "msg#{n}" }
+    date DateTime.now
+    notification_type 1
+  end
 end

@@ -26,4 +26,10 @@ class Notification < ActiveRecord::Base
       scoped.joins{notified_users}.where{ notified_users.user_id == my{user.id}}
     end
   end
+
+  def self.unviewed_for user
+    unless user.root?
+      notifications_for(user).merge(NotifiedUser.unviewed)
+    end
+  end
 end

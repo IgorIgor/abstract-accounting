@@ -40,6 +40,9 @@ ru:
           apply: Принятие выдачи
           cancel: Отмена выдачи
           reverse: Стронирование выдачи
+    defaults:
+      assets:
+        shipment: Отгрузка
     errors:
       models:
         group:

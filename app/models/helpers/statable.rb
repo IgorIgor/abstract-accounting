@@ -52,8 +52,8 @@ module Helpers
     end
 
     def state
-      return UNKNOWN if self.deal.nil? || self.deal.deal_state.nil?
-      if self.deal.deal_state.in_work?
+      return UNKNOWN if self.unknown?
+      if self.in_work?
         return INWORK
       elsif self.deal.deal_state.closed? && self.deal.to_facts.size == 0
         return CANCELED
@@ -65,6 +65,14 @@ module Helpers
         return REVERSED
       end
       UNKNOWN
+    end
+
+    def unknown?
+      self.deal.nil? || self.deal.deal_state.nil?
+    end
+
+    def in_work?
+      self.deal && self.deal.deal_state.in_work?
     end
 
     def cancel

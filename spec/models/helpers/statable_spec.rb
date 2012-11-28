@@ -71,12 +71,30 @@ describe Helpers::Statable do
     DealState.last.opened.should eq(Date.today)
   end
 
+  it "should be in unknown state after creation" do
+    obj = TestStatable.new
+    obj.instance_eval do
+      def deal
+        nil
+      end
+    end
+    obj.should be_unknown
+    obj = TestStatable.new
+    obj.instance_eval do
+      def deal
+        Deal.new
+      end
+    end
+    obj.should be_unknown
+  end
+
   it "should be in work after first save" do
     obj = TestStatable.new
     obj.state.should eq(Helpers::Statable::INWORK)
     obj.should be_can_apply
     obj.should be_can_cancel
     obj.should_not be_can_reverse
+    obj.should be_in_work
   end
 
   it "should change state from inwork to apply after apply" do

@@ -157,111 +157,65 @@ module Helpers
     end
 
     def create_storekeeper_deal(item, index)
-      settings = self.class.warehouse_fields
       create_deal(item.resource, item.resource, storekeeper_place, storekeeper_place,
                   storekeeper, 1.0, index)
     end
 
-    def before_warehouse_deal_save
-      if self.new_record?
-        settings = self.class.warehouse_fields
+    def create_main_deal
+      settings = self.class.warehouse_fields
+      deal = Deal.new(entity: self.storekeeper, rate: 1.0, isOffBalance: true,
+                tag: I18n.t("activerecord.attributes.#{self.class.name.downcase}.deal.tag",
+                            id: self.document_id, place: storekeeper_place.tag,
+                            deal_id: Deal.count > 0 ? Deal.last.id + 1 : 1))
+      shipment = Asset.find_or_create_by_tag(I18n.t('activerecord.defaults.assets.shipment'))
+      return nil unless deal.build_give(place: self.send("#{settings[:from]}_place"),
+                                        resource: shipment)
+      return nil unless deal.build_take(place: self.send("#{settings[:to]}_place"),
+                                        resource: shipment)
+      deal.save ? deal : nil
+    end
 
-        self.deal = Deal.new(entity: self.storekeeper, rate: 1.0, isOffBalance: true,
-          tag: I18n.t("activerecord.attributes.#{self.class.name.downcase}.deal.tag",
-                      id: self.document_id, place: storekeeper_place.tag,
-                      deal_id: Deal.count > 0 ? Deal.last.id + 1 : 1))
-        shipment = Asset.find_or_create_by_tag('Warehouse Shipment')
-        return false if self.deal.build_give(place: self.send("#{settings[:from]}_place"),
-                                             resource: shipment).nil?
-        return false if self.deal.build_take(place: self.send("#{settings[:to]}_place"),
-                                             resource: shipment).nil?
-        return false unless self.deal.save
-        self.deal_id = self.deal.id
+    def create_rule(item, idx)
+      settings = self.class.warehouse_fields
+      return false if self.class.before_item_save_callback &&
+                      !send(self.class.before_item_save_callback, item)
 
-        @items.each_with_index do |item, idx|
-          return false if self.class.before_item_save_callback &&
-                          !send(self.class.before_item_save_callback, item)
-
-          from_item = send("create_#{settings[:from]}_deal", item, idx)
-          return false if from_item.nil?
-
-          to_item = send("create_#{settings[:to]}_deal", item, idx)
-          return false if to_item.nil?
-
-          return false if self.deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
-            from: from_item, to: to_item, fact_side: false,
-            change_side: true, rate: item.amount).nil?
-        end
-      end
+      return false unless self.deal.rules.create(
+          tag: "#{deal.tag}; rule#{idx}",
+          from: send("create_#{settings[:from]}_deal", item, idx),
+          to: send("create_#{settings[:to]}_deal", item, idx),
+          fact_side: false,
+          change_side: true,
+          rate: item.amount).valid?
       true
     end
 
-    def update_attributes(attrs)
-      return false if attrs.nil? || attrs.empty?
-      return false unless self.state == Helpers::Statable::INWORK
-
-      self.class.transaction do
+    def before_warehouse_deal_save
+      return false unless self.unknown? || self.in_work?
+      settings = self.class.warehouse_fields
+      unless self.new_record?
         self.deal.rules.each do |rule|
           rule.from.destroy if rule.from.states.count == 0
           rule.to.destroy if rule.to.states.count == 0
         end
-
         self.deal.rules.destroy_all
-
-        give = self.deal.give
-        take = self.deal.take
-
-        settings = self.class.warehouse_fields
-
-        if attrs["#{settings[:from]}_id"]
-          from_entity = attrs["#{settings[:from]}_type"].constantize.
-              find(attrs["#{settings[:from]}_id"])
-        else
-          from_entity = self.send(settings[:from])
-        end
-
-        if attrs["#{settings[:to]}_id"]
-          to_entity = attrs["#{settings[:to]}_type"].constantize.
-              find(attrs["#{settings[:to]}_id"])
-        else
-          to_entity = self.send(settings[:to])
-        end
-
-        from_place = Place.find(attrs["#{settings[:from]}_place_id"])
-        to_place = Place.find(attrs["#{settings[:to]}_place_id"])
-
-        give.update_attributes(place_id: from_place.id)
-        take.update_attributes(place_id: to_place.id)
-
-        self.deal.update_attributes(entity_id: attrs[:storekeeper_id],
-                                    entity_type: attrs[:storekeeper_type])
-
-        # TODO create items put in separate function
-        @items.each_with_index do |item, idx|
-          return false if self.class.before_item_save_callback &&
-              !send(self.class.before_item_save_callback, item)
-
-          from_item = send("create_#{settings[:from]}_deal", item, idx)
-          return false if from_item.nil?
-
-          to_item = send("create_#{settings[:to]}_deal", item, idx)
-          return false if to_item.nil?
-
-          return false if self.deal.rules.create(tag: "#{deal.tag}; rule#{idx}",
-                                                 from: from_item, to: to_item, fact_side: false,
-                                                 change_side: true, rate: item.amount).nil?
-        end
-
-        attrs.delete("#{settings[:from]}_id")
-        attrs.delete("#{settings[:from]}_place_id")
-        attrs.delete("#{settings[:from]}_type")
-        attrs.delete("#{settings[:to]}_id")
-        attrs.delete("#{settings[:to]}_place_id")
-        attrs.delete("#{settings[:to]}_type")
-        attrs.delete(:items)
-
-        super(attrs)
+        self.deal.rules = []
       end
+      if self.storekeeper_id_changed? || self.storekeeper_type_changed? ||
+          self.send("#{settings[:to]}_place_id_changed?") ||
+          self.send("#{settings[:from]}_place_id_changed?")
+        self.deal.destroy unless self.new_record?
+        return false unless (self.deal = create_main_deal)
+        self.deal_id = self.deal.id
+      end
+      if self.deal && self.deal.rules.empty?
+        @items.each_with_index { |item, idx| return false unless create_rule(item, idx) }
+      end
+      true
+    end
+
+    def changed(*)
+      super & attributes.keys
     end
 
     def after_warehouse_deal_save
@@ -289,7 +243,6 @@ module Helpers
       Txn.transaction do
         fact = Fact.create(amount: 1.0, resource: self.deal.give.resource,
                                 day: DateTime.current.change(hour: 12), to: self.deal)
-
         return false unless fact
         !Txn.create(fact: fact).nil?
       end

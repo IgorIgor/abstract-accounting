@@ -40,6 +40,9 @@ en:
           apply: Apply allocation
           cancel: Cancel allocation
           reverse: Reverse allocation
+    defaults:
+      assets:
+        shipment: Shipment
     errors:
       models:
         group:

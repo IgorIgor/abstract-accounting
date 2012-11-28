@@ -18,7 +18,6 @@ Abstract::Application.routes.draw do
     collection do
       get 'data'
       get 'preview'
-      get 'clear'
       get 'check'
       post 'hide'
     end

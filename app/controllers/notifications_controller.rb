@@ -64,9 +64,4 @@ class NotificationsController < ApplicationController
                  update_attribute(:looked, true)
     render :json => { result: "success" }
   end
-
-  def clear
-    Notification.destroy_all
-    render :json => { result: "success" }
-  end
 end

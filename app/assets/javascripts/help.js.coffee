@@ -4,7 +4,7 @@ $ ->
       $("a.ancLinks").click(->
         elementClick = $(this).attr("href")
         destination = $(elementClick).offset().top
-        $('body').animate( { scrollTop: destination }, 1100 )
+        $('html, body').animate( { scrollTop: destination }, 1100 )
         false
       )
     )

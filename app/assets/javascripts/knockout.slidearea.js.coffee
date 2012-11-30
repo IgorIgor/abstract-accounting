@@ -7,6 +7,8 @@ ko.bindingHandlers.slidearea =
     menu.addClass("menu")
     menu.find("li").addClass("menu-item")
     menu.find("li > a").addClass("menu-item-link")
+    $(menu).click ->
+      menu.slideUp("fast")
 
     showerHandler = () ->
       menu.slideToggle('fast')

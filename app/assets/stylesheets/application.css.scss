@@ -105,20 +105,9 @@ input[type=text], input[type=password], textarea {
 
 .button {
   display: block;
-  background: #dddddd;
   padding: 5px 12px;
   text-decoration: none;
-  border: 1px solid #cccccc;
-  color: #000000;
   white-space: nowrap;
-  border-radius: 3px;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  background: -webkit-gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
-  background: -moz-gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
-  background: -o-gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
-  background: -ms-gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
-  background: gradient(linear,0% 40%, 0% 70%,from(#f9f9f9),to(#e3e3e3));
 
   .data {
     vertical-align: middle;
@@ -127,8 +116,26 @@ input[type=text], input[type=password], textarea {
   }
 }
 
-.button:hover {
+input[type=button], input[type=submit], .button {
+  background: #dddddd;
+  border: 1px solid #cccccc;
+  color: #000000;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  background: -webkit-linear-gradient(top, #f9f9f9, #e3e3e3);
+  background: -moz-linear-gradient(top, #f9f9f9, #e3e3e3);
+  background: -o-linear-gradient(top, #f9f9f9, #e3e3e3);
+  background: -ms-linear-gradient(top, #f9f9f9, #e3e3e3);
+}
+
+.button:hover, input[type=button]:hover, input[type=submit]:hover {
   border: 1px solid #aaaaaa;
+}
+
+input[type=button]:disabled, input[type=submit]:disabled {
+  color: #aaaaaa;
+  border: 1px solid #cccccc;
 }
 
 #main {
@@ -175,6 +182,7 @@ input[type=text], input[type=password], textarea {
     }
 
     .actions {
+      padding: 3px;
       position: absolute;
       top: 72px;
 
@@ -201,6 +209,7 @@ input[type=text], input[type=password], textarea {
           display: inline-block;
           cursor: pointer;
           margin-left: 4px;
+          margin-top: -3px;
 
           .button {
             display: block;
@@ -420,7 +429,7 @@ input[type=text], input[type=password], textarea {
 
               div.current {
                 display: table;
-                width: 100%;
+                width: 678px;
               }
 
               div {

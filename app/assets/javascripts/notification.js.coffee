@@ -11,6 +11,7 @@ $ ->
     $("##{stick.id} a#link").click( =>
       $("##{stick.id} > .sticky-close").click()
     )
+    $("##{stick.id}").addClass('warning') if item.notification_type == 2
 
   self.notification = ->
     $.ajax(

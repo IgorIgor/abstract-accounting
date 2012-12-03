@@ -18,3 +18,8 @@ en:
       message: Message
       date: Created date
       view: View
+      type:
+        tag: Notification type
+        information: Information
+        warning: Warning
+

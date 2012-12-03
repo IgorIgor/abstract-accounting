@@ -77,7 +77,7 @@ feature 'notifications', %q{
   scenario 'view notifications for user', js: true do
     user = create(:user, email: 'iv@mail.ru', password: '123456')
     create(:notification, title: "note", message: "mes",
-                          notification_type: 1, date: DateTime.now).assign_users
+                          notification_type: Notification::INFORMATION, date: DateTime.now).assign_users
     page_login('iv@mail.ru', '123456')
     click_link I18n.t('views.home.notifications')
     current_hash.should eq 'notifications'
@@ -172,5 +172,18 @@ feature 'notifications', %q{
     notify.assign_users
     show_notification
     page.should have_selector("div.sticky", count: 2)
+  end
+
+  scenario 'show notification with different types', js: true do
+    create(:user, email: 'iv@mail.ru', password: '123456')
+    notify = create(:notification, notification_type: Notification::WARNING)
+    notify.assign_users
+    page_login('iv@mail.ru', '123456')
+    page.should have_selector("div.warning")
+    page.find('img.sticky-close').click
+    notify = create(:notification, notification_type: Notification::INFORMATION)
+    notify.assign_users
+    show_notification
+    page.should_not have_selector("div.warning")
   end
 end

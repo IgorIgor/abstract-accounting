@@ -9,6 +9,6 @@
 
 object false
 child(@notification => :notification) do
-  attributes :message, :title
+  attributes :message, :title, :notification_type
   node(:date) { @notification.date.strftime('%Y/%m/%d') }
 end

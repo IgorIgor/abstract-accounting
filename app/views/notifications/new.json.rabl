@@ -9,5 +9,5 @@
 
 object false
 child(@notification => :notification) do
-  attributes :message, :title
+  attributes :message, :title, :notification_type
 end

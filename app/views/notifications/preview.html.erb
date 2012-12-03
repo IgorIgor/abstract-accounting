@@ -30,6 +30,24 @@
                  rows='10'></textarea>
         </span>
       </div>
+      <div>
+          <span>
+            <label for="notification_type"><%=t 'views.user_notification.type.tag' %>:</label>
+          </span>
+          <span>
+            <select id="notification_type"
+                    name='<%=t 'views.user_notification.type.tag' %>'
+                    data-bind="value: object.notification.notification_type,
+                               disable: readonly">
+              <option value='<%= Notification::INFORMATION %>'>
+                <%=t 'views.user_notification.type.information' %>
+              </option>
+              <option value='<%= Notification::WARNING %>'>
+                <%=t 'views.user_notification.type.warning' %>
+              </option>
+            </select>
+          </span>
+      </div>
       <!-- ko if: readonly -->
         <div>
           <span class="form-cell-label">

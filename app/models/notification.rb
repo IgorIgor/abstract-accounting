@@ -11,6 +11,9 @@ class Notification < ActiveRecord::Base
   attr_accessible :date, :message, :title, :notification_type
   has_many :notified_users
 
+  INFORMATION = 1
+  WARNING = 2
+
   default_scope order("date DESC")
 
   def assign_users

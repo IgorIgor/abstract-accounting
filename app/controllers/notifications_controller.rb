@@ -13,7 +13,6 @@ class NotificationsController < ApplicationController
   end
 
   def create
-    params[:notification][:notification_type] = 1
     params[:notification][:date] = DateTime.now
     notification = Notification.create params[:notification]
     notification.assign_users
@@ -51,7 +50,8 @@ class NotificationsController < ApplicationController
         notifications << { html: render_to_string(partial: 'notification_view.html',
                                                   locals: { title: notification.title,
                                                             id: notification.id }),
-                           id: notification.id}
+                           id: notification.id,
+                           notification_type: notification.notification_type}
       end
       render :json => { show: true, notifications: notifications }
     else

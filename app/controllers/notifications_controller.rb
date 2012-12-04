@@ -13,10 +13,14 @@ class NotificationsController < ApplicationController
   end
 
   def create
-    params[:notification][:date] = DateTime.now
-    notification = Notification.create params[:notification]
-    notification.assign_users
-    render json: { result: 'success', id: notification.id }
+    begin
+      params[:notification][:date] = DateTime.now
+      notification = Notification.create params[:notification]
+      notification.assign_users
+      render json: { result: 'success', id: notification.id }
+    rescue
+      render json: notification.errors.full_messages
+    end
   end
 
   def show

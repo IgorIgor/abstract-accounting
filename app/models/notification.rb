@@ -9,6 +9,7 @@
 
 class Notification < ActiveRecord::Base
   attr_accessible :date, :message, :title, :notification_type
+  validates :title, :length => { :maximum => 250 }
   has_many :notified_users
 
   INFORMATION = 1

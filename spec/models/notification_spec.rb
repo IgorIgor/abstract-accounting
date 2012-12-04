@@ -55,4 +55,6 @@ describe Notification do
     Notification.unviewed_for(User.first).should eq(Notification.notifications_for(User.first).
                                                                  merge(NotifiedUser.unviewed))
   end
+
+  it { should ensure_length_of(:title).is_at_most(250) }
 end

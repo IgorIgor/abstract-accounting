@@ -406,4 +406,117 @@ feature 'warehouses', %q{
       test_order.call('exp_amount','desc')
     end
   end
+
+  scenario 'warehouses report', js: true do
+    place1 = create(:place)
+    place2 = create(:place)
+    place3 = create(:place)
+
+    asset1 = create(:asset)
+    asset2 = create(:asset)
+    asset3 = create(:asset)
+
+    user1 = create(:user)
+    user2 = create(:user)
+    user3 = create(:user)
+
+    create(:credential, user: user1, place: place1, document_type: Waybill.name)
+    create(:credential, user: user2, place: place2, document_type: Waybill.name)
+    create(:credential, user: user3, place: place3, document_type: Waybill.name)
+
+    wb1 = build(:waybill, storekeeper_place: place1)
+    wb1.add_item(tag: asset1.tag, mu: asset1.mu, amount: 100, price: 10.0)
+    wb1.add_item(tag: asset2.tag, mu: asset2.mu, amount: 100, price: 10.0)
+    wb1.save!
+    wb1.apply
+
+    wb2 = build(:waybill, storekeeper_place: place1)
+    wb2.add_item(tag: asset1.tag, mu: asset1.mu, amount: 101, price: 10.0)
+    wb2.save!
+    wb2.apply
+
+    wb3 = build(:waybill, storekeeper_place: place2)
+    wb3.add_item(tag: asset2.tag, mu: asset3.mu, amount: 100, price: 10.0)
+    wb3.save!
+    wb3.apply
+
+    page_login
+    page.find('#btn_slide_conditions').click
+    page.find('#warehouses_report a').click
+    current_hash.should eq('warehouses/report')
+    page.should have_xpath("//ul[@id='slide_menu_conditions']" +
+                               "/li[@id='warehouses_report' and @class='sidebar-selected']")
+
+    select(place1.tag, :from => 'warehouse_filter')
+
+    click_button(I18n.t('views.warehouses.filter.select.asset'))
+    page.should have_selector('#resources_selector')
+    within('#resources_selector') do
+      within('table tbody') do
+        all(:xpath, './/tr').each do |tr|
+          if tr.has_content?(asset1.tag) && tr.has_content?(asset1.mu)
+            tr.click
+            break
+          end
+        end
+      end
+    end
+    page.should have_no_selector('#resources_selector')
+
+    within('#container_documents table thead') do
+        find(:xpath, 'tr[1]').should have_content(asset1.tag)
+        find(:xpath, 'tr[2]').should have_content(asset1.mu)
+        find(:xpath, 'tr[3]').should have_content(place1.tag)
+    end
+
+    check_content("#container_documents table", [wb2, wb1]) do |wb|
+      [wb.created.strftime('%Y-%m-%d'), wb.distributor.name, wb.document_id,
+       wb.items.each{ |item| break item.amount if item.resource.id == asset1.id }, '', '',
+       wb.items.each{ |item| break item.amount if item.resource.id == asset1.id }]
+    end
+
+    within('#container_documents table tfoot') do
+      total_amount = wb2.items.each{ |item| break item.amount if item.resource.id == asset1.id }
+      page.should have_content(total_amount.to_s)
+    end
+
+    select(place3.tag, :from => 'warehouse_filter')
+    within('#container_documents table thead') do
+      find(:xpath, 'tr[1]').should have_content(asset1.tag)
+      find(:xpath, 'tr[2]').should have_content(asset1.mu)
+      find(:xpath, 'tr[3]').should have_content(place3.tag)
+    end
+    within('#container_documents table') do
+      all(:xpath, './/tbody//tr').count.should eq(0)
+    end
+    within('#container_documents table tfoot') do
+      page.should have_content('0')
+    end
+
+    select(place1.tag, :from => 'warehouse_filter')
+    click_button(I18n.t('views.warehouses.filter.select.asset'))
+    page.should have_selector('#resources_selector')
+    within('#resources_selector') do
+      within('table tbody') do
+        all(:xpath, './/tr').each do |tr|
+          if tr.has_content?(asset3.tag) && tr.has_content?(asset3.mu)
+            tr.click
+            break
+          end
+        end
+      end
+    end
+    page.should have_no_selector('#resources_selector')
+    within('#container_documents table thead') do
+      find(:xpath, 'tr[1]').should have_content(asset3.tag)
+      find(:xpath, 'tr[2]').should have_content(asset3.mu)
+      find(:xpath, 'tr[3]').should have_content(place1.tag)
+    end
+    within('#container_documents table') do
+      all(:xpath, './/tbody//tr').count.should eq(0)
+    end
+    within('#container_documents table tfoot') do
+      page.should have_content('0')
+    end
+  end
 end

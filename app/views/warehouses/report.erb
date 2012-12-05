@@ -7,43 +7,16 @@
     </select>
   <% end %>
   <input type='button' value="<%= t 'views.warehouses.filter.select.asset' %>"
-         data-bind="click: openDialog.bind($data, 'resources_selector')"/>
+         data-bind="dialog: { autoOpen: false,
+                              modal: true,
+                              minWidth: 480,
+                              minHeight: 300,
+                              bind: { id: resource_id, tag: resource.tag, mu: resource.mu }
+                            },
+                    dialogId: 'resources_selector' "/>
+
   <input type='button' value="<%= t('views.warehouses.report.print') %>"
          data-bind='click: print, visible: documents().length > 0'/>
-</div>
-
-<div id="resources_selector" class="dialog"
-     data-bind="dialog: { autoOpen: false, modal: true, minWidth: 480, minHeight: 300 },
-                with: dialog">
-
-  <table>
-    <caption>
-      <div class="table-mode">
-        <input type="text" id='dialog_search' data-bind="value: filter.tag"/>
-        <input type="button" value="<%= t('views.home.search') %>"
-               data-bind="click: filterData"/>
-      </div>
-      <div class="paginate">
-        <span data-bind="text: range"></span> <%= t('views.home.of') %>
-        <span data-bind="text: count"></span>
-        <input type="button" value="<" data-bind="click: prev, disable: page() < 2"/>
-        <input type="button" class="paginate-right" value=">"
-               data-bind="click: next, disable: page()*per_page() >= count()"/>
-      </div>
-    </caption>
-    <thead>
-    <tr>
-      <th><%= t 'views.resources.tag' %></th>
-      <th><%= t 'views.resources.mu' %></th>
-    </tr>
-    </thead>
-    <tbody data-bind="foreach: documents">
-    <tr data-bind="click: $root.select">
-      <td data-bind="text: tag"></td>
-      <td data-bind="text: mu"></td>
-    </tr>
-    </tbody>
-  </table>
 </div>
 
 <table>
@@ -102,3 +75,5 @@
     </tr>
   </tfoot>
 </table>
+
+<%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'resources_selector', :dialog_model => 'dialog_resources', :data_path => 'resources/resources' } %>

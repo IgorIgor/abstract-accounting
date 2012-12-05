@@ -7,7 +7,7 @@ ko.bindingHandlers.dialog =
     setTimeout(-> $("##{dialog_id}").dialog(options))
 
     ko.utils.registerEventHandler(element, "click", =>
-      viewModel.setDialogViewModel(dialog_id, element["id"])
+      viewModel.setDialogViewModel(dialog_id, element.id)
       $("##{dialog_id}").dialog( "open" )
     )
 
@@ -21,7 +21,7 @@ ko.bindingHandlers.dialog =
     data = viewModel.select_item
 
     data.subscribe( =>
-      return unless viewModel['dialog_element_id'] == element["id"]
+      return unless viewModel.dialog_element_id == element.id
       selected_item = data()
       for key, value of bind
         if selected_item[key]?

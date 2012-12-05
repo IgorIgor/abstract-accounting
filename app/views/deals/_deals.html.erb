@@ -1,0 +1,30 @@
+<table>
+  <thead>
+    <tr>
+      <th id="tag" data-bind="click: sortBy">
+        <%= t 'views.deals.tag' %><span></span>
+      </th>
+      <th id="name" data-bind="click: sortBy">
+        <%= t 'views.deals.entity' %><span></span>
+      </th>
+      <th id="give" data-bind="click: sortBy">
+        <%= t 'views.deals.give.tag' %><span></span>
+      </th>
+      <th id="take" data-bind="click: sortBy">
+        <%= t 'views.deals.take.tag' %><span></span>
+      </th>
+      <th id="rate" data-bind="click: sortBy">
+        <%= t 'views.deals.rate' %><span></span>
+      </th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr data-bind="click: $root.select">
+      <td data-bind="text: tag"></td>
+      <td data-bind="text: entity_tag"></td>
+      <td data-bind="text: give"></td>
+      <td data-bind="text: take"></td>
+      <td data-bind="text: rate"></td>
+    </tr>
+  </tbody>
+</table>

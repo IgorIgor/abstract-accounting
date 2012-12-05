@@ -36,12 +36,15 @@
         <span>
           <input type="text" id="fact_from_deal"
                  name="<%= t('views.facts.from') %>" rule="required"
-                 data-bind="autocomplete: { source: '/deals.json',
-                                            onlySelect: true,
-                                            value: 'tag',
-                                            bind: { id: object.fact.from_deal_id }
-                                            },
-                            value: object.from.tag, disable: readonly">
+                 data-bind="dialog: { autoOpen: false,
+                                      modal: true,
+                                      minWidth: 480,
+                                      minHeight: 300,
+                                      bind: { id: object.fact.from_deal_id, tag: object.from.tag }
+                                    },
+                            dialogId: 'deals_selector',
+                            value: object.from.tag,
+                            disable: readonly">
         </span>
       </div>
       <div>
@@ -50,13 +53,16 @@
         </span>
         <span>
           <input type="text" id="fact_to_deal"
-                 name="<%= t('views.facts.to') %>" rule="required"
-                 data-bind="autocomplete: { source: '/deals.json',
-                                            onlySelect: true,
-                                            value: 'tag',
-                                            bind: { id: object.fact.to_deal_id }
-                                            },
-                            value: object.to.tag, disable: readonly">
+                  name="<%= t('views.facts.to') %>" rule="required"
+                  data-bind="dialog: { autoOpen: false,
+                                       modal: true,
+                                       minWidth: 480,
+                                       minHeight: 300,
+                                       bind: { id: object.fact.to_deal_id, tag: object.to.tag }
+                                     },
+                             dialogId: 'deals_selector',
+                             value: object.to.tag,
+                             disable: readonly">
         </span>
       </div>
       <div>
@@ -74,3 +80,5 @@
     </div>
   </fieldset>
 </form>
+
+<%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'deals_selector', :dialog_model => 'dialog_deals', :data_path => 'deals/deals' } %>

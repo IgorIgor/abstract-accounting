@@ -165,7 +165,7 @@ feature 'warehouses', %q{
     click_link I18n.t('views.home.logout')
   end
 
-  scenario 'grouping warehouses', js: true do
+  scenario 'grouping warehouses', js: true, focus: true do
     per_page = Settings.root.per_page
 
     wb = build(:waybill)

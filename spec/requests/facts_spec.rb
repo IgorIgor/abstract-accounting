@@ -68,14 +68,35 @@ feature 'fact', %q{
 
     page.should have_datepicker('fact_day')
     page.datepicker('fact_day').day(Date.today.day)
-    fill_in('fact_from_deal', :with => share1.tag)
-    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
-      all(:xpath, ".//li//a")[0].click
+
+    find('#fact_from_deal').click
+    page.should have_selector('#deals_selector')
+    within('#deals_selector') do
+      within('table tbody') do
+        all(:xpath, './/tr//td[1]').each do |td|
+          if td.has_content?(share1.tag)
+            td.click
+            break
+          end
+        end
+      end
     end
-    fill_in('fact_to_deal', :with => other_deal.tag)
-    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
-      all(:xpath, ".//li//a")[0].click
+    page.should have_no_selector('#deals_selector')
+
+    find('#fact_to_deal').click
+    page.should have_selector('#deals_selector')
+    within('#deals_selector') do
+      within('table tbody') do
+        all(:xpath, './/tr//td[1]').each do |td|
+          if td.has_content?(other_deal.tag)
+            td.click
+            break
+          end
+        end
+      end
     end
+    page.should have_no_selector('#deals_selector')
+
     fill_in('fact_amount', :with => '1')
 
     click_button(I18n.t('views.users.save'))
@@ -87,10 +108,19 @@ feature 'fact', %q{
       end
     end
 
-    fill_in('fact_to_deal', :with => share2.tag)
-    within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
-      all(:xpath, ".//li//a")[0].click
+    find('#fact_to_deal').click
+    page.should have_selector('#deals_selector')
+    within('#deals_selector') do
+      within('table tbody') do
+        all(:xpath, './/tr//td[1]').each do |td|
+          if td.has_content?(share2.tag)
+            td.click
+            break
+          end
+        end
+      end
     end
+    page.should have_no_selector('#deals_selector')
 
     lambda do
       click_button(I18n.t('views.users.save'))

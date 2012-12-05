@@ -27,6 +27,7 @@ class DealsController < ApplicationController
         Settings.root.per_page.to_i : params[:per_page].to_i
     filter = { paginate: { page: page, per_page: per_page }}
     filter[:sort] = params[:order] if params[:order]
+    filter[:search] = params[:like] if params[:like]
     #TODO: should get filtrate options from client
     @deals = Deal.filtrate(filter)
     @count = Deal.count

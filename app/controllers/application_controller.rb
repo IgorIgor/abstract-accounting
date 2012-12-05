@@ -58,6 +58,17 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  rescue_from Exception, :with => :handle_exceptions
+
+  def handle_exceptions(e)
+    case e
+      when CanCan::AccessDenied
+        render :js => "window.location = '/#inbox'"
+      else
+        render :json => { error: e.message}, :status => 500
+    end
+  end
+
   protected
   alias_method :sorcery_login_from_session, :login_from_session
   def login_from_session
@@ -71,9 +82,5 @@ class ApplicationController < ActionController::Base
 
   def check_chart
     render :js => "window.location = '/#settings/new'" unless Chart.count > 0
-  end
-
-  rescue_from CanCan::AccessDenied do |exception|
-    render :js => "window.location = '/#inbox'"
   end
 end

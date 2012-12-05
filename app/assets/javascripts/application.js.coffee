@@ -82,13 +82,13 @@ $ ->
   $(document).ajaxStart( ->
     $('#message_box').text(I18n.t('views.notifications.load'))
     width = $('#message_box').css('width')
-    width = - width / 2
-    $('#message_box').css({'margin-left': "#{width}", 'left': '50%'})
+    $('#message_box').css( 'left', '50%')
+    $('#message_box').css({'border-color': "#F0C36D", 'background-color': '#F9EDBE'})
     $('#message_box').css('display', 'block')
   )
 
   $(document).ajaxStop( ->
-    $('#message_box').css('display', 'none')
+    $('#message_box').css('display', 'none') unless $('#message_box').data('msgType') == 'error'
   )
 
   $(document).ajaxError((e, jqXHR, settings) ->
@@ -101,6 +101,9 @@ $ ->
     message = I18n.t('views.notifications.error')
     if jqXHR.status
       message = statusErrorMap[jqXHR.status]
+      if jqXHR.status == 500
+        message += ": #{JSON.parse(jqXHR.responseText)['error']}"
+        $('#message_box').data('msgType','error')
     else if e == 'parsererror'
       message = I18n.t('views.notifications.parsererror')
     else if e == 'timeout'
@@ -108,14 +111,12 @@ $ ->
     else if e == 'abort'
       message = I18n.t('views.notifications.abort')
     $('#message_box').text(message)
-    width = $('#message_box').css('width')
-    width = - width / 2
-    $('#message_box').css({'margin-left': "#{width}", 'left': '50%'})
+    width = parseInt($('#message_box').css('width'))
+    $('#message_box').css('left', "#{((screen.width - width) / 2)}px")
     $('#message_box').css({'border-color': "#ec9090", 'background-color': '#ecbbbb'})
     $('#message_box').css('display', 'block')
     setTimeout( ->
       $('#message_box').css('display', 'none')
-      $('#message_box').css({'border-color': "#F0C36D", 'background-color': '#F9EDBE'})
     5000)
   )
 
@@ -133,21 +134,22 @@ $ ->
         data: params
         complete: (data) =>
           response = JSON.parse(data.responseText)
-          if response['result'] == 'success'
-            hash = ''
-            if response['id']
-              hash = "documents/#{@route}/#{response['id']}"
+          unless data.status == 500
+            if response['result'] == 'success'
+              hash = ''
+              if response['id']
+                hash = "documents/#{@route}/#{response['id']}"
+              else
+                hash = location.hash
+              $.sammy().refresh() unless location.hash == hash
+              location.hash = hash
             else
-              hash = location.hash
-            $.sammy().refresh() unless location.hash == hash
-            location.hash = hash
-          else
-            $('#container_notification').css('display', 'block')
-            $('#container_notification ul').css('display', 'block')
-            $('#container_notification ul').empty()
-            for msg in JSON.parse(data.responseText, (key, value) -> value)
-              $('#container_notification ul')
-                  .append($("<li class='server-message'>#{msg}</li>"))
+              $('#container_notification').css('display', 'block')
+              $('#container_notification ul').css('display', 'block')
+              $('#container_notification ul').empty()
+              for msg in JSON.parse(data.responseText, (key, value) -> value)
+                $('#container_notification ul')
+                    .append($("<li class='server-message'>#{msg}</li>"))
       )
 
     back: -> history.back()

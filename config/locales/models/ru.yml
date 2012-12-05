@@ -8,6 +8,7 @@ ru:
       money: Деньги
       waybill: Накладная
       deal: Сделка
+      notification: Уведомление
     attributes:
       country:
         default:
@@ -40,6 +41,8 @@ ru:
           apply: Принятие выдачи
           cancel: Отмена выдачи
           reverse: Стронирование выдачи
+      notification:
+              title: Заголовок
     errors:
       models:
         group:

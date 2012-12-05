@@ -14,10 +14,14 @@ class NotificationsController < ApplicationController
 
   def create
     params[:notification][:date] = DateTime.now
+    notification = Notification.new params[:notification]
     Notification.transaction do
-      notification = Notification.create params[:notification]
-      notification.assign_users
-      render json: { result: 'success', id: notification.id }
+      if notification.save
+        notification.assign_users
+        render json: { result: 'success', id: notification.id }
+      else
+        render json: notification.errors.full_messages
+      end
     end
   end
 

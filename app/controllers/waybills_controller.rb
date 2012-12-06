@@ -90,6 +90,7 @@ class WaybillsController < ApplicationController
             (waybill.distributor.class.name == distributor_type)
           distributor = nil
           if distributor_type == LegalEntity.name
+            params.delete(:entity) if params.has_key?(:entity)
             country = Country.find_or_create_by_tag(
                 I18n.t("activerecord.attributes.country.default.tag")
             )
@@ -101,6 +102,7 @@ class WaybillsController < ApplicationController
               distributor.save!
             end
           else
+            params.delete(:legal_entity) if params.has_key?(:legal_entity)
             distributor = Entity.find_by_tag(params[:entity][:tag])
             if distributor.nil?
               distributor = Entity.new(params[:entity])

@@ -266,7 +266,7 @@ feature "waybill", %q{
     PaperTrail.enabled = false
     end
 
-  scenario "update waybills", js: true, focus: true do
+  scenario "update waybills", js: true do
     PaperTrail.enabled = true
     3.times do
       user = create(:user)
@@ -1115,5 +1115,28 @@ feature "waybill", %q{
     end
 
     PaperTrail.enabled = false
+  end
+
+  scenario 'change entity for waybill', js: true do
+    entity = create :entity
+    user = create :user
+    credential = create(:credential, user: user, document_type: Waybill.name)
+    create(:credential, user: user, place: credential.place, document_type: Allocation.name)
+    wb = build(:waybill)
+    wb.distributor_place = create :place
+    wb.storekeeper_place = credential.place
+    wb.storekeeper = user.entity
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
+    wb.save
+    page_login
+    visit "#documents/waybills/#{wb.id}"
+    find(:xpath, "//div[@id='container_documents']/form/fieldset[3]/div/div/div/ul/li[2]/a").click
+    page.should_not have_xpath("//li[2]/a[@class='current']")
+    click_button I18n.t('views.users.edit')
+    find(:xpath, "//div[@id='container_documents']/form/fieldset[3]/div/div/div/ul/li[2]/a").click
+    page.should have_xpath("//li[2]/a[@class='current']")
+    fill_in("waybill_entity", :with => entity.tag)
+    click_button I18n.t('views.users.save')
+    page.should_not have_xpath("//fieldset[@id='container_notification']")
   end
 end

@@ -960,6 +960,26 @@ describe Waybill do
     roof_deal_take.limit.amount.should eq(0)
     roof_deal_take.limit.side.should eq(Limit::PASSIVE)
   end
+
+  it 'should update_attrs' do
+    wb = build :waybill
+    wb.add_item(tag: 'roof', mu: 'm2', amount: 500, price: 10.0)
+    wb.save
+    ent = create :entity
+    leg = create :legal_entity
+    wb.update_attributes("storekeeper_place_id" => wb.storekeeper_place.id,
+                         "distributor_id" => ent.id,
+                         "distributor_type" => Entity.name,
+                         "distributor_place_id" => create(:place).id).should be_true
+    wb.distributor.id.should eq(ent.id)
+    wb.distributor.class.name.should eq(Entity.name)
+    wb.update_attributes("storekeeper_place_id" => wb.storekeeper_place.id,
+                         "distributor_id" => leg.id,
+                         "distributor_type" => LegalEntity.name,
+                         "distributor_place_id" => create(:place).id).should be_true
+    wb.distributor.id.should eq(leg.id)
+    wb.distributor.class.name.should eq(LegalEntity.name)
+  end
 end
 
 describe ItemsValidator do

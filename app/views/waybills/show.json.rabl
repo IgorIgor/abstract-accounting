@@ -31,7 +31,14 @@ if @waybill.distributor.kind_of?(LegalEntity)
   child(@waybill.distributor => :legal_entity) do
     attributes :name, :identifier_name, :identifier_value
   end
+  child(Entity.new => :entity) do
+    attributes :tag
+  end
 else
+  child(LegalEntity.new => :legal_entity) do
+    attributes :name, :identifier_value
+    node(:identifier_name) { "VATIN" }
+  end
   child(@waybill.distributor => :entity) do
     attributes :tag
   end

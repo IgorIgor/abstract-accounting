@@ -65,7 +65,8 @@
     <legend><%= t 'views.waybills.distributor' %></legend>
     <div>
       <div class="tabs" data-bind="tabs: {
-          current: object.waybill.distributor_type() == '<%= LegalEntity.name %>' ? 0 : 1 }">
+          current: object.waybill.distributor_type() == '<%= LegalEntity.name %>' ? 0 : 1,
+          disable: readonly }">
         <div>
           <ul>
             <li><a data-bind="event: {

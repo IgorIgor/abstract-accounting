@@ -248,6 +248,7 @@ module WarehouseDeal
       else
         from_entity = self.send(settings[:from])
       end
+      self.instance_variable_set("@#{settings[:from]}".to_sym, from_entity)
 
       if attrs["#{settings[:to]}_id"]
         to_entity = attrs["#{settings[:to]}_type"].constantize.
@@ -255,6 +256,7 @@ module WarehouseDeal
       else
         to_entity = self.send(settings[:to])
       end
+      self.instance_variable_set("@#{settings[:to]}".to_sym, to_entity)
 
       from_place = Place.find(attrs["#{settings[:from]}_place_id"])
       to_place = Place.find(attrs["#{settings[:to]}_place_id"])

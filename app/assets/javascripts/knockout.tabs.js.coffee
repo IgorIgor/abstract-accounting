@@ -1,6 +1,7 @@
 ko.bindingHandlers.tabs =
   init: (element, valueAccessor, allBindingAccessor) ->
     currIndex = valueAccessor().current
+    disabled = valueAccessor().disable
     if valueAccessor().headers
       headers = ko.utils.unwrapObservable(valueAccessor().headers)
       $.each(headers,(idx, value) ->
@@ -16,17 +17,18 @@ ko.bindingHandlers.tabs =
 
     $(element).find('ul li a').each( ->
       $(this).click ->
-        currIndex = $(element).find('ul li a').index($(this))
+        unless disabled()
+          currIndex = $(element).find('ul li a').index($(this))
 
-        $(element).find('ul li a').each( -> $(this).removeClass('current'))
-        $(element).find('div.tab').each( -> $(this).removeClass('current'))
+          $(element).find('ul li a').each( -> $(this).removeClass('current'))
+          $(element).find('div.tab').each( -> $(this).removeClass('current'))
 
-        $($(element).find('ul li a').get(currIndex)).addClass('current')
-        $($(element).find('div.tab').get(currIndex)).addClass('current')
-        if allBindingAccessor().value
-          allBindingAccessor().value($(this).attr('tab-id'))
-        if valueAccessor().change
-          valueAccessor().change()
+          $($(element).find('ul li a').get(currIndex)).addClass('current')
+          $($(element).find('div.tab').get(currIndex)).addClass('current')
+          if allBindingAccessor().value
+            allBindingAccessor().value($(this).attr('tab-id'))
+          if valueAccessor().change
+            valueAccessor().change()
     )
 ko.bindingHandlers.jqTabs =
   init: (element, valueAccessor, allBindingAccessor) ->

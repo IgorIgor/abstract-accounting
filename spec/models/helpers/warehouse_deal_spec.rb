@@ -9,20 +9,15 @@
 
 require "spec_helper"
 
-class TestWarehouseDeal
-  include ActiveModel::Dirty
+class TestWarehouseDeal < ActiveRecord::Base
+  has_no_table
+  column :id, :integer
+  column :deal_id, :integer
+  column :document_id, :string
 
   class << self
     attr_accessor :before_save_callback
     attr_accessor :after_save_callbacks
-
-    def has_paper_trail
-      @has_paper_trail = true
-    end
-
-    def paper_trail_included?
-      @has_paper_trail
-    end
 
     def before_save(callback)
       self.before_save_callback = callback
@@ -31,25 +26,6 @@ class TestWarehouseDeal
     def after_save(callback)
       self.after_save_callbacks ||= []
       self.after_save_callbacks << callback
-    end
-
-    def has_many(*args)
-    end
-
-    def belongs_to(*args)
-    end
-
-    def validates_presence_of(*args)
-    end
-
-    def includes(*args)
-    end
-
-    def scope(*args)
-    end
-
-    def columns_hash
-      @columns_hash ||= {}
     end
   end
   include Helpers::WarehouseDeal
@@ -70,7 +46,6 @@ class TestWarehouseDeal
       @changed_attributes.clear
       self.class.after_save_callbacks.each { |callback| self.send(callback) }
       self.new_record = false
-      self.deal_id_changed = false
       return true
     end
     false
@@ -95,8 +70,6 @@ class TestWarehouseDeal
                 receiver, 1.0 / item.price, index)
   end
 
-  attr_accessor :document_id
-  attr_accessor :deal
   attr_accessor :items
 
   attr_accessor :do_before_item_save_called
@@ -108,25 +81,11 @@ class TestWarehouseDeal
     self.save
   end
 
-  attr_reader :deal_id
-  attr_accessor :deal_id_changed
-  def deal_id=(value)
-    self.deal_id_changed = true
-    @deal_id = value
-  end
-  def deal_id_changed?
-    self.deal_id_changed
-  end
-
   private
     def do_before_item_save(item)
       return false unless item.resource.save if item.resource.new_record?
       self.do_before_item_save_called = true
       true
-    end
-
-    def attributes
-      {id: nil, deal_id: nil}
     end
 end
 
@@ -138,7 +97,7 @@ describe Helpers::WarehouseDeal do
   before(:all) { create(:chart) }
 
   subject { TestWarehouseDeal }
-  it { should be_paper_trail_included }
+  it { should respond_to(:versions_association_name) }
   it { should include(Helpers::Statable) }
   it { should include(Helpers::Commentable) }
 

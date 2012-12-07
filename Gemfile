@@ -42,4 +42,5 @@ group :development, :test do
   gem 'guard-spork'
   gem 'capybara'
   gem 'awesome_print'
+  gem "parallel_tests"
 end

@@ -16,6 +16,7 @@ ActiveRecord::Schema.define(:version => 20121106132405) do
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
     t.datetime "created"
+    t.integer  "motion",  :default => 0
   end
 
   add_index "allocations", ["deal_id"], :name => "index_allocations_on_deal_id", :unique => true

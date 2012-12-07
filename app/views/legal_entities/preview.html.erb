@@ -44,7 +44,6 @@
           <input type="text" id="legal_entity_country"
                  name="<%= t('views.legal_entities.country') %>" rule="required"
                  data-bind="autocomplete: { source: 'countries.json',
-                                            onlySelect: true,
                                             value: 'tag',
                                             bind: { id: $parent.object.legal_entity.country_id }
                                             },

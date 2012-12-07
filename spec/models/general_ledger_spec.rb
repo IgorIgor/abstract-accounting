@@ -127,8 +127,8 @@ describe GeneralLedger do
       GeneralLedger.on_date((Date.today + 3).to_s).count.should eq(Txn.count)
       GeneralLedger.on_date(nil).count.should eq(Txn.count - 1)
       GeneralLedger.on_date.count.should eq(Txn.count - 1)
-      GeneralLedger.on_date((Date.today + 3).to_s).all.first.should eq(
-        Txn.on_date((Date.today + 3)).all.first)
+      GeneralLedger.on_date((Date.today + 3).to_s).order(:id).first.should eq(
+        Txn.on_date((Date.today + 3)).order(:id).first)
     end
   end
 

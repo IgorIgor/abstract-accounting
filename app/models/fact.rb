@@ -34,7 +34,7 @@ class Fact < ActiveRecord::Base
   before_save :do_save
   before_destroy :do_before_destroy
 
-  scope :pendings, includes("txn").where("txns.id is NULL")
+  scope :pendings, includes("txn").where("txns.id is NULL").order(:id)
 
   private
   def do_save

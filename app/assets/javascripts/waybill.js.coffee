@@ -18,6 +18,15 @@ $ ->
         sum
       , self)
       @readonly.subscribe(@changeDisable)
+      @entity_type = ko.observable(if object.entity.tag == null then '1' else '2')
+
+    changeTab: =>
+      $.each($("div.tab"), (idx, div) =>
+        if $(div).data("tabId").toString() == @entity_type()
+          $(div).css('display', 'block')
+        else
+          $(div).css('display', 'none')
+      )
 
     changeDisable: =>
       @disable_warehouse(@object.owner() || @readonly())

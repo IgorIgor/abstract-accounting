@@ -146,6 +146,7 @@ $ ->
           return true if @resources.get(key)().length > 0
         false
       )
+      @readonly = ko.observable(false)
 
       super(data)
 

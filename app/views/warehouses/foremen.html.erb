@@ -49,7 +49,8 @@
 </div>
 <!-- ko if: foremen().length != 0 -->
 <div id="foremen_tabs" data-bind="jqTabs: { current: 0, headers: foremen,
-                                            tabSelect: filterData },
+                                            tabSelect: filterData,
+                                            scrollable: true },
                                   value: foreman_id">
   <div>
     <ul id="head">

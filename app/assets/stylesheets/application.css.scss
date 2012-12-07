@@ -410,33 +410,7 @@ input[type=button]:disabled, input[type=submit]:disabled {
 
         div {
           display: table;
-          width: 700px;
-
-          div.tabs {
-            width: 100%;
-
-            div {
-              display: block;
-              width: 100%;
-
-              div.tab {
-                display: none;
-
-                div {
-                  display: table-row;
-                }
-              }
-
-              div.current {
-                display: table;
-                width: 678px;
-              }
-
-              div {
-                display: table;
-              }
-            }
-          }
+          width: 694px;
 
           div {
             display: table-row;
@@ -723,3 +697,9 @@ input[type=button]:disabled, input[type=submit]:disabled {
 .warning {
   background-color: #cd8c8c;
 }
+
+.margtop { margin-top: 10px; }
+
+.padleft { padding-left: 5px;}
+
+.width { width:100%; }

@@ -1117,7 +1117,7 @@ feature "waybill", %q{
     PaperTrail.enabled = false
   end
 
-  scenario 'change entity for waybill', js: true do
+  scenario 'change entity in waybill', js: true do
     entity = create :entity
     user = create :user
     credential = create(:credential, user: user, document_type: Waybill.name)
@@ -1131,10 +1131,10 @@ feature "waybill", %q{
     page_login
     visit "#documents/waybills/#{wb.id}"
     find(:xpath, "//div[@id='container_documents']/form/fieldset[3]/div/div/div/ul/li[2]/a").click
-    page.should_not have_xpath("//li[2]/a[@class='current']")
+    page.should_not have_selector("li[2].ui-tabs-selected")
     click_button I18n.t('views.users.edit')
     find(:xpath, "//div[@id='container_documents']/form/fieldset[3]/div/div/div/ul/li[2]/a").click
-    page.should have_xpath("//li[2]/a[@class='current']")
+    page.should have_selector("li[2].ui-tabs-selected")
     fill_in("waybill_entity", :with => entity.tag)
     click_button I18n.t('views.users.save')
     page.should_not have_xpath("//fieldset[@id='container_notification']")

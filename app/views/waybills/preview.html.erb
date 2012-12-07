@@ -7,8 +7,6 @@
                         object.waybill.state() == <%= ::Helpers::Statable::INWORK %>)'/>
     <input type='button' value="<%= t 'views.waybills.back' %>"
            data-bind='click: back'/>
-    <!--<input type='button' value="<%= t 'views.waybills.draft' %>"-->
-           <!--data-bind='visible: !readonly()'/>-->
     <div class='buttons-separator' data-bind='visible: readonly'></div>
     <%= render :partial => "state/buttons", :locals => { :model => Waybill } %>
   </div>
@@ -63,94 +61,85 @@
 
   <fieldset>
     <legend><%= t 'views.waybills.distributor' %></legend>
-    <div>
-      <div class="tabs" data-bind="tabs: {
-          current: object.waybill.distributor_type() == '<%= LegalEntity.name %>' ? 0 : 1,
-          disable: readonly }">
+    <div id="waybill_tabs" data-bind="value: entity_type,
+            jqTabs: {
+              current: object.waybill.distributor_type() == '<%= LegalEntity.name %>' ? 0 : 1,
+              tabSelect: changeTab,
+              disable: readonly,
+              scrollable: false }">
+      <div>
+        <ul id="head">
+          <li><a href='#1' tab-id='1' data-bind="event: {
+              click: function() { object.waybill.distributor_type('<%= LegalEntity.name %>'); }
+            }"><%= t 'views.waybills.distrib.legal_entity' %></a></li>
+          <li><a href='#2' tab-id='2' data-bind="event: {
+              click: function() { object.waybill.distributor_type('<%= Entity.name %>'); }
+            }"><%= t 'views.waybills.distrib.entity' %></a></li>
+        </ul>
         <div>
-          <ul>
-            <li><a data-bind="event: {
-                click: function() { object.waybill.distributor_type('<%= LegalEntity.name %>'); }
-              }"><%= t 'views.waybills.distrib.legal_entity' %></a></li>
-            <li><a data-bind="event: {
-                click: function() { object.waybill.distributor_type('<%= Entity.name %>'); }
-              }"><%= t 'views.waybills.distrib.entity' %></a></li>
-          </ul>
-          <div class="tab" data-bind='with: object.legal_entity'>
-            <div>
-              <span class="form-cell-label">
-                <label for="waybill_legal_entity"><%= t 'views.waybills.entity' %>:</label>
-              </span>
-              <span>
-                <input type='text' id='waybill_legal_entity'
-                       name='<%= t 'views.waybills.distributor' %>' rule='required'
-                       data-bind="autocomplete: { source: '/legal_entities.json',
-                                                  value: 'name',
-                                                  bind: {
-                                                    id: $parent.object.waybill.distributor_id
-                                                  }},
-                                  value: name, disable: $parent.readonly" />
-              </span>
-            </div>
-            <!--<div>-->
-              <!--<span class="form-cell-label">-->
-                <!--<label for="waybill_ident_name"><%= t 'views.waybills.ident_name' %>:</label>-->
-              <!--</span>-->
-              <!--<span>-->
-                <!--<select id="waybill_ident_name" name="Distributor Ident. Name"-->
-                        <!--data-bind="value: object.distributor.identifier_name,-->
-                                   <!--disable: readonly">-->
-                  <!--<option value="MSRN"><%=t 'views.waybills.ident_name_MSRN' %></option>-->
-                  <!--<option value="VATIN"><%=t 'views.waybills.ident_name_VATIN' %></option>-->
-                <!--</select>-->
-              <!--</span>-->
-            <!--</div>-->
-            <div>
-              <span class="form-cell-label">
-                <label for="waybill_ident_value"><%=t 'views.waybills.ident_name_VATIN' %>:</label>
-              </span>
-              <span>
-                <input id="waybill_ident_value" type="text"
-                       data-field="identifier_value"
-                       rule="required" name="<%=t 'views.waybills.ident_value' %>"
-                       data-bind="value: identifier_value,
-                                  disable: $parent.readonly" />
-              </span>
-            </div>
-          </div>
-          <div class="tab" data-bind='with: object.entity'>
-            <div>
-              <span class="form-cell-label">
-                <label for="waybill_entity"><%= t 'views.waybills.entity' %>:</label>
-              </span>
-              <span>
-                <input type='text' id='waybill_entity'
-                       name='<%= t 'views.waybills.distributor' %>' rule='required'
-                       data-bind="autocomplete: { source: '/entities.json',
-                                                  value: 'tag',
-                                                  bind: {
-                                                    id: $parent.object.waybill.distributor_id
-                                                  }},
-                                  value: tag, disable: $parent.readonly" />
-              </span>
-            </div>
-          </div>
-
+        <div class="tab margtop padleft" data-tab-id='1' data-bind='with: object.legal_entity'>
           <div>
             <span class="form-cell-label">
-              <label for="distributor_place"><%= t 'views.waybills.place' %>:</label>
+              <label for="waybill_legal_entity"><%= t 'views.waybills.entity' %>:</label>
             </span>
-            <span data-bind="with: object.distributor_place">
-              <input type='text' id='distributor_place'
-                     name='<%= t 'views.waybills.distributor_place' %>' rule='required'
-                     data-bind="autocomplete: {
-                                  source: '/places.json',
-                                  value: 'tag',
-                                  bind: { id: $parent.object.waybill.distributor_place_id }
-                                }, value: tag, disable: $parent.readonly" />
+            <span class="width">
+              <input type='text' id='waybill_legal_entity'
+                     name='<%= t 'views.waybills.distributor' %>' rule='required'
+                     data-bind="autocomplete: { source: '/legal_entities.json',
+                                                value: 'name',
+                                                bind: {
+                                                  id: $parent.object.waybill.distributor_id
+                                                }},
+                                value: name, disable: $parent.readonly" />
+            </span>
+          </div>
+          <div>
+            <span class="form-cell-label">
+              <label for="waybill_ident_value"><%=t 'views.waybills.ident_name_VATIN' %>:</label>
+            </span>
+            <span class="width">
+              <input id="waybill_ident_value" type="text"
+                     data-field="identifier_value"
+                     rule="required" name="<%=t 'views.waybills.ident_value' %>"
+                     data-bind="value: identifier_value,
+                                disable: $parent.readonly" />
             </span>
           </div>
         </div>
+        <div class="tab margtop padleft" data-tab-id='2' data-bind='with: object.entity'>
+          <div>
+            <span class="form-cell-label">
+              <label for="waybill_entity"><%= t 'views.waybills.entity' %>:</label>
+            </span>
+            <span class="width">
+              <input type='text' id='waybill_entity'
+                     name='<%= t 'views.waybills.distributor' %>' rule='required'
+                     data-bind="autocomplete: { source: '/entities.json',
+                                                value: 'tag',
+                                                bind: {
+                                                  id: $parent.object.waybill.distributor_id
+                                                }},
+                                value: tag, disable: $parent.readonly" />
+            </span>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <div class='margtop'>
+      <div>
+          <span class="form-cell-label padleft">
+            <label for="distributor_place"><%= t 'views.waybills.place' %>:</label>
+          </span>
+          <span data-bind="with: object.distributor_place">
+            <input type='text' id='distributor_place'
+                   name='<%= t 'views.waybills.distributor_place' %>' rule='required'
+                   data-bind="autocomplete: {
+                                source: '/places.json',
+                                value: 'tag',
+                                bind: { id: $parent.object.waybill.distributor_place_id }
+                              }, value: tag, disable: $parent.readonly" />
+          </span>
       </div>
     </div>
   </fieldset>

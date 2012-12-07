@@ -1,0 +1,12 @@
+en:
+  views:
+    facts:
+      from: From
+      to: To
+      day: Date
+      amount: Rate
+      page:
+        title:
+          show: Show fact
+          edit: Edit fact
+          new: New fact

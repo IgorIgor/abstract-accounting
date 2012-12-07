@@ -51,3 +51,5 @@ ru:
             blank: должны быть введены
         deal:
           has_states: уже использована
+        fact:
+          bad_resource: Неверный ресурс

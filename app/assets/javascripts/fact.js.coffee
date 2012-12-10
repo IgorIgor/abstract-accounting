@@ -8,6 +8,8 @@ $ ->
       @dialog_id = null
       @dialog_element_id = null
 
+      @has_txn = object.txn?
+
     select: (object) =>
       @select_item(object)
       $("##{@dialog_id}").dialog( "close" )
@@ -19,6 +21,15 @@ $ ->
         $.getJSON('deals/data.json', {}, (data) =>
           @dialog_deals(new FactDealsViewModel(data))
         )
+
+    createTxn: =>
+      $.ajax(
+        type:'POST'
+        url: '/txns'
+        data: {fact_id: @object.fact.id}
+        complete: (data) =>
+          $.sammy().refresh()
+      )
 
   class self.FactDealsViewModel extends FolderViewModel
     constructor: (data) ->

@@ -14,23 +14,20 @@ feature 'fact', %q{
   I want to view fact
 } do
 
-  before :each do
-    create(:chart)
-  end
-
   scenario 'create/view fact', js: true do
+    rub = create(:chart).currency
     roof = create(:asset)
     brick = create(:asset)
     share1 = create(:deal,
                     :give => build(:deal_give, :resource => roof),
-                    :take => build(:deal_take, :resource => roof),
-                    :rate => 1.0,
+                    :take => build(:deal_take, :resource => rub),
+                    :rate => 100,
                     :tag => 'share_deal1')
     share1.limit.update_attributes(side: Limit::ACTIVE)
     share2 = create(:deal,
-                    :give => build(:deal_give, :resource => roof),
-                    :take => build(:deal_take, :resource => roof),
-                    :rate => 1.0,
+                    :give => build(:deal_give, :resource => rub),
+                    :take => build(:deal_take, :resource => rub),
+                    :rate => 2,
                     :tag => 'share_deal2')
     other_deal = create(:deal,
                         :give => build(:deal_give, :resource => brick),
@@ -144,5 +141,18 @@ feature 'fact', %q{
     find_field('fact_from_deal')[:value].should eq('share_deal1')
     find_field('fact_to_deal')[:value].should eq('share_deal2')
     find_field('fact_amount')[:value].should eq('1')
+
+    find_button(I18n.t('views.facts.create_txn'))[:disabled].should be_nil
+    lambda do
+      click_button(I18n.t('views.facts.create_txn'))
+      wait_for_ajax
+      wait_until_hash_changed_to "documents/facts/#{Fact.last.id}"
+    end.should change(Txn, :count).by(1)
+
+    find_button(I18n.t('views.facts.create_txn'))[:disabled].should eq("true")
+    find_field('txn_value')[:disabled].should eq("true")
+    find_field('txn_value')[:value].should eq(fact.txn.value.to_i.to_s)
+    find_field('txn_earnings')[:disabled].should eq("true")
+    find_field('txn_earnings')[:value].should eq(fact.txn.earnings.to_i.to_s)
   end
 end

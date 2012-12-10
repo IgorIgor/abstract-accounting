@@ -79,6 +79,39 @@
       </div>
     </div>
   </fieldset>
-</form>
 
-<%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'deals_selector', :dialog_model => 'dialog_deals', :data_path => 'deals/deals' } %>
+  <!-- ko if: readonly -->
+    <input type='button' value="<%= t 'views.facts.create_txn' %>"
+           data-bind="click: createTxn, disable: has_txn"/>
+  <!-- /ko -->
+
+  <fieldset data-bind="with: object.txn">
+    <legend><%= t 'views.facts.fact_txn' %></legend>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="txn_value"><%=t 'views.facts.txn.value' %>:</label>
+        </span>
+        <span>
+          <input type="text" id="txn_value" disabled="disabled" data-bind="value: value">
+        </span>
+      </div>
+    </div>
+    <!-- ko if: status() == 1 -->
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="txn_earnings"><%=t 'views.facts.txn.earnings' %>:</label>
+        </span>
+        <span>
+          <input type="text" id="txn_earnings" disabled="disabled" data-bind="value: earnings">
+        </span>
+      </div>
+    </div>
+    <!-- /ko -->
+  </fieldset>
+
+</form>
+<!-- ko ifnot: readonly -->
+  <%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'deals_selector', :dialog_model => 'dialog_deals', :data_path => 'deals/deals' } %>
+<!-- /ko -->

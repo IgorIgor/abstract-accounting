@@ -17,3 +17,6 @@ end
 child(@fact.to => :to) do
   attributes :tag
 end
+child(@fact.txn => :txn) do
+  attributes :value, :earnings, :status
+end

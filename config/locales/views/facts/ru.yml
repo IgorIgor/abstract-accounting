@@ -5,6 +5,11 @@ ru:
       to: Куда
       day: Дата
       amount: Количество
+      create_txn: Создать транзакцию
+      fact_txn: Транзакция по проводке
+      txn:
+        value: Значение
+        earnings: Прибыль
       page:
         title:
           show: Просмотр проводки

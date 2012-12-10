@@ -53,3 +53,6 @@ en:
           has_states: already used
         fact:
           bad_resource: "Bad resource"
+          txn_exist: Txn by this fact already exist
+        txn:
+          already_exist: Txn already exist

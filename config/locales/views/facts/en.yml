@@ -5,6 +5,11 @@ en:
       to: To
       day: Date
       amount: Rate
+      create_txn: Create txn
+      fact_txn: Txn by fact
+      txn:
+        value: Value
+        earnings: Earnings
       page:
         title:
           show: Show fact

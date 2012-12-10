@@ -165,6 +165,11 @@ Abstract::Application.routes.draw do
     end
   end
   resources :countries, only: :index
+  resources :facts, only: [:new, :show, :create] do
+    collection do
+      get 'preview'
+    end
+  end
 
 # The priority is based upon order of creation:
   # first created -> highest priority.

@@ -6,12 +6,11 @@
 # License, or (at your option) any later version.
 #
 # Please see ./COPYING for details
-
-object false
-child(@quote => :objects) do
-  attributes :id, :rate
-  node(:day) { |quote| quote.day.strftime('%Y-%m-%d') }
-  node(:resource) { |quote| quote.money.alpha_code }
+module Warnings
+  class Warning
+    attr_reader :object
+    def initialize(object)
+      @object = object
+    end
+  end
 end
-node(:per_page) { Settings.root.per_page }
-node(:count) { @count }

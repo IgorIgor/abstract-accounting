@@ -7,11 +7,17 @@
 #
 # Please see ./COPYING for details
 
-object false
-child(@quote => :objects) do
-  attributes :id, :rate
-  node(:day) { |quote| quote.day.strftime('%Y-%m-%d') }
-  node(:resource) { |quote| quote.money.alpha_code }
+require 'singleton'
+require 'observer'
+
+module Observers
+  class WarningObserver
+    include Singleton
+    include Observable
+
+    def notify(warning_object)
+      changed
+      notify_observers(warning_object)
+    end
+  end
 end
-node(:per_page) { Settings.root.per_page }
-node(:count) { @count }

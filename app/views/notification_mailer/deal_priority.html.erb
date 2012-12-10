@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+</head>
+<body>
+  <h1><%= t('warnings.deal.priority.title') %>: <%= @user.entity.tag %></h1>
+  <p>
+    <%= t('warnings.deal.priority.message', warning_object_id: @warning_object.object.id,
+          warning_object_tag: @warning_object.object.tag, expected_id: @warning_object.expected.id,
+          expected_tag: @warning_object.expected.tag, got_id: @warning_object.got.id,
+          got_tag: @warning_object.got.tag) %>
+  </p>
+</body>
+</html>

@@ -7,11 +7,13 @@
 #
 # Please see ./COPYING for details
 
-object false
-child(@quote => :objects) do
-  attributes :id, :rate
-  node(:day) { |quote| quote.day.strftime('%Y-%m-%d') }
-  node(:resource) { |quote| quote.money.alpha_code }
+object true
+child(@fact => :fact) do
+  attributes :day, :amount, :from_deal_id, :to_deal_id
 end
-node(:per_page) { Settings.root.per_page }
-node(:count) { @count }
+child(Deal.new => :from) do
+  attributes :tag
+end
+child(Deal.new => :to) do
+  attributes :tag
+end

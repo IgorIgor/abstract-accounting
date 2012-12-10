@@ -7,11 +7,13 @@
 #
 # Please see ./COPYING for details
 
-object false
-child(@quote => :objects) do
-  attributes :id, :rate
-  node(:day) { |quote| quote.day.strftime('%Y-%m-%d') }
-  node(:resource) { |quote| quote.money.alpha_code }
+module Warnings
+  class DealPriority < Warnings::Deal
+    attr_reader :expected, :got
+    def initialize(object, expected, got)
+      @expected = expected
+      @got = got
+      super(object)
+    end
+  end
 end
-node(:per_page) { Settings.root.per_page }
-node(:count) { @count }

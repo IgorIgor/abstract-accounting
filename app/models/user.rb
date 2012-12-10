@@ -47,4 +47,15 @@ class User < ActiveRecord::Base
     end if self.managed_group
     collection
   end
+
+  def managers(user = self, array_of_managers = [])
+    user.groups.each do |group|
+      manager = group.manager
+      next if user == manager
+      next if array_of_managers.include? manager
+      array_of_managers << manager
+      managers(manager, array_of_managers)
+    end
+    array_of_managers
+  end
 end

@@ -3,7 +3,7 @@
     <input type='submit' value="<%= t 'views.users.save' %>"
            data-bind='disable: readonly'/>
     <input type='button' value="<%= t 'views.users.edit' %>"
-           data-bind='click: edit, disable: !readonly()'/>
+           data-bind='click: edit, disable: !readonly() || object.deal.has_states'/>
     <input type='button' value="<%= t 'views.users.back' %>"
            data-bind='click: back'/>
   </div>
@@ -54,7 +54,7 @@
       </div>
       <div>
         <span class="form-cell-label">
-          <label for="is_off_balance"><%= t('views.deals.tag') %>:</label>
+          <label for="is_off_balance"><%= t('views.deals.is_off_balance') %>:</label>
         </span>
         <span>
           <input type="checkbox" id="is_off_balance"

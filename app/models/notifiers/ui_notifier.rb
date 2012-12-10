@@ -7,11 +7,10 @@
 #
 # Please see ./COPYING for details
 
-object false
-child(@quote => :objects) do
-  attributes :id, :rate
-  node(:day) { |quote| quote.day.strftime('%Y-%m-%d') }
-  node(:resource) { |quote| quote.money.alpha_code }
+module Notifiers
+  class UINotifier
+    def update(warning_object)
+      ap "UINotifier"
+    end
+  end
 end
-node(:per_page) { Settings.root.per_page }
-node(:count) { @count }

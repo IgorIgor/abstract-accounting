@@ -14,9 +14,9 @@
   </thead>
   <tbody data-bind="foreach: documents">
     <tr>
-      <td data-bind="text: resource"></td>
-      <td data-bind="text: day"></td>
-      <td data-bind="text: rate"></td>
+      <td data-bind="text: resource, click: $parent.show"></td>
+      <td data-bind="text: day, click: $parent.show"></td>
+      <td data-bind="text: rate, click: $parent.show"></td>
     </tr>
   </tbody>
 </table>

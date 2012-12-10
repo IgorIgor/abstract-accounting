@@ -456,6 +456,8 @@ $ ->
                   new LegalEntityViewModel(object)
                 when 'deals'
                   new DealViewModel(object)
+                when 'facts'
+                  new FactViewModel(object)
 
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
@@ -491,6 +493,10 @@ $ ->
                   new LegalEntityViewModel(object, true)
                 when 'deals'
                   new DealViewModel(object, true)
+                when 'quote'
+                  new QuoteViewModel(object, true)
+                when 'facts'
+                  new FactViewModel(object, true)
 
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)

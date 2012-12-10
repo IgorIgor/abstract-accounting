@@ -60,4 +60,30 @@ describe User do
     create(:credential, user: user, document_type: Document.documents[1])
     user.documents.should =~ user.credentials(:force_update).collect{ |c| c.document_type }
   end
+
+  it "should return all user managers" do
+    user = create(:user)
+    user2 = create(:user)
+    m1 = create(:user)
+    m2 = create(:user)
+    m3 = create(:user)
+    m4 = create(:user)
+    gr1 = create(:group, manager: m1)
+    gr1.users<<[user, user2, m4]
+    gr2 = create(:group, manager: m2)
+    gr2.users<<[m1, m3]
+    gr3 = create(:group, manager: m3)
+    gr3.users<<[m2, user2, m4]
+    gr4 = create(:group, manager: m4)
+    gr4.users<<[user, m1, user2]
+
+    managers = user.managers
+
+    managers.include?(m1).should be_true
+    managers.include?(m2).should be_true
+    managers.include?(m3).should be_true
+    managers.include?(m4).should be_true
+    managers.include?(user).should_not be_true
+    managers.include?(user2).should_not be_true
+  end
 end

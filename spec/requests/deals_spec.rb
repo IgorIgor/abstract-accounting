@@ -320,6 +320,18 @@ feature 'deals', %q{
     find_field('rule_from_tag_0')[:value].should eq(d3.tag)
     find('#fact_side_0')[:checked].should eq('true')
     find('#change_side_0')[:checked].should eq('true')
+
+    deal = Deal.last
+    rub = create(:chart).currency
+    deal_from = create(:deal,
+                       :give => build(:deal_give, resource: rub),
+                       :take => deal.give,
+                       :rate => 10.0)
+    create(:fact, from: deal_from, to: deal, resource: deal.give.resource)
+
+    visit "/#documents/deals/#{Deal.last.id}"
+    find_button(I18n.t('views.users.save'))[:disabled].should be_true
+    find_button(I18n.t('views.users.edit'))[:disabled].should be_true
   end
 
   scenario 'sort deals', js: true do

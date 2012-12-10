@@ -10,7 +10,6 @@
 require "spec_helper"
 
 describe UserMailer do
-
   describe "password_reset" do
     let(:user) { create(:user) }
     let(:mail) { UserMailer.reset_password_email(user) }
@@ -22,5 +21,4 @@ describe UserMailer do
       mail.body.encoded.should match(user.reset_password_token)
     end
   end
-
 end

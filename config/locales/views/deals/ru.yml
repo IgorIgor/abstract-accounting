@@ -5,6 +5,7 @@ ru:
       mu: "Ед. изм."
       entity: Лицо
       rate: Курс
+      is_off_balance: Вне баланса
       page:
         title:
           show: Просмотр сделки

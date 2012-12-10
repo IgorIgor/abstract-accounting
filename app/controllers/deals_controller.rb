@@ -88,6 +88,10 @@ class DealsController < ApplicationController
     else
       params[:deal][:execution_date] = DateTime.parse(params[:deal][:execution_date]).change(hour: 12, offset: 0)
     end
+    if deal.has_states?
+      render json: Hash[I18n.t('activerecord.models.deal'), I18n.t('activerecord.errors.models.deal.has_states')]
+      return false
+    end
     begin
       Deal.transaction do
         deal.update_attributes(params[:deal])

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+</head>
+<body>
+  <h1><%= t('warnings.limit.amount.title') %>: <%= @user.entity.tag %></h1>
+  <p>
+    <%= t('warnings.limit.amount.message', warning_object_id: @warning_object.object.id) %>
+  </p>
+</body>
+</html>

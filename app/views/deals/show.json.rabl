@@ -16,6 +16,7 @@ child(@deal => :deal) do
     node(:amount) { @deal.limit_amount }
     node(:side) { @deal.limit_side }
   end
+  node(:has_states) { @deal.has_states? }
 end
 child(@deal.entity => :entity) do
   node(:tag) do

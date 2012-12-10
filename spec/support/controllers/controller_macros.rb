@@ -73,6 +73,7 @@ module ControllerMacros
   end
 
   def check_content(table_selector, items, count_per_item = 1)
+    wait_for_ajax
     within(table_selector) do
       within('tbody') do
         page.should have_selector('tr', count: count_per_item * items.count, visible: true)

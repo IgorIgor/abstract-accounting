@@ -20,16 +20,14 @@ def show_waybill(waybill)
   within("#container_documents form") do
     find("#created")[:value].should eq(waybill.created.strftime("%d.%m.%Y"))
     find("#waybill_document_id")[:value].should eq(waybill.document_id)
-    find("#waybill_entity")[:value].should eq(waybill.distributor.name)
-    find("#waybill_ident_name")[:value].should eq(waybill.distributor.identifier_name)
+    find("#waybill_legal_entity")[:value].should eq(waybill.distributor.name)
     find("#waybill_ident_value")[:value].should eq(waybill.distributor.identifier_value)
     find("#distributor_place")[:value].should eq(waybill.distributor_place.tag)
     find("#warehouses")[:value].should eq(waybill.warehouse_id.to_s)
 
     find("#created")[:disabled].should eq("true")
     find("#waybill_document_id")[:disabled].should eq("true")
-    find("#waybill_entity")[:disabled].should eq("true")
-    find("#waybill_ident_name")[:disabled].should eq("true")
+    find("#waybill_legal_entity")[:disabled].should eq("true")
     find("#waybill_ident_value")[:disabled].should eq("true")
     find("#distributor_place")[:disabled].should eq("true")
     find("#warehouses")[:disabled].should eq("true")
@@ -82,7 +80,7 @@ def should_present_waybill_with_resource(waybills)
           when Waybill::REVERSED then I18n.t('views.statable.reversed')
         end
     [waybill.created.strftime('%Y-%m-%d'), waybill.document_id, waybill.distributor.name,
-     waybill.storekeeper.tag, waybill.storekeeper_place.tag, state, waybill.sum.to_s,
+     state, waybill.sum.to_s,
      waybill.resource_tag, waybill.resource_mu, waybill.resource_amount.to_s,
      (1 / Converter.float(waybill.resource_price)).accounting_norm.to_s,
      Converter.float(waybill.resource_sum).accounting_norm.to_s]
@@ -109,7 +107,7 @@ feature "waybill", %q{
 
     page_login
 
-    page.find("#btn_create").click
+    page.find("#create_btn").click
     page.find("a[@href='#documents/waybills/new']").click
     page.should_not have_xpath("//ul[@id='documents_list']")
 
@@ -117,16 +115,7 @@ feature "waybill", %q{
     page.should have_selector("div[@id='container_documents'] form")
     page.should have_selector("input[@value='#{I18n.t('views.waybills.save')}']")
     page.should have_selector("input[@value='#{I18n.t('views.waybills.back')}']")
-    page.should have_selector("input[@value='#{I18n.t('views.waybills.draft')}']")
     page.should_not have_xpath("//div[@class='paginate']")
-    page.find_by_id("inbox")[:class].should_not eq("sidebar-selected")
-
-    within("select[@id='waybill_ident_name']") do
-      find("option[@value='MSRN']")
-      page.should have_content("#{I18n.t('views.waybills.ident_name_MSRN')}")
-      find("option[@value='VATIN']")
-      page.should have_content("#{I18n.t('views.waybills.ident_name_VATIN')}")
-    end
 
     within("select[@id='warehouses']") do
       Waybill.warehouses.each do |warehouse|
@@ -155,8 +144,6 @@ feature "waybill", %q{
         page.should have_content(
           "#{I18n.t('views.waybills.ident_value')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content(
-          "#{I18n.t('views.waybills.distributor_place')} : #{I18n.t('errors.messages.blank')}")
-        page.should have_content(
           "#{I18n.t('views.waybills.warehouse.name')} : #{I18n.t('errors.messages.blank')}")
       end
     end
@@ -170,18 +157,16 @@ feature "waybill", %q{
     within('#container_documents form') do
       6.times { create(:legal_entity) }
       items = LegalEntity.order("name").limit(6)
-      check_autocomplete('waybill_entity', items, :name) do |entity|
-        find('#waybill_ident_name')['value'].should eq(entity.identifier_name)
+      check_autocomplete('waybill_legal_entity', items, :name) do |entity|
         find('#waybill_ident_value')['value'].should eq(entity.identifier_value)
       end
 
       items[0].update_attributes!(identifier_name: 'MSRN')
-      fill_in('waybill_entity', :with => items[0].send(:name)[0..1])
+      fill_in('waybill_legal_entity', :with => items[0].send(:name)[0..1])
       within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
           "contains(@style, 'display: block')]") do
         all(:xpath, ".//li//a")[0].click
       end
-      find('#waybill_ident_name')['value'].should eq(items[0].identifier_name)
 
       6.times { create(:place) }
       items = Place.order(:tag).limit(6)
@@ -284,20 +269,19 @@ feature "waybill", %q{
     page.should have_selector("input[@value='#{I18n.t('views.users.edit')}']")
     find("input[@value='#{I18n.t('views.users.edit')}']")[:disabled].should be_nil
     find("input[@value='#{I18n.t('views.waybills.save')}']")[:disabled].should be_true
-    find("input[@value='#{I18n.t('views.waybills.apply')}']").visible?.should be_true
-    find("input[@value='#{I18n.t('views.waybills.cancel')}']").visible?.should be_true
+    find("input[@value='#{I18n.t('views.statable.buttons.apply')}']").visible?.should be_true
+    find("input[@value='#{I18n.t('views.statable.buttons.cancel')}']").visible?.should be_true
 
     click_button(I18n.t('views.users.edit'))
 
     find("input[@value='#{I18n.t('views.users.edit')}']")[:disabled].should be_true
     find("input[@value='#{I18n.t('views.waybills.save')}']")[:disabled].should be_nil
-    page.should_not have_selector("input[@value='#{I18n.t('views.waybills.apply')}']")
-    page.should_not have_selector("input[@value='#{I18n.t('views.waybills.cancel')}']")
+    page.should_not have_selector("input[@value='#{I18n.t('views.statable.buttons.apply')}']")
+    page.should_not have_selector("input[@value='#{I18n.t('views.statable.buttons.cancel')}']")
 
     find("#created")[:disabled].should be_nil
     find("#waybill_document_id")[:disabled].should be_nil
-    find("#waybill_entity")[:disabled].should be_nil
-    find("#waybill_ident_name")[:disabled].should be_nil
+    find("#waybill_legal_entity")[:disabled].should be_nil
     find("#waybill_ident_value")[:disabled].should be_nil
     find("#distributor_place")[:disabled].should be_nil
     find("#warehouses")[:disabled].should be_nil
@@ -334,18 +318,16 @@ feature "waybill", %q{
 
       6.times { create(:legal_entity) }
       items = LegalEntity.order("name").limit(6)
-      check_autocomplete('waybill_entity', items, :name) do |entity|
-        find('#waybill_ident_name')['value'].should eq(entity.identifier_name)
+      check_autocomplete('waybill_legal_entity', items, :name) do |entity|
         find('#waybill_ident_value')['value'].should eq(entity.identifier_value)
       end
 
       items[2].update_attributes!(identifier_name: 'MSRN')
-      fill_in('waybill_entity', :with => items[2].send(:name)[0..1])
+      fill_in('waybill_legal_entity', :with => items[2].send(:name)[0..1])
       within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
           "contains(@style, 'display: block')]") do
         all(:xpath, ".//li//a")[2].click
       end
-      find('#waybill_ident_name')['value'].should eq(items[2].identifier_name)
       distributor = items[2]
 
       6.times { create(:place) }
@@ -376,19 +358,18 @@ feature "waybill", %q{
 
     waybill = Waybill.find(waybill.id)
     waybill.created.should eq(1.months.ago.change(day: 11).change(hour: 12))
-    waybill.distributor.should eq(distributor)
-    waybill.distributor.identifier_name.should eq(distributor.identifier_name)
+    waybill.distributor.name.should eq(distributor.name)
     waybill.distributor_place.should eq(distributor_place)
     waybill.warehouse_id.should eq(warehouse.id)
     waybill.items.count.should eq(2)
-    waybill.items[1].resource.tag.should eq("new_res1")
-    waybill.items[1].resource.mu.should eq("mu1")
-    waybill.items[1].amount.to_i.should eq(100)
-    waybill.items[1].price.to_i.should eq(25)
+    waybill.items[0].resource.tag.should eq("new_res1")
+    waybill.items[0].resource.mu.should eq("mu1")
+    waybill.items[0].amount.to_i.should eq(100)
+    waybill.items[0].price.to_i.should eq(25)
 
     show_waybill(waybill)
 
-    click_button_and_wait(I18n.t('views.waybills.apply'))
+    click_button_and_wait(I18n.t('views.statable.buttons.apply'))
     wait_until{ page.find("input[@value='#{I18n.t('views.users.edit')}']")[:disabled] }
 
     page.find("input[@value='#{I18n.t('views.users.edit')}']")[:disabled].should be_true
@@ -405,7 +386,7 @@ feature "waybill", %q{
     credential = create(:credential, user: user, document_type: Waybill.name)
     page_login user.email, password
 
-    page.find("#btn_create").click
+    page.find("#create_btn").click
     page.find("a[@href='#documents/waybills/new']").click
     page.should_not have_xpath("//ul[@id='documents_list']")
 
@@ -413,7 +394,7 @@ feature "waybill", %q{
       page.datepicker("created").prev_month.day(10)
       fill_in("waybill_document_id", :with => "1233321")
       item = create(:legal_entity)
-      fill_in('waybill_entity', :with => item.name[0..1])
+      fill_in('waybill_legal_entity', :with => item.name[0..1])
       within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
                       "contains(@style, 'display: block')]") do
         all(:xpath, ".//li//a")[0].click
@@ -457,12 +438,13 @@ feature "waybill", %q{
     end
 
     lambda do
-      page.find(:xpath, "//div[@class='actions']//input[@value='#{
-                          I18n.t('views.waybills.save')
-                        }']").click
+      click_button(I18n.t('views.waybills.save'))
       wait_for_ajax
       wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
     end.should change(Waybill, :count).by(1)
+
+    visit "#inbox"
+    visit "#documents/waybills/#{Waybill.last.id}"
 
     within('div.comments') do
       page.should have_content(I18n.t('layouts.comments.comments'))
@@ -496,7 +478,8 @@ feature "waybill", %q{
 
     wait_until_hash_changed_to "documents/waybills/#{wb.id}"
     wait_until { !Waybill.find(wb.id).can_apply? }
-    wait_until { find_field('state').value == I18n.t('views.statable.applied') }
+    wait_for_ajax
+     find_field('state').value == I18n.t('views.statable.applied')
     page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.statable.buttons.apply')}']")
 
@@ -517,7 +500,8 @@ feature "waybill", %q{
 
     wait_until_hash_changed_to "documents/waybills/#{wb.id}"
     wait_until { !Waybill.find(wb.id).can_cancel? }
-    wait_until { find_field('state').value == I18n.t('views.statable.canceled') }
+    wait_for_ajax
+    find_field('state')[:value] == I18n.t('views.statable.canceled')
     page.should have_no_xpath("//div[@class='actions']//input[@value='#{I18n.t(
         'views.statable.buttons.cancel')}']")
 
@@ -553,8 +537,8 @@ feature "waybill", %q{
       ".//input[@type='button' and @value='#{I18n.t('views.statable.buttons.reverse')}']")
     click_button(I18n.t('views.statable.buttons.reverse'))
     wait_until { !Waybill.find(wb.id).can_reverse? }
-
-    wait_until { find_field('state').value == I18n.t('views.statable.reversed') }
+    wait_for_ajax
+    find_field('state')[:value] == I18n.t('views.statable.reversed')
 
     within('#container_documents') do
       within("div[@class='comments']") do
@@ -778,8 +762,6 @@ feature "waybill", %q{
           page.should have_content(waybill.created.strftime('%Y-%m-%d'))
           page.should have_content(waybill.document_id)
           page.should have_content(waybill.distributor.name)
-          page.should have_content(waybill.storekeeper.tag)
-          page.should have_content(waybill.storekeeper_place.tag)
           state =
             case waybill.state
               when Waybill::UNKNOWN then I18n.t('views.statable.unknown')
@@ -964,6 +946,7 @@ feature "waybill", %q{
 
     test_order_with_resource = lambda do |field, type|
       waybills = WaybillReport.with_resources.select_all.order_by(field: field, type: type)
+      wait_for_ajax
       within('#container_documents table') do
         within('thead tr') do
           page.find("##{field}").click
@@ -1018,7 +1001,7 @@ feature "waybill", %q{
     create(:credential, user: user, document_type: Waybill.name)
     page_login user.email, password
 
-    page.find("#btn_create").click
+    page.find("#create_btn").click
     page.find("a[@href='#documents/waybills/new']").click_and_wait
     page.should_not have_xpath("//ul[@id='documents_list']")
 
@@ -1026,7 +1009,7 @@ feature "waybill", %q{
       page.datepicker("created").prev_month.day(10)
       fill_in("waybill_document_id", :with => "123121")
       item = create(:legal_entity)
-      fill_in('waybill_entity', :with => item.name[0..1])
+      fill_in('waybill_legal_entity', :with => item.name[0..1])
       within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
           "contains(@style, 'display: block')]") do
         all(:xpath, ".//li//a")[0].click
@@ -1053,6 +1036,9 @@ feature "waybill", %q{
       wait_until_hash_changed_to "documents/waybills/#{Waybill.last.id}"
     end.should change(Waybill, :count).by(1)
 
+    visit '#inbox'
+    visit "#documents/waybills/#{Waybill.last.id}"
+
     within('#container_documents') do
       within("div[@class='comments']") do
         page.should have_content(I18n.t("activerecord.attributes.waybill.comment.create"))
@@ -1069,15 +1055,16 @@ feature "waybill", %q{
       end
     end
 
-    page.find("#btn_create").click
+    page.find("#create_btn").click
     page.find("a[@href='#documents/waybills/new']").click_and_wait
     page.should_not have_xpath("//ul[@id='documents_list']")
 
     within('#container_documents form') do
+      wait_for_ajax
       page.datepicker("created").prev_month.day(10)
       fill_in("waybill_document_id", :with => "123122")
       item = create(:legal_entity)
-      fill_in('waybill_entity', :with => item.name[0..1])
+      fill_in('waybill_legal_entity', :with => item.name[0..1])
       within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and " +
           "contains(@style, 'display: block')]") do
         all(:xpath, ".//li//a")[0].click

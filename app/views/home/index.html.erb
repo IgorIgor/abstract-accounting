@@ -20,12 +20,10 @@
 <div id="body">
   <div id='nav'>
     <div class='filter'>
-      <div class='filter-bar'>
+      <div class='filter-bar' data-bind="slider: { pressed: 'show-filter', slidearea: 'filter-area' }">
         <input type='text' value=''/>
-        <div id='show-filter'
-             data-bind="slidemenu: { control: 'show-filter', list: 'filter-area',
-                                     stuck: true }">
-          <div class='arrow_down'></div>
+        <div id='show-filter'>
+          <div class='arrow_down' id='arrow_down'></div>
         </div>
       </div>
       <input type='button' value="<%=t 'views.home.search' %>"/>
@@ -34,12 +32,12 @@
 
   <div id="sidebar">
     <% unless @types.empty? %>
-    <div data-bind="slidearea: { pressed: 'create_btn' }">
+    <div data-bind="slider: { pressed: 'create_btn', slidearea: 'create-menu' }, slidemenu: {}">
       <div id="create_btn" class="button">
         <div class="data"><%=t 'views.home.create' %></div>
         <div class="data arrow_down"></div>
       </div>
-      <ul>
+      <ul id="create-menu">
         <% @types.each do |type| %>
           <li>
             <%= link_to(t("views.home.#{type.underscore}"),

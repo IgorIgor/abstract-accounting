@@ -17,12 +17,13 @@
   </label>
   <input type="text" id="foremen_filter_to" style="width: 80px;"
         data-bind="datepicker:{ value: to, maxDate: '+0' }, event: {change: filterData}">
-  <div data-bind="slidearea: { pressed: 'print_btn' }, visible: foremen().length > 0">
+  <div data-bind="slider: { pressed: 'print_btn', slidearea: 'print-menu' }, slidemenu: {},
+                            visible: foremen().length > 0">
     <div id="print_btn" class="button">
       <div class="data print"></div>
       <div class="data arrow_down"></div>
     </div>
-    <ul>
+    <ul id="print-menu">
       <li>
         <a data-bind='click: function() { print(true, false); }'>
           <%= t('views.warehouses.report.print_all') %>

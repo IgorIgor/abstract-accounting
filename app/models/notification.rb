@@ -8,6 +8,28 @@
 # Please see ./COPYING for details
 
 class Notification < ActiveRecord::Base
-  attr_accessible :looked, :user_id
-  belongs_to :user
+  attr_accessible :date, :message, :title, :notification_type
+  has_many :notified_users
+
+  default_scope order("date DESC")
+
+  def assign_users
+    User.pluck(:id).each do |user_id|
+      self.notified_users.create(user_id: user_id, looked: false)
+    end
+  end
+
+  def self.notifications_for user
+    if user.root?
+      scoped
+    else
+      scoped.joins{notified_users}.where{ notified_users.user_id == my{user.id}}
+    end
+  end
+
+  def self.unviewed_for user
+    unless user.root?
+      notifications_for(user).merge(NotifiedUser.unviewed)
+    end
+  end
 end

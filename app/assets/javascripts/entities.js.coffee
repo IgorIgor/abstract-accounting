@@ -10,9 +10,11 @@ $ ->
         page: @page
         per_page: @per_page
 
-    show: (entity) ->
-      page = if entity.klass == "Entity" then "entities" else "legal_entities"
-      location.hash = "#documents/#{page}/#{entity.id}"
+    getType: (object) ->
+      if object.klass == "Entity"
+        "entities"
+      else
+        "legal_entities"
 
     showBalances: ->
       unless $('#slide_menu_conditions').is(":visible")

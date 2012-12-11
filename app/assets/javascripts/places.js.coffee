@@ -10,8 +10,8 @@ $ ->
         page: @page
         per_page: @per_page
 
-    show:(place) ->
-      location.hash = "#documents/places/#{place.id}"
+    getType: (object) =>
+      'places'
 
     showBalances: ->
       unless $('#slide_menu_conditions').is(":visible")

@@ -1,21 +1,13 @@
 $ ->
-  self.notification = ->
-    $.ajax(
-      type:'GET'
-      url: '/notifications/check'
-      data: {}
-      complete: (data) =>
-        response = JSON.parse(data.responseText)
-        if response.show
-          $.sticky(response.html)
-          $('.sticky-close').click( =>
-            $.ajax(
-              type:'POST'
-              url: '/notifications/hide'
-            )
-          )
-          $('a#link').click( =>
-            $('.sticky-close').click()
-          )
-    )
-  notification()
+  class self.NotificationsViewModel extends TreeViewModel
+    constructor: (data) ->
+      @url = '/notifications/data.json'
+
+      super(data)
+
+      @params =
+        page: @page
+        per_page: @per_page
+
+    getType: (object) ->
+      'notifications'

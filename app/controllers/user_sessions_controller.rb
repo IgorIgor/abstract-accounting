@@ -11,6 +11,8 @@ class UserSessionsController < ApplicationController
   skip_before_filter :require_login, except: [:destroy]
   skip_before_filter :check_chart
 
+  layout 'login'
+
   def new
   end
 

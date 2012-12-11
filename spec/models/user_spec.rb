@@ -25,6 +25,7 @@ describe User do
     should_not allow_mass_assignment_of(:salt)
     should belong_to(:entity)
     should have_many User.versions_association_name
+    should have_many :notified_users
     User.new.root?.should be_false
     should have_many(:credentials)
     should have_and_belong_to_many(:groups)

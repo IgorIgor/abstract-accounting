@@ -95,11 +95,11 @@ $ ->
 
       @resource_id.subscribe(@filterData)
 
-    showWaybill: (object) ->
-      location.hash = "documents/waybills/#{object.item_id}"
-
-    showAllocation: (object) ->
-      location.hash = "documents/allocations/#{object.item_id}"
+    getType: (object) ->
+      if object.side == "Waybill"
+        'waybills'
+      else
+        'allocations'
 
     print: =>
       params =

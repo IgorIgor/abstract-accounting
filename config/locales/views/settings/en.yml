@@ -8,6 +8,3 @@ en:
       save: Save
     help:
       tag: Help
-      notification:
-        tag: Notification
-        clear: Clear

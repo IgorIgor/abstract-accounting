@@ -9,8 +9,9 @@
 
 object false
 child(@warehouse => :objects) do
-  attributes :item_id, :side, :amount, :state, :document_id
-  node(:date) { |state| state.date.strftime('%Y-%m-%d') }
+  attributes :item_id => :id
+  attributes :side, :amount, :state, :document_id
+             node(:date) { |state| state.date.strftime('%Y-%m-%d') }
   glue :entity do
     attributes :name
   end

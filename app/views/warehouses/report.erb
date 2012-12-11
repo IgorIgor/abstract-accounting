@@ -72,7 +72,7 @@
   </thead>
   <tbody data-bind="foreach: documents">
   <!-- ko if: side == '<%= WarehouseResourceReport::WAYBILL_SIDE %>' -->
-    <tr data-bind="click: $parent.showWaybill">
+    <tr data-bind="click: $parent.show">
       <td data-bind="text: date"></td>
       <td data-bind="text: name"></td>
       <td data-bind="text: document_id"></td>
@@ -83,7 +83,7 @@
     </tr>
   <!-- /ko -->
   <!-- ko if: side == '<%= WarehouseResourceReport::ALLOCATION_SIDE %>' -->
-    <tr data-bind="click: $parent.showAllocation">
+    <tr data-bind="click: $parent.show">
       <td data-bind="text: date"></td>
       <td></td>
       <td></td>

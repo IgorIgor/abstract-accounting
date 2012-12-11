@@ -15,6 +15,13 @@ init_rules = ->
         required: "#{$(this).attr('name')} : #{I18n.t('errors.messages.blank')}"
       }
     })
+  $("textarea[rule='required']").each ->
+    $(this).rules('add', {
+      required: true
+      messages: {
+        required: "#{$(this).attr('name')} : #{I18n.t('errors.messages.blank')}"
+      }
+    })
   $("input[rule='required_num']").each ->
     $(this).rules('add', {
       required: true

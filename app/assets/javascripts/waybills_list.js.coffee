@@ -24,4 +24,4 @@ $ ->
       )
 
     show: (object) ->
-      location.hash = "documents/waybills/#{object.id}"
+      'waybills'

@@ -66,6 +66,7 @@ feature "single page application", %q{
     current_path.should eq(home_index_path)
     page.should have_content("root@localhost")
     page.should have_content(I18n.t 'views.home.logout')
+    page.should have_content(I18n.t 'views.home.notify')
     page.should have_content(I18n.t 'views.home.inbox')
     page.should have_content(I18n.t 'views.home.starred')
     page.should have_content(I18n.t 'views.home.drafts')

@@ -242,6 +242,10 @@ $ ->
     onDataReceived: (data) =>
       #do something
 
+    show: (object) =>
+      type = @getType(object)
+      location.hash = "documents/#{type}/#{object.id}"
+
     clearData: =>
       @documents([])
       @count([])
@@ -458,6 +462,8 @@ $ ->
                   new DealViewModel(object)
                 when 'facts'
                   new FactViewModel(object)
+                when 'notifications'
+                  new NotificationViewModel(object)
 
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
@@ -497,6 +503,8 @@ $ ->
                   new QuoteViewModel(object, true)
                 when 'facts'
                   new FactViewModel(object, true)
+                when 'notifications'
+                  new NotificationViewModel(object, true)
 
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
@@ -596,6 +604,8 @@ $ ->
                     new AllocationsViewModel(data)
                   when 'quote'
                     new QuotesViewModel(data)
+                  when 'notifications'
+                    new NotificationsViewModel(data)
 
                 ko.cleanNode($('#main').get(0))
                 $('#container_documents').html(form)

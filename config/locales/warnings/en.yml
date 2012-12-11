@@ -3,13 +3,13 @@ en:
     warning: Warning
     deal:
       priority:
-        title: Warning! Wrong priority of the deal which had done by user
+        title: "Warning! Wrong priority of the deal which had done by user: %{user}"
         message: "Execute of the fact with id: %{warning_object_id} and tag: %{warning_object_tag} occurred by wrong way.
                  Expected that deal with id: %{expected_id} and tag: %{expected_tag} will execute first
                  and after will execute dial with id: %{got_id} and tag: %{got_tag},
                  but deal(%{got_id}) executed first."
     limit:
       amount:
-        title: Warning! Wrong limit on the deal which had done by user
+        title: "Warning! Wrong limit on the deal which had done by user: %{user}"
         message: "Execute of the fact with id: %{warning_object_id} occurred with warning,
                   because limit of the dial was exceeded."

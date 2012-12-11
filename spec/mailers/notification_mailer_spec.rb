@@ -47,7 +47,7 @@ describe NotificationMailer do
       mail.subject.should eq(I18n.t("warnings.warning") + '!')
       mail.to.should eq([@user.email, m1.email, m2.email, m3.email])
       mail.from.should eq(["admin@aasii.org"])
-      mail.body.encoded.should match(I18n.t('warnings.limit.amount.title') + ": #{@user.entity.tag}")
+      mail.body.encoded.should match(I18n.t('warnings.limit.amount.title', user: @user.entity.tag))
       mail.body.encoded.should match(I18n.t('warnings.limit.amount.message',
                                             warning_object_id: @warning.object.id))
     end

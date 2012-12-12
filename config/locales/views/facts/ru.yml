@@ -7,6 +7,8 @@ ru:
       amount: Количество
       create_txn: Создать транзакцию
       fact_txn: Транзакция по проводке
+      debit: Дебет
+      credit: Кредит
       txn:
         value: Значение
         earnings: Прибыль

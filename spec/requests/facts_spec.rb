@@ -34,6 +34,7 @@ feature 'fact', %q{
                         :take => build(:deal_take, :resource => brick),
                         :rate => 1.0,
                         :tag => 'other_deal')
+    create(:fact, :from => share1, :to => share2, :resource => rub, :amount => 10.0)
 
     page_login
     page.find('#btn_slide_services').click
@@ -79,6 +80,8 @@ feature 'fact', %q{
       end
     end
     page.should have_no_selector('#deals_selector')
+    find_field('from_deal_debit').value.should eq('0.1')
+    find_field('from_deal_credit').value.should eq('0')
 
     find('#fact_to_deal').click
     page.should have_selector('#deals_selector')
@@ -93,6 +96,8 @@ feature 'fact', %q{
       end
     end
     page.should have_no_selector('#deals_selector')
+    page.should_not have_selector('#to_deal_debit')
+    page.should_not have_selector('#to_deal_debit')
 
     fill_in('fact_amount', :with => '1')
 
@@ -118,11 +123,13 @@ feature 'fact', %q{
       end
     end
     page.should have_no_selector('#deals_selector')
+    find_field('to_deal_debit').value.should eq('0')
+    find_field('to_deal_credit').value.should eq('20')
 
     lambda do
       click_button(I18n.t('views.users.save'))
       wait_for_ajax
-      wait_until { Fact.count == 1 }
+      wait_until { Fact.count == 2 }
       wait_until_hash_changed_to "documents/facts/#{Fact.last.id}"
     end.should change(Fact, :count).by(1)
 

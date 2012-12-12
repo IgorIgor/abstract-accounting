@@ -120,6 +120,7 @@ Abstract::Application.routes.draw do
     end
     member do
       get 'rules'
+      get 'state'
     end
   end
   resources :storekeepers, only: [:index]

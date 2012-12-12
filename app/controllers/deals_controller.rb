@@ -44,6 +44,11 @@ class DealsController < ApplicationController
     @count = deal.rules.count
   end
 
+  def state
+    deal = Deal.find(params[:id])
+    @state = deal.state
+  end
+
   def new
     @deal = Deal.new
   end

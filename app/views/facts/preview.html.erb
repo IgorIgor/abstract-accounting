@@ -45,7 +45,25 @@
                             dialogId: 'deals_selector',
                             value: object.from.tag,
                             disable: readonly">
+
+          <div class="additional-date" data-bind="with: from_state">
+            <span class="form-cell-label">
+              <label for="from_deal_debit"><%= t('views.facts.debit') %>:</label>
+            </span>
+            <span>
+              <input type="text" id="from_deal_debit"
+                     data-bind="value: debit" disabled="disabled">
+            </span>
+            <span class="form-cell-label">
+              <label for="from_deal_credit"><%= t('views.facts.credit') %>:</label>
+            </span>
+            <span>
+              <input type="text" id="from_deal_credit"
+                     data-bind="value: credit" disabled="disabled">
+            </span>
+          </div>
         </span>
+
       </div>
       <div>
         <span class="form-cell-label">
@@ -63,6 +81,24 @@
                              dialogId: 'deals_selector',
                              value: object.to.tag,
                              disable: readonly">
+
+          <div class="additional-date" data-bind="with: to_state">
+            <span class="form-cell-label">
+              <label for="to_deal_debit"><%= t('views.facts.debit') %>:</label>
+            </span>
+            <span>
+              <input type="text" id="to_deal_debit"
+                     data-bind="value: debit" disabled="disabled">
+            </span>
+
+            <span class="form-cell-label">
+              <label for="to_deal_credit"><%= t('views.facts.credit') %>:</label>
+            </span>
+            <span>
+              <input type="text" id="to_deal_credit"
+                     data-bind="value: credit" disabled="disabled">
+            </span>
+          </div>
         </span>
       </div>
       <div>

@@ -1265,4 +1265,220 @@ feature 'allocation', %q{
 
     PaperTrail.enabled = false
   end
+
+  scenario 'view allocations and allocation list by states', js: true do
+    wb1 = build(:waybill)
+    wb1.add_item(tag: "test resource#1", mu: "test mu", amount: 200, price: 100)
+    wb1.add_item(tag: "test resource#11", mu: "test mu", amount: 201, price: 100)
+    wb1.save!
+    wb1.apply
+    wb2 = build(:waybill)
+    wb2.add_item(tag: "test resource#2", mu: "test mu", amount: 200, price: 100)
+    wb2.add_item(tag: "test resource#22", mu: "test mu", amount: 202, price: 100)
+    wb2.save!
+    wb2.apply
+    wb3 = build(:waybill)
+    wb3.add_item(tag: "test resource#3", mu: "test mu", amount: 200, price: 100)
+    wb3.save!
+    wb3.apply
+    wb4 = build(:waybill)
+    wb4.add_item(tag: "test resource#4", mu: "test mu", amount: 200, price: 100)
+    wb4.save!
+    wb4.apply
+
+    al1 = build(:allocation, storekeeper: wb1.storekeeper,
+                storekeeper_place: wb1.storekeeper_place)
+    al1.add_item(tag: 'test resource#11', mu: 'test mu', amount: 50)
+    al1.add_item(tag: 'test resource#1', mu: 'test mu', amount: 55)
+    al1.save!
+
+    al2 = build(:allocation, storekeeper: wb2.storekeeper,
+                storekeeper_place: wb2.storekeeper_place)
+    al2.add_item(tag: "test resource#22", mu: "test mu", amount: 40)
+    al2.add_item(tag: "test resource#2", mu: "test mu", amount: 47)
+    al2.save!
+    al2.cancel
+
+    al3 = build(:allocation, storekeeper: wb3.storekeeper,
+                storekeeper_place: wb3.storekeeper_place)
+    al3.add_item(tag: "test resource#3", mu: "test mu", amount: 100)
+    al3.save!
+    al3.apply
+
+    al4 = build(:allocation, storekeeper: wb4.storekeeper,
+                storekeeper_place: wb4.storekeeper_place)
+    al4.add_item(tag: "test resource#4", mu: "test mu", amount: 77)
+    al4.save!
+    al4.apply
+    al4.reverse
+
+    page_login
+    page.find('#btn_slide_lists').click
+    page.find('#deals').click
+    page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
+        "not(contains(@style, 'display: none'))]/li[@id='allocations']/a").click
+
+    allocations = Allocation.
+        search_by_states({inwork: true, canceled: true, applied: true, reversed: false}).all
+    wait_for_ajax
+
+    current_hash.should eq('allocations')
+    page.should have_xpath("//ul[@id='slide_menu_lists']" +
+                               "/ul[@id='slide_menu_deals']" +
+                               "/li[@id='allocations' and @class='sidebar-selected']")
+
+    should_present_allocation(allocations)
+
+    page.find("#allocation_types").click
+    within('#allocation_types_menu') do
+      check('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    allocations = Allocation.
+        search_by_states({inwork: true, canceled: true, applied: true, reversed: true}).all
+    should_present_allocation(allocations)
+
+    page.find("#allocation_types").click
+    within('#allocation_types_menu') do
+      uncheck('check_canceled')
+      uncheck('check_applied')
+      uncheck('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    allocations = Allocation.
+        search_by_states({inwork: true, canceled: false, applied: false, reversed: false}).all
+    should_present_allocation(allocations)
+
+    page.find("#allocation_types").click
+    within('#allocation_types_menu') do
+      uncheck('check_inwork')
+      check('check_canceled')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    allocations = Allocation.
+        search_by_states({inwork: false, canceled: true, applied: false, reversed: false}).all
+    should_present_allocation(allocations)
+
+    page.find("#allocation_types").click
+    within('#allocation_types_menu') do
+      uncheck('check_canceled')
+      check('check_applied')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    allocations = Allocation.
+        search_by_states({inwork: false, canceled: false, applied: true, reversed: false}).all
+    should_present_allocation(allocations)
+
+    page.find("#allocation_types").click
+    within('#allocation_types_menu') do
+      uncheck('check_applied')
+      check('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    allocations = Allocation.
+        search_by_states({inwork: false, canceled: false, applied: false, reversed: true}).all
+    should_present_allocation(allocations)
+
+    page.find("#allocation_types").click
+    within('#allocation_types_menu') do
+      uncheck('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    allocations = Allocation.
+        search_by_states({inwork: true, canceled: true, applied: true, reversed: false}).all
+    should_present_allocation(allocations)
+
+    page.find("#table_view").click
+    wait_for_ajax
+    current_hash.should eq('allocations?view=table')
+
+    allocations = AllocationReport.with_resources.select_all.
+        search_by_states({inwork: true, canceled: true, applied: true, reversed: false}).all
+    wait_for_ajax
+    should_present_allocation_with_resource(allocations)
+
+    page.find("#allocation_types").click
+    within('#allocation_types_menu') do
+      check('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    allocations = AllocationReport.with_resources.select_all.
+        search_by_states({inwork: true, canceled: true, applied: true, reversed: true}).all
+
+    should_present_allocation_with_resource(allocations)
+
+    page.find("#allocation_types").click
+    within('#allocation_types_menu') do
+      uncheck('check_canceled')
+      uncheck('check_applied')
+      uncheck('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    allocations = AllocationReport.with_resources.select_all.
+        search_by_states({inwork: true, canceled: false, applied: false, reversed: false}).all
+    should_present_allocation_with_resource(allocations)
+
+    page.find("#allocation_types").click
+    within('#allocation_types_menu') do
+      uncheck('check_inwork')
+      check('check_canceled')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    allocations = AllocationReport.with_resources.select_all.
+        search_by_states({inwork: false, canceled: true, applied: false, reversed: false}).all
+    should_present_allocation_with_resource(allocations)
+
+    page.find("#allocation_types").click
+    within('#allocation_types_menu') do
+      uncheck('check_canceled')
+      check('check_applied')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    allocations = AllocationReport.with_resources.select_all.
+        search_by_states({inwork: false, canceled: false, applied: true, reversed: false}).all
+    should_present_allocation_with_resource(allocations)
+
+    page.find("#allocation_types").click
+    within('#allocation_types_menu') do
+      uncheck('check_applied')
+      check('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    allocations = AllocationReport.with_resources.select_all.
+        search_by_states({inwork: false, canceled: false, applied: false, reversed: true}).all
+    should_present_allocation_with_resource(allocations)
+
+    page.find("#allocation_types").click
+    within('#allocation_types_menu') do
+      uncheck('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    allocations = AllocationReport.with_resources.select_all.
+        search_by_states({inwork: true, canceled: true, applied: true, reversed: false}).all
+    should_present_allocation_with_resource(allocations)
+  end
 end

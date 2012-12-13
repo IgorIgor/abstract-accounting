@@ -39,6 +39,38 @@ module Helpers
       def before_reverse(*filters)
         set_callback :reverse, :before, *filters
       end
+
+      def search_by_states(filter = {})
+        return scoped if filter.empty?
+        return scoped if filter.values.inject( true ){ |mem, value| mem && value }
+        scope = self.joins{deal.deal_state}.joins{deal.to_facts.outer}
+        scope = scope.where do
+          scope_where = nil
+          if filter[:inwork]
+            scope_where = (deal.deal_state.closed == nil)
+          end
+          if filter[:applied] || filter[:canceled] || filter[:reversed]
+            reversed = ((deal.deal_state.closed != nil))
+            scope_where = scope_where ? scope_where | reversed : reversed
+          end
+          scope_where
+        end
+        group_by = self.column_names.map{ |item| "#{self.table_name}.#{item}" }
+        group_by += scope.order_values.map{ |item| item.split(' ')[0] }
+        scope = scope.group{group_by}
+        scope_having = []
+        if filter[:inwork] || filter[:canceled]
+          scope_having<<'SUM(facts.amount) IS NULL'
+        end
+        if filter[:applied]
+          scope_having = scope_having<<'SUM(facts.amount) = 1'
+        end
+        if filter[:reversed]
+          scope_having = scope_having<<'SUM(facts.amount) = 0'
+        end
+        scope.having(scope_having.join(' OR '))
+      end
+      alias_method :statable_search, :search_by_states
     end
 
     UNKNOWN = 0

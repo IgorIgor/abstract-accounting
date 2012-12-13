@@ -4,6 +4,8 @@ $ ->
       @url = '/waybills/list.json'
       @total = ko.observable(data.total) if data.total?
 
+      @filter_state = ko.observableArray(@defaultStateList)
+
       @filter =
         created: ko.observable('')
         document_id: ko.observable('')
@@ -12,6 +14,7 @@ $ ->
         storekeeper_place: ko.observable('')
         state: ko.observable('')
         resource_tag: ko.observable('')
+        states: @filter_state
 
       super(data)
 
@@ -29,3 +32,10 @@ $ ->
 
     show: (object) ->
       'waybills'
+
+    onDataReceived: (data) =>
+      @total(data.total)
+      @filter_state(@defaultStateList) if @filter_state().length == 0
+      super(data)
+
+    defaultStateList: ["#{Statable.INWORK}", "#{Statable.CANCELED}", "#{Statable.APPLIED}"]

@@ -359,6 +359,7 @@ $ ->
     onDataReceived: (data) =>
       for object in data.objects
         object.subitems = ko.observable(null)
+      super(data)
 
     expandTree: (object, event) =>
       el = $(event.target).find('span')

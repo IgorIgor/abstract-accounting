@@ -4,6 +4,8 @@ $ ->
       @url = if params.present? then '/waybills/present.json' else '/waybills/data.json'
       @total = ko.observable(data.total) if data.total?
 
+      @filter_state = ko.observableArray(@defaultStateList)
+
       @filter =
         created: ko.observable('')
         document_id: ko.observable('')
@@ -12,6 +14,7 @@ $ ->
         storekeeper_place: ko.observable('')
         state: ko.observable('')
         resource_tag: ko.observable('')
+        states: @filter_state
 
       super(data)
 
@@ -39,6 +42,13 @@ $ ->
 
     createChildrenViewModel: (data, params, object) =>
       new WaybillResourcesViewModel(data, params, object)
+
+    onDataReceived: (data) =>
+      @total(data.total)
+      @filter_state(@defaultStateList) if @filter_state().length == 0
+      super(data)
+
+    defaultStateList: ["#{Statable.INWORK}", "#{Statable.CANCELED}", "#{Statable.APPLIED}"]
 
   class self.WaybillResourcesViewModel extends FolderViewModel
     constructor: (data, params, object) ->

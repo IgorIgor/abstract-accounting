@@ -3,6 +3,8 @@ $ ->
     constructor: (data) ->
       @url = '/allocations/data.json'
 
+      @filter_state = ko.observableArray(@defaultStateList)
+
       @filter =
         created: ko.observable('')
         foreman: ko.observable('')
@@ -10,6 +12,7 @@ $ ->
         storekeeper_place: ko.observable('')
         state: ko.observable('')
         resource_tag: ko.observable('')
+        states: @filter_state
 
       super(data)
 
@@ -27,6 +30,12 @@ $ ->
 
     createChildrenViewModel: (data, params, object) =>
       new AllocationResourcesViewModel(data, params, object)
+
+    onDataReceived: (data) =>
+      @filter_state(@defaultStateList) if @filter_state().length == 0
+      super(data)
+
+    defaultStateList: ["#{Statable.INWORK}", "#{Statable.CANCELED}", "#{Statable.APPLIED}"]
 
   class self.AllocationResourcesViewModel extends FolderViewModel
     constructor: (data, params, object) ->

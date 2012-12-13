@@ -45,8 +45,8 @@ class Waybill < ActiveRecord::Base
 
     def total
       total = joins{deal.rules.from}.
-          select{sum(deal.rules.rate/deal.rules.from.rate).as(:total)}.first.total
-      Converter.float(total)
+          select{sum(deal.rules.rate/deal.rules.from.rate).as(:total)}.all
+      total.inject(0.0){ |mem, item| mem + Converter.float(item.total) }
     end
 
     def in_warehouse
@@ -68,86 +68,56 @@ class Waybill < ActiveRecord::Base
 
   before_item_save :do_before_item_save
 
-  def self.order_by(attrs = {})
-    field = nil
-    scope = self
-    case attrs[:field]
-      when 'distributor'
-        scope = scope.joins{deal.rules.from.entity(LegalEntity).outer}.
-            joins{deal.rules.from.entity(Entity).outer}
-        field = "case froms_rules.entity_type
-                      when 'Entity'      then entities.tag
-                      when 'LegalEntity' then legal_entities.name
-                 end"
-      when 'storekeeper'
-        scope = scope.joins{deal.entity(Entity)}
-        field = 'entities.tag'
-      when 'storekeeper_place'
-        scope = scope.joins{deal.take.place}
-        field = 'places.tag'
-      when 'sum'
-        scope = scope.joins{deal.rules.from}.
-                group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id').
-                select("waybills.*").
-                select{sum(deal.rules.rate / deal.rules.from.rate).as(:sum)}
-        field = 'sum'
-      else
-        field = attrs[:field] if attrs[:field]
-    end
-    unless field.nil?
-      if attrs[:type] == 'desc'
-        scope = scope.order("#{field} DESC")
-      else
-        scope = scope.order("#{field}")
-      end
-    end
-    scope
+  custom_sort(:distributor) do |dir|
+    query = "case froms_rules.entity_type
+                  when 'Entity'      then entities.tag
+                  when 'LegalEntity' then legal_entities.name
+             end"
+    joins{deal.rules.from.entity(LegalEntity).outer}.
+        joins{deal.rules.from.entity(Entity).outer}.order("#{query} #{dir}")
   end
 
-  def self.search(attrs = {})
-    scope = attrs.keys.inject(scoped) do |mem, key|
-      case key.to_s
-        when 'distributor'
-          mem.joins{deal.rules.from.entity(LegalEntity)}.uniq
-        when 'storekeeper'
-          mem.joins{deal.entity(Entity)}
-        when 'storekeeper_place'
-          mem.joins{deal.take.place}
-        when 'resource_tag'
-          mem.joins{deal.rules.from.take.resource(Asset)}.uniq
-        when 'state'
-          mem.joins{deal.deal_state}.joins{deal.to_facts.outer}
-        else
-          mem
-      end
-    end
-    attrs.inject(scope) do |mem, (key, value)|
-      case key.to_s
-        when 'distributor'
-          mem.where{lower(deal.rules.from.entity.name).like(lower("%#{value}%"))}
-        when 'storekeeper'
-          mem.where{lower(deal.entity.tag).like(lower("%#{value}%"))}
-        when 'storekeeper_place'
-          mem.where{lower(deal.take.place.tag).like(lower("%#{value}%"))}
-        when 'resource_tag'
-          mem.where{lower(deal.rules.from.take.resource.tag).like(lower("%#{value}%"))}
-        when 'state'
-          case value.to_i
-            when INWORK
-              mem.where{deal.deal_state.closed == nil}
-            when APPLIED
-              mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.amount == 1.0)}
-            when CANCELED
-              mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.id == nil)}
-            when REVERSED
-              mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.amount == -1.0)}
-          end
-        when 'created'
-          mem.where{to_char(created, "YYYY-MM-DD").like(lower("%#{value}%"))}
-        else
-          mem.where{lower(__send__(key)).like(lower("%#{value}%"))}
-      end
-    end
+  custom_sort(:storekeeper) do |dir|
+    query = "entities.tag"
+    joins{deal.entity(Entity)}.order("#{query} #{dir}")
+  end
+
+  custom_sort(:storekeeper_place) do |dir|
+    query = "places.tag"
+    joins{deal.take.place}.order("#{query} #{dir}")
+  end
+
+  custom_sort(:sum) do |dir|
+    query = "sum"
+    joins{deal.rules.from}.
+        group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id').
+        select("waybills.*").
+        select{sum(deal.rules.rate / deal.rules.from.rate).as(:sum)}.
+        order("#{query} #{dir}")
+  end
+
+  custom_search(:distributor) do |value|
+    joins{deal.rules.from.entity(LegalEntity)}.uniq.
+        where{lower(deal.rules.from.entity.name).like(lower("%#{value}%"))}
+  end
+
+  custom_search(:storekeeper) do |value|
+    joins{deal.entity(Entity)}.
+        where{lower(deal.entity.tag).like(lower("%#{value}%"))}
+  end
+
+  custom_search(:storekeeper_place) do |value|
+    joins{deal.take.place}.
+        where{lower(deal.take.place.tag).like(lower("%#{value}%"))}
+  end
+
+  custom_search(:resource_tag) do |value|
+    joins{deal.rules.from.take.resource(Asset)}.uniq.
+        where{lower(deal.rules.from.take.resource.tag).like(lower("%#{value}%"))}
+  end
+
+  custom_search(:created) do |value|
+    where{to_char(created, "YYYY-MM-DD").like(lower("%#{value}%"))}
   end
 
   def sum

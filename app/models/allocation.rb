@@ -79,50 +79,28 @@ class Allocation < ActiveRecord::Base
     scope
   end
 
-  def self.search(attrs = {})
-    scope = attrs.keys.inject(scoped) do |mem, key|
-      case key.to_s
-        when 'foreman'
-          mem.joins{deal.rules.to.entity(Entity)}.uniq
-        when 'storekeeper'
-          mem.joins{deal.entity(Entity)}
-        when 'storekeeper_place'
-          mem.joins{deal.give.place}
-        when 'resource_tag'
-          mem.joins{deal.rules.from.give.resource(Asset)}.uniq
-        when 'state'
-          mem.joins{deal.deal_state}.joins{deal.to_facts.outer}
-        else
-          mem
-      end
-    end
-    attrs.inject(scope) do |mem, (key, value)|
-      case key.to_s
-        when 'foreman'
-          mem.where{lower(deal.rules.to.entity.tag).like(lower("%#{value}%"))}
-        when 'storekeeper'
-          mem.where{lower(deal.entity.tag).like(lower("%#{value}%"))}
-        when 'storekeeper_place'
-          mem.where{lower(deal.give.place.tag).like(lower("%#{value}%"))}
-        when 'resource_tag'
-          mem.where{lower(deal.rules.from.give.resource.tag).like(lower("%#{value}%"))}
-        when 'state'
-          case value.to_i
-            when INWORK
-              mem.where{deal.deal_state.closed == nil}
-            when APPLIED
-              mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.amount == 1.0)}
-            when CANCELED
-              mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.id == nil)}
-            when REVERSED
-              mem.where{(deal.deal_state.closed != nil) & (deal.to_facts.amount == -1.0)}
-          end
-        when 'created'
-          mem.where{to_char(created, 'YYYY-MM-DD').like("%#{value}%")}
-        else
-          mem.where{lower(__send__(key)).like(lower("%#{value}%"))}
-      end
-    end
+  custom_search(:foreman) do |value|
+    joins{deal.rules.to.entity(Entity)}.uniq.
+        where{lower(deal.rules.to.entity.tag).like(lower("%#{value}%"))}
+  end
+
+  custom_search(:storekeeper) do |value|
+    joins{deal.entity(Entity)}.
+        where{lower(deal.entity.tag).like(lower("%#{value}%"))}
+  end
+
+  custom_search(:storekeeper_place) do |value|
+    joins{deal.give.place}.
+        where{lower(deal.give.place.tag).like(lower("%#{value}%"))}
+  end
+
+  custom_search(:resource_tag) do |value|
+    joins{deal.rules.from.give.resource(Asset)}.uniq.
+        where{lower(deal.rules.from.give.resource.tag).like(lower("%#{value}%"))}
+  end
+
+  custom_search(:created) do |value|
+    where{to_char(created, "YYYY-MM-DD").like(lower("%#{value}%"))}
   end
 
   def document_id

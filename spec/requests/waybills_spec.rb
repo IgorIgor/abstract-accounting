@@ -1145,4 +1145,197 @@ feature "waybill", %q{
     page.find(:xpath,"//div[@id='filter-area']/input[7]").click
     page.find(:xpath,"//tfoot/tr/td[2]").text.should eq("20000")
   end
+
+
+  scenario 'view waybills and waybill list by states', js: true do
+    wb1 = build(:waybill)
+    wb1.add_item(tag: "test resource#1", mu: "test mu", amount: 200, price: 100)
+    wb1.add_item(tag: "test resource#11", mu: "test mu", amount: 201, price: 100)
+    wb1.save!
+    wb2 = build(:waybill)
+    wb2.add_item(tag: "test resource#2", mu: "test mu", amount: 200, price: 100)
+    wb2.add_item(tag: "test resource#22", mu: "test mu", amount: 202, price: 100)
+    wb2.save!
+    wb2.cancel
+    wb3 = build(:waybill)
+    wb3.add_item(tag: "test resource#3", mu: "test mu", amount: 200, price: 100)
+    wb3.save!
+    wb3.apply
+    wb4 = build(:waybill)
+    wb4.add_item(tag: "test resource#4", mu: "test mu", amount: 200, price: 100)
+    wb4.save!
+    wb4.apply
+    wb4.reverse
+
+    page_login
+    page.find('#btn_slide_lists').click
+    page.find('#deals').click
+    page.find(:xpath, "//ul[@id='slide_menu_deals' and " +
+        "not(contains(@style, 'display: none'))]/li[@id='waybills']/a").click
+
+    waybills = Waybill.
+        search_by_states({inwork: true, canceled: true, applied: true, reversed: false}).all
+    wait_for_ajax
+
+    current_hash.should eq('waybills')
+    page.should have_xpath("//ul[@id='slide_menu_lists']" +
+                               "/ul[@id='slide_menu_deals']" +
+                               "/li[@id='waybills' and @class='sidebar-selected']")
+
+    should_present_waybill(waybills)
+
+    page.find("#waybill_types").click
+    within('#waybill_types_menu') do
+      check('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    waybills = Waybill.
+        search_by_states({inwork: true, canceled: true, applied: true, reversed: true}).all
+    should_present_waybill(waybills)
+
+    page.find("#waybill_types").click
+    within('#waybill_types_menu') do
+      uncheck('check_canceled')
+      uncheck('check_applied')
+      uncheck('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    waybills = Waybill.
+        search_by_states({inwork: true, canceled: false, applied: false, reversed: false}).all
+    should_present_waybill(waybills)
+
+    page.find("#waybill_types").click
+    within('#waybill_types_menu') do
+      uncheck('check_inwork')
+      check('check_canceled')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    waybills = Waybill.
+        search_by_states({inwork: false, canceled: true, applied: false, reversed: false}).all
+    should_present_waybill(waybills)
+
+    page.find("#waybill_types").click
+    within('#waybill_types_menu') do
+      uncheck('check_canceled')
+      check('check_applied')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    waybills = Waybill.
+        search_by_states({inwork: false, canceled: false, applied: true, reversed: false}).all
+    should_present_waybill(waybills)
+
+    page.find("#waybill_types").click
+    within('#waybill_types_menu') do
+      uncheck('check_applied')
+      check('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    waybills = Waybill.
+        search_by_states({inwork: false, canceled: false, applied: false, reversed: true}).all
+    should_present_waybill(waybills)
+
+    page.find("#waybill_types").click
+    within('#waybill_types_menu') do
+      uncheck('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    waybills = Waybill.
+        search_by_states({inwork: true, canceled: true, applied: true, reversed: false}).all
+    should_present_waybill(waybills)
+
+    page.find("#table_view").click
+    wait_for_ajax
+    current_hash.should eq('waybills?view=table')
+
+    waybills = WaybillReport.with_resources.select_all.
+        search_by_states({inwork: true, canceled: true, applied: true, reversed: false}).all
+    wait_for_ajax
+
+    ap waybills
+
+    should_present_waybill_with_resource(waybills)
+
+    page.find("#waybill_types").click
+    within('#waybill_types_menu') do
+      check('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    waybills = WaybillReport.with_resources.select_all.
+        search_by_states({inwork: true, canceled: true, applied: true, reversed: true}).all
+    should_present_waybill_with_resource(waybills)
+
+    page.find("#waybill_types").click
+    within('#waybill_types_menu') do
+      uncheck('check_canceled')
+      uncheck('check_applied')
+      uncheck('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    waybills = WaybillReport.with_resources.select_all.
+        search_by_states({inwork: true, canceled: false, applied: false, reversed: false}).all
+    should_present_waybill_with_resource(waybills)
+
+    page.find("#waybill_types").click
+    within('#waybill_types_menu') do
+      uncheck('check_inwork')
+      check('check_canceled')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    waybills = WaybillReport.with_resources.select_all.
+        search_by_states({inwork: false, canceled: true, applied: false, reversed: false}).all
+    should_present_waybill_with_resource(waybills)
+
+    page.find("#waybill_types").click
+    within('#waybill_types_menu') do
+      uncheck('check_canceled')
+      check('check_applied')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    waybills = WaybillReport.with_resources.select_all.
+        search_by_states({inwork: false, canceled: false, applied: true, reversed: false}).all
+    should_present_waybill_with_resource(waybills)
+
+    page.find("#waybill_types").click
+    within('#waybill_types_menu') do
+      uncheck('check_applied')
+      check('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    waybills = WaybillReport.with_resources.select_all.
+        search_by_states({inwork: false, canceled: false, applied: false, reversed: true}).all
+    should_present_waybill_with_resource(waybills)
+
+    page.find("#waybill_types").click
+    within('#waybill_types_menu') do
+      uncheck('check_reverced')
+      page.find("div[@class='menu-button']").click
+    end
+    wait_for_ajax
+
+    waybills = WaybillReport.with_resources.select_all.
+        search_by_states({inwork: true, canceled: true, applied: true, reversed: false}).all
+    should_present_waybill_with_resource(waybills)
+  end
 end

@@ -1126,4 +1126,23 @@ feature "waybill", %q{
     click_button I18n.t('views.users.save')
     page.should_not have_xpath("//fieldset[@id='container_notification']")
   end
+
+  scenario 'check total_sum for filtrate waybills', js: true do
+    10.times do |i|
+      wb = build(:waybill)
+      wb.add_item(tag: "test resource##{i}", mu: "test mu", amount: 200, price: 100)
+      wb.save!
+    end
+
+    page_login
+    page.find("#show-filter").click
+    page.find('#btn_slide_lists').click
+    page.find('#deals').click
+    page.find(:xpath, "//li[@id='waybills']/a").click
+    page.find(:xpath,"//tfoot/tr/td[2]").text.should eq("200000")
+    page.find(:xpath,"//div[@id='show-filter']").click
+    fill_in("filter_resource_name", :with => "test resource#1")
+    page.find(:xpath,"//div[@id='filter-area']/input[7]").click
+    page.find(:xpath,"//tfoot/tr/td[2]").text.should eq("20000")
+  end
 end

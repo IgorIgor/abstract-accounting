@@ -1,12 +1,3 @@
-# Copyright (C) 2011 Sergey Yanovich <ynvich@gmail.com>
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 3 of the
-# License, or (at your option) any later version.
-#
-# Please see ./COPYING for details
-
 $ ->
   class self.GroupedBalanceSheetViewModel extends GroupedViewModel
     constructor: (data, filter) ->
@@ -153,14 +144,11 @@ $ ->
         entity: @entity()
         place_id: @place_id()
         group_by: @group_by()
-      $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
-        @documents(data.objects)
-        @page(1)
-        @count(data.count)
-        @range(@rangeGenerate())
-        @total_debit(data.total_debit)
-        @total_credit(data.total_credit)
-      )
+      super
+
+    onDataReceived: (data) =>
+      @total_debit(data.total_debit)
+      @total_credit(data.total_credit)
 
     selectBalance: (object) =>
       element_id = '#balance_' + object.deal_id

@@ -23,6 +23,10 @@ $ ->
         @params[key] = value
       )
 
+    onDataReceived: (data) =>
+      super(data)
+      @total(data.total)
+
     getType: (object) ->
       'waybills'
 

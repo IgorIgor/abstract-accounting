@@ -110,4 +110,39 @@ describe Helpers::Statable do
     obj.should_not be_can_cancel
     obj.should_not be_can_reverse
   end
+
+  it "should search by states" do
+    create(:chart)
+    wb1 = build(:waybill)
+    wb1.add_item(tag: 'nails', mu: 'pcs', amount: 120, price: 1.0)
+    wb1.save
+    wb2 = build(:waybill)
+    wb2.add_item(tag: 'nails', mu: 'pcs', amount: 120, price: 1.0)
+    wb2.save
+    wb2.cancel.should be_true
+    wb3 = build(:waybill)
+    wb3.add_item(tag: 'nails', mu: 'pcs', amount: 120, price: 1.0)
+    wb3.save
+    wb3.apply.should be_true
+    wb4 = build(:waybill)
+    wb4.add_item(tag: 'nails', mu: 'pcs', amount: 120, price: 1.0)
+    wb4.save
+    wb4.apply.should be_true
+    wb4.reverse.should be_true
+
+    Waybill.search_by_states({inwork: true, canceled: true, applied: true, reversed: true}).
+        all.should =~ [wb1, wb2, wb3, wb4]
+    Waybill.search_by_states({inwork: true, canceled: false, applied: false, reversed: false}).
+        all.should =~ [wb1]
+    Waybill.search_by_states({inwork: false, canceled: true, applied: false, reversed: false}).
+        all.should =~ [wb2]
+    Waybill.search_by_states({inwork: false, canceled: false, applied: true, reversed: false}).
+        all.should =~ [wb3]
+    Waybill.search_by_states({inwork: false, canceled: false, applied: false, reversed: true}).
+        all.should =~ [wb4]
+    Waybill.search_by_states({inwork: true, canceled: true, applied: false, reversed: false}).
+        all.should =~ [wb1, wb2]
+    Waybill.search_by_states({inwork: false, canceled: false, applied: false, reversed: false}).
+        all.should =~ [wb1, wb2, wb3, wb4]
+  end
 end

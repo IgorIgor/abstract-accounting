@@ -51,28 +51,46 @@ class AllocationReport < Allocation
     scope
   end
 
-  def self.search(attrs = {})
-    filtered = false
-    scope = attrs.keys.inject(scoped) do |mem, key|
-      case key.to_s
-        when 'foreman'
-          mem.joins{deal.rules.to.entity(Entity)}
-        when 'resource_tag'
-          mem.joins{deal.rules.from.give.resource(Asset)}
-        else
-          filtered = true
-          super(attrs)
-      end
-    end
-    unless filtered
-      scope = attrs.inject(scope) do |mem, (key, value)|
-        if key == 'foreman'
-          mem.where{lower(deal.rules.to.entity.tag).like(lower("%#{value}%"))}
-        elsif key == 'resource_tag'
-          mem.where{lower(deal.rules.from.give.resource.tag).like(lower("%#{value}%"))}
-        end
-      end
-    end
+  custom_search(:foreman) do |value|
+    joins{deal.rules.to.entity(Entity)}.
+        where{lower(deal.rules.to.entity.tag).like(lower("%#{value}%"))}
+  end
+
+  custom_search(:resource_tag) do |value|
+    joins{deal.rules.from.give.resource(Asset)}.
+        where{lower(deal.rules.from.give.resource.tag).like(lower("%#{value}%"))}
+  end
+
+  #def self.search(attrs = {})
+  #  filtered = false
+  #  scope = attrs.keys.inject(scoped) do |mem, key|
+  #    case key.to_s
+  #      when 'foreman'
+  #        mem.joins{deal.rules.to.entity(Entity)}
+  #      when 'resource_tag'
+  #        mem.joins{deal.rules.from.give.resource(Asset)}
+  #      else
+  #        filtered = true
+  #        super(attrs)
+  #    end
+  #  end
+  #  unless filtered
+  #    scope = attrs.inject(scope) do |mem, (key, value)|
+  #      if key == 'foreman'
+  #        mem.where{lower(deal.rules.to.entity.tag).like(lower("%#{value}%"))}
+  #      elsif key == 'resource_tag'
+  #        mem.where{lower(deal.rules.from.give.resource.tag).like(lower("%#{value}%"))}
+  #      end
+  #    end
+  #  end
+  #  scope
+  #end
+
+  def self.search_by_states(filter = {})
+    statable_search(filter)
+    group_by = '"assets"."id", "assets"."tag", "assets"."mu", "rules"."rate"'
+    scope = statable_search(filter)
+    scope = scope.group{group_by} unless scope.group_values.empty?
     scope
   end
 end

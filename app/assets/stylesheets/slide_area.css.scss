@@ -13,7 +13,7 @@ $menu_selected: #e5e5e5;
 }
 
 .action_element {
-  display: inline-block;
+  display: block;
   vertical-align: middle;
   cursor: pointer;
 
@@ -21,7 +21,7 @@ $menu_selected: #e5e5e5;
     margin: 0 !important;
     padding: 0 0 0 0;
     background: #f5f5f5;
-    position: fixed;
+    position: absolute;
     z-index: 1;
     display: none;
     box-shadow: 0 4px 8px #8b8b8b;

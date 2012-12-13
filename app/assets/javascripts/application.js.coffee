@@ -261,10 +261,10 @@ $ ->
 
     getPaginateData: =>
       $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
+        @onDataReceived(data)
         @documents(data.objects)
         @count(data.count)
         @range(@rangeGenerate())
-        @onDataReceived(data)
       )
 
     rangeGenerate: =>
@@ -316,24 +316,10 @@ $ ->
       for object in @documents()
         object.subitems = ko.observable(null)
 
-    getPaginateData: =>
-      $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
-        for object in data.objects
-          object.subitems = ko.observable(null)
-        @documents(data.objects)
-        @count(data.count)
-        @range(@rangeGenerate())
-      )
-
-    filterData: =>
-      @page(1)
-      $.getJSON(@url, normalizeHash(ko.mapping.toJS(@params)), (data) =>
-        for object in data.objects
-          object.subitems = ko.observable(null)
-        @documents(data.objects)
-        @count(data.count)
-        @range(@rangeGenerate())
-      )
+    onDataReceived: (data) =>
+      for object in data.objects
+        object.subitems = ko.observable(null)
+      super
 
     expandTree: (object, event) =>
       el = $(event.target).find('span')

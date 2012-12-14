@@ -110,6 +110,8 @@ $ ->
       message = I18n.t('views.notifications.timeout')
     else if e == 'abort'
       message = I18n.t('views.notifications.abort')
+    else
+      $('#message_box').data('msgType','error')
     $('#message_box').text(message)
     width = parseInt($('#message_box').css('width'))
     $('#message_box').css('left', "#{((screen.width - width) / 2)}px")
@@ -134,26 +136,27 @@ $ ->
         url: url
         data: params
         complete: (data) =>
-          response = JSON.parse(data.responseText)
-          if data.status == 500
-            @disable(false)
-          else
-            if response['result'] == 'success'
-              hash = ''
-              if response['id']
-                hash = "documents/#{@route}/#{response['id']}"
-              else
-                hash = location.hash
-              $.sammy().refresh() unless location.hash == hash
-              location.hash = hash
-            else
+          unless data.responseText == ''
+            response = JSON.parse(data.responseText)
+            if data.status == 500
               @disable(false)
-              $('#container_notification').css('display', 'block')
-              $('#container_notification ul').css('display', 'block')
-              $('#container_notification ul').empty()
-              for msg in JSON.parse(data.responseText, (key, value) -> value)
-                $('#container_notification ul')
-                    .append($("<li class='server-message'>#{msg}</li>"))
+            else
+              if response['result'] == 'success'
+                hash = ''
+                if response['id']
+                  hash = "documents/#{@route}/#{response['id']}"
+                else
+                  hash = location.hash
+                $.sammy().refresh() unless location.hash == hash
+                location.hash = hash
+              else
+                @disable(false)
+                $('#container_notification').css('display', 'block')
+                $('#container_notification ul').css('display', 'block')
+                $('#container_notification ul').empty()
+                for msg in JSON.parse(data.responseText, (key, value) -> value)
+                  $('#container_notification ul')
+                      .append($("<li class='server-message'>#{msg}</li>"))
         error: =>
           @disable(false)
       )

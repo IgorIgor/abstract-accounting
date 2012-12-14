@@ -64,10 +64,12 @@ class Waybill < ActiveRecord::Base
     scope = self
     case attrs[:field]
       when 'distributor'
-        scope = scope.joins{deal.rules.from.entity(LegalEntity)}.
-            group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id, ' +
-                  'legal_entities.name')
-        field = 'legal_entities.name'
+        scope = scope.joins{deal.rules.from.entity(LegalEntity).outer}.
+            joins{deal.rules.from.entity(Entity).outer}
+        field = "case froms_rules.entity_type
+                      when 'Entity'      then entities.tag
+                      when 'LegalEntity' then legal_entities.name
+                 end"
       when 'storekeeper'
         scope = scope.joins{deal.entity(Entity)}
         field = 'entities.tag'

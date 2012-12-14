@@ -814,14 +814,18 @@ describe Waybill do
     wbs.should eq(wbs_test)
 
     wbs = Waybill.order_by(field: 'distributor', type: 'asc').all
-    wbs_test = Waybill.joins{deal.rules.from.entity(LegalEntity)}.
-        group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id, ' +
-              'legal_entities.name').order('legal_entities.name').all
+    wbs_test = Waybill.joins{deal.rules.from.entity(LegalEntity).outer}.
+        joins{deal.rules.from.entity(Entity).outer}.order("case froms_rules.entity_type
+                      when 'Entity'      then entities.tag
+                      when 'LegalEntity' then legal_entities.name
+                 end").all
     wbs.should eq(wbs_test)
     wbs = Waybill.order_by(field: 'distributor', type: 'desc').all
-    wbs_test = Waybill.joins{deal.rules.from.entity(LegalEntity)}.
-        group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id, ' +
-              'legal_entities.name').order('legal_entities.name DESC').all
+    wbs_test = Waybill.joins{deal.rules.from.entity(LegalEntity).outer}.
+        joins{deal.rules.from.entity(Entity).outer}.order("case froms_rules.entity_type
+                      when 'Entity'      then entities.tag
+                      when 'LegalEntity' then legal_entities.name
+                 end DESC").all
     wbs.should eq(wbs_test)
 
     wbs = Waybill.order_by(field: 'storekeeper', type: 'asc').all

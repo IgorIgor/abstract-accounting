@@ -53,7 +53,7 @@ class NotificationsController < ApplicationController
     elsif NotifiedUser.find_by_user_id current_user.id
       notifications = []
       Notification.unviewed_for(current_user).each do |notification|
-        notifications << { html: render_to_string(partial: 'notification_view.html',
+        notifications << { html: render_to_string(partial: 'notification_view',
                                                   locals: { title: notification.title,
                                                             id: notification.id }),
                            id: notification.id,

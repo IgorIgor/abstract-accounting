@@ -10,7 +10,7 @@
 class ResourcesController < ApplicationController
   def index
     if params[:term]
-      @resources = Resource.where({tag: {like: params[:term]}}).limit(5).order_by('tag').all
+      @resources = Resource.where({tag: {like: params[:term]}}).limit(5).order('tag').all
     else
       render 'index', layout: false
     end

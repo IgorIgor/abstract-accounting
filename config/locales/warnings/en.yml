@@ -13,3 +13,9 @@ en:
         title: "Warning! Wrong limit on the deal which had done by user: %{user}"
         message: "Execute of the fact with id: %{warning_object_id} occurred with warning,
                   because limit of the dial was exceeded."
+    date:
+      title: "Warning! Done late fact by user: %{user}"
+      message: "Warning! Execute fact with id: %{fact_id} and deal с id: %{object_warning_id} and tag:
+                %{warning_object_tag} occurred with error.
+                Expected that deal with id: %{object_warning_id} execute %{object_warning_date},
+                but deal executed %{fact_date}."

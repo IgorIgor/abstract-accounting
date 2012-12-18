@@ -130,7 +130,7 @@ describe Notifiers::UINotifier do
     notification.date.to_date.should eq(Date.today)
   end
 
-  it "show notification dial_priority to user and his managers", focus: true do
+  it "show notification dial_priority to user and his managers" do
     user = create :user
     m1 = create :user
     m2 = create :user
@@ -162,7 +162,7 @@ describe Notifiers::UINotifier do
 
     expect {Notifiers::UINotifier.new.update(warning)}.to change(Notification, :count).by(1) &&
                                                               change(NotifiedUser, :count).by(4)
-    notification = Notification.first
+    notification = Notification.order("id DESC").first
     users = NotifiedUser.where{notification_id == notification.id}.pluck(:user_id)
     users.should =~ [user.id, m1.id, m2.id, m3.id]
     notification.title.should match(I18n.t('warnings.deal.priority.title', user: user.entity.tag))
@@ -173,6 +173,107 @@ describe Notifiers::UINotifier do
                                              expected_tag: warning.expected.tag,
                                              got_id: warning.got.id,
                                              got_tag: warning.got.tag))
+    notification.notification_type.should eq(Notification::WARNING)
+    notification.date.to_date.should eq(Date.today)
+  end
+
+  it "show notification execution_date to user and his managers" do
+    user = create :user
+    m1 = create :user
+    m2 = create :user
+    m3 = create :user
+
+    PaperTrail.enabled = true
+    PaperTrail.whodunnit = user
+
+    rub = create :money
+    aasii = create :asset
+    deal1 = create(:deal,
+                   :give => build(:deal_give, :resource => aasii),
+                   :take => build(:deal_take, :resource => rub),
+                   :limit => Limit.new(side: Limit::ACTIVE, amount: 0),
+                   :execution_date => DateTime.now,
+                   :compensation_period=> 1,
+                   :rate => 10000.0)
+    deal2 = create(:deal,
+                   :take => build(:deal_give, :resource => aasii),
+                   :give => build(:deal_take, :resource => rub),
+                   :execution_date => DateTime.now,
+                   :compensation_period=> 1,
+                   :rate => 10000.0)
+    fact = create(:fact,
+                  :day => DateTime.now,
+                  :from => deal1, :to => deal2,
+                  :resource => deal1.take.resource,
+                  :amount => 50.0)
+    warning = Warnings::ExecutionDate.new(deal1, fact)
+
+    create(:group, manager: m1).users<<[user, m2]
+    create(:group, manager: m2).users<<[m3, m1]
+    create(:group, manager: m3).users<<m2
+
+    expect {Notifiers::UINotifier.new.update(warning)}.to change(Notification, :count).by(1) &&
+                                                          change(NotifiedUser, :count).by(4)
+    notification = Notification.order("id DESC").first
+    users = NotifiedUser.where{notification_id == notification.id}.pluck(:user_id)
+    users.should =~ [user.id, m1.id, m2.id, m3.id]
+    notification.title.should match(I18n.t('warnings.date.title', user: user.entity.tag))
+    notification.message.should eq(I18n.t('warnings.date.message',
+                                          warning_object_id: warning.object.id,
+                                          warning_object_tag: warning.object.tag,
+                                          warning_object_date: warning.object.execution_date,
+                                          fact_id: warning.fact.id,
+                                          fact_date: warning.fact.day))
+    notification.notification_type.should eq(Notification::WARNING)
+    notification.date.to_date.should eq(Date.today)
+  end
+
+  it "show notification compensation_period to user and his managers" do
+    user = create :user
+    m1 = create :user
+    m2 = create :user
+    m3 = create :user
+
+    PaperTrail.enabled = true
+    PaperTrail.whodunnit = user
+
+    rub = create :money
+    aasii = create :asset
+    deal1 = create(:deal,
+                   :give => build(:deal_give, :resource => aasii),
+                   :take => build(:deal_take, :resource => rub),
+                   :limit => Limit.new(side: Limit::ACTIVE, amount: 0),
+                   :execution_date => DateTime.now,
+                   :compensation_period=> 1,
+                   :rate => 10000.0)
+    deal2 = create(:deal,
+                   :take => build(:deal_give, :resource => aasii),
+                   :give => build(:deal_take, :resource => rub),
+                   :execution_date => DateTime.now,
+                   :compensation_period=> 1,
+                   :rate => 10000.0)
+    fact = create(:fact,
+                  :from => deal1, :to => deal2,
+                  :resource => deal1.take.resource,
+                  :amount => 50.0)
+    warning = Warnings::CompensationPeriod.new(deal1, fact)
+
+    create(:group, manager: m1).users<<[user, m2]
+    create(:group, manager: m2).users<<[m3, m1]
+    create(:group, manager: m3).users<<m2
+
+    expect {Notifiers::UINotifier.new.update(warning)}.to change(Notification, :count).by(1) &&
+                                                          change(NotifiedUser, :count).by(4)
+    notification = Notification.order("id DESC").first
+    users = NotifiedUser.where{notification_id == notification.id}.pluck(:user_id)
+    users.should =~ [user.id, m1.id, m2.id, m3.id]
+    notification.title.should match(I18n.t('warnings.date.title', user: user.entity.tag))
+    notification.message.should eq(I18n.t('warnings.date.message',
+                                          warning_object_id: warning.object.id,
+                                          warning_object_tag: warning.object.tag,
+                                          warning_object_date: warning.object.execution_date + warning.object.compensation_period,
+                                          fact_id: warning.fact.id,
+                                          fact_date: warning.fact.day))
     notification.notification_type.should eq(Notification::WARNING)
     notification.date.to_date.should eq(Date.today)
   end

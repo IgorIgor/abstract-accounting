@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+</head>
+<body>
+<h1><%= t('warnings.date.title', user: @user.entity.tag) %></h1>
+<p>
+  <%= t('warnings.date.message',
+        warning_object_id: @warning_object.object.id,
+        warning_object_tag: @warning_object.object.tag,
+        warning_object_date: @warning_object.object.execution_date + @warning_object.object.compensation_period,
+        fact_id: @warning_object.fact.id,
+        fact_date: @warning_object.fact.day) %>
+</p>
+</body>
+</html>

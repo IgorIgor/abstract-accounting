@@ -90,7 +90,7 @@ class Deal < ActiveRecord::Base
     state = self.state
 
     if state.nil? && !self.execution_date.nil? && fact.day > self.execution_date
-      raise 'warning # execution'
+      Observers::WarningObserver.instance.notify(Warnings::ExecutionDate.new(self, fact))
     end
 
     state = self.states.build(:start => fact.day) if state.nil?
@@ -126,7 +126,7 @@ class Deal < ActiveRecord::Base
     end
 
     if !state.zero? && !self.execution_date.nil? && (self.execution_date + self.compensation_period.days) < fact.day
-      raise 'warning # compensation'
+      Observers::WarningObserver.instance.notify(Warnings::CompensationPeriod.new(self, fact))
     end
 
     return state.destroy if state.zero? && !state.new_record?

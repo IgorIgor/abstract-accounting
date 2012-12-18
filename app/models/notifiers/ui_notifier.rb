@@ -42,5 +42,30 @@ module Notifiers
                           notification_type: Notification::WARNING,
                           date: DateTime.now)
     end
+
+    def execution_date(warning_object, user)
+      Notification.create(title: I18n.t('warnings.date.title', user: user.entity.tag),
+                          message: I18n.t('warnings.date.message',
+                                          warning_object_id: warning_object.object.id,
+                                          warning_object_tag: warning_object.object.tag,
+                                          warning_object_date: warning_object.object.execution_date,
+                                          fact_id: warning_object.fact.id,
+                                          fact_date: warning_object.fact.day),
+                          notification_type: Notification::WARNING,
+                          date: DateTime.now)
+    end
+
+    def compensation_period(warning_object, user)
+      date = warning_object.object.execution_date + warning_object.object.compensation_period
+      Notification.create(title: I18n.t('warnings.date.title', user: user.entity.tag),
+                          message: I18n.t('warnings.date.message',
+                                          warning_object_id: warning_object.object.id,
+                                          warning_object_tag: warning_object.object.tag,
+                                          warning_object_date: date,
+                                          fact_id: warning_object.fact.id,
+                                          fact_date: warning_object.fact.day),
+                          notification_type: Notification::WARNING,
+                          date: DateTime.now)
+    end
   end
 end

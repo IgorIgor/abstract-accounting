@@ -58,6 +58,14 @@ class Deal < ActiveRecord::Base
         order("#{query} #{dir}")
   end
 
+  sifter :by_entity do |ent_id, ent_type|
+    (entity_id == ent_id) & (entity_type == ent_type)
+  end
+
+  sifter :opened do
+    deal_state.closed != nil
+  end
+
   def self.income
     income = Deal.where(:id => INCOME_ID).first
     if income.nil?

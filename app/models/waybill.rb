@@ -37,6 +37,10 @@ class Waybill < ActiveRecord::Base
   warehouse_attr :distributor_place, class: Place,
                  reader: -> { self.deal.nil? ? nil : self.deal.give.place }
 
+  sifter :date_range do |start, stop|
+    (created >= start.beginning_of_day) & (created <= stop.end_of_day)
+  end
+
   class << self
     def by_warehouse(warehouse)
       joins{deal.take}.

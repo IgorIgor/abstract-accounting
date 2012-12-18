@@ -38,6 +38,12 @@ class Allocation < ActiveRecord::Base
   warehouse_attr :foreman_place, class: Place,
                  reader: -> { self.deal.nil? ? nil : self.deal.take.place }
 
+  sifter :date_range do |start, stop|
+    (created >= start.beginning_of_day) & (created <= stop.end_of_day)
+  end
+
+  scope :without_deal_id, ->(deal_ids) { where{deal_id.not_in(deal_ids)} }
+
   class << self
     def by_warehouse(place)
       joins{deal.give}.

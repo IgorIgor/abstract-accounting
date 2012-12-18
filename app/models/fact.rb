@@ -36,7 +36,13 @@ class Fact < ActiveRecord::Base
 
   scope :pendings, includes("txn").where("txns.id is NULL").order(:id)
 
+  scope :by_resources, ->(resource_ids) { where{resource_id.in resource_ids} }
+
   private
+  sifter :without_to_deal_ids do |ids|
+    to_deal_id.not_in(ids)
+  end
+
   def do_save
     if new_record?
       unless self.from.nil?

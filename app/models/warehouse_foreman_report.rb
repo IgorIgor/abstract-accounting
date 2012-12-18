@@ -25,10 +25,10 @@ class WarehouseForemanReport
       reversed_scope  = Allocation.joins{deal.to_facts}.where{deal.to_facts.amount == -1.0}.
           select{deal.id}
 
-      Allocation.joins{deal.give}.where{deal.give.place_id == warehouse_id}.
+      Allocation.joins{deal.give}.where{{deal.give => sift(:by_resource, warehouse_id)}}.
           joins{deal.to_facts}.
-          joins{deal.deal_state}.where{deal.deal_state.closed != nil}.
-          where{deal.id.not_in(reversed_scope)}.
+          joins{deal.deal_state}.where{{deal => sift(:opened)}}.
+          without_deal_id(reversed_scope).
           joins{deal.rules.to}.select{deal.rules.to.entity_id}.
           select{deal.rules.to.entity_type}.uniq.
           all.collect { |al| al.entity_type.constantize.find(al.entity_id) }
@@ -38,13 +38,11 @@ class WarehouseForemanReport
       scope = scoped(args)
 
       if args[:page] && args[:per_page] && args[:page].to_i > 0 && args[:per_page].to_i > 0
-        scope = scope.limit(args[:per_page]).
-            offset(args[:per_page].to_i * (args[:page].to_i - 1))
+        scope = scope.paginate(page:args[:page].to_i, per_page: args[:per_page].to_i)
       end
 
       if args[:resource_ids] && !args[:resource_ids].nil?
-        resource_ids =  args[:resource_ids].split(',')
-        scope = scope.where{resource_id.in resource_ids}
+        scope = scope.by_resources(args[:resource_ids].split(','))
       end
 
       prices = prices_scoped_with_range(args).
@@ -93,14 +91,13 @@ class WarehouseForemanReport
       reversed_scope  = Allocation.joins{deal.to_facts}.where{deal.to_facts.amount == -1.0}.
           select{deal.id}
 
-      scope = Fact.joins{parent.to.give}.where{parent.to.give.place_id == my{args[:warehouse_id]}}.
+      scope = Fact.joins{parent.to.give}.where{{parent.to.give => sift(:by_resource, args[:warehouse_id])}}.
                 joins{to}.joins{parent.to.allocation}.
-                where{parent.to_deal_id.not_in(reversed_scope)}.
-                where{(to.entity_id == my{args[:foreman_id]}) & (to.entity_type == Entity.name)}
+                where{{parent => sift(:without_to_deal_ids, reversed_scope)}}.
+                where{{to => sift(:by_entity, args[:foreman_id], Entity.name)}}
 
       if args[:start] && args[:stop]
-        scope = scope.where{parent.to.allocation.created >= my{args[:start].beginning_of_day}}.
-                      where{parent.to.allocation.created <= my{args[:stop].end_of_day}}
+        scope = scope.where{{parent.to.allocation => sift(:date_range, args[:start], args[:stop])}}
       end
       scope.group{resource_id}.group{resource_type}
     end
@@ -109,12 +106,11 @@ class WarehouseForemanReport
       reversed_scope  = Waybill.joins{deal.to_facts}.where{deal.to_facts.amount == -1.0}.
           select{deal.id}
 
-      scope = Fact.joins{parent.to.take}.where{parent.to.take.place_id == my{args[:warehouse_id]}}.
+      scope = Fact.joins{parent.to.take}.where{{parent.to.take => sift(:by_resource, args[:warehouse_id])}}.
                 joins{parent.to.waybill}.
-                where{parent.to_deal_id.not_in(reversed_scope)}
+                where{{parent => sift(:without_to_deal_ids, reversed_scope)}}
       if args[:start] && args[:stop]
-        scope = scope.where{parent.to.waybill.created >= my{args[:start].beginning_of_day}}.
-                      where{parent.to.waybill.created <= my{args[:stop].end_of_day}}
+        scope = scope.where{{parent.to.waybill => sift(:date_range, args[:start], args[:stop])}}
       end
       scope.group{resource_id}.group{resource_type}
     end
@@ -123,11 +119,11 @@ class WarehouseForemanReport
       reversed_scope  = Waybill.joins{deal.to_facts}.where{deal.to_facts.amount == -1.0}.
           select{deal.id}
 
-      scope = Fact.joins{parent.to.take}.where{parent.to.take.place_id == my{args[:warehouse_id]}}.
+      scope = Fact.joins{parent.to.take}.where{{parent.to.take => sift(:by_resource, args[:warehouse_id])}}.
                 joins{parent.to.waybill}.
-                where{parent.to_deal_id.not_in(reversed_scope)}
+                where{{parent => sift(:without_to_deal_ids, reversed_scope)}}
       if args[:start] && args[:stop]
-        scope = scope.where{parent.to.waybill.created <= my{args[:start].beginning_of_day}}
+        scope = scope.where{{parent.to.waybill => sift(:date_range, DateTime.new(1), args[:start])}}
       end
       scope.group{resource_id}.group{resource_type}
     end

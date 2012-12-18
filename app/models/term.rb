@@ -16,4 +16,8 @@ class Term < ActiveRecord::Base
   belongs_to :place
   belongs_to :type, :class_name => Classifier
   belongs_to :resource, :polymorphic => true
+
+  sifter :by_resource do |warehouse_id|
+    place_id == warehouse_id
+  end
 end

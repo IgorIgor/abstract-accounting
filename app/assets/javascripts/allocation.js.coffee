@@ -69,6 +69,9 @@ $ ->
           @loadAvailableResources(false)
       )
 
+    disableEdit: =>
+      @disable() || !(@readonly() && @object.allocation.state() == StatableViewModel.INWORK)
+
     findWarehouse: (id) =>
       $.grep(@object.warehouses(), (item) ->
         item.id() == id

@@ -13,7 +13,6 @@ en:
       unavailable: Service Unavailable
     user_notification:
       tag: Notification
-      send: Send
       title: Title
       message: Message
       date: Created date

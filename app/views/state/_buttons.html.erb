@@ -1,11 +1,11 @@
 
 <% if can? :modify, model %>
 <input type='button' value="<%= t('views.statable.buttons.apply') %>"
-       data-bind='click: apply, visible: readonly() && object.state.can_apply()'/>
+       data-bind='click: apply, visible: visibleApply(), disable: disableButton()'/>
 <input type='button' value="<%= t('views.statable.buttons.cancel') %>"
-       data-bind='click: cancel, visible: readonly() && object.state.can_cancel()'/>
+       data-bind='click: cancel, visible: visibleCancel(), disable: disableButton()'/>
 <% end %>
 <% if can? :reverse, model %>
 <input type='button' value="<%= t('views.statable.buttons.reverse') %>"
-       data-bind='click: reverse, visible: readonly() && object.state.can_reverse()'/>
+       data-bind='click: reverse, visible: visibleReverse(), disable: disableButton()'/>
 <% end %>

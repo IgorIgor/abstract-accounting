@@ -1,10 +1,6 @@
 <form data-bind="validate: { success: save }">
   <div class='actions'>
-    <input type='submit' value="<%= t 'views.groups.save' %>"
-           data-bind='disable: readonly'/>
-    <input type='button' value="<%= t 'views.groups.edit' %>"
-           data-bind='click: edit, disable: !readonly()'/>
-    <input type='button' value="<%= t 'views.groups.back' %>"/>
+    <%= render :partial => "home/buttons", :locals => { :editable => true } %>
   </div>
   <span id="page-title">
     <!-- ko if: readonly -->

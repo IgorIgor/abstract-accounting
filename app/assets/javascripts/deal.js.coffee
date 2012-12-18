@@ -14,6 +14,9 @@ $ ->
         @readonly()
       )
 
+    disableEdit: =>
+      @disable() || !@readonly() || @object.deal.has_states
+
     addRule: =>
       rule =
         from_id: ko.observable(null)

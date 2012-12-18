@@ -1,14 +1,6 @@
 <form data-bind="validate: { success: save }">
   <div class='actions'>
-    <input type='submit' value="<%= t('views.allocations.save') %>"
-           data-bind='disable: readonly'/>
-    <input type='button' value="<%= t 'views.users.edit' %>"
-           data-bind='click: edit, disable: !(readonly() &&
-                        object.allocation.state()== <%= ::Helpers::Statable::INWORK %>)'/>
-    <!--<input type='button' value="<%= t('views.allocations.draft') %>"-->
-           <!--data-bind='visible: !readonly()'/>-->
-    <input type='button' value="<%= t('views.allocations.back') %>"
-           data-bind='click: back'/>
+    <%= render :partial => "home/buttons", :locals => { :editable => true } %>
     <div class='buttons-separator' data-bind='visible: readonly'></div>
     <%= render :partial => "state/buttons", :locals => { :model => Allocation } %>
     <div class='buttons-separator' data-bind='visible: readonly'></div>

@@ -1,7 +1,6 @@
 <form data-bind="validate: { success: save }">
   <div class='actions'>
-    <input type="submit" value="<%= t('views.settings.save') %>"
-           data-bind="disable: readonly" />
+    <%= render :partial => "home/buttons", :locals => { :editable => false } %>
   </div>
   <span id="page-title"><%= t('views.settings.page_title') %></span>
 

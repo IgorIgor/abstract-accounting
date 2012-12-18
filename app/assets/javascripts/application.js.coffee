@@ -123,6 +123,7 @@ $ ->
   class self.ObjectViewModel
     constructor: (object, route, readonly = false)->
       @readonly = ko.observable(readonly)
+      @disable = ko.observable(false)
       @object = ko.mapping.fromJS(object)
       @route = route
       $('.paginate').hide()
@@ -134,7 +135,9 @@ $ ->
         data: params
         complete: (data) =>
           response = JSON.parse(data.responseText)
-          unless data.status == 500
+          if data.status == 500
+            @disable(false)
+          else
             if response['result'] == 'success'
               hash = ''
               if response['id']
@@ -144,18 +147,28 @@ $ ->
               $.sammy().refresh() unless location.hash == hash
               location.hash = hash
             else
+              @disable(false)
               $('#container_notification').css('display', 'block')
               $('#container_notification ul').css('display', 'block')
               $('#container_notification ul').empty()
               for msg in JSON.parse(data.responseText, (key, value) -> value)
                 $('#container_notification ul')
                     .append($("<li class='server-message'>#{msg}</li>"))
+        error: =>
+          @disable(false)
       )
 
     back: -> history.back()
 
     save: =>
+      @disable(true)
       @ajaxRequest('POST', "/#{@route}", normalizeHash(ko.mapping.toJS(@object)))
+
+    disableSave: =>
+      @disable() || @readonly()
+
+    disableEdit: =>
+      @disable() || !@readonly()
 
   class self.EditableObjectViewModel extends ObjectViewModel
     constructor: (object, route, readonly = false)->
@@ -165,10 +178,12 @@ $ ->
 
     edit: =>
       @readonly(false)
+      @disable(false)
       @method = 'PUT'
       location.hash = "#documents/#{@route}/#{@object.id()}/edit"
 
     save: =>
+      @disable(true)
       url = "/#{@route}"
       if @method == 'PUT'
         url = "/#{@route}/#{@object.id()}"
@@ -207,16 +222,36 @@ $ ->
       )
 
   class self.StatableViewModel extends CommentableViewModel
+    @UNKNOWN: 0
+    @INWORK: 1
+    @CANCELED: 2
+    @APPLIED: 3
+    @REVERSED: 4
     constructor: (object, route, readonly = false)->
       super(object, route, readonly)
 
+    visibleApply: =>
+      @readonly() && @object.state.can_apply()
+
+    visibleCancel: =>
+      @readonly() && @object.state.can_cancel()
+
+    visibleReverse: =>
+      @readonly() && @object.state.can_reverse()
+
+    disableButton: =>
+      @disable()
+
     apply: =>
+      @disable(true)
       @ajaxRequest('GET', "/#{@route}/#{@object.id()}/apply")
 
     cancel: =>
+      @disable(true)
       @ajaxRequest('GET', "/#{@route}/#{@object.id()}/cancel")
 
     reverse: =>
+      @disable(true)
       @ajaxRequest('GET', "/#{@route}/#{@object.id()}/reverse")
 
     getState: (state) ->

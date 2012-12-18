@@ -20,6 +20,9 @@ $ ->
       @readonly.subscribe(@changeDisable)
       @entity_type = ko.observable(if object.entity.tag == null then '1' else '2')
 
+    disableEdit: =>
+      @disable() || !(@readonly() && @object.waybill.state() == StatableViewModel.INWORK)
+
     changeTab: =>
       $.each($("div.tab"), (idx, div) =>
         if $(div).data("tabId").toString() == @entity_type()

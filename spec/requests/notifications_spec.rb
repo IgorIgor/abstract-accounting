@@ -32,7 +32,7 @@ feature 'notifications', %q{
     page_login
     click_link I18n.t('views.home.notify')
     current_hash.should eq 'documents/notifications/new'
-    click_button I18n.t('views.user_notification.send')
+    click_button I18n.t('views.users.save')
     within "#container_documents form" do
       find("#container_notification").visible?.should be_true
       within "#container_notification" do
@@ -46,13 +46,13 @@ feature 'notifications', %q{
     fill_in('message', with: 'message of notification')
 
     expect {
-      click_button I18n.t('views.user_notification.send')
+      click_button I18n.t('views.users.save')
       wait_for_ajax
       wait_until_hash_changed_to "documents/notifications/#{Notification.first.id}"
     }.to change(Notification, :count).by(1) &&
          change(NotifiedUser, :count).by(User.count)
     #sometimes fail
-    find_button(I18n.t('views.user_notification.send'))[:disabled].should eq('true')
+    find_button(I18n.t('views.users.save'))[:disabled].should eq('true')
     find_field('title')[:disabled].should eq('true')
     find_field('message')[:disabled].should eq('true')
     find_field('date')[:disabled].should eq('true')

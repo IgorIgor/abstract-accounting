@@ -1,7 +1,6 @@
 <form data-bind="validate: { success: save }">
   <div class="actions">
-    <input type='submit' value="<%= t 'views.user_notification.send' %>"
-           data-bind="disable: readonly"/>
+    <%= render :partial => "home/buttons", :locals => { :editable => false } %>
   </div>
 
   <%= render 'home/errors' %>

@@ -563,6 +563,17 @@ $ ->
             )
           )
         )
+        this.get('#foreman/resources', ->
+          $.get("/foreman/resources", {}, (form) ->
+            $.getJSON("/foreman/resources/data.json", {}, (data) ->
+              $('.paginate').show()
+              viewModel = new ForemanViewModel(data)
+              ko.cleanNode($('#main').get(0))
+              $('#container_documents').html(form)
+              ko.applyBindings(viewModel, $('#main').get(0))
+            )
+          )
+        )
         this.get('#:report', ->
           report = this.params.report
           delete this.params.report

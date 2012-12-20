@@ -62,6 +62,7 @@ module ControllerMacros
   end
 
   def check_header(table_selector, items)
+    wait_for_ajax
     within(table_selector) do
       within('thead tr') do
         items.each do |item|

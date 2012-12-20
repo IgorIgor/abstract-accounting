@@ -13,6 +13,12 @@ Abstract::Application.routes.draw do
   get "inbox" => "home#inbox"
   get "archive" => "home#archive"
 
+  namespace :foreman do
+    resources :resources, only:[:index] do
+      get 'data', :on => :collection
+    end
+  end
+
   resources :helps, only:[:index, :show]
   resources :notifications, only: [:new, :create, :show, :index] do
     collection do

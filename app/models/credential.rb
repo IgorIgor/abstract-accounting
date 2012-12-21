@@ -15,4 +15,6 @@ class Credential < ActiveRecord::Base
   belongs_to :user
   belongs_to :place
   has_one :entity, through: :user
+
+  scope :with_document_type, ->(doc_type) { where{document_type == doc_type} }
 end

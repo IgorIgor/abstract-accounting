@@ -48,3 +48,4 @@ en:
       fact: Fact
       notify: Notify
       notifications: Notifications
+      foreman_report: "Foreman's report"

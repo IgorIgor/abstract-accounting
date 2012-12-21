@@ -9,20 +9,30 @@
 
 module Foreman
   class ResourcesController < ApplicationController
+    authorize_resource class: WarehouseForemanReport.name
     def index
       render 'index', layout: false
     end
 
     def data
+      page = params[:page].nil? ? 1 : params[:page].to_i
+      per_page = params[:per_page].nil? ?
+          Settings.root.per_page.to_i : params[:per_page].to_i
       @from = (params[:from] && DateTime.parse(params[:from])) ||
           DateTime.current.beginning_of_month
       @to = (params[:to] && DateTime.parse(params[:to])) || DateTime.current
-      args = {warehouse_id: 1,
-              foreman_id: 30,
-              start: @from, stop: @to,
-              page: params[:page], per_page: params[:per_page] }
-      @resources = WarehouseForemanReport.all(args)
-      @count = WarehouseForemanReport.count(args)
+      if current_user.root?
+        @resources = []
+        @count = 0
+      else
+        credential = current_user.credentials.with_document_type(WarehouseForemanReport.name)
+        args = {warehouse_id: credential[0][:place_id],
+                foreman_id: current_user.entity_id,
+                start: @from, stop: @to,
+                page: page, per_page: per_page }
+        @resources = WarehouseForemanReport.all(args)
+        @count = WarehouseForemanReport.count(args)
+      end
     end
   end
 end

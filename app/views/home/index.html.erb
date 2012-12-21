@@ -134,6 +134,9 @@
             </li>
           </ul>
         <% else %>
+          <% if can? :manage, WarehouseForemanReport %>
+            <li id="foreman_report"><a href="#foreman/resources"><%=t 'views.home.foreman_report' %></a></li>
+          <% end %>
           <% if can? :manage, Waybill %>
             <li id="waybills"><a href="#waybills"><%=t 'views.home.waybills' %></a></li>
           <% end %>

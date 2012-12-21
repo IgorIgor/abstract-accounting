@@ -22,9 +22,8 @@ feature 'foreman/resources', %q{
     create(:credential, user: user, place: place, document_type: Allocation.name)
     create(:credential, user: user, place: place, document_type: Waybill.name)
     PaperTrail.whodunnit = user
-
-    28.times { create :entity }
-    foreman = create(:entity, tag: 'foreman')
+    foreman = create(:user)
+    create(:credential, user: foreman, place: place, document_type: WarehouseForemanReport.name)
     wb = build(:waybill,  storekeeper_place: place)
     (0..per_page).each do |i|
       wb.add_item(tag: "nails#{i}", amount: 500, price: 666, mu: 'pcs')
@@ -32,7 +31,7 @@ feature 'foreman/resources', %q{
     wb.save!
     wb.apply
     al = Allocation.new(created: Date.today,
-                        foreman_id: foreman,
+                        foreman_id: foreman.entity_id,
                         foreman_type: Entity.name,
                         foreman_place_id: place.id,
                         storekeeper_id: wb.storekeeper.id,
@@ -43,8 +42,9 @@ feature 'foreman/resources', %q{
     end
     al.save
     al.apply
-    page_login
-    visit '#foreman/resources'
+    page_login(foreman.email, foreman.crypted_password)
+    find("#btn_slide_lists").click
+    click_link I18n.t('views.home.foreman_report')
     titles = [I18n.t('views.warehouses.foremen.report.resource.name'),
               I18n.t('views.warehouses.foremen.report.resource.mu'),
               I18n.t('views.warehouses.foremen.report.amount'),

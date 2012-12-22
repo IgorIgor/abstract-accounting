@@ -22,7 +22,7 @@ $ ->
         response = JSON.parse(data.responseText)
         if response.show
           $.each(response.notifications, (idx, item) ->
-            found = ko.utils.arrayFirst($("div.sticky:visible #link"), (a) =>
+            found = ko.utils.arrayFirst($("div.sticky:visible a#link"), (a) =>
               $(a).data('itemId') == item.id
             )
             sticker(item) unless found

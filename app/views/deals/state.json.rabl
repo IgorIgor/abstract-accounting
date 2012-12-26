@@ -7,16 +7,7 @@
 #
 # Please see ./COPYING for details
 
-object true
-child(@fact => :fact) do
-  attributes :id, :day, :amount, :from_deal_id, :to_deal_id
-end
-child(@fact.from => :from) do
-  attributes :tag
-end
-child(@fact.to => :to) do
-  attributes :tag
-end
-child(@fact.txn => :txn) do
-  attributes :value, :earnings, :status
+object false
+child(@state => :state) do
+  attributes :amount, :side
 end

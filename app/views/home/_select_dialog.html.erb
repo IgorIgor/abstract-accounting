@@ -1,0 +1,9 @@
+<div id="<%= dialog_id %>" class="dialog" data-bind="with: <%= dialog_model %>">
+  <div class="table-mode">
+    <input type="text" id='dialog_search' data-bind="value: filter.tag"/>
+    <input type="button" value="<%= t('views.home.search') %>"
+           data-bind="click: filterData"/>
+  </div>
+  <%= render :partial => "home/paginate" %>
+  <%= render :partial => data_path %>
+</div>

@@ -120,6 +120,7 @@ Abstract::Application.routes.draw do
     end
     member do
       get 'rules'
+      get 'state'
     end
   end
   resources :storekeepers, only: [:index]
@@ -171,6 +172,7 @@ Abstract::Application.routes.draw do
       get 'preview'
     end
   end
+  resources :txns
 
 # The priority is based upon order of creation:
   # first created -> highest priority.

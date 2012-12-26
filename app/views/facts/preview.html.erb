@@ -33,13 +33,34 @@
         <span>
           <input type="text" id="fact_from_deal"
                  name="<%= t('views.facts.from') %>" rule="required"
-                 data-bind="autocomplete: { source: '/deals.json',
-                                            onlySelect: true,
-                                            value: 'tag',
-                                            bind: { id: object.fact.from_deal_id }
-                                            },
-                            value: object.from.tag, disable: readonly">
+                 data-bind="dialog: { autoOpen: false,
+                                      modal: true,
+                                      minWidth: 480,
+                                      minHeight: 300,
+                                      bind: { id: object.fact.from_deal_id, tag: object.from.tag }
+                                    },
+                            dialogId: 'deals_selector',
+                            value: object.from.tag,
+                            disable: readonly">
+
+          <div class="additional-date" data-bind="with: from_state">
+            <span class="form-cell-label">
+              <label for="from_deal_debit"><%= t('views.facts.debit') %>:</label>
+            </span>
+            <span>
+              <input type="text" id="from_deal_debit"
+                     data-bind="value: debit" disabled="disabled">
+            </span>
+            <span class="form-cell-label">
+              <label for="from_deal_credit"><%= t('views.facts.credit') %>:</label>
+            </span>
+            <span>
+              <input type="text" id="from_deal_credit"
+                     data-bind="value: credit" disabled="disabled">
+            </span>
+          </div>
         </span>
+
       </div>
       <div>
         <span class="form-cell-label">
@@ -47,13 +68,34 @@
         </span>
         <span>
           <input type="text" id="fact_to_deal"
-                 name="<%= t('views.facts.to') %>" rule="required"
-                 data-bind="autocomplete: { source: '/deals.json',
-                                            onlySelect: true,
-                                            value: 'tag',
-                                            bind: { id: object.fact.to_deal_id }
-                                            },
-                            value: object.to.tag, disable: readonly">
+                  name="<%= t('views.facts.to') %>" rule="required"
+                  data-bind="dialog: { autoOpen: false,
+                                       modal: true,
+                                       minWidth: 480,
+                                       minHeight: 300,
+                                       bind: { id: object.fact.to_deal_id, tag: object.to.tag }
+                                     },
+                             dialogId: 'deals_selector',
+                             value: object.to.tag,
+                             disable: readonly">
+
+          <div class="additional-date" data-bind="with: to_state">
+            <span class="form-cell-label">
+              <label for="to_deal_debit"><%= t('views.facts.debit') %>:</label>
+            </span>
+            <span>
+              <input type="text" id="to_deal_debit"
+                     data-bind="value: debit" disabled="disabled">
+            </span>
+
+            <span class="form-cell-label">
+              <label for="to_deal_credit"><%= t('views.facts.credit') %>:</label>
+            </span>
+            <span>
+              <input type="text" id="to_deal_credit"
+                     data-bind="value: credit" disabled="disabled">
+            </span>
+          </div>
         </span>
       </div>
       <div>
@@ -70,4 +112,39 @@
       </div>
     </div>
   </fieldset>
+
+  <!-- ko if: readonly -->
+    <input type='button' value="<%= t 'views.facts.create_txn' %>"
+           data-bind="click: createTxn, disable: has_txn"/>
+  <!-- /ko -->
+
+  <fieldset data-bind="with: object.txn">
+    <legend><%= t 'views.facts.fact_txn' %></legend>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="txn_value"><%=t 'views.facts.txn.value' %>:</label>
+        </span>
+        <span>
+          <input type="text" id="txn_value" disabled="disabled" data-bind="value: value">
+        </span>
+      </div>
+    </div>
+    <!-- ko if: status() == 1 -->
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="txn_earnings"><%=t 'views.facts.txn.earnings' %>:</label>
+        </span>
+        <span>
+          <input type="text" id="txn_earnings" disabled="disabled" data-bind="value: earnings">
+        </span>
+      </div>
+    </div>
+    <!-- /ko -->
+  </fieldset>
+
 </form>
+<!-- ko ifnot: readonly -->
+  <%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'deals_selector', :dialog_model => 'dialog_deals', :data_path => 'deals/deals' } %>
+<!-- /ko -->

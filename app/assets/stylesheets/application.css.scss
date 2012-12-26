@@ -429,6 +429,12 @@ input[type=button]:disabled, input[type=submit]:disabled {
               label {
                 white-space: nowrap;
               }
+
+              .additional-date{
+                input[type=text], input[type=password] {
+                  min-width: 150px;
+                }
+              }
             }
 
             span.form-cell-label {

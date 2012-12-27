@@ -23,10 +23,19 @@ class ItemsValidator < ActiveModel::Validator
 end
 
 class Waybill < ActiveRecord::Base
-  include WarehouseDeal
+  include Helpers::WarehouseDeal
   act_as_warehouse_deal from: :distributor,
                         to: :storekeeper,
                         item: :initialize
+
+  warehouse_attr :storekeeper, polymorphic: true,
+                 reader: -> { self.deal.nil? ? nil : self.deal.entity }
+  warehouse_attr :distributor, polymorphic: true,
+                 reader: -> { self.deal.nil? ? nil : self.deal.rules.first.from.entity }
+  warehouse_attr :storekeeper_place, class: Place,
+                 reader: -> { self.deal.nil? ? nil : self.deal.take.place }
+  warehouse_attr :distributor_place, class: Place,
+                 reader: -> { self.deal.nil? ? nil : self.deal.give.place }
 
   class << self
     def by_warehouse(warehouse)
@@ -157,12 +166,8 @@ class Waybill < ActiveRecord::Base
   end
 
   private
-  def initialize(attrs = nil)
-    super(initialize_warehouse_attrs(attrs))
-  end
-
-  def do_before_item_save(item)
-    return false unless item.resource.save if item.resource.new_record?
-    true
-  end
+    def do_before_item_save(item)
+      return false unless item.resource.save if item.resource.new_record?
+      true
+    end
 end

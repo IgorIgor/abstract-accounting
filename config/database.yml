@@ -14,7 +14,7 @@ development:
 test:
   adapter: postgresql
   encoding: unicode
-  database: opentask_test
+  database: opentask_test<%= ENV['TEST_ENV_NUMBER'] %>
   pool: 5
   username: opentask
   password: 1234QwEr

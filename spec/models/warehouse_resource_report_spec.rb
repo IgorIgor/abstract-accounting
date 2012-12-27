@@ -12,7 +12,7 @@ require "spec_helper"
 WarehouseResourceReport.class_eval do
   def ==(other)
     return false unless other.instance_of?(WarehouseResourceReport)
-    date == other.date && entity == other.entity && amount == other.amount &&
+    date.to_date == other.date.to_date && entity == other.entity && amount == other.amount &&
         state == other.state && side == other.side && document_id == other.document_id &&
         item_id == other.item_id
   end

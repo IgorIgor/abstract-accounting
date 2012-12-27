@@ -26,8 +26,17 @@ class AllocationItemsValidator < ActiveModel::Validator
 end
 
 class Allocation < ActiveRecord::Base
-  include WarehouseDeal
+  include Helpers::WarehouseDeal
   act_as_warehouse_deal from: :storekeeper, to: :foreman
+
+  warehouse_attr :storekeeper, polymorphic: true,
+                 reader: -> { self.deal.nil? ? nil : self.deal.entity }
+  warehouse_attr :foreman, polymorphic: true,
+                 reader: -> { self.deal.nil? ? nil : self.deal.rules.first.to.entity }
+  warehouse_attr :storekeeper_place, class: Place,
+                 reader: -> { self.deal.nil? ? nil : self.deal.give.place }
+  warehouse_attr :foreman_place, class: Place,
+                 reader: -> { self.deal.nil? ? nil : self.deal.take.place }
 
   class << self
     def by_warehouse(place)
@@ -146,12 +155,8 @@ class Allocation < ActiveRecord::Base
   end
 
   private
-  def initialize(attrs = nil)
-    super(initialize_warehouse_attrs(attrs))
-  end
-
-  def do_before_item_save(item)
-    return false if item.resource.new_record?
-    true
-  end
+    def do_before_item_save(item)
+      return false if item.resource.new_record?
+      true
+    end
 end

@@ -43,6 +43,9 @@ ru:
           reverse: Стронирование выдачи
       notification:
               title: Заголовок
+    defaults:
+      assets:
+        shipment: Отгрузка
     errors:
       models:
         group:

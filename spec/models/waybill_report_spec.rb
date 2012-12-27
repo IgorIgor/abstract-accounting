@@ -23,55 +23,64 @@ describe WaybillReport do
     wb.save
     wb2.save
 
-    wbs = WaybillReport.with_resources.select_all.joins{deal.rules.from.take.resource}.
-        order("resource_mu DESC")
+    wbs = WaybillReport.with_resources.select_all.joins{deal.rules.from.take.resource}
 
-    wbs[0].created.to_s.should eq(wb.created.to_s)
-    wbs[0].document_id.should eq(wb.document_id)
-    wbs[0].distributor.name.should eq(wb.distributor.name)
-    wbs[0].storekeeper.tag.should eq(wb.storekeeper.tag)
-    wbs[0].storekeeper_place.tag.should eq(wb.storekeeper_place.tag)
-    wbs[0].state.should eq(wb.state)
-    wbs[0].sum.should eq(wb.sum)
-    wbs[0].resource_tag.should eq(wb.items[0].resource.tag)
-    wbs[0].resource_mu.should eq(wb.items[0].resource.mu)
-    Converter.float(wbs[0].resource_amount).should eq(wb.items[0].amount)
-    Converter.float(wbs[0].resource_price).
-            accounting_norm.should eq((1 / wb.items[0].price).accounting_norm)
-    Converter.float(wbs[0].resource_sum).
-        accounting_norm.should eq((wb.items[0].amount * wb.items[0].price).accounting_norm)
-
-    wbs[1].created.to_s.should eq(wb.created.to_s)
-    wbs[1].document_id.should eq(wb.document_id)
-    wbs[1].distributor.name.should eq(wb.distributor.name)
-    wbs[1].storekeeper.tag.should eq(wb.storekeeper.tag)
-    wbs[1].storekeeper_place.tag.should eq(wb.storekeeper_place.tag)
-    wbs[1].state.should eq(wb.state)
-    wbs[1].sum.should eq(wb.sum)
-    wbs[1].resource_tag.should eq(wb.items[1].resource.tag)
-    wbs[1].resource_mu.should eq(wb.items[1].resource.mu)
-    Converter.float(wbs[1].resource_amount).should eq(wb.items[1].amount)
-    Converter.float(wbs[1].resource_price).
-        accounting_norm.should eq((1 / wb.items[1].price).accounting_norm)
-    Converter.float(wbs[1].resource_sum).
-            accounting_norm.should eq((wb.items[1].amount * wb.items[1].price).
+    wbs.each do |item|
+      if item.document_id == wb.document_id
+        if item.resource_mu == wb.items[0].resource.mu
+          item.created.to_s.should eq(wb.created.to_s)
+          item.document_id.should eq(wb.document_id)
+          item.distributor.name.should eq(wb.distributor.name)
+          item.storekeeper.tag.should eq(wb.storekeeper.tag)
+          item.storekeeper_place.tag.should eq(wb.storekeeper_place.tag)
+          item.state.should eq(wb.state)
+          item.sum.should eq(wb.sum)
+          item.resource_tag.should eq(wb.items[0].resource.tag)
+          item.resource_mu.should eq(wb.items[0].resource.mu)
+          Converter.float(item.resource_amount).should eq(wb.items[0].amount)
+          Converter.float(item.resource_price).
+              accounting_norm.should eq((1 / wb.items[0].price).accounting_norm)
+          Converter.float(item.resource_sum).
+              accounting_norm.should eq((wb.items[0].amount * wb.items[0].price).accounting_norm)
+        elsif item.resource_mu == wb.items[1].resource.mu
+          item.created.to_s.should eq(wb.created.to_s)
+          item.document_id.should eq(wb.document_id)
+          item.distributor.name.should eq(wb.distributor.name)
+          item.storekeeper.tag.should eq(wb.storekeeper.tag)
+          item.storekeeper_place.tag.should eq(wb.storekeeper_place.tag)
+          item.state.should eq(wb.state)
+          item.sum.should eq(wb.sum)
+          item.resource_tag.should eq(wb.items[1].resource.tag)
+          item.resource_mu.should eq(wb.items[1].resource.mu)
+          Converter.float(item.resource_amount).should eq(wb.items[1].amount)
+          Converter.float(item.resource_price).
+              accounting_norm.should eq((1 / wb.items[1].price).accounting_norm)
+          Converter.float(item.resource_sum).
+              accounting_norm.should eq((wb.items[1].amount * wb.items[1].price).
+                                            accounting_norm)
+        else
+          "Invalid mu".should be_empty
+        end
+      elsif item.document_id == wb2.document_id
+        item.created.to_s.should eq(wb2.created.to_s)
+        item.document_id.should eq(wb2.document_id)
+        item.distributor.name.should eq(wb2.distributor.name)
+        item.storekeeper.tag.should eq(wb2.storekeeper.tag)
+        item.storekeeper_place.tag.should eq(wb2.storekeeper_place.tag)
+        item.state.should eq(wb2.state)
+        item.sum.should eq(wb2.sum)
+        item.resource_tag.should eq(wb2.items[0].resource.tag)
+        item.resource_mu.should eq(wb2.items[0].resource.mu)
+        Converter.float(item.resource_amount).should eq(wb2.items[0].amount)
+        Converter.float(item.resource_price).
+            accounting_norm.should eq((1 / wb2.items[0].price).accounting_norm)
+        Converter.float(item.resource_sum).
+            accounting_norm.should eq((wb2.items[0].amount * wb2.items[0].price).
                                           accounting_norm)
-
-    wbs[2].created.to_s.should eq(wb2.created.to_s)
-    wbs[2].document_id.should eq(wb2.document_id)
-    wbs[2].distributor.name.should eq(wb2.distributor.name)
-    wbs[2].storekeeper.tag.should eq(wb2.storekeeper.tag)
-    wbs[2].storekeeper_place.tag.should eq(wb2.storekeeper_place.tag)
-    wbs[2].state.should eq(wb2.state)
-    wbs[2].sum.should eq(wb2.sum)
-    wbs[2].resource_tag.should eq(wb2.items[0].resource.tag)
-    wbs[2].resource_mu.should eq(wb2.items[0].resource.mu)
-    Converter.float(wbs[2].resource_amount).should eq(wb2.items[0].amount)
-    Converter.float(wbs[2].resource_price).
-        accounting_norm.should eq((1 / wb2.items[0].price).accounting_norm)
-    Converter.float(wbs[2].resource_sum).
-        accounting_norm.should eq((wb2.items[0].amount * wb2.items[0].price).
-                                      accounting_norm)
+      else
+        "Invalid document_id".should be_empty
+      end
+    end
   end
 
 
@@ -214,9 +223,9 @@ describe WaybillReport do
     wbs_test = WaybillReport.select_all.with_resources.where("document_id LIKE '%1%'").all
     wbs.should eq(wbs_test)
 
-    wbs = WaybillReport.select_all.with_resources.search('distributor' => 'a').all
+    wbs = WaybillReport.select_all.with_resources.search('distributor' => 'a').order(:id).all
     wbs_test = WaybillReport.joins{deal.rules.from.entity(LegalEntity)}.
-        where{lower(deal.rules.from.entity.name).like(lower('%a%'))}.all
+        where{lower(deal.rules.from.entity.name).like(lower('%a%'))}.order(:id).all
     wbs.should eq(wbs_test)
 
     wbs = WaybillReport.search('storekeeper' => 'a').all

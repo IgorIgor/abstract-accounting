@@ -22,6 +22,8 @@ GEM
       activesupport (= 3.2.8)
       arel (~> 3.0.2)
       tzinfo (~> 0.3.29)
+    activerecord-tableless (1.0.1)
+      activerecord (>= 3.2)
     activeresource (3.2.8)
       activemodel (= 3.2.8)
       activesupport (= 3.2.8)
@@ -115,6 +117,9 @@ GEM
     paper_trail (2.6.3)
       activerecord (~> 3.0)
       railties (~> 3.0)
+    parallel (0.5.21)
+    parallel_tests (0.8.14)
+      parallel
     pg (0.14.0)
     polyamorous (0.5.0)
       activerecord (~> 3.0)
@@ -224,6 +229,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  activerecord-tableless
   awesome_print
   cancan
   capybara
@@ -236,6 +242,7 @@ DEPENDENCIES
   i18n-js
   jquery-rails
   paper_trail
+  parallel_tests
   pg
   rabl
   rails (= 3.2.8)

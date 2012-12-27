@@ -53,10 +53,10 @@ describe Waybill do
     wb.items[2].amount.should eq(100)
     wb.items[2].price.should eq(12.0)
     wb.items[2].sum.should eq((wb.items[2].amount * wb.items[2].price).accounting_norm)
-    wb.sum.should eq(wb.items[0, 2].inject(0.0) { |mem, item| mem += item.sum })
+    wb.sum.should eq(wb.items.inject(0.0) { |mem, item| mem += item.sum })
 
     wb = Waybill.find(wb)
-    wb.items.count.should eq(2)
+    wb.items.count.should eq(3)
     wb.items.each do |item|
       if item.resource == Asset.find_all_by_tag_and_mu('nails', 'pcs').first
         item.amount.should eq(1200)
@@ -65,6 +65,11 @@ describe Waybill do
       elsif item.resource == Asset.find_all_by_tag_and_mu('nails', 'kg').first
         item.amount.should eq(10)
         item.price.should eq(150.0)
+        item.sum.should eq((item.amount * item.price).accounting_norm)
+      elsif item.resource == asset
+        item.resource.should eq(asset)
+        item.amount.should eq(100)
+        item.price.should eq(12.0)
         item.sum.should eq((item.amount * item.price).accounting_norm)
       else
         false.should be_true
@@ -329,12 +334,9 @@ describe Waybill do
     comment.item_type.should eq(wb.class.name)
     comment.message.should eq(I18n.t('activerecord.attributes.waybill.comment.create'))
 
-    wb.update_attributes("created" => wb.created,
-                         "document_id" => wb.document_id,
-                         "storekeeper_place_id" => wb.storekeeper_place.id,
-                         "distributor_id" => create(:entity).id,
-                         "distributor_type" => Entity.name,
-                         "distributor_place_id" => create(:place).id)
+    wb.update_attributes(:distributor_id => create(:entity).id,
+                         :distributor_type => Entity.name,
+                         :distributor_place_id => create(:place).id)
 
     comment = Comment.last
     comment.user_id.should eq(user.id)

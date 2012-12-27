@@ -44,12 +44,20 @@ class GeneralLedger
     sort(*args)
   end
 
+  scope :order do |*args|
+    order(*args)
+  end
+
   scope :on_date do |date = nil|
     on_date(date.nil? ? Date.today : Date.parse(date))
   end
 
   scope :paginate do |*args|
     paginate(*args)
+  end
+
+  scope :first do
+    first
   end
 
   scope :all do |attrs = {}|

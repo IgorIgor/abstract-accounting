@@ -4,10 +4,15 @@ $ ->
       @url = "/foreman/resources/data.json"
       @from = ko.observable(data.from)
       @to = ko.observable(data.to)
+      @filter =
+        tag: ko.observable('')
+        mu: ko.observable('')
+        amount: ko.observable('')
 
       super(data)
 
       @params =
+        search: @filter
         page: @page
         per_page: @per_page
         from: @from

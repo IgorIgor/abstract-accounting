@@ -196,4 +196,152 @@ feature 'foreman/resources', %q{
       end
     end
   end
+
+  scenario 'search foreman resources', js: true do
+    page_login(@foreman.email, @foreman.crypted_password)
+    find("#btn_slide_lists").click
+    click_link I18n.t('views.home.foreman_report')
+    wait_for_ajax
+    find("#show-filter").click
+    titles = [I18n.t('views.warehouses.foremen.report.resource.name'),
+              I18n.t('views.warehouses.foremen.report.resource.mu'),
+              I18n.t('views.warehouses.foremen.report.amount')]
+    within('#filter-area') do
+      titles.each do |title|
+        page.should have_content(title)
+      end
+      fill_in('filter-tag', with: 'na')
+      fill_in('filter-mu', with: 's')
+      fill_in('filter-amount', with: 501)
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    args = {  warehouse_id: @place.id,
+              foreman_id: @foreman.entity_id,
+              start: DateTime.current.beginning_of_month,
+              stop: DateTime.current,
+              page: 1, per_page: @per_page,
+              search: { tag: 'na', mu: 's', amount: 501 }}
+    resources = WarehouseForemanReport.all(args)
+    within('#container_documents table') do
+      page.should have_selector('tbody tr', count: 1)
+      resources.each do |res|
+        page.should have_content(res.resource.tag)
+        page.should have_content(res.resource.mu)
+        page.should have_content(res.price.to_i)
+        page.should have_content(res.amount.to_i)
+        page.should have_content (res.price * res.amount).to_i
+      end
+    end
+
+    page.find("#show-filter").click
+
+    within('#filter-area') do
+      find('#filter-tag')[:value].should eq('na')
+      find('#filter-mu')[:value].should eq('s')
+      find('#filter-amount')[:value].should eq('501')
+
+      find("#clear_filter").click
+
+      find('#filter-tag')[:value].should eq('')
+      find('#filter-mu')[:value].should eq('')
+      find('#filter-amount')[:value].should eq('')
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    args = {  warehouse_id: @place.id,
+              foreman_id: @foreman.entity_id,
+              start: DateTime.current.beginning_of_month,
+              stop: DateTime.current,
+              page: 1, per_page: @per_page}
+    resources = WarehouseForemanReport.all(args)
+    within('#container_documents table') do
+      wait_for_ajax
+      page.should have_selector('tbody tr', count: @per_page)
+      resources.each do |res|
+        page.should have_content(res.resource.tag)
+        page.should have_content(res.resource.mu)
+        page.should have_content(res.price.to_i)
+        page.should have_content(res.amount.to_i)
+        page.should have_content (res.price * res.amount).to_i
+      end
+    end
+
+    page.find("#show-filter").click
+    within('#filter-area') do
+      fill_in('filter-tag', with: 'nails')
+      fill_in('filter-mu', with: 'pcs')
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    check_paginate("div[@class='paginate']", @per_page + 1, @per_page)
+
+    args = {  warehouse_id: @place.id,
+              foreman_id: @foreman.entity_id,
+              start: DateTime.current.beginning_of_month,
+              stop: DateTime.current,
+              page: 1, per_page: @per_page }
+    resources = WarehouseForemanReport.all(args)
+
+    within('#container_documents table') do
+      page.should have_selector('tbody tr', count: @per_page)
+      resources.each do |res|
+        page.should have_content(res.resource.tag)
+        page.should have_content(res.resource.mu)
+        page.should have_content(res.price.to_i)
+        page.should have_content(res.amount.to_i)
+        page.should have_content (res.price * res.amount).to_i
+      end
+    end
+
+    next_page("div[@class='paginate']")
+
+    args = {  warehouse_id: @place.id,
+              foreman_id: @foreman.entity_id,
+              start: DateTime.current.beginning_of_month,
+              stop: DateTime.current,
+              page: 2, per_page: @per_page }
+    resources = WarehouseForemanReport.all(args)
+    within('#container_documents table') do
+      page.should have_selector('tbody tr', count: 1)
+      resources.each do |res|
+        page.should have_content(res.resource.tag)
+        page.should have_content(res.resource.mu)
+        page.should have_content(res.price.to_i)
+        page.should have_content(res.amount.to_i)
+        page.should have_content (res.price * res.amount).to_i
+      end
+    end
+
+    tag_for_search = 'nails5'
+
+    page.find("#show-filter").click
+    within('#filter-area') do
+      fill_in('filter-tag', with: tag_for_search)
+
+      click_button(I18n.t('views.home.search'))
+    end
+
+    visit "/foreman/resources/data.html?search%5Btag%5D=#{tag_for_search}"
+    args = {  warehouse_id: @place.id,
+              foreman_id: @foreman.entity_id,
+              search: {tag: tag_for_search},
+              start: DateTime.current.beginning_of_month,
+              stop: DateTime.current }
+    resources = WarehouseForemanReport.all(args)
+    count = WarehouseForemanReport.count(args)
+    within('#pdf-wrapper table') do
+      page.should have_selector('tbody tr', count: @count)
+      resources.each do |res|
+        page.should have_content(res.resource.tag)
+        page.should have_content(res.resource.mu)
+        page.should have_content(res.price.to_i)
+        page.should have_content(res.amount.to_i)
+        page.should have_content (res.price * res.amount).to_i
+      end
+    end
+  end
 end

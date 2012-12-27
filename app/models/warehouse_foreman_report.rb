@@ -111,6 +111,22 @@ class WarehouseForemanReport
       if args[:start] && args[:stop]
         scope = scope.where{{parent.to.allocation => sift(:date_range, args[:start], args[:stop])}}
       end
+
+      if args[:search]
+        scope = args[:search].inject(scope) do |mem, (key, value)|
+          case key.to_s
+            when 'tag'
+              mem.joins{resource(Asset)}.where{lower(resource.tag).like(lower("%#{value}%"))}
+            when 'mu'
+              mem.joins{resource(Asset)}.where{lower(resource.mu).like(lower("%#{value}%"))}
+            when 'amount'
+              mem.having{sum(amount) == value}
+            else
+              mem.where{lower(__send__(key)).like(lower("%#{value}%"))}
+          end
+        end
+      end
+
       scope.group{resource_id}.group{resource_type}
     end
 

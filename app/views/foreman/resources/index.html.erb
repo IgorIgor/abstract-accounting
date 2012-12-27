@@ -1,3 +1,12 @@
+<% content_for :search  do %>
+  <label><%=t 'views.warehouses.foremen.report.resource.name' %></label>
+  <input type="text" id="filter-tag" data-bind="value: filter.tag"/>
+  <label><%=t 'views.warehouses.foremen.report.resource.mu' %></label>
+  <input type="text" id="filter-mu" data-bind="value: filter.mu"/>
+  <label><%=t 'views.warehouses.foremen.report.amount' %></label>
+  <input type="text" id="filter-amount" data-bind="value: filter.amount"/>
+<% end %>
+
 <div class="actions">
   <label for="foremen_filter_from">
     <%= t 'views.warehouses.foremen.report.dates.from' %>:

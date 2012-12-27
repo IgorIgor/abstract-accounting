@@ -838,5 +838,76 @@ describe WarehouseForemanReport do
           sort{|a,b| b.amount <=> a.amount}
       wfr.should eq(wfr_test)
     end
+
+    it 'should search warehouse foreman report' do
+      storekeeper = create(:entity)
+      warehouse = create(:place)
+      foreman = create(:entity)
+      resources = []
+
+      20.times do |i|
+        resource = create(:asset)
+        waybill = build(:waybill,
+                        storekeeper: storekeeper, storekeeper_place: warehouse)
+        waybill.add_item(tag: resource.tag, mu: resource.mu, amount: 100.0, price: 11.32)
+        waybill.save!
+        waybill.apply.should be_true
+
+        allocation = build(:allocation,
+                           storekeeper: storekeeper, storekeeper_place: warehouse,
+                           foreman: foreman, foreman_place: warehouse)
+        allocation.add_item(tag: resource.tag, mu: resource.mu, amount: 25.25)
+        allocation.save!
+        allocation.apply.should be_true
+
+        if i % 2 == 0
+          resources << WarehouseForemanReport.new(resource: resource, amount: 25.25,
+                                                  price: 11.32)
+        end
+      end
+
+      wfr =  WarehouseForemanReport.all(warehouse_id: warehouse.id,
+                                        search: { tag: '2'},
+                                        foreman_id: foreman.id,
+                                        resource_ids: resources.
+                                            collect{ |item| item.resource.id }.join(","))
+      wfr_test = WarehouseForemanReport.all(warehouse_id: warehouse.id,
+                                            foreman_id: foreman.id,
+                                            resource_ids: resources.
+                                                collect{ |item| item.resource.id }.join(",")).
+          select {|v| v.resource.tag =~ /[2]/}
+      wfr.should =~ wfr_test
+
+      wfr =  WarehouseForemanReport.all(warehouse_id: warehouse.id,
+                                        search: { mu: '2'},
+                                        foreman_id: foreman.id,
+                                        resource_ids: resources.
+                                            collect{ |item| item.resource.id }.join(","))
+      wfr_test = WarehouseForemanReport.all(warehouse_id: warehouse.id,
+                                            foreman_id: foreman.id,
+                                            resource_ids: resources.
+                                                collect{ |item| item.resource.id }.join(",")).
+          select {|v| v.resource.mu =~ /[2]/}
+      wfr.should =~ wfr_test
+
+      wfr =  WarehouseForemanReport.all(warehouse_id: warehouse.id,
+                                        search: { amount: '2'},
+                                        foreman_id: foreman.id,
+                                        resource_ids: resources.
+                                            collect{ |item| item.resource.id }.join(","))
+      wfr_test = WarehouseForemanReport.all(warehouse_id: warehouse.id,
+                                            foreman_id: foreman.id,
+                                            resource_ids: resources.
+                                                collect{ |item| item.resource.id }.join(",")).
+          select {|v| v.amount == 2}
+      wfr.should =~ wfr_test
+
+      wfr_count = WarehouseForemanReport.count(warehouse_id: warehouse.id,
+                                               search: { amount: '2'},
+                                               foreman_id: foreman.id,
+                                               resource_ids: resources.
+                                                collect{ |item| item.resource.id }.join(","))
+      wfr_count.should eq(wfr_test.length)
+    end
   end
 end

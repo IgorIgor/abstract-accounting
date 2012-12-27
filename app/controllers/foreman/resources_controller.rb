@@ -11,7 +11,7 @@ module Foreman
   class ResourcesController < ApplicationController
     authorize_resource class: WarehouseForemanReport.name
     def index
-      render 'index', layout: false
+      render 'index', layout: "data_with_filter"
     end
 
     def data
@@ -34,6 +34,7 @@ module Foreman
           args[:per_page] = per_page
         end
         args[:sort] = params[:order] if params[:order]
+        args[:search] = params[:search] if params[:search]
         @resources = WarehouseForemanReport.all(args)
         @count = WarehouseForemanReport.count(args)
       end

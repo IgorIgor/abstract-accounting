@@ -30,6 +30,7 @@ en:
           total: Total
       foremen:
         report:
+          index: '#'
           dates:
             from: From
             to: To

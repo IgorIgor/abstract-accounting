@@ -28,10 +28,24 @@ module Foreman
         credential = current_user.credentials.with_document_type(WarehouseForemanReport.name)
         args = {warehouse_id: credential[0][:place_id],
                 foreman_id: current_user.entity_id,
-                start: @from, stop: @to,
-                page: page, per_page: per_page }
+                start: @from, stop: @to }
+        unless params[:format] == 'pdf' or params[:format] == 'html'
+          args[:page] = page
+          args[:per_page] = per_page
+        end
         @resources = WarehouseForemanReport.all(args)
         @count = WarehouseForemanReport.count(args)
+      end
+      respond_to do |format|
+        format.json { render :data }
+        format.html { render :print, layout: false }
+        format.pdf do
+          render pdf: 'foreman/resources/print.pdf',
+                 :template => 'foreman/resources/print.erb',
+                 :formats => [:html],
+                 encoding: 'utf-8',
+                 layout: false
+        end
       end
     end
   end

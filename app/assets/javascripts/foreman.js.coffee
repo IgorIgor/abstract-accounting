@@ -12,3 +12,9 @@ $ ->
         per_page: @per_page
         from: @from
         to: @to
+
+    print: =>
+      delete @params.page
+      delete @params.per_page
+      url = "foreman/resources/data.pdf?#{$.param(normalizeHash(ko.mapping.toJS(@params)))}"
+      window.open(url, '_blank')

@@ -9,6 +9,8 @@
   </label>
   <input type="text" id="foremen_filter_to" style="width: 80px;"
          data-bind="datepicker:{ value: to, maxDate: '+0' }, event: {change: filterData}">
+  <input type="button" value="<%= t('views.warehouses.report.print') %>" id="print"
+         data-bind="visible: documents().length > 0, click: print">
 </div>
 <table>
   <thead>

@@ -30,6 +30,7 @@ ru:
           total: Итого
       foremen:
         report:
+          index: №
           dates:
             from: С
             to: По

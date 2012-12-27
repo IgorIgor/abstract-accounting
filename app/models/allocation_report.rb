@@ -20,35 +20,24 @@ class AllocationReport < Allocation
     self.joins{deal.rules.from.give.resource(Asset)}
   end
 
-  def self.order_by(attrs = {})
-    field = nil
-    ordered = false
-    scope = self
-    case attrs[:field]
-      when 'foreman'
-        scope = scope.joins{deal.rules.to.entity(Entity)}
-        field = 'entities.tag'
-      when 'resource_tag'
-        scope = scope.joins{deal.rules.from.give.resource}
-        field = 'resource_tag'
-      when 'resource_mu'
-        scope = scope.joins{deal.rules.from.give.resource}
-        field = 'resource_mu'
-      when 'resource_amount'
-        scope = scope.joins{deal.rules}
-        field = 'resource_amount'
-      else
-        scope = super(attrs)
-        ordered = true
-    end
-    unless ordered & field.nil?
-      if attrs[:type] == 'desc'
-        scope = scope.order("#{field} DESC")
-      else
-        scope = scope.order(field)
-      end
-    end
-    scope
+  custom_sort(:foreman) do |dir|
+    query = "entities.tag"
+    joins{deal.rules.to.entity(Entity)}.order("#{query} #{dir}")
+  end
+
+  custom_sort(:resource_tag) do |dir|
+    query = "assets.tag"
+    joins{deal.rules.from.take.resource(Asset)}.order("#{query} #{dir}")
+  end
+
+  custom_sort(:resource_mu) do |dir|
+    query = "assets.mu"
+    joins{deal.rules.from.take.resource(Asset)}.order("#{query} #{dir}")
+  end
+
+  custom_sort(:resource_amount) do |dir|
+    query = "rules.rate"
+    joins{deal.rules}.order("#{query} #{dir}")
   end
 
   custom_search(:foreman) do |value|
@@ -61,35 +50,9 @@ class AllocationReport < Allocation
         where{lower(deal.rules.from.give.resource.tag).like(lower("%#{value}%"))}
   end
 
-  #def self.search(attrs = {})
-  #  filtered = false
-  #  scope = attrs.keys.inject(scoped) do |mem, key|
-  #    case key.to_s
-  #      when 'foreman'
-  #        mem.joins{deal.rules.to.entity(Entity)}
-  #      when 'resource_tag'
-  #        mem.joins{deal.rules.from.give.resource(Asset)}
-  #      else
-  #        filtered = true
-  #        super(attrs)
-  #    end
-  #  end
-  #  unless filtered
-  #    scope = attrs.inject(scope) do |mem, (key, value)|
-  #      if key == 'foreman'
-  #        mem.where{lower(deal.rules.to.entity.tag).like(lower("%#{value}%"))}
-  #      elsif key == 'resource_tag'
-  #        mem.where{lower(deal.rules.from.give.resource.tag).like(lower("%#{value}%"))}
-  #      end
-  #    end
-  #  end
-  #  scope
-  #end
-
-  def self.search_by_states(filter = {})
-    statable_search(filter)
+  custom_search(:states) do |filter = {}|
     group_by = '"assets"."id", "assets"."tag", "assets"."mu", "rules"."rate"'
-    scope = statable_search(filter)
+    scope = super(filter)
     scope = scope.group{group_by} unless scope.group_values.empty?
     scope
   end

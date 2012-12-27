@@ -9,22 +9,15 @@
 
 require 'spec_helper'
 
-class TestStatable
+class TestStatable < ActiveRecord::Base
+  has_no_table
+  column :deal_id, :integer
+
+  belongs_to :deal
+
   attr_reader :apply_called, :cancel_called, :reverse_called
 
-  def initialize
-    @apply_called = false
-    @cancel_called = false
-    @reverse_called = false
-  end
-
-  class << self
-    def after_save(method)
-      self.after_save_i = method
-    end
-  end
-
-  class_attribute :after_save_i
+  after_initialize :my_init
 
   include Helpers::Statable
   act_as_statable
@@ -33,31 +26,31 @@ class TestStatable
   after_cancel :do_cancel
   after_reverse :do_reverse
 
-  def do_apply
-    FactoryGirl.create(:fact, amount: 1.0, from: nil, to: Deal.last)
-    @apply_called = true
-  end
-
-  def do_cancel
-    @cancel_called = true
-  end
-
-  def do_reverse
-    FactoryGirl.create(:fact, amount: -1.0, from: nil, to: Deal.last)
-    @reverse_called = true
-  end
-
-  def deal
-    Deal.last
-  end
-
-  def deal_id
-    Deal.last.id
-  end
-
   def save
-    self.send(TestStatable.after_save_i.to_s)
+    run_callbacks(:save) { true }
   end
+
+  private
+    def my_init
+      @apply_called = false
+      @cancel_called = false
+      @reverse_called = false
+      self.deal_id = Deal.last.id
+    end
+
+    def do_apply
+      FactoryGirl.create(:fact, amount: 1.0, from: nil, to: Deal.last)
+      @apply_called = true
+    end
+
+    def do_cancel
+      @cancel_called = true
+    end
+
+    def do_reverse
+      FactoryGirl.create(:fact, amount: -1.0, from: nil, to: Deal.last)
+      @reverse_called = true
+    end
 end
 
 describe Helpers::Statable do
@@ -69,32 +62,7 @@ describe Helpers::Statable do
     lambda { TestStatable.new.save }.should change(DealState, :count).by(1)
     DealState.last.deal_id.should eq(Deal.last.id)
     DealState.last.opened.should eq(Date.today)
-  end
-
-  it "should be in unknown state after creation" do
-    obj = TestStatable.new
-    obj.instance_eval do
-      def deal
-        nil
-      end
-    end
-    obj.should be_unknown
-    obj = TestStatable.new
-    obj.instance_eval do
-      def deal
-        Deal.new
-      end
-    end
-    obj.should be_unknown
-  end
-
-  it "should be in work after first save" do
-    obj = TestStatable.new
-    obj.state.should eq(Helpers::Statable::INWORK)
-    obj.should be_can_apply
-    obj.should be_can_cancel
-    obj.should_not be_can_reverse
-    obj.should be_in_work
+    DealState.last.state.should eq(Helpers::Statable::INWORK)
   end
 
   it "should change state from inwork to apply after apply" do
@@ -129,38 +97,86 @@ describe Helpers::Statable do
     obj.should_not be_can_reverse
   end
 
-  it "should search by states" do
-    create(:chart)
-    wb1 = build(:waybill)
-    wb1.add_item(tag: 'nails', mu: 'pcs', amount: 120, price: 1.0)
-    wb1.save
-    wb2 = build(:waybill)
-    wb2.add_item(tag: 'nails', mu: 'pcs', amount: 120, price: 1.0)
-    wb2.save
-    wb2.cancel.should be_true
-    wb3 = build(:waybill)
-    wb3.add_item(tag: 'nails', mu: 'pcs', amount: 120, price: 1.0)
-    wb3.save
-    wb3.apply.should be_true
-    wb4 = build(:waybill)
-    wb4.add_item(tag: 'nails', mu: 'pcs', amount: 120, price: 1.0)
-    wb4.save
-    wb4.apply.should be_true
-    wb4.reverse.should be_true
+  describe "#search" do
+    it "should return scoped if states is empty" do
+      TestStatable.search(states: []).joins_values.should be_empty
+    end
 
-    Waybill.search_by_states({inwork: true, canceled: true, applied: true, reversed: true}).
-        all.should =~ [wb1, wb2, wb3, wb4]
-    Waybill.search_by_states({inwork: true, canceled: false, applied: false, reversed: false}).
-        all.should =~ [wb1]
-    Waybill.search_by_states({inwork: false, canceled: true, applied: false, reversed: false}).
-        all.should =~ [wb2]
-    Waybill.search_by_states({inwork: false, canceled: false, applied: true, reversed: false}).
-        all.should =~ [wb3]
-    Waybill.search_by_states({inwork: false, canceled: false, applied: false, reversed: true}).
-        all.should =~ [wb4]
-    Waybill.search_by_states({inwork: true, canceled: true, applied: false, reversed: false}).
-        all.should =~ [wb1, wb2]
-    Waybill.search_by_states({inwork: false, canceled: false, applied: false, reversed: false}).
-        all.should =~ [wb1, wb2, wb3, wb4]
+    it "should return scoped if all states are selected" do
+      TestStatable.search(states: [Helpers::Statable::INWORK, Helpers::Statable::APPLIED,
+                                   Helpers::Statable::CANCELED, Helpers::Statable::REVERSED]).
+          joins_values.should be_empty
+    end
+
+    it "should joins deal_state and setup where for inwork state" do
+      test = TestStatable.search(states: [Helpers::Statable::INWORK])
+      test.joins_values.count.should eq(1)
+      test.joins_values[0].should eql(Squeel::DSL.eval{deal.deal_state})
+      test.where_values.count.should eq(1)
+      test.where_values[0].should eql(Squeel::DSL.eval {
+        (deal.deal_state.state == Helpers::Statable::INWORK)
+      })
+    end
+
+    it "should joins deal_state and setup where for apply state" do
+      test = TestStatable.search(states: [Helpers::Statable::APPLIED])
+      test.joins_values.count.should eq(1)
+      test.joins_values[0].should eql(Squeel::DSL.eval{deal.deal_state})
+      test.where_values.count.should eq(1)
+      test.where_values[0].should eql(Squeel::DSL.eval {
+        (deal.deal_state.state == Helpers::Statable::APPLIED)
+      })
+    end
+
+    it "should joins deal_state and setup where for cancel state" do
+      test = TestStatable.search(states: [Helpers::Statable::CANCELED])
+      test.joins_values.count.should eq(1)
+      test.joins_values[0].should eql(Squeel::DSL.eval{deal.deal_state})
+      test.where_values.count.should eq(1)
+      test.where_values[0].should eql(Squeel::DSL.eval {
+        (deal.deal_state.state == Helpers::Statable::CANCELED)
+      })
+    end
+
+    it "should joins deal_state and setup where for reverse state" do
+      test = TestStatable.search(states: [Helpers::Statable::REVERSED])
+      test.joins_values.count.should eq(1)
+      test.joins_values[0].should eql(Squeel::DSL.eval{deal.deal_state})
+      test.where_values.count.should eq(1)
+      test.where_values[0].should eql(Squeel::DSL.eval {
+        (deal.deal_state.state == Helpers::Statable::REVERSED)
+      })
+    end
+
+    it "should joins deal_state and setup where for multiple states"do
+      test = TestStatable.search(states: [Helpers::Statable::INWORK,
+                                          Helpers::Statable::APPLIED])
+      test.joins_values.count.should eq(1)
+      test.joins_values[0].should eql(Squeel::DSL.eval{deal.deal_state})
+      test.where_values.count.should eq(1)
+      test.where_values[0].should eql(
+             Squeel::DSL.eval {
+               (deal.deal_state.state == Helpers::Statable::INWORK) |
+                   (deal.deal_state.state == Helpers::Statable::APPLIED)})
+    end
+  end
+
+  describe "#sort" do
+    it "should joins deal_state" do
+      test = TestStatable.sort(field: :state, type: "asc")
+      test.joins_values.count.should eq(1)
+      test.joins_values[0].should eql(Squeel::DSL.eval{deal.deal_state})
+    end
+
+    it "should add order state" do
+      test = TestStatable.sort(field: :state, type: "asc")
+      test.order_values.count.should eq(1)
+      dsl = Squeel::DSL.eval{deal.deal_state.state.asc}
+      test.order_values[0].direction.should eql(dsl.direction)
+      test = TestStatable.sort(field: :state, type: "desc")
+      test.order_values.count.should eq(1)
+      dsl = Squeel::DSL.eval{deal.deal_state.state.desc}
+      test.order_values[0].direction.should eql(dsl.direction)
+    end
   end
 end

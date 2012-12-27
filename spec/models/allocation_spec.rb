@@ -404,74 +404,81 @@ describe Allocation do
     wb1 = build(:waybill, created: Date.new(2011,11,11), document_id: 11,
                 distributor: petrov, storekeeper: ivanov,
                 storekeeper_place: moscow)
-    wb1.add_item(tag: 'foo', mu: 'rm', amount: 100, price: 120.0)
+    wb1.add_item(tag: 'foo1', mu: 'rm1', amount: 101, price: 121.0)
     wb1.save!
     wb1.apply
 
     wb2 = build(:waybill, created: Date.new(2011,11,12), document_id: 13,
                 distributor: ivanov, storekeeper: pupkin,
                 storekeeper_place: kiev)
-    wb2.add_item(tag: 'foo', mu: 'rm', amount: 100, price: 120.0)
+    wb2.add_item(tag: 'foo2', mu: 'rm2', amount: 102, price: 122.0)
     wb2.save!
     wb2.apply
 
     wb3 = build(:waybill, created: Date.new(2011,11,13), document_id: 12,
                 distributor: pupkin, storekeeper: antonov,
                 storekeeper_place: amsterdam)
-    wb3.add_item(tag: 'foo', mu: 'rm', amount: 100, price: 120.0)
+    wb3.add_item(tag: 'foo3', mu: 'rm3', amount: 103, price: 123.0)
     wb3.save!
     wb3.apply
 
     al1 = build(:allocation, created: Date.new(2011,11,11),
                 storekeeper: wb1.storekeeper, storekeeper_place: wb1.storekeeper_place,
                 foreman: pupkin)
-    al1.add_item(tag: 'foo', mu: 'rm', amount: 33)
+    al1.add_item(tag: 'foo1', mu: 'rm1', amount: 13)
     al1.save!
     al1.apply
 
     al2 = build(:allocation, created: Date.new(2011,11,12),
                 storekeeper: wb2.storekeeper, storekeeper_place: wb2.storekeeper_place,
                 foreman: antonov)
-    al2.add_item(tag: 'foo', mu: 'rm', amount: 33)
+    al2.add_item(tag: 'foo2', mu: 'rm2', amount: 23)
     al2.save!
 
     al3 = build(:allocation, created: Date.new(2011,11,13),
                 storekeeper: wb3.storekeeper, storekeeper_place: wb3.storekeeper_place,
                 foreman: ivanov)
-    al3.add_item(tag: 'foo', mu: 'rm', amount: 33)
+    al3.add_item(tag: 'foo3', mu: 'rm3', amount: 33)
     al3.save!
     al3.apply
 
-    als = Allocation.order_by({field: 'created', type: 'acs'}).all
+    als = Allocation.sort(field: 'created', type: 'asc').all
     als_test = Allocation.order('created').all
     als.should eq(als_test)
-    als = Allocation.order_by({field: 'created', type: 'desc'}).all
+    als = Allocation.sort(field: 'created', type: 'desc').all
     als_test = Allocation.order('created DESC').all
     als.should eq(als_test)
 
-    als = Allocation.order_by({field: 'storekeeper', type: 'acs'}).all
+    als = Allocation.sort(field: 'storekeeper', type: 'asc').all
     als_test = Allocation.joins{deal.entity(Entity)}.order('entities.tag').all
     als.should eq(als_test)
-    als = Allocation.order_by({field: 'storekeeper', type: 'desc'}).all
+    als = Allocation.sort(field: 'storekeeper', type: 'desc').all
     als_test = Allocation.joins{deal.entity(Entity)}.order('entities.tag DESC').all
     als.should eq(als_test)
 
-    als = Allocation.order_by({field: 'storekeeper_place', type: 'acs'}).all
+    als = Allocation.sort(field: 'storekeeper_place', type: 'asc').all
     als_test = Allocation.joins{deal.give.place}.order('places.tag').all
     als.should eq(als_test)
-    als = Allocation.order_by({field: 'storekeeper_place', type: 'desc'}).all
+    als = Allocation.sort(field: 'storekeeper_place', type: 'desc').all
     als_test = Allocation.joins{deal.give.place}.order('places.tag DESC').all
     als.should eq(als_test)
 
-    als = Allocation.order_by({field: 'foreman', type: 'acs'}).all
+    als = Allocation.sort(field: 'foreman', type: 'asc').all
     als_test = Allocation.joins{deal.rules.to.entity(Entity)}.
         group('allocations.id, allocations.created, allocations.deal_id, entities.tag').
         order('entities.tag').all
     als.should eq(als_test)
-    als = Allocation.order_by({field: 'foreman', type: 'desc'}).all
+    als = Allocation.sort(field: 'foreman', type: 'desc').all
     als_test = Allocation.joins{deal.rules.to.entity(Entity)}.
         group('allocations.id, allocations.created, allocations.deal_id, entities.tag').
         order('entities.tag DESC').all
+    als.should eq(als_test)
+
+    als = Allocation.sort(field: 'state', type: 'asc').all
+    als_test = Allocation.joins{deal.deal_state}.order('deal_states.state').all
+    als.should eq(als_test)
+    als = Allocation.sort(field: 'state', type: 'desc').all
+    als_test = Allocation.joins{deal.deal_state}.order('deal_states.state DESC').all
     als.should eq(als_test)
   end
 
@@ -527,49 +534,49 @@ describe Allocation do
     al3.save!
     al3.apply
 
-    Allocation.search({"created" => al1.created.strftime('%Y-%m-%d')}).should =~ [al1]
-    Allocation.search({"created" => al1.created.strftime('%Y-%m-%d')[0, 4]}).
+    Allocation.search({created: al1.created.strftime('%Y-%m-%d')}).should =~ [al1]
+    Allocation.search({created: al1.created.strftime('%Y-%m-%d')[0, 4]}).
         should =~ Allocation.
         where{to_char(created, 'YYYY-MM-DD').
           like(lower("%#{al1.created.strftime('%Y-%m-%d')[0, 4]}%"))}
-    Allocation.search({"created" => DateTime.now.strftime('%Y-%m-%d')}).should be_empty
+    Allocation.search({created: DateTime.now.strftime('%Y-%m-%d')}).should be_empty
 
-    Allocation.search({"state" => Allocation::INWORK}).should =~ Allocation.
+    Allocation.search({states: [Allocation::INWORK]}).should =~ Allocation.
         joins{deal.deal_state}.where{deal.deal_state.closed == nil}
 
-    Allocation.search({"storekeeper" => al1.storekeeper.tag}).should =~ [al1]
-    Allocation.search({"storekeeper" => al1.storekeeper.tag[0, 4]}).
+    Allocation.search({storekeeper: al1.storekeeper.tag}).should =~ [al1]
+    Allocation.search({storekeeper: al1.storekeeper.tag[0, 4]}).
         should =~ Allocation.joins{deal.entity(Entity)}.
         where{lower(deal.entity.tag).like(lower("%#{al1.storekeeper.tag[0, 4]}%"))}
-    Allocation.search({"storekeeper" => create(:entity).tag}).should be_empty
+    Allocation.search({storekeeper: create(:entity).tag}).should be_empty
 
-    Allocation.search({"foreman" => al1.foreman.tag}).all.should =~ [al1]
-    Allocation.search({"foreman" => al1.foreman.tag[0, 4]}).
+    Allocation.search({foreman: al1.foreman.tag}).all.should =~ [al1]
+    Allocation.search({foreman: al1.foreman.tag[0, 4]}).
         should =~ Allocation.joins{deal.rules.to.entity(Entity)}.
         where{lower(deal.rules.to.entity.tag).like(lower("%#{al1.foreman.tag[0, 4]}%"))}.
         select("DISTINCT ON (allocations.id) allocations.*")
-    Allocation.search({"foreman" => create(:entity).tag}).should be_empty
+    Allocation.search({foreman: create(:entity).tag}).should be_empty
 
-    Allocation.search({"storekeeper_place" => al1.storekeeper_place.tag}).should =~ [al1]
-    Allocation.search({"storekeeper_place" => al1.storekeeper_place.tag[0, 4]}).
+    Allocation.search({storekeeper_place: al1.storekeeper_place.tag}).should =~ [al1]
+    Allocation.search({storekeeper_place: al1.storekeeper_place.tag[0, 4]}).
         should =~ Allocation.joins{deal.give.place}.
         where{lower(deal.give.place.tag).like(lower("%#{al1.storekeeper_place.tag[0, 4]}%"))}
-    Allocation.search({"storekeeper_place" => create(:place).tag}).should be_empty
+    Allocation.search({storekeeper_place: create(:place).tag}).should be_empty
 
-    Allocation.search({"resource_tag" => al1.items[1].resource.tag}).should =~ [al1]
-    Allocation.search({"resource_tag" => al1.items[0].resource.tag}).
+    Allocation.search({resource_tag: al1.items[1].resource.tag}).should =~ [al1]
+    Allocation.search({resource_tag: al1.items[0].resource.tag}).
         should =~ Allocation.joins{deal.rules.from.give.resource(Asset)}.
         where do
           lower(deal.rules.from.give.resource.tag).
               like(lower("%#{al1.items[0].resource.tag}%"))
         end.select("DISTINCT ON (allocations.id) allocations.*")
-    Allocation.search({"resource_tag" => create(:asset).tag}).should be_empty
+    Allocation.search({resource_tag: create(:asset).tag}).should be_empty
 
-    Allocation.search({"resource_tag" => al1.items[0].resource.tag,
-                       "created" => al2.created.strftime('%Y-%m-%d')}).should =~ [al2]
+    Allocation.search({resource_tag: al1.items[0].resource.tag,
+                       created: al2.created.strftime('%Y-%m-%d')}).should =~ [al2]
 
-    Allocation.search({"foreman" => al2.foreman.tag,
-                       "storekeeper" => al2.storekeeper.tag}).should =~ [al2]
+    Allocation.search({foreman: al2.foreman.tag,
+                       storekeeper: al2.storekeeper.tag}).should =~ [al2]
   end
 
   it 'should create limits on deals by allocation items' do

@@ -15,133 +15,100 @@ module Helpers
       def act_as_statable
         include ActiveSupport::Callbacks
 
+        delegate :can_apply?, :can_cancel?, :can_reverse?, to: :deal, allow_nil: true
+        delegate :in_work?, to: :deal
+
         after_save :open_state
         define_callbacks :apply, :cancel, :reverse, only: [:before, :after],
                          terminator: "result == false"
-      end
 
-      def after_apply(*filters)
-        set_callback :apply, :after, *filters
-      end
-
-      def after_cancel(*filters)
-        set_callback :cancel, :after, *filters
-      end
-
-      def after_reverse(*filters)
-        set_callback :reverse, :after, *filters
-      end
-
-      def before_apply(*filters)
-        set_callback :apply, :before, *filters
-      end
-
-      def before_reverse(*filters)
-        set_callback :reverse, :before, *filters
-      end
-
-      def search_by_states(filter = {})
-        return scoped if filter.empty?
-        return scoped if filter.values.inject( true ){ |mem, value| mem && value }
-        scope = self.joins{deal.deal_state}.joins{deal.to_facts.outer}
-        scope = scope.where do
-          scope_where = nil
-          if filter[:inwork]
-            scope_where = (deal.deal_state.closed == nil)
+        custom_search(:states) do |filter = []|
+          return scoped if filter.empty?
+          return scoped if filter.count == 4 &&
+                           filter.sort == [INWORK,APPLIED,CANCELED,REVERSED].sort
+          scope = self.joins{deal.deal_state}
+          scope.where do
+            filter.inject(nil) do |scope_where, value|
+              tmp = case Converter.int(value)
+                      when INWORK
+                        (deal.deal_state.state == INWORK)
+                      when APPLIED
+                        (deal.deal_state.state == APPLIED)
+                      when CANCELED
+                        (deal.deal_state.state == CANCELED)
+                      when REVERSED
+                        (deal.deal_state.state == REVERSED)
+                      else nil
+                    end
+              if tmp
+                scope_where ? (scope_where | tmp) : tmp
+              else
+                scope_where
+              end
+            end
           end
-          if filter[:applied] || filter[:canceled] || filter[:reversed]
-            reversed = ((deal.deal_state.closed != nil))
-            scope_where = scope_where ? scope_where | reversed : reversed
-          end
-          scope_where
         end
-        group_by = self.column_names.map{ |item| "#{self.table_name}.#{item}" }
-        group_by += scope.order_values.map{ |item| item.split(' ')[0] }
-        scope = scope.group{group_by}
-        scope_having = []
-        if filter[:inwork] || filter[:canceled]
-          scope_having<<'SUM(facts.amount) IS NULL'
+
+        custom_sort(:state) do |direction|
+          joins{deal.deal_state}.order{deal.deal_state.state.__send__(direction)}
         end
-        if filter[:applied]
-          scope_having = scope_having<<'SUM(facts.amount) = 1'
-        end
-        if filter[:reversed]
-          scope_having = scope_having<<'SUM(facts.amount) = 0'
-        end
-        scope.having(scope_having.join(' OR '))
       end
-      alias_method :statable_search, :search_by_states
+
+      [:apply, :cancel, :reverse].each do |value|
+        define_method "after_#{value}".to_sym do |*filters|
+          set_callback value, :after, *filters
+        end
+        define_method "before_#{value}".to_sym do |*filters|
+          set_callback value, :before, *filters
+        end
+      end
     end
 
-    UNKNOWN = 0
-    INWORK = 1
-    CANCELED = 2
-    APPLIED = 3
-    REVERSED = 4
-
-    def open_state
-      self.deal.create_deal_state! if self.deal.deal_state.nil?
-    end
+    UNKNOWN = DealState::UNKNOWN
+    INWORK = DealState::INWORK
+    CANCELED = DealState::CANCELED
+    APPLIED = DealState::APPLIED
+    REVERSED = DealState::REVERSED
 
     def state
-      return UNKNOWN if self.unknown?
-      if self.in_work?
-        return INWORK
-      elsif self.deal.deal_state.closed? && self.deal.to_facts.size == 0
-        return CANCELED
-      elsif self.deal.deal_state.closed? && self.deal.to_facts.size == 1 &&
-          self.deal.to_facts.where{amount == 1.0}.size == 1
-        return APPLIED
-      elsif self.deal.deal_state.closed? && self.deal.to_facts.size == 2 &&
-          self.deal.to_facts.where{amount == -1.0}.size == 1
-        return REVERSED
-      end
-      UNKNOWN
+      return UNKNOWN if self.deal.nil? || self.deal.deal_state.nil?
+      self.deal.deal_state.state
     end
 
     def unknown?
-      self.deal.nil? || self.deal.deal_state.nil?
-    end
-
-    def in_work?
-      self.deal && self.deal.deal_state.in_work?
+      self.state == UNKNOWN
     end
 
     def cancel
-      if self.state == INWORK
+      if self.can_cancel?
         return run_callbacks :cancel do
-          self.deal.deal_state.close
+          self.deal.cancel
         end
       end
       false
     end
 
     def apply
-      if self.state == INWORK
+      if self.can_apply?
         return run_callbacks :apply do
-          self.deal.deal_state.close
+          self.deal.apply
         end
       end
       false
     end
 
     def reverse
-      if self.state == APPLIED
-        return run_callbacks :reverse
+      if self.can_reverse?
+        return run_callbacks :reverse do
+          self.deal.reverse
+        end
       end
       false
     end
 
-    def can_apply?
-      self.state == INWORK
-    end
-
-    def can_cancel?
-      self.state == INWORK
-    end
-
-    def can_reverse?
-      self.state == APPLIED
-    end
+    private
+      def open_state
+        self.deal.create_deal_state! if self.deal.deal_state.nil?
+      end
   end
 end

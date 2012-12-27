@@ -112,75 +112,79 @@ describe WaybillReport do
     wb3.save!
     wb3.apply
 
-    wbs = WaybillReport.order_by(field: 'created', type: 'asc').all
+    wbs = WaybillReport.sort(field: 'created', type: 'asc').all
     wbs_test = WaybillReport.order('created').all
     wbs.should eq(wbs_test)
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'created', type: 'desc').all
-    wbs_test = WaybillReport.select_all.with_resources.order('created DESC').all
+    wbs = WaybillReport.sort(field: 'created', type: 'desc').all
+    wbs_test = WaybillReport.order('created DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'document_id', type: 'asc').all
-    wbs_test = WaybillReport.select_all.with_resources.order('document_id').all
+    wbs = WaybillReport.sort(field: 'document_id', type: 'asc').all
+    wbs_test = WaybillReport.order('document_id').all
     wbs.should eq(wbs_test)
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'document_id', type: 'desc').all
-    wbs_test = WaybillReport.select_all.with_resources.order('document_id DESC').all
-    wbs.should eq(wbs_test)
-
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'distributor', type: 'asc').all
-    wbs_test = WaybillReport.joins{deal.rules.from.entity(LegalEntity)}.
-        order('legal_entities.name').all
-    wbs.should eq(wbs_test)
-    wbs = WaybillReport.order_by(field: 'distributor', type: 'desc').all
-    wbs_test = WaybillReport.joins{deal.rules.from.entity(LegalEntity)}.
-        order('legal_entities.name DESC').all
+    wbs = WaybillReport.sort(field: 'document_id', type: 'desc').all
+    wbs_test = WaybillReport.order('document_id DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = WaybillReport.order_by(field: 'storekeeper', type: 'asc').all
+    query = "case froms_rules.entity_type
+                      when 'Entity'      then entities.tag
+                      when 'LegalEntity' then legal_entities.name
+                 end"
+    wbs = WaybillReport.sort(field: 'distributor', type: 'asc').all
+    wbs_test = WaybillReport.joins{deal.rules.from.entity(LegalEntity).outer}.
+        joins{deal.rules.from.entity(Entity).outer}.order("#{query} ASC")
+    wbs.should eq(wbs_test)
+    wbs = WaybillReport.sort(field: 'distributor', type: 'desc').all
+    wbs_test = WaybillReport.joins{deal.rules.from.entity(LegalEntity).outer}.
+        joins{deal.rules.from.entity(Entity).outer}.order("#{query} DESC")
+    wbs.should eq(wbs_test)
+
+    wbs = WaybillReport.sort(field: 'storekeeper', type: 'asc').all
     wbs_test = WaybillReport.joins{deal.entity(Entity)}.order('entities.tag').all
     wbs.should eq(wbs_test)
-    wbs = WaybillReport.order_by(field: 'storekeeper', type: 'desc').all
+    wbs = WaybillReport.sort(field: 'storekeeper', type: 'desc').all
     wbs_test = WaybillReport.joins{deal.entity(Entity)}.order('entities.tag DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = WaybillReport.order_by(field: 'storekeeper_place', type: 'asc').all
+    wbs = WaybillReport.sort(field: 'storekeeper_place', type: 'asc').all
     wbs_test = WaybillReport.joins{deal.take.place}.order('places.tag').all
     wbs.should eq(wbs_test)
-    wbs = WaybillReport.order_by(field: 'storekeeper_place', type: 'desc').all
+    wbs = WaybillReport.sort(field: 'storekeeper_place', type: 'desc').all
     wbs_test = WaybillReport.joins{deal.take.place}.order('places.tag DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'resource_tag', type: 'asc').all
+    wbs = WaybillReport.select_all.with_resources.sort(field: 'resource_tag', type: 'asc').all
     wbs_test = WaybillReport.select_all.with_resources.order('assets.tag').all
     wbs.should eq(wbs_test)
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'resource_tag', type: 'desc').all
+    wbs = WaybillReport.select_all.with_resources.sort(field: 'resource_tag', type: 'desc').all
     wbs_test = WaybillReport.select_all.with_resources.order('assets.tag DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'resource_mu', type: 'asc').all
+    wbs = WaybillReport.select_all.with_resources.sort(field: 'resource_mu', type: 'asc').all
     wbs_test = WaybillReport.select_all.with_resources.order('assets.mu').all
     wbs.should eq(wbs_test)
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'resource_mu', type: 'desc').all
+    wbs = WaybillReport.select_all.with_resources.sort(field: 'resource_mu', type: 'desc').all
     wbs_test = WaybillReport.select_all.with_resources.order('assets.mu DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'resource_amount', type: 'asc').all
+    wbs = WaybillReport.select_all.with_resources.sort(field: 'resource_amount', type: 'asc').all
     wbs_test = WaybillReport.select_all.with_resources.order('rules.rate').all
     wbs.should eq(wbs_test)
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'resource_amount', type: 'desc').all
+    wbs = WaybillReport.select_all.with_resources.sort(field: 'resource_amount', type: 'desc').all
     wbs_test = WaybillReport.select_all.with_resources.order('rules.rate DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'resource_price', type: 'asc').all
+    wbs = WaybillReport.select_all.with_resources.sort(field: 'resource_price', type: 'asc').all
     wbs_test = WaybillReport.select_all.with_resources.order('resource_price').all
     wbs.should eq(wbs_test)
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'resource_price', type: 'desc').all
+    wbs = WaybillReport.select_all.with_resources.sort(field: 'resource_price', type: 'desc').all
     wbs_test = WaybillReport.select_all.with_resources.order('resource_price DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'resource_sum', type: 'asc').all
+    wbs = WaybillReport.select_all.with_resources.sort(field: 'resource_sum', type: 'asc').all
     wbs_test = WaybillReport.select_all.with_resources.order("resource_sum").all
     wbs.should eq(wbs_test)
-    wbs = WaybillReport.select_all.with_resources.order_by(field: 'resource_sum', type: 'desc').all
+    wbs = WaybillReport.select_all.with_resources.sort(field: 'resource_sum', type: 'desc').all
     wbs_test = WaybillReport.select_all.with_resources.order("resource_sum DESC").all
     wbs.should eq(wbs_test)
   end
@@ -217,35 +221,42 @@ describe WaybillReport do
 
     wbs = WaybillReport.search(created: '12').all
     wbs_test = WaybillReport.where{to_char(created, "YYYY-MM-DD").like('%12%')}.all
-    wbs.should eq(wbs_test)
+    wbs.should =~ wbs_test
 
     wbs = WaybillReport.select_all.with_resources.search('document_id' => '1').all
     wbs_test = WaybillReport.select_all.with_resources.where("document_id LIKE '%1%'").all
-    wbs.should eq(wbs_test)
+    wbs.should =~ wbs_test
 
+    query = "case froms_rules.entity_type
+                  when 'Entity'      then entities.tag
+                  when 'LegalEntity' then legal_entities.name
+             end"
     wbs = WaybillReport.select_all.with_resources.search('distributor' => 'a').order(:id).all
-    wbs_test = WaybillReport.joins{deal.rules.from.entity(LegalEntity)}.
-        where{lower(deal.rules.from.entity.name).like(lower('%a%'))}.order(:id).all
-    wbs.should eq(wbs_test)
+    wbs_test = WaybillReport.
+        joins{deal.rules.from.entity(LegalEntity).outer}.
+        joins{deal.rules.from.entity(Entity).outer}.
+        where("lower(#{query}) ILIKE lower('%a%')")
+    wbs.should =~ wbs_test
 
     wbs = WaybillReport.search('storekeeper' => 'a').all
     wbs_test = WaybillReport.joins{deal.entity(Entity)}.
         where{lower(deal.entity.tag).like(lower('%a%'))}.all
-    wbs.should eq(wbs_test)
+    wbs.should =~ wbs_test
 
     wbs = WaybillReport.search('storekeeper_place' => 'm').all
     wbs_test = WaybillReport.joins{deal.take.place}.
         where{lower(deal.take.place.tag).like(lower('%m%'))}.all
-    wbs.should eq(wbs_test)
+    wbs.should =~ wbs_test
 
-    wbs = WaybillReport.select_all.with_resources.search('state' => '1').all
+    wbs = WaybillReport.select_all.with_resources.search(states: [Helpers::Statable::INWORK]).
+        all
     wbs_test = WaybillReport.select_all.with_resources.joins{deal.deal_state}.
-        joins{deal.to_facts.outer}.where("deal_states.closed IS NULL").all
-    wbs.should eq(wbs_test)
+        where{deal.deal_state.state == Helpers::Statable::INWORK}.all
+    wbs.should =~ wbs_test
 
     wbs = WaybillReport.select_all.with_resources.search('resource_tag' => 'r').all
     wbs_test = WaybillReport.select_all.with_resources.
         where{lower(deal.rules.from.take.resource.tag).like(lower('%r%'))}.all
-    wbs.should eq(wbs_test)
+    wbs.should =~ wbs_test
   end
 end

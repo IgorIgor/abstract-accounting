@@ -75,6 +75,23 @@ class FiltrateClass
   end
 end
 
+class Searchable < ActiveRecord::Base
+  has_no_table
+
+  column :uid, :integer
+  column :tag, :string
+
+  custom_search :uid_s do |value|
+    where{uid == my{value}}
+  end
+
+  class << self
+    def attribute_names
+      %w(uid tag)
+    end
+  end
+end
+
 describe AppUtils::ARFilters do
   it "should be included in active record" do
     ActiveRecord::Base.included_modules.include?(AppUtils::ARFilters)
@@ -121,7 +138,7 @@ describe AppUtils::ARFilters do
     end
   end
 
-  describe "#order" do
+  describe "#paginate" do
     it "should call paginate" do
       obj = DammyClass.paginate(1, 10)
       obj.limit_value.should eq(10)
@@ -140,29 +157,40 @@ describe AppUtils::ARFilters do
     end
   end
 
-  describe "#search" do
+  describe "#search", focus: true do
     it "should filter by like attribute" do
-      create(:entity, tag: "First CS")
-      create(:entity, tag: "Second CS")
-      create(:entity, tag: "Third CS")
-
-      Entity.search({tag: "i"}).count.should eq(2)
-      Entity.search({tag: "i"}).all.should =~ Entity.where{tag.like("%i%")}.all
+      test = Searchable.search(tag: "hello")
+      test.where_values.count.should eq(1)
+      test.where_values[0].should be_kind_of(Squeel::Nodes::Predicate)
+      test.where_values[0].expr.should be_kind_of(Squeel::Nodes::Function)
+      test.where_values[0].expr.name.should eq(:lower)
+      test.where_values[0].expr.args[0].should eq(Squeel::DSL.eval{tag})
+      test.where_values[0].method_name.should eq(:matches)
+      test.where_values[0].value.should be_kind_of(Squeel::Nodes::Function)
+      test.where_values[0].value.name.should eq(:lower)
+      test.where_values[0].value.args[0].should eq(Squeel::DSL.eval{"%hello%"})
     end
 
-    it "should filter by like attribute case insensitive" do
-      create(:entity, tag: "FIrst")
-      create(:entity, tag: "Second")
-      create(:entity, tag: "Third")
-
-      Entity.search({tag: "i"}).count.should eq(4)
-      Entity.search({tag: "i"}).all.should =~ Entity.where{tag.like("%i%")}.all
+    it "should cast if attribute is not string" do
+      test = Searchable.search(uid: "1")
+      test.where_values.count.should eq(1)
+      test.where_values[0].should be_kind_of(Squeel::Nodes::Predicate)
+      test.where_values[0].expr.should be_kind_of(Squeel::Nodes::Function)
+      test.where_values[0].expr.name.should eq(:cast)
+      test.where_values[0].expr.args[0].should eql(Squeel::DSL.eval{uid.as("character(100)")})
+      test.where_values[0].method_name.should eq(:matches)
+      test.where_values[0].value.should eq(Squeel::DSL.eval{"%1%"})
     end
 
     it "should use scope before search" do
-      Entity.limit(1).search({tag: "i"}).count.should eq(1)
-      Entity.limit(1).search({tag: "i"}).all.should =~ Entity.limit(1).
-          where{tag.like("%i%")}.all
+      test = Searchable.search(uid: "1", tag: "haha")
+      test.where_values.count.should eq(2)
+    end
+
+    it "should call custom search method if exists" do
+      test = Searchable.search(uid_s: 1)
+      test.where_values.count.should eq(1)
+      test.where_values[0].should eql(Squeel::DSL.eval{uid == my{1}})
     end
   end
 

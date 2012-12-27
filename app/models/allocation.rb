@@ -52,31 +52,21 @@ class Allocation < ActiveRecord::Base
   MOTION_ALLOCATION = 0
   MOTION_INNER = 1
 
-  def self.order_by(attrs = {})
-    field = nil
-    scope = self
-    case attrs[:field].to_s
-      when 'storekeeper'
-        scope = scope.joins{deal.entity(Entity)}
-        field = 'entities.tag'
-      when 'storekeeper_place'
-        scope = scope.joins{deal.give.place}
-        field = 'places.tag'
-      when 'foreman'
-        scope = scope.joins{deal.rules.to.entity(Entity)}.
-            group('allocations.id, allocations.created, allocations.deal_id, entities.tag')
-        field = 'entities.tag'
-      else
-        field = attrs[:field] if attrs[:field]
-    end
-    unless field.nil?
-      if attrs[:type] == 'desc'
-        scope = scope.order("#{field} DESC")
-      else
-        scope = scope.order("#{field}")
-      end
-    end
-    scope
+  custom_sort(:storekeeper) do |dir|
+    query = "entities.tag"
+    joins{deal.entity(Entity)}.order("#{query} #{dir}")
+  end
+
+  custom_sort(:storekeeper_place) do |dir|
+    query = "places.tag"
+    joins{deal.give.place}.order("#{query} #{dir}")
+  end
+
+  custom_sort(:foreman) do |dir|
+    query = "entities.tag"
+    joins{deal.rules.to.entity(Entity)}.
+        group('allocations.id, allocations.created, allocations.deal_id, entities.tag').
+        order("#{query} #{dir}")
   end
 
   custom_search(:foreman) do |value|

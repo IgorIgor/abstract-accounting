@@ -25,6 +25,11 @@ class Deal < ActiveRecord::Base
   has_one :allocation
   has_one :limit
   before_save :before_save
+
+  delegate :can_apply?, :can_cancel?, :can_reverse?, to: :deal_state
+  delegate :apply, :cancel, :reverse, to: :deal_state
+  delegate :in_work?, to: :deal_state
+
   accepts_nested_attributes_for :limit
 
   custom_sort(:name) do |dir|

@@ -30,6 +30,16 @@ describe Deal do
     should have_one :allocation
     should have_one :waybill
 
+    should delegate_method(:can_apply?).to(:deal_state)
+    should delegate_method(:can_cancel?).to(:deal_state)
+    should delegate_method(:can_reverse?).to(:deal_state)
+
+    should delegate_method(:apply).to(:deal_state)
+    should delegate_method(:cancel).to(:deal_state)
+    should delegate_method(:reverse).to(:deal_state)
+
+    should delegate_method(:in_work?).to(:deal_state)
+
     deal_has_states
     deal_has_balances
   end

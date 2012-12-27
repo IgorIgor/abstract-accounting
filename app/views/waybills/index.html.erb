@@ -11,35 +11,7 @@
       <a href="#waybills" id="tree_view" class="button tree-view pressed"></a>
     </li>
     <li class="item">
-      <div class="action_element"
-           data-bind="slider: {pressed: 'waybill_types', slidearea: 'waybill_types_menu', closed: false, pressed_style: true}">
-        <div id="waybill_types">
-          <div class="button checklist"></div>
-        </div>
-        <ul id="waybill_types_menu" class="menu multiple-choice">
-          <li>
-            <input type="checkbox" id="check_inwork" value="<%=Waybill::INWORK %>" data-bind="checked: filter_state">
-            <label for="check_inwork"><%=t 'views.statable.inwork' %></label>
-          </li>
-          <li>
-            <input type="checkbox" id="check_canceled" value="<%=Waybill::CANCELED %>" data-bind="checked: filter_state">
-            <label for="check_canceled"><%=t 'views.statable.canceled' %></label>
-          </li>
-          <li>
-            <input type="checkbox" id="check_applied" value="<%=Waybill::APPLIED %>" data-bind="checked: filter_state">
-            <label for="check_applied"><%=t 'views.statable.applied' %></label>
-          </li>
-          <li>
-            <input type="checkbox" id="check_reverced" value="<%=Waybill::REVERSED %>" data-bind="checked: filter_state">
-            <label for="check_reverced"><%=t 'views.statable.reversed' %></label>
-          </li>
-          <li class="not-hover">
-            <div class="menu-button" data-bind="click: filterData, closeSlidearea: {slidearea: 'waybill_types_menu'}">
-              <%=t 'views.statable.buttons.apply' %>
-            </div>
-          </li>
-        </ul>
-      </div>
+      <%= render partial: "state/filter" %>
     </li>
   </ul>
 </div>
@@ -69,7 +41,9 @@
       <th id="sum" data-bind="click: sortBy">
         <%=t 'views.waybills.sum' %><span></span>
       </th>
-      <th id="state"><%=t 'views.statable.state' %></th>
+      <th id="state" data-bind="click: sortBy">
+        <%=t 'views.statable.state' %><span></span>
+      </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">

@@ -38,4 +38,6 @@ $ ->
       @filter_state(@defaultStateList) if @filter_state().length == 0
       super(data)
 
-    defaultStateList: ["#{Statable.INWORK}", "#{Statable.CANCELED}", "#{Statable.APPLIED}"]
+    defaultStateList: ["#{StatableViewModel.INWORK}",
+      "#{StatableViewModel.CANCELED}",
+      "#{StatableViewModel.APPLIED}"]

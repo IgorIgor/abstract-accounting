@@ -74,7 +74,9 @@ class Waybill < ActiveRecord::Base
                   when 'LegalEntity' then legal_entities.name
              end"
     joins{deal.rules.from.entity(LegalEntity).outer}.
-        joins{deal.rules.from.entity(Entity).outer}.order("#{query} #{dir}")
+        joins{deal.rules.from.entity(Entity).outer}.
+        order("#{query} #{dir}").select("waybills.*").
+        select(query).uniq
   end
 
   custom_sort(:storekeeper) do |dir|
@@ -91,14 +93,20 @@ class Waybill < ActiveRecord::Base
     query = "sum"
     joins{deal.rules.from}.
         group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id').
-        select("waybills.*").
+        select{"waybills.*"}.
         select{sum(deal.rules.rate / deal.rules.from.rate).as(:sum)}.
         order("#{query} #{dir}")
   end
 
   custom_search(:distributor) do |value|
-    joins{deal.rules.from.entity(LegalEntity)}.uniq.
-        where{lower(deal.rules.from.entity.name).like(lower("%#{value}%"))}
+    query = "case froms_rules.entity_type
+                  when 'Entity'      then entities.tag
+                  when 'LegalEntity' then legal_entities.name
+             end"
+    joins{deal.rules.from.entity(LegalEntity).outer}.
+        joins{deal.rules.from.entity(Entity).outer}.
+        where("lower(#{query}) ILIKE lower('%#{value}%')").uniq
+        #where{lower(my{query}).like(lower("%#{value}%"))}.uniq
   end
 
   custom_search(:storekeeper) do |value|

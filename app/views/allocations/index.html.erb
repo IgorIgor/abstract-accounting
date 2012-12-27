@@ -11,35 +11,7 @@
       <a href="#allocations" id="tree_view" class="button tree-view pressed"></a>
     </li>
     <li class="item">
-      <div class="action_element"
-           data-bind="slider: {pressed: 'allocation_types', slidearea: 'allocation_types_menu', closed: false, pressed_style: true}">
-        <div id="allocation_types">
-          <div class="button checklist"></div>
-        </div>
-        <ul id="allocation_types_menu" class="menu multiple-choice">
-          <li>
-            <input type="checkbox" id="check_inwork" value="<%=Allocation::INWORK %>" data-bind="checked: filter_state">
-            <label for="check_inwork"><%=t 'views.statable.inwork' %></label>
-          </li>
-          <li>
-            <input type="checkbox" id="check_canceled" value="<%=Allocation::CANCELED %>" data-bind="checked: filter_state">
-            <label for="check_canceled"><%=t 'views.statable.canceled' %></label>
-          </li>
-          <li>
-            <input type="checkbox" id="check_applied" value="<%=Allocation::APPLIED %>" data-bind="checked: filter_state">
-            <label for="check_applied"><%=t 'views.statable.applied' %></label>
-          </li>
-          <li>
-            <input type="checkbox" id="check_reverced" value="<%=Allocation::REVERSED %>" data-bind="checked: filter_state">
-            <label for="check_reverced"><%=t 'views.statable.reversed' %></label>
-          </li>
-          <li class="not-hover">
-            <div class="menu-button" data-bind="click: filterData, closeSlidearea: {slidearea: 'allocation_types_menu'}">
-              <%=t 'views.statable.buttons.apply' %>
-            </div>
-          </li>
-        </ul>
-      </div>
+      <%= render partial: "state/filter" %>
     </li>
   </ul>
 </div>
@@ -62,7 +34,9 @@
       <th id="foreman" data-bind="click: sortBy">
         <%=t 'views.allocations.foreman' %><span></span>
       </th>
-      <th id="state"><%=t 'views.statable.state' %></th>
+      <th id="state" data-bind="click: sortBy">
+        <%=t 'views.statable.state' %><span></span>
+      </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">

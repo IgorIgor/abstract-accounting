@@ -15,11 +15,21 @@
 <table>
   <thead>
     <tr>
-      <th><%=t 'views.warehouses.foremen.report.resource.name' %></th>
-      <th><%=t 'views.warehouses.foremen.report.resource.mu' %></th>
-      <th><%=t 'views.warehouses.foremen.report.amount' %></th>
-      <th><%=t 'views.warehouses.foremen.report.price' %></th>
-      <th><%=t 'views.warehouses.foremen.report.sum' %></th>
+      <th id="tag" data-bind="click: sortBy">
+        <%=t 'views.warehouses.foremen.report.resource.name' %><span></span>
+      </th>
+      <th id="mu" data-bind="click: sortBy">
+        <%=t 'views.warehouses.foremen.report.resource.mu' %><span></span>
+      </th>
+      <th id="amount" data-bind="click: sortBy">
+        <%=t 'views.warehouses.foremen.report.amount' %><span></span>
+      </th>
+      <th>
+        <%=t 'views.warehouses.foremen.report.price' %>
+      </th>
+      <th>
+        <%=t 'views.warehouses.foremen.report.sum' %>
+      </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">

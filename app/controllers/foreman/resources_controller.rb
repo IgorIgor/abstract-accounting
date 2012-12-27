@@ -33,6 +33,7 @@ module Foreman
           args[:page] = page
           args[:per_page] = per_page
         end
+        args[:sort] = params[:order] if params[:order]
         @resources = WarehouseForemanReport.all(args)
         @count = WarehouseForemanReport.count(args)
       end

@@ -45,6 +45,18 @@ class WarehouseForemanReport
         scope = scope.by_resources(args[:resource_ids].split(','))
       end
 
+      if args[:sort]
+        if args[:sort][:field] == 'tag'
+          scope = scope.joins{resource(Asset)}.group{resource.tag}.
+                        order("assets.tag #{args[:sort][:type]}")
+        elsif args[:sort][:field] == 'mu'
+          scope = scope.joins{resource(Asset)}.group{resource.mu}.
+                        order("assets.mu #{args[:sort][:type]}")
+        elsif args[:sort][:field] == 'amount'
+          scope = scope.order{sum(amount).__send__(args[:sort][:type].downcase)}
+        end
+      end
+
       prices = prices_scoped_with_range(args).
           joins{from.take}.where{from.take.resource_id.in(scope.select{resource_id})}.
           select{resource_id}.select{resource_type}.

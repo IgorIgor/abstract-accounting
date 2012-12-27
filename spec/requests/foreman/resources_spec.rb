@@ -138,4 +138,62 @@ feature 'foreman/resources', %q{
       end
     end
   end
+
+  scenario 'sort foreman resources', js: true do
+    page_login(@foreman.email, @foreman.crypted_password)
+    find("#btn_slide_lists").click
+    click_link I18n.t('views.home.foreman_report')
+    test_order = lambda do |field, type|
+      wfr = WarehouseForemanReport.all(warehouse_id: @place.id,
+                                         sort: { field: field, type: type},
+                                         page: 1, per_page: @per_page,
+                                         foreman_id: @foreman.id)
+      wait_for_ajax
+      within('#container_documents table') do
+        wait_for_ajax
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      check_content("#container_documents table", wfr) do |item|
+        [item.resource.tag, item.resource.mu, item.amount.to_i, item.price.to_i,
+         (item.amount.to_i * item.price.to_i).to_i]
+      end
+    end
+
+    test_order.call('tag','asc')
+    test_order.call('tag','desc')
+
+    test_order.call('mu','asc')
+    test_order.call('mu','desc')
+
+    test_order.call('amount','asc')
+    test_order.call('amount','desc')
+
+    visit "/foreman/resources/data.html?order%5Btype%5D=desc&order%5Bfield%5D=amount"
+    args = {  warehouse_id: @place.id,
+              foreman_id: @foreman.entity_id,
+              start: DateTime.current.beginning_of_month,
+              stop: DateTime.current,
+              sort: { field: 'amount', type: 'desc'} }
+    resources = WarehouseForemanReport.all(args)
+    count = WarehouseForemanReport.count(args)
+    within('#pdf-wrapper table') do
+      page.should have_selector('tbody tr', count: count)
+      resources.each do |res|
+        page.should have_content(res.resource.tag)
+        page.should have_content(res.resource.mu)
+        page.should have_content(res.price.to_i)
+        page.should have_content(res.amount.to_i)
+        page.should have_content (res.price * res.amount).to_i
+      end
+    end
+  end
 end

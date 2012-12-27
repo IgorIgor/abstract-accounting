@@ -43,32 +43,26 @@ module Helpers
       def search_by_states(filter = {})
         return scoped if filter.empty?
         return scoped if filter.values.inject( true ){ |mem, value| mem && value }
-        scope = self.joins{deal.deal_state}.joins{deal.to_facts.outer}
-        scope = scope.where do
+        scope = self.joins{deal.deal_state}
+        scope.where do
           scope_where = nil
           if filter[:inwork]
-            scope_where = (deal.deal_state.closed == nil)
+            scope_where = (deal.deal_state.state == INWORK)
           end
-          if filter[:applied] || filter[:canceled] || filter[:reversed]
-            reversed = ((deal.deal_state.closed != nil))
+          if filter[:canceled]
+            canceled = (deal.deal_state.state == CANCELED)
+            scope_where = scope_where ? scope_where | canceled : canceled
+          end
+          if filter[:applied]
+            applied = (deal.deal_state.state == APPLIED)
+            scope_where = scope_where ? scope_where | applied : applied
+          end
+          if filter[:reversed]
+            reversed = (deal.deal_state.state == REVERSED)
             scope_where = scope_where ? scope_where | reversed : reversed
           end
           scope_where
         end
-        group_by = self.column_names.map{ |item| "#{self.table_name}.#{item}" }
-        group_by += scope.order_values.map{ |item| item.split(' ')[0] }
-        scope = scope.group{group_by}
-        scope_having = []
-        if filter[:inwork] || filter[:canceled]
-          scope_having<<'SUM(facts.amount) IS NULL'
-        end
-        if filter[:applied]
-          scope_having = scope_having<<'SUM(facts.amount) = 1'
-        end
-        if filter[:reversed]
-          scope_having = scope_having<<'SUM(facts.amount) = 0'
-        end
-        scope.having(scope_having.join(' OR '))
       end
       alias_method :statable_search, :search_by_states
     end
@@ -80,29 +74,19 @@ module Helpers
     REVERSED = 4
 
     def open_state
-      self.deal.create_deal_state! if self.deal.deal_state.nil?
+      self.deal.create_deal_state!(state: INWORK) if self.deal.deal_state.nil?
     end
 
     def state
       return UNKNOWN if self.deal.nil? || self.deal.deal_state.nil?
-      if self.deal.deal_state.in_work?
-        return INWORK
-      elsif self.deal.deal_state.closed? && self.deal.to_facts.size == 0
-        return CANCELED
-      elsif self.deal.deal_state.closed? && self.deal.to_facts.size == 1 &&
-          self.deal.to_facts.where{amount == 1.0}.size == 1
-        return APPLIED
-      elsif self.deal.deal_state.closed? && self.deal.to_facts.size == 2 &&
-          self.deal.to_facts.where{amount == -1.0}.size == 1
-        return REVERSED
-      end
-      UNKNOWN
+      self.deal.deal_state.state
     end
 
     def cancel
       if self.state == INWORK
         return run_callbacks :cancel do
           self.deal.deal_state.close
+          self.deal.deal_state.update_attributes(state: CANCELED)
         end
       end
       false
@@ -112,6 +96,7 @@ module Helpers
       if self.state == INWORK
         return run_callbacks :apply do
           self.deal.deal_state.close
+          self.deal.deal_state.update_attributes(state: APPLIED)
         end
       end
       false
@@ -119,7 +104,9 @@ module Helpers
 
     def reverse
       if self.state == APPLIED
-        return run_callbacks :reverse
+        return run_callbacks :reverse do
+          self.deal.deal_state.update_attributes(state: REVERSED)
+        end
       end
       false
     end

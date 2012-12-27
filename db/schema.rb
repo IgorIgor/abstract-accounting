@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121123143242) do
+ActiveRecord::Schema.define(:version => 20121226073932) do
 
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
@@ -127,6 +127,7 @@ ActiveRecord::Schema.define(:version => 20121123143242) do
     t.integer "deal_id"
     t.date    "opened"
     t.date    "closed"
+    t.integer "state"
   end
 
   add_index "deal_states", ["deal_id"], :name => "index_deal_states_on_deal_id", :unique => true

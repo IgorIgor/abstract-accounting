@@ -164,22 +164,23 @@ class WaybillsController < ApplicationController
     scope = autorize_warehouse(Waybill)
     if scope
       filter = {}
+      filter[:paginate] = { page: page, per_page: per_page }
       filter[:sort] = params[:order] if params[:order]
+      search = params[:search] ? params[:search] : {}
       if params[:search] && params[:search][:states]
         states = {inwork: false, canceled: false, applied: false, reversed: false}
         states[:inwork] = true if params[:search][:states].include? Waybill::INWORK.to_s
         states[:canceled] = true if params[:search][:states].include? Waybill::CANCELED.to_s
         states[:applied] = true if params[:search][:states].include? Waybill::APPLIED.to_s
         states[:reversed] = true if params[:search][:states].include? Waybill::REVERSED.to_s
-        filter[:search] = {:states => states}
-
+        search[:states] = states
       else
-        filter[:search] = {states: {inwork: true, canceled: true, applied: true, reversed: false}}
+        search[:states] = {inwork: true, canceled: true, applied: true, reversed: false}
       end
-      scope = scope.filtrate(filter)
+      scope = scope.search(search)
       @count = scope.count
       @count = @count.length unless @count.instance_of? Fixnum
-      @waybills = scope.paginate({ page: page, per_page: per_page })
+      @waybills = scope.filtrate(filter)
       @total = scope.total
     else
       @count = 0
@@ -199,26 +200,25 @@ class WaybillsController < ApplicationController
         scope = autorize_warehouse(WaybillReport, alias: Waybill)
         if scope
           scope = scope.with_resources
-
           filter = {}
+          filter[:paginate] = { page: page, per_page: per_page }
           filter[:sort] = params[:order] if params[:order]
-          filter[:search] = params[:search] if params[:search]
-
+          search = params[:search] ? params[:search] : {}
           if params[:search] && params[:search][:states]
             states = {inwork: false, canceled: false, applied: false, reversed: false}
             states[:inwork] = true if params[:search][:states].include? Waybill::INWORK.to_s
             states[:canceled] = true if params[:search][:states].include? Waybill::CANCELED.to_s
             states[:applied] = true if params[:search][:states].include? Waybill::APPLIED.to_s
             states[:reversed] = true if params[:search][:states].include? Waybill::REVERSED.to_s
-            filter[:search] = {:states => states}
+            search[:states] = states
           else
-            filter[:search] = {states: {inwork: true, canceled: true, applied: true, reversed: false}}
+            search[:states] = {inwork: true, canceled: true, applied: true, reversed: false}
           end
-          scope = scope.filtrate(filter)
+          scope = scope.search(search)
           @count = scope.count
           @count = @count.size if @count.kind_of? Hash
           @total = scope.total
-          @list = scope.paginate({ page: page, per_page: per_page }).select_all.includes_all
+          @list = scope.filtrate(filter).select_all.includes_all
         else
           @count = 0
           @total = 0.0

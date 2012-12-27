@@ -799,53 +799,61 @@ describe Waybill do
     wb3.save!
     wb3.apply
 
-    wbs = Waybill.order_by(field: 'created', type: 'asc').all
+    wbs = Waybill.sort(field: 'created', type: 'asc').all
     wbs_test = Waybill.order('created').all
     wbs.should eq(wbs_test)
-    wbs = Waybill.order_by(field: 'created', type: 'desc').all
+    wbs = Waybill.sort(field: 'created', type: 'desc').all
     wbs_test = Waybill.order('created DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = Waybill.order_by(field: 'document_id', type: 'asc').all
+    wbs = Waybill.sort(field: 'document_id', type: 'asc').all
     wbs_test = Waybill.order('document_id').all
     wbs.should eq(wbs_test)
-    wbs = Waybill.order_by(field: 'document_id', type: 'desc').all
+    wbs = Waybill.sort(field: 'document_id', type: 'desc').all
     wbs_test = Waybill.order('document_id DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = Waybill.order_by(field: 'distributor', type: 'asc').all
+    wbs = Waybill.sort(field: 'distributor', type: 'asc').all
     wbs_test = Waybill.joins{deal.rules.from.entity(LegalEntity)}.
         group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id, ' +
               'legal_entities.name').order('legal_entities.name').all
     wbs.should eq(wbs_test)
-    wbs = Waybill.order_by(field: 'distributor', type: 'desc').all
+    wbs = Waybill.sort(field: 'distributor', type: 'desc').all
     wbs_test = Waybill.joins{deal.rules.from.entity(LegalEntity)}.
         group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id, ' +
               'legal_entities.name').order('legal_entities.name DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = Waybill.order_by(field: 'storekeeper', type: 'asc').all
+    wbs = Waybill.sort(field: 'storekeeper', type: 'asc').all
     wbs_test = Waybill.joins{deal.entity(Entity)}.order('entities.tag').all
     wbs.should eq(wbs_test)
-    wbs = Waybill.order_by(field: 'storekeeper', type: 'desc').all
+    wbs = Waybill.sort(field: 'storekeeper', type: 'desc').all
     wbs_test = Waybill.joins{deal.entity(Entity)}.order('entities.tag DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = Waybill.order_by(field: 'storekeeper_place', type: 'asc').all
+    wbs = Waybill.sort(field: 'storekeeper_place', type: 'asc').all
     wbs_test = Waybill.joins{deal.take.place}.order('places.tag').all
     wbs.should eq(wbs_test)
-    wbs = Waybill.order_by(field: 'storekeeper_place', type: 'desc').all
+    wbs = Waybill.sort(field: 'storekeeper_place', type: 'desc').all
     wbs_test = Waybill.joins{deal.take.place}.order('places.tag DESC').all
     wbs.should eq(wbs_test)
 
-    wbs = Waybill.order_by(field: 'sum', type: 'asc').all
+    wbs = Waybill.sort(field: 'sum', type: 'asc').all
     wbs_test = Waybill.joins{deal.rules.from}.
         group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id').
         select("waybills.*").
         select{sum(deal.rules.rate / deal.rules.from.rate).as(:sum)}.
         order("sum").all
     wbs.should eq(wbs_test)
-    wbs = Waybill.order_by(field: 'sum', type: 'desc').all
+
+    wbs = Waybill.sort(field: 'state', type: 'asc').all
+    wbs_test = Waybill.joins{deal.deal_state}.order('deal_states.state').all
+    wbs.should eq(wbs_test)
+    wbs = Waybill.sort(field: 'state', type: 'desc').all
+    wbs_test = Waybill.joins{deal.deal_state}.order('deal_states.state DESC').all
+    wbs.should eq(wbs_test)
+
+    wbs = Waybill.sort(field: 'sum', type: 'desc').all
     wbs_test = Waybill.joins{deal.rules.from}.
         group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id').
         select("waybills.*").
@@ -864,47 +872,46 @@ describe Waybill do
     wb2.add_item(tag: 'roof_2', mu: 'rm_2', amount: 100, price: 120.0)
     wb2.save
 
-    Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d'), 'document_id' => wb.document_id,
-                     'distributor' => wb.distributor.name, 'storekeeper' => wb.storekeeper.tag,
-                     'storekeeper_place' => wb.storekeeper_place.tag }).include?(wb).should be_true
-    Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d'), 'document_id' => wb.document_id,
-                     'distributor' => wb.distributor.name, 'storekeeper' => wb.storekeeper.tag,
-                     'storekeeper_place' => wb.storekeeper_place.tag }).include?(wb2).should be_false
-    Waybill.search({ 'created' => wb2.created.strftime('%Y-%m-%d'), 'document_id' => wb2.document_id,
-                     'distributor' => wb2.distributor.name, 'storekeeper' => wb2.storekeeper.tag,
-                     'storekeeper_place' => wb2.storekeeper_place.tag }).include?(wb2).should be_true
-    Waybill.search({ 'created' => wb2.created.strftime('%Y-%m-%d'), 'document_id' => wb2.document_id,
-                     'distributor' => wb2.distributor.name, 'storekeeper' => wb2.storekeeper.tag,
-                     'storekeeper_place' => wb2.storekeeper_place.tag }).include?(wb).should be_false
+    Waybill.search({ created: wb.created.strftime('%Y-%m-%d'), document_id: wb.document_id,
+                     distributor: wb.distributor.name, storekeeper: wb.storekeeper.tag,
+                     storekeeper_place: wb.storekeeper_place.tag }).include?(wb).should be_true
+    Waybill.search({ created: wb.created.strftime('%Y-%m-%d'), document_id: wb.document_id,
+                     distributor: wb.distributor.name, storekeeper: wb.storekeeper.tag,
+                     storekeeper_place: wb.storekeeper_place.tag }).include?(wb2).should be_false
+    Waybill.search({ created: wb2.created.strftime('%Y-%m-%d'), document_id: wb2.document_id,
+                     distributor: wb2.distributor.name, storekeeper: wb2.storekeeper.tag,
+                     storekeeper_place: wb2.storekeeper_place.tag }).include?(wb2).should be_true
+    Waybill.search({ created: wb2.created.strftime('%Y-%m-%d'), document_id: wb2.document_id,
+                     distributor: wb2.distributor.name, storekeeper: wb2.storekeeper.tag,
+                     storekeeper_place: wb2.storekeeper_place.tag }).include?(wb).should be_false
 
-    Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d') }).include?(wb).should be_true
-    Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d') }).include?(wb2).should be_true
+    Waybill.search({ created: wb.created.strftime('%Y-%m-%d') }).include?(wb).should be_true
+    Waybill.search({ created: wb.created.strftime('%Y-%m-%d') }).include?(wb2).should be_true
 
-    Waybill.search({ 'state' => Waybill::APPLIED }).include?(wb).should be_true
-    Waybill.search({ 'state' => Waybill::APPLIED }).include?(wb2).should be_false
-    Waybill.search({ 'state' => Waybill::INWORK }).include?(wb).should be_false
-    Waybill.search({ 'state' => Waybill::INWORK }).include?(wb2).should be_true
-    Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb).should be_false
-    Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb2).should be_false
-    Waybill.search({ 'state' => Waybill::REVERSED }).include?(wb).should be_false
-    Waybill.search({ 'state' => Waybill::REVERSED }).include?(wb2).should be_false
+    Waybill.search({ state: Waybill::APPLIED }).include?(wb).should be_true
+    Waybill.search({ state: Waybill::APPLIED }).include?(wb2).should be_false
+    Waybill.search({ state: Waybill::INWORK }).include?(wb).should be_false
+    Waybill.search({ state: Waybill::INWORK }).include?(wb2).should be_true
+    Waybill.search({ state: Waybill::CANCELED }).include?(wb).should be_false
+    Waybill.search({ state: Waybill::CANCELED }).include?(wb2).should be_false
+    Waybill.search({ state: Waybill::REVERSED }).include?(wb).should be_false
+    Waybill.search({ state: Waybill::REVERSED }).include?(wb2).should be_false
 
-    Waybill.search({ 'created' => wb.created.strftime('%Y-%m-%d'), 'document_id' => wb.document_id,
-                     'distributor' => wb.distributor.name, 'storekeeper' => wb.storekeeper.tag,
-                     'storekeeper_place' => wb.storekeeper_place.tag }).length.should eq(1)
+    Waybill.search({ created: wb.created.strftime('%Y-%m-%d'), document_id: wb.document_id,
+                     distributor: wb.distributor.name, storekeeper: wb.storekeeper.tag,
+                     storekeeper_place: wb.storekeeper_place.tag }).length.should eq(1)
 
-    Waybill.search({ 'resource_tag' => 'roof_1' }).include?(wb).should be_true
-    Waybill.search({ 'resource_tag' => 'roof_1' }).include?(wb2).should be_false
-
+    Waybill.search({ resource_tag: 'roof_1' }).include?(wb).should be_true
+    Waybill.search({ resource_tag: 'roof_1' }).include?(wb2).should be_false
 
     wb2.cancel.should be_true
-    Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb).should be_false
-    Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb2).should be_true
+    Waybill.search({ state: Waybill::CANCELED }).include?(wb).should be_false
+    Waybill.search({ state: Waybill::CANCELED }).include?(wb2).should be_true
     wb.reverse.should be_true
-    Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb).should be_false
-    Waybill.search({ 'state' => Waybill::CANCELED }).include?(wb2).should be_true
-    Waybill.search({ 'state' => Waybill::REVERSED }).include?(wb).should be_true
-    Waybill.search({ 'state' => Waybill::REVERSED }).include?(wb2).should be_false
+    Waybill.search({ state: Waybill::CANCELED }).include?(wb).should be_false
+    Waybill.search({ state: Waybill::CANCELED }).include?(wb2).should be_true
+    Waybill.search({ state: Waybill::REVERSED }).include?(wb).should be_true
+    Waybill.search({ state: Waybill::REVERSED }).include?(wb2).should be_false
   end
 
   it "should return all warehouses" do

@@ -22,41 +22,71 @@ class WaybillReport < Waybill
     self.joins{deal.rules.from.take.resource(Asset)}
   end
 
-  def self.order_by(attrs = {})
-    field = nil
-    ordered = false
-    scope = self
-    case attrs[:field]
-      when 'distributor'
-        scope = scope.joins{deal.rules.from.entity(LegalEntity)}
-        field = 'legal_entities.name'
-      when 'resource_tag'
-        scope = scope.joins{deal.rules.from.take.resource}
-        field = 'resource_tag'
-      when 'resource_mu'
-        scope = scope.joins{deal.rules.from.take.resource}
-        field = 'resource_mu'
-      when 'resource_amount'
-        scope = scope.joins{deal.rules}
-        field = 'resource_amount'
-      when 'resource_price'
-        scope = scope.joins{deal.rules.from}
-        field = 'resource_price'
-      when 'resource_sum'
-        scope = scope.joins{deal.rules.from}
-        field = 'resource_sum'
-      else
-        scope = super(attrs)
-        ordered = true
-    end
-    unless ordered & field.nil?
-      if attrs[:type] == 'desc'
-        scope = scope.order("#{field} DESC")
-      else
-        scope = scope.order(field)
-      end
-    end
-    scope
+  #def self.order_by(attrs = {})
+  #  field = nil
+  #  ordered = false
+  #  scope = self
+  #  case attrs[:field]
+  #    when 'distributor'
+  #      scope = scope.joins{deal.rules.from.entity(LegalEntity)}
+  #      field = 'legal_entities.name'
+  #    when 'resource_tag'
+  #      scope = scope.joins{deal.rules.from.take.resource}
+  #      field = 'resource_tag'
+  #    when 'resource_mu'
+  #      scope = scope.joins{deal.rules.from.take.resource}
+  #      field = 'resource_mu'
+  #    when 'resource_amount'
+  #      scope = scope.joins{deal.rules}
+  #      field = 'resource_amount'
+  #    when 'resource_price'
+  #      scope = scope.joins{deal.rules.from}
+  #      field = 'resource_price'
+  #    when 'resource_sum'
+  #      scope = scope.joins{deal.rules.from}
+  #      field = 'resource_sum'
+  #    else
+  #      scope = super(attrs)
+  #      ordered = true
+  #  end
+  #  unless ordered & field.nil?
+  #    if attrs[:type] == 'desc'
+  #      scope = scope.order("#{field} DESC")
+  #    else
+  #      scope = scope.order(field)
+  #    end
+  #  end
+  #  scope
+  #end
+
+  custom_sort(:distributor) do |dir|
+    query = "legal_entities.name"
+    joins{deal.rules.from.entity(LegalEntity)}.order("#{query} #{dir}")
+  end
+
+  custom_sort(:resource_tag) do |dir|
+    query = "assets.tag"
+    joins{deal.rules.from.take.resource(Asset)}.order("#{query} #{dir}")
+  end
+
+  custom_sort(:resource_mu) do |dir|
+    query = "assets.mu"
+    joins{deal.rules.from.take.resource(Asset)}.order("#{query} #{dir}")
+  end
+
+  custom_sort(:resource_amount) do |dir|
+    query = "rules.rate"
+    joins{deal.rules}.order("#{query} #{dir}")
+  end
+
+  custom_sort(:resource_price) do |dir|
+    query = "resource_price"
+    joins{deal.rules.from}.order("#{query} #{dir}")
+  end
+
+  custom_sort(:resource_sum) do |dir|
+    query = "resource_sum"
+    joins{deal.rules.from}.order("#{query} #{dir}")
   end
 
   custom_search(:distributor) do |value|

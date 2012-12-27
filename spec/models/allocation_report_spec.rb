@@ -124,60 +124,53 @@ describe AllocationReport do
     al3.save!
     al3.apply
 
-    als = AllocationReport.order_by(field: 'created', type: 'asc').all
+    als = AllocationReport.sort(field: 'created', type: 'asc').all
     als_test = AllocationReport.order('created').all
     als.should eq(als_test)
-    als = AllocationReport.order_by(field: 'created', type: 'desc').all
+    als = AllocationReport.sort(field: 'created', type: 'desc').all
     als_test = AllocationReport.order('created DESC').all
     als.should eq(als_test)
 
-    als = AllocationReport.order_by(field: 'storekeeper', type: 'asc').all
+    als = AllocationReport.sort(field: 'storekeeper', type: 'asc').all
     als_test = AllocationReport.joins{deal.entity(Entity)}.order('entities.tag').all
     als.should eq(als_test)
-    als = AllocationReport.order_by(field: 'storekeeper', type: 'desc').all
+    als = AllocationReport.sort(field: 'storekeeper', type: 'desc').all
     als_test = AllocationReport.joins{deal.entity(Entity)}.order('entities.tag DESC').all
     als.should eq(als_test)
 
-    als = AllocationReport.order_by(field: 'storekeeper_place', type: 'asc').all
+    als = AllocationReport.sort(field: 'storekeeper_place', type: 'asc').all
     als_test = AllocationReport.joins{deal.give.place}.order('places.tag').all
     als.should eq(als_test)
-    als = AllocationReport.order_by(field: 'storekeeper_place', type: 'desc').all
+    als = AllocationReport.sort(field: 'storekeeper_place', type: 'desc').all
     als_test = AllocationReport.joins{deal.give.place}.order('places.tag DESC').all
     als.should eq(als_test)
 
-    als = AllocationReport.select_all.with_resources.
-        order_by(field: 'foreman', type: 'asc').all
+    als = AllocationReport.select_all.with_resources.sort(field: 'foreman', type: 'asc').all
     als_test = AllocationReport.joins{deal.rules.to.entity(Entity)}.order('entities.tag ASC').all
     als.should eq(als_test)
-    als = AllocationReport.order_by(field: 'foreman', type: 'desc').all
+    als = AllocationReport.sort(field: 'foreman', type: 'desc').all
     als_test = AllocationReport.joins{deal.rules.to.entity(Entity)}.
         order('entities.tag DESC').all
     als.should eq(als_test)
 
-    als = AllocationReport.select_all.with_resources.
-        order_by(field: 'resource_tag', type: 'asc').all
+    als = AllocationReport.select_all.with_resources.sort(field: 'resource_tag', type: 'asc').all
     als_test = AllocationReport.select_all.with_resources.order('assets.tag').all
     als.should eq(als_test)
-    als = AllocationReport.select_all.with_resources.
-        order_by(field: 'resource_tag', type: 'desc').all
+    als = AllocationReport.select_all.with_resources.sort(field: 'resource_tag', type: 'desc').all
     als_test = AllocationReport.select_all.with_resources.order('assets.tag DESC').all
     als.should eq(als_test)
 
-    als = AllocationReport.select_all.with_resources.
-        order_by(field: 'resource_mu', type: 'asc').all
+    als = AllocationReport.select_all.with_resources.sort(field: 'resource_mu', type: 'asc').all
     als_test = AllocationReport.select_all.with_resources.order('assets.mu').all
     als.should eq(als_test)
-    als = AllocationReport.select_all.with_resources.
-        order_by(field: 'resource_mu', type: 'desc').all
+    als = AllocationReport.select_all.with_resources.sort(field: 'resource_mu', type: 'desc').all
     als_test = AllocationReport.select_all.with_resources.order('assets.mu DESC').all
     als.should eq(als_test)
 
-    als = AllocationReport.select_all.with_resources.
-        order_by(field: 'resource_amount', type: 'asc').all
+    als = AllocationReport.select_all.with_resources.sort(field: 'resource_amount', type: 'asc').all
     als_test = AllocationReport.select_all.with_resources.order('rules.rate').all
     als.should eq(als_test)
-    als = AllocationReport.select_all.with_resources.
-        order_by(field: 'resource_amount', type: 'desc').all
+    als = AllocationReport.select_all.with_resources.sort(field: 'resource_amount', type: 'desc').all
     als_test = AllocationReport.select_all.with_resources.order('rules.rate DESC').all
     als.should eq(als_test)
   end

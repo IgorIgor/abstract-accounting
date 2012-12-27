@@ -69,7 +69,9 @@
       <th id="sum" data-bind="click: sortBy">
         <%=t 'views.waybills.sum' %><span></span>
       </th>
-      <th id="state"><%=t 'views.statable.state' %></th>
+      <th id="state" data-bind="click: sortBy">
+        <%=t 'views.statable.state' %><span></span>
+      </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">

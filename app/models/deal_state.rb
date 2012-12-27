@@ -8,7 +8,7 @@
 # Please see ./COPYING for details
 
 class DealState < ActiveRecord::Base
-  attr_accessible :deal_id
+  attr_accessible :deal_id, :state
   belongs_to :deal
 
   validates_uniqueness_of :deal_id

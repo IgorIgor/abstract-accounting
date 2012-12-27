@@ -74,11 +74,16 @@ class Waybill < ActiveRecord::Base
     joins{deal.take.place}.order("#{query} #{dir}")
   end
 
+  custom_sort(:state) do |dir|
+    query = "deal_states.state"
+    joins{deal.deal_state}.order("#{query} #{dir}")
+  end
+
   custom_sort(:sum) do |dir|
     query = "sum"
     joins{deal.rules.from}.
         group('waybills.id, waybills.created, waybills.document_id, waybills.deal_id').
-        select("waybills.*").
+        select{"waybills.*"}.
         select{sum(deal.rules.rate / deal.rules.from.rate).as(:sum)}.
         order("#{query} #{dir}")
   end
@@ -96,6 +101,10 @@ class Waybill < ActiveRecord::Base
   custom_search(:storekeeper_place) do |value|
     joins{deal.take.place}.
         where{lower(deal.take.place.tag).like(lower("%#{value}%"))}
+  end
+
+  custom_search(:state) do |value|
+    joins{deal.deal_state}.where{deal.deal_state.state == value}
   end
 
   custom_search(:resource_tag) do |value|

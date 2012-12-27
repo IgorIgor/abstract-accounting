@@ -9,14 +9,14 @@
 
 require 'spec_helper'
 
-describe BoMElement do
+describe Estimate::BoMElement do
   it "should have next behaviour" do
     should validate_presence_of :resource_id
     should validate_presence_of :bom_id
     should validate_presence_of :rate
-    should belong_to(:resource).class_name(Asset)
-    should belong_to(:bom).class_name(BoM)
-    should have_many(BoMElement.versions_association_name)
+    should belong_to(:resource).class_name("::#{Asset.name}")
+    should belong_to(:bom).class_name(Estimate::BoM)
+    should have_many(Estimate::BoMElement.versions_association_name)
   end
 
   describe "#to_rule" do

@@ -9,13 +9,14 @@
 
 require 'spec_helper'
 
-describe Price do
+describe Estimate::PriceList do
   it "should have next behaviour" do
     should validate_presence_of :resource_id
-    should validate_presence_of :price_list_id
-    should validate_presence_of :rate
-    should belong_to(:resource).class_name(Asset)
-    should belong_to(:price_list)
-    should have_many(Price.versions_association_name)
+    should validate_presence_of :date
+    should validate_presence_of :tab
+    should belong_to(:resource).class_name("::#{Asset.name}")
+    should have_many(Estimate::PriceList.versions_association_name)
+    should have_many(:items).class_name(Estimate::Price)
+    should have_and_belong_to_many(:catalogs)
   end
 end

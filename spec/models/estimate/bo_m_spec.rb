@@ -9,13 +9,13 @@
 
 require 'spec_helper'
 
-describe BoM do
+describe Estimate::BoM do
   it "should have next behaviour" do
     should validate_presence_of(:resource_id)
     should validate_presence_of(:tab)
-    should belong_to(:resource).class_name(Asset)
-    should have_many(BoM.versions_association_name)
-    should have_many(:items).class_name(BoMElement)
+    should belong_to(:resource).class_name("::#{Asset.name}")
+    should have_many(Estimate::BoM.versions_association_name)
+    should have_many(:items).class_name(Estimate::BoMElement)
     should have_and_belong_to_many(:catalogs)
   end
 
@@ -100,7 +100,7 @@ describe BoM do
       ((0.33 * (74.03 * 4.70)) + (0.46 * (59.76 * 4.70))).accounting_norm)
     bom.sum(prices, 2).accounting_norm.should eq(
       (((0.33 * (74.03 * 4.70)) + (0.46 * (59.76 * 4.70))) * 2).accounting_norm)
-    catalog = Catalog.create!(tag: "some catalog")
+    catalog = Estimate::Catalog.create!(tag: "some catalog")
     catalog.price_lists << prices
     bom.sum_by_catalog(catalog, prices.date, 2).accounting_norm.should eq(
            (((0.33 * (74.03 * 4.70)) + (0.46 * (59.76 * 4.70))) * 2).accounting_norm)

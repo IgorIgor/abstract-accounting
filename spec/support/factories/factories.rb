@@ -93,29 +93,6 @@ FactoryGirl.define do
     rate 1.0
   end
 
-  factory :price do
-    resource { |price| price.association(:asset) }
-    rate 10.0
-    price_list_id 1
-  end
-
-  factory :price_list do
-    resource { |plist| plist.association(:asset) }
-    date Date.new(2012, 1, 1)
-    tab "sometab"
-  end
-
-  factory :bo_m do
-    resource { |b| b.association(:asset) }
-    tab "sometab"
-  end
-
-  factory :bo_m_element do
-    resource { |element| element.association(:asset) }
-    rate 0.45
-    bom_id 1
-  end
-
   factory :mu do
     tag
   end
@@ -201,5 +178,30 @@ FactoryGirl.define do
     sequence(:message) { |n| "msg#{n}" }
     date DateTime.now
     notification_type 1
+  end
+
+
+
+  factory :price, class: Estimate::Price do
+    resource { |price| price.association(:asset) }
+    rate 10.0
+    price_list_id 1
+  end
+
+  factory :price_list, class: Estimate::PriceList do
+    resource { |plist| plist.association(:asset) }
+    date Date.new(2012, 1, 1)
+    tab "sometab"
+  end
+
+  factory :bo_m, class: Estimate::BoM do
+    resource { |b| b.association(:asset) }
+    tab "sometab"
+  end
+
+  factory :bo_m_element, class: Estimate::BoMElement do
+    resource { |element| element.association(:asset) }
+    rate 0.45
+    bom_id 1
   end
 end

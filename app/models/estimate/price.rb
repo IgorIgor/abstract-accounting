@@ -7,10 +7,12 @@
 #
 # Please see ./COPYING for details
 
-class Price < ActiveRecord::Base
-  has_paper_trail
+module Estimate
+  class Price < ActiveRecord::Base
+    has_paper_trail
 
-  validates_presence_of :resource_id, :price_list_id, :rate
-  belongs_to :resource, :class_name => "Asset"
-  belongs_to :price_list
+    validates_presence_of :resource_id, :price_list_id, :rate
+    belongs_to :resource, class_name: "::#{::Asset.name}"
+    belongs_to :price_list
+  end
 end

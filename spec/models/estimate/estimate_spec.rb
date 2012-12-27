@@ -9,7 +9,7 @@
 
 require 'spec_helper'
 
-describe Estimate do
+describe Estimate::Estimate do
   it "should have next behaviour" do
     should validate_presence_of :legal_entity_id
     should validate_presence_of :catalog_id
@@ -17,8 +17,8 @@ describe Estimate do
     should belong_to(:deal)
     should belong_to(:legal_entity)
     should belong_to(:catalog)
-    should have_many Estimate.versions_association_name
-    should have_many(:items).class_name(EstimateElement)
+    should have_many Estimate::Estimate.versions_association_name
+    should have_many(:items).class_name(Estimate::EstimateElement)
   end
 
   describe "#items" do
@@ -28,8 +28,8 @@ describe Estimate do
       @compressor = create(:asset)
       @compaction = create(:asset)
       @covering = create(:asset)
-      catalog = Catalog.create!(:tag => "TUP of the Leningrad region")
-      @estimate = Estimate.create!(:legal_entity => create(:legal_entity),
+      catalog = Estimate::Catalog.create!(:tag => "TUP of the Leningrad region")
+      @estimate = Estimate::Estimate.create!(:legal_entity => create(:legal_entity),
                                    :catalog => catalog,
                                    :date => DateTime.civil(2011, 11, 01, 12, 0, 0))
     end
@@ -47,7 +47,7 @@ describe Estimate do
       @estimate.items.create!(:bom => bom, :amount => 1.0)
       @estimate.deal.entity.should eq(@estimate.legal_entity)
       @estimate.deal.isOffBalance.should be_true
-      Estimate.find(@estimate).deal.should eq(@estimate.deal)
+      Estimate::Estimate.find(@estimate).deal.should eq(@estimate.deal)
     end
 
     it "should create rules when item added" do
@@ -79,7 +79,7 @@ describe Estimate do
         @estimate.items.delete(@estimate.items.last.destroy)
       }.should change(Deal, :count).by(-1)
       @estimate.deal.should be_nil
-      Estimate.find(@estimate.id).deal.should be_nil
+      Estimate::Estimate.find(@estimate.id).deal.should be_nil
     end
   end
 end

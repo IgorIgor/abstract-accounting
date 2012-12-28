@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121228104514) do
+ActiveRecord::Schema.define(:version => 20121228143835) do
 
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
@@ -167,6 +167,7 @@ ActiveRecord::Schema.define(:version => 20121228104514) do
   create_table "estimate_catalogs", :force => true do |t|
     t.string  "tag"
     t.integer "parent_id"
+    t.integer "document_id"
   end
 
   add_index "estimate_catalogs", ["parent_id", "tag"], :name => "index_catalogs_on_parent_id_and_tag", :unique => true
@@ -178,6 +179,11 @@ ActiveRecord::Schema.define(:version => 20121228104514) do
   end
 
   add_index "estimate_catalogs_price_lists", ["catalog_id", "price_list_id"], :name => "index_catalogs_price_lists_on_catalog_id_and_price_list_id", :unique => true
+
+  create_table "estimate_documents", :force => true do |t|
+    t.string "title"
+    t.binary "data"
+  end
 
   create_table "estimate_local_elements", :force => true do |t|
     t.integer "local_id"

@@ -15,6 +15,7 @@ describe Estimate::Catalog do
     should validate_presence_of :tag
     should validate_uniqueness_of(:tag).scoped_to(:parent_id)
     should belong_to(:parent).class_name(Estimate::Catalog)
+    should belong_to :document
     should have_many(:subcatalogs).class_name(Estimate::Catalog)
     should have_many Estimate::Catalog.versions_association_name
     should have_and_belong_to_many(:boms).class_name(Estimate::BoM)

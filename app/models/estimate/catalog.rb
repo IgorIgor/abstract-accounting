@@ -8,7 +8,7 @@
 # Please see ./COPYING for details
 
 module Estimate
-  class Catalog < ActiveRecord::Base
+  class Catalog < Base
     has_paper_trail
 
     validates :tag, :presence => true

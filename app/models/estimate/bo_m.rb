@@ -8,7 +8,7 @@
 # Please see ./COPYING for details
 
 module Estimate
-  class BoM < ActiveRecord::Base
+  class BoM < Base
     has_paper_trail
 
     validates_presence_of :resource_id, :tab

@@ -8,7 +8,7 @@
 # Please see ./COPYING for details
 
 module Estimate
-  class BoMElement < ActiveRecord::Base
+  class BoMElement < Base
     has_paper_trail
 
     validates_presence_of :resource_id, :bom_id, :rate

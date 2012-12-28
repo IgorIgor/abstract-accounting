@@ -9,15 +9,15 @@
 
 require 'spec_helper'
 
-describe Estimate::EstimateElement do
+describe Estimate::LocalElement do
   it "should have next behaviour" do
-    Estimate::EstimateElement.create!(:estimate_id => 0, :bom_id => 0, :amount => 10)
+    Estimate::LocalElement.create!(:local_id => 0, :bom_id => 0, :amount => 10)
     should validate_presence_of :bom_id
     should validate_presence_of :amount
-    should validate_uniqueness_of(:bom_id).scoped_to(:estimate_id)
+    should validate_uniqueness_of(:bom_id).scoped_to(:local_id)
     should belong_to :estimate
     should belong_to(:bom).class_name(Estimate::BoM)
-    should have_many Estimate::EstimateElement.versions_association_name
+    should have_many Estimate::LocalElement.versions_association_name
   end
 
   describe "#to_rule" do
@@ -34,7 +34,7 @@ describe Estimate::EstimateElement do
       @bom = catalog.boms.create!(:resource => compaction, :tab => "tab1")
       @bom.items.create!(:resource => truck, :rate => 0.33)
       l_entity = create(:legal_entity)
-      @estimate = Estimate::Estimate.create!(:legal_entity => l_entity,
+      @estimate = Estimate::Local.create!(:legal_entity => l_entity,
                                    :catalog => catalog,
                                    :date => DateTime.civil(2011, 11, 01, 12, 0, 0),
                                    :deal =>create(:deal, :entity => l_entity))

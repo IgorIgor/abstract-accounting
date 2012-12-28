@@ -17,6 +17,7 @@ module Estimate
     has_many :subcatalogs,  class_name: Catalog, :foreign_key => :parent_id
     has_and_belongs_to_many :boms, class_name: BoM
     has_and_belongs_to_many :price_lists
+    belongs_to :document
 
     def price_list(filter_date, filter_tab)
       # FIXME: it's temporary solution for date comparison

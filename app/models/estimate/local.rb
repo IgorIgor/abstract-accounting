@@ -8,14 +8,12 @@
 # Please see ./COPYING for details
 
 module Estimate
-  class Estimate < ActiveRecord::Base
-    has_paper_trail
-
+  class Local < Base
     validates_presence_of :legal_entity_id, :catalog_id, :date
     belongs_to :legal_entity
     belongs_to :catalog
     belongs_to :deal
-    has_many :items, class_name: EstimateElement,
+    has_many :items, class_name: LocalElement, foreign_key: :local_id,
              :after_remove => :remove_item,
              :before_add => :add_item
 

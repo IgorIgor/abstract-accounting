@@ -7,11 +7,11 @@
 #
 # Please see ./COPYING for details
 
-module Estimate
-  class PriceList < Base
-    validates_presence_of :resource_id, :date, :tab
-    belongs_to :resource, class_name: "::#{Asset.name}"
-    has_many :items, class_name: Price
-    has_and_belongs_to_many :catalogs
+require 'spec_helper'
+
+describe Estimate::Base do
+  it "should have next behavior" do
+    Estimate::Base.abstract_class.should be_true
+    Estimate::Base.table_name_prefix.should eq("estimate_")
   end
 end

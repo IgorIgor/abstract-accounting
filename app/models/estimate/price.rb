@@ -8,9 +8,7 @@
 # Please see ./COPYING for details
 
 module Estimate
-  class Price < ActiveRecord::Base
-    has_paper_trail
-
+  class Price < Base
     validates_presence_of :resource_id, :price_list_id, :rate
     belongs_to :resource, class_name: "::#{::Asset.name}"
     belongs_to :price_list

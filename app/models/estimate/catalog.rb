@@ -8,9 +8,7 @@
 # Please see ./COPYING for details
 
 module Estimate
-  class Catalog < ActiveRecord::Base
-    has_paper_trail
-
+  class Catalog < Base
     validates :tag, :presence => true
     validates_uniqueness_of :tag, :scope => :parent_id
     belongs_to :parent, class_name: Catalog

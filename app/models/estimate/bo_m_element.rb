@@ -8,9 +8,7 @@
 # Please see ./COPYING for details
 
 module Estimate
-  class BoMElement < ActiveRecord::Base
-    has_paper_trail
-
+  class BoMElement < Base
     validates_presence_of :resource_id, :bom_id, :rate
     belongs_to :resource, class_name: "::#{Asset.name}"
     belongs_to :bom, class_name: BoM

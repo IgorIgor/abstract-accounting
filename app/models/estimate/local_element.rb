@@ -8,13 +8,11 @@
 # Please see ./COPYING for details
 
 module Estimate
-  class EstimateElement < ActiveRecord::Base
-    has_paper_trail
-
+  class LocalElement < Base
     validates_presence_of :amount, :bom_id
-    validates_uniqueness_of :bom_id, :scope => :estimate_id
+    validates_uniqueness_of :bom_id, :scope => :local_id
     belongs_to :bom, class_name: BoM
-    belongs_to :estimate
+    belongs_to :estimate, class_name: Local, foreign_key: :local_id
 
     def to_rule(deal, place, price_list = nil)
       deal.rules.create!(:tag => "deal: #{deal.tag}; rule ##{deal.rules.count() + 1}",

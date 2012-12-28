@@ -8,10 +8,10 @@
 # Please see ./COPYING for details
 
 module Estimate
-  class PriceList < Base
-    validates_presence_of :resource_id, :date, :tab
-    belongs_to :resource, class_name: "::#{Asset.name}"
-    has_many :items, class_name: Price
-    has_and_belongs_to_many :catalogs
+  class Base < ActiveRecord::Base
+    self.abstract_class = true
+    self.table_name_prefix = 'estimate_'
+
+    has_paper_trail
   end
 end

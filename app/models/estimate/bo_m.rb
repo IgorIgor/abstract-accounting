@@ -8,9 +8,7 @@
 # Please see ./COPYING for details
 
 module Estimate
-  class BoM < ActiveRecord::Base
-    has_paper_trail
-
+  class BoM < Base
     validates_presence_of :resource_id, :tab
     belongs_to :resource, class_name: "::#{Asset.name}"
     has_many :items, class_name: BoMElement, :foreign_key => :bom_id

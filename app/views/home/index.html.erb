@@ -176,6 +176,20 @@
         <% end %>
       </ul>
     </div>
+
+    <div class="slider">
+      <div id="arrow_estimate" class="arrow-down-slide"></div>
+      <a id="btn_slide_estimate" class="btn-slide" data-bind="click: slide">
+        <%=t 'views.home.estamate' %>
+      </a>
+      <ul id="slide_menu_estimate" class="slide_menu" style="display: none;">
+        <% if current_user.root? %>
+            <li id="estimate_catalogs">
+              <a href="#estimate/catalogs"><%=t 'views.home.estimate_catalogs' %></a>
+            </li>
+        <% end %>
+      </ul>
+    </div>
   </div>
 </div>
 

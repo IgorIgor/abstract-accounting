@@ -1,0 +1,35 @@
+<div class='actions'>
+  <input type='button' value="<%= t 'views.estimates.catalogs.create' %>" data-bind="click: newCatalog"/>
+</div>
+<div class='breadcrumbs'>
+  <ul class="path" data-bind="foreach: parents">
+    <li class="arrow_right" data-bind="text: tag, click: $parent.selectParent"></li>
+  </ul>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th id="tag">
+        <%= t 'views.estimates.catalogs.tag' %>
+      </th>
+      <th id="document_id">
+        <%= t 'views.estimates.catalogs.catalog_document' %>
+      </th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr>
+      <td data-bind="text: tag, click: $parent.selectItem"></td>
+      <!-- ko if: document_id == null -->
+      <td></td>
+      <!-- /ko -->
+      <!-- ko if: document_id != null -->
+      <td class="min-padding">
+        <span class="cell-link" data-bind="click: $parent.showDocument">
+          <%= t 'views.estimates.catalogs.view_document' %>
+        </span>
+      </td>
+      <!-- /ko -->
+    </tr>
+  </tbody>
+</table>

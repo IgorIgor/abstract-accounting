@@ -128,6 +128,7 @@ $ ->
       @disable = ko.observable(false)
       @object = ko.mapping.fromJS(object)
       @route = route
+      @namespace = "documents"
       $('.paginate').hide()
 
     ajaxRequest: (type, url, params = {}) =>
@@ -144,7 +145,7 @@ $ ->
               if response['result'] == 'success'
                 hash = ''
                 if response['id']
-                  hash = "documents/#{@route}/#{response['id']}"
+                  hash = "#{@namespace}/#{@route}/#{response['id']}"
                 else
                   hash = location.hash
                 $.sammy().refresh() unless location.hash == hash
@@ -456,6 +457,41 @@ $ ->
             )
           )
         )
+        this.get('#estimate/:type/new', ->
+          type = this.params.type
+          filter = this.params.toHash()
+          delete filter.type
+          $.get("/estimate/#{type}/preview", {}, (form) ->
+            $.getJSON("/estimate/#{type}/new.json", normalizeHash(filter) , (object) ->
+
+              viewModel = switch type
+                when 'catalogs'
+                  new EstimateCatalogViewModel(object)
+
+              ko.cleanNode($('#main').get(0))
+              $('#container_documents').html(form)
+              ko.applyBindings(viewModel, $('#container_documents').get(0))
+            )
+          )
+        )
+        this.get('#estimate/:type/:id', ->
+          id = this.params.id
+          type = this.params.type
+          filter = this.params.toHash()
+          delete filter.type
+          $.get("/estimate/#{type}/preview", {}, (form) ->
+            $.getJSON("/estimate/#{type}/#{id}.json", normalizeHash(filter), (object) ->
+
+              viewModel = switch type
+                when 'catalogs'
+                  new EstimateCatalogViewModel(object, true)
+
+              ko.cleanNode($('#main').get(0))
+              $('#container_documents').html(form)
+              ko.applyBindings(viewModel, $('#container_documents').get(0))
+            )
+          )
+        )
         this.get('#documents/:type/new', ->
           type = this.params.type
           $.get("/#{type}/preview", {}, (form) ->
@@ -556,6 +592,18 @@ $ ->
               toggleSelect("warehouses_foremen")
               $('.paginate').show()
               viewModel = new WarehouseForemanReportViewModel(data)
+              ko.cleanNode($('#main').get(0))
+              $('#container_documents').html(form)
+              ko.applyBindings(viewModel, $('#main').get(0))
+            )
+          )
+        )
+        this.get('#estimate/catalogs', ->
+          $.get("/estimate/catalogs", {}, (form) ->
+            $.getJSON("/estimate/catalogs/data.json", {}, (data) ->
+              toggleSelect("estimate_catalogs")
+              $('.paginate').show()
+              viewModel = new EstimateCatalogsViewModel(data)
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#main').get(0))
@@ -681,6 +729,8 @@ $ ->
           @slideMenu('#slide_menu_lists', '#arrow_lists')
         when 'btn_slide_services'
           @slideMenu('#slide_menu_services', '#arrow_services')
+        when 'btn_slide_estimate'
+          @slideMenu('#slide_menu_estimate', '#arrow_estimate')
 
     slideMenu: (slide_id, arrow_id) ->
         if $(slide_id).is(":visible")

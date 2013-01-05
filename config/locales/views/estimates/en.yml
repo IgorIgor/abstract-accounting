@@ -15,3 +15,19 @@ en:
       resource: "Resource"
       rate: "Rate"
       cost: "Cost"
+
+      catalogs:
+        create: Create catalog
+        tag: Tag
+        catalog_document: Document
+        parent_catalog: Parent catalog
+        view_document: View document
+        inserted_document: Inserted document
+        document:
+          title: Title
+          data: Data
+        page:
+          title:
+            show: Show catalog
+            edit: Edit catalog
+            new: New catalog

@@ -145,6 +145,7 @@ $ ->
                 hash = ''
                 if response['id']
                   hash = "documents/#{@route}/#{response['id']}"
+                  hash = "estimates/bo_ms/#{response['id']}" if @route == 'estimate/bo_ms'
                 else
                   hash = location.hash
                 $.sammy().refresh() unless location.hash == hash
@@ -178,18 +179,25 @@ $ ->
       super(object, route, readonly)
       @method = 'POST'
       @id_presence = ko.observable(object.id?)
+      @id_presence = ko.observable(object.bo_m.id?)
 
     edit: =>
       @readonly(false)
       @disable(false)
       @method = 'PUT'
-      location.hash = "#documents/#{@route}/#{@object.id()}/edit"
+      if @route == 'estimate/bo_ms'
+        location.hash = "#estimates/bo_ms/#{@object.bo_m.id()}/edit"
+      else
+        location.hash = "#documents/#{@route}/#{@object.id()}/edit"
 
     save: =>
       @disable(true)
       url = "/#{@route}"
       if @method == 'PUT'
-        url = "/#{@route}/#{@object.id()}"
+        if @route == 'estimate/bo_ms'
+          url = "/#{@route}/#{@object.bo_m.id()}"
+        else
+          url = "/#{@route}/#{@object.id()}"
       @ajaxRequest(@method, url, normalizeHash(ko.mapping.toJS(@object)))
 
   class self.CommentableViewModel extends EditableObjectViewModel
@@ -456,6 +464,37 @@ $ ->
             )
           )
         )
+        this.get('#estimates/:type/new', ->
+          type = this.params.type
+          $.get("/estimate/#{type}/preview", {}, (form) ->
+            $.getJSON("/estimate/#{type}/new.json", {}, (object) ->
+              toggleSelect("estimate")
+
+              viewModel = switch type
+                when 'bo_ms'
+                  new BoMViewModel(object)
+
+              ko.cleanNode($('#main').get(0))
+              $('#container_documents').html(form)
+              ko.applyBindings(viewModel, $('#container_documents').get(0))
+            )
+          )
+        )
+        this.get('#estimates/:type/:id', ->
+          id = this.params.id
+          type = this.params.type
+          $.get("/estimate/#{type}/preview", {}, (form) ->
+            $.getJSON("/estimate/#{type}/#{id}.json", {}, (object) ->
+              toggleSelect("estimate")
+              viewModel = switch type
+                when 'bo_ms'
+                  new BoMViewModel(object, true)
+              ko.cleanNode($('#main').get(0))
+              $('#container_documents').html(form)
+              ko.applyBindings(viewModel, $('#container_documents').get(0))
+            )
+          )
+        )
         this.get('#documents/:type/new', ->
           type = this.params.type
           $.get("/#{type}/preview", {}, (form) ->
@@ -681,6 +720,8 @@ $ ->
           @slideMenu('#slide_menu_lists', '#arrow_lists')
         when 'btn_slide_services'
           @slideMenu('#slide_menu_services', '#arrow_services')
+        when 'btn_slide_estimate'
+          @slideMenu('#slide_menu_estimate', '#arrow_estimate')
 
     slideMenu: (slide_id, arrow_id) ->
         if $(slide_id).is(":visible")

@@ -1,0 +1,227 @@
+<form data-bind="validate: { success: save }">
+  <div class='actions'>
+    <%= render :partial => "home/buttons", :locals => { :editable => true } %>
+  </div>
+
+  <span id="page-title">
+    <!-- ko if: readonly -->
+    <%= t('views.estimates.page.title.show') %>
+    <!-- /ko -->
+    <!-- ko ifnot: readonly -->
+      <!-- ko if: id_presence -->
+      <%= t('views.estimates.page.title.edit') %>
+      <!-- /ko -->
+      <!-- ko ifnot: id_presence -->
+      <%= t('views.estimates.page.title.new') %>
+      <!-- /ko -->
+    <!-- /ko -->
+  </span>
+
+  <%= render 'home/errors' %>
+
+  <fieldset>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="uid"><%= t('views.estimates.uid') %>:</label>
+        </span>
+        <span>
+          <input id="uid" type="text" name="<%= t('views.estimates.uid') %>"  rule="required"
+                 data-bind="value: object.bo_m.uid,
+                            disable: readonly"/>
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="asset_tag"><%= t('views.resources.tag') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="asset_tag"
+                 name="<%= t('views.resources.tag') %>" rule="required"
+                 data-bind="autocomplete: { source: 'assets.json',
+                                             value: 'tag',
+                                             onlySelect: false,
+                                             bind: {
+                                               id: object.bo_m.resource_id,
+                                               mu: object.resource.mu
+                                             }
+                                           },
+                                           value: object.resource.tag,
+                                           disable: readonly">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="asset_mu"><%= t('views.resources.mu') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="asset_mu" rule="required"
+                 name="<%= t('views.resources.mu') %>"
+                 data-bind="value: object.resource.mu, valueUpdate: 'afterkeydown',
+                            disable: readonly, event: {keypress: resourceClear}">
+        </span>
+      </div>
+    </div>
+    <table class="elements-align-center">
+      <thead>
+        <tr>
+          <th class="col-width"><%= t('views.estimates.code') %></th>
+          <th><%= t('views.resources.tag') %></th>
+          <th class="col-width"><%= t('views.resources.mu') %></th>
+          <th class="col-width"><%= t('views.estimates.rate') %></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tr class="font-bold" data-bind="visible: !readonly() || object.elements.builders.rate">
+        <td>1</td>
+        <td><%= t('views.estimates.elements.builders') %></td>
+        <td><%= t('views.estimates.elements.mu.people') %></td>
+        <td><input type="text" id="builders" name="<%= t('views.estimates.elements.builders') %>"
+                   rule="dependency_required number" dependency_required="rank"
+                   data-bind="value: object.elements.builders.rate, disable: readonly">
+        </td>
+        <td></td>
+      </tr>
+      <tr data-bind="visible: !readonly() || object.elements.rank.rate">
+        <td>1.1</td>
+        <td><%= t('views.estimates.elements.rank') %></td>
+        <td></td>
+        <td><input type="text" id="rank" name="<%= t('views.estimates.elements.rank') %>"
+                   rule="dependency_required number" dependency_required="builders"
+                   data-bind="value: object.elements.rank.rate, disable: readonly">
+        </td>
+        <td></td>
+      </tr>
+      <tr class="font-bold" data-bind="visible: !readonly() || object.elements.machinist.rate">
+        <td>2</td>
+        <td><%= t('views.estimates.elements.machinist') %></td>
+        <td><%= t('views.estimates.elements.mu.people') %></td>
+        <td><input type="text" name="<%= t('views.estimates.elements.machinist') %> "
+                   rule="number" id="machinist"
+                   data-bind="value: object.elements.machinist.rate, disable: readonly">
+        </td>
+        <td></td>
+      </tr>
+      <tr class="font-bold" data-bind="visible: !readonly() ||
+                                                 object.elements.machinery().length > 0">
+        <td>3</td>
+        <td><%= t('views.estimates.elements.machinery') %></td>
+        <td></td>
+        <td></td>
+        <td class="table-actions">
+          <span class="mini-icon add" id="add-mach"
+                data-bind="visible: !$root.readonly(),
+                           click: function(){ $root.addElement('machinery'); }">
+          </span>
+        </td>
+      </tr>
+      <tbody data-bind="foreach: { data: object.elements['machinery'], as: 'item' }">
+      <tr>
+        <td><input type="text" rule="required"
+                   data-bind="attr: { name: '<%= t('views.estimates.elements.machinery') %>#' +
+                                          $root.object.elements['machinery'].indexOf($data) +
+                                          ' <%= t('views.estimates.code') %>',
+                                      id: 'machinery_code_' +
+                                          $root.object.elements['machinery'].indexOf($data)
+                                     }, value: code, disable: $root.readonly">
+        </td>
+        <td><input type="text" rule="required"
+                   data-bind="attr: { name: '<%= t('views.estimates.elements.machinery') %>#' +
+                                          $root.object.elements['machinery'].indexOf($data) +
+                                          ' <%= t('views.estimates.name') %>',
+                                      id: 'machinery_tag_' +
+                                          $root.object.elements['machinery'].indexOf($data)
+                                     },
+                                     autocomplete: {
+                     source: 'assets.json?mu=<%= t('views.estimates.elements.mu.machine') %>',
+                                                     value: 'tag',
+                                                     onlySelect: false,
+                                                     bind: { id: id }
+                                     },
+                                     value: tag, disable: $root.readonly">
+        </td>
+        <td><%= t('views.estimates.elements.mu.machine') %></td>
+        <td><input type="text" rule="required number"
+                   data-bind="attr: { name: '<%= t('views.estimates.elements.machinery') %>#' +
+                                          $root.object.elements['machinery'].indexOf($data) +
+                                          ' <%= t('views.estimates.rate') %>',
+                                      id: 'machinery_rate_' +
+                                          $root.object.elements['machinery'].indexOf($data)
+                                     }, value: rate, disable: $root.readonly" ></td>
+        <td class="table-actions">
+          <span class="mini-icon delete" id="remove-mach"
+                data-bind="visible: !$root.readonly(),
+                           click: function(){ $root.removeElement('machinery', item);}">
+          </span>
+        </td>
+      </tr>
+      </tbody>
+      <tr class="font-bold" data-bind="visible: !readonly() ||
+                                                 object.elements.resources().length > 0">
+        <td>4</td>
+        <td><%= t('views.estimates.elements.resources') %></td>
+        <td></td>
+        <td></td>
+        <td class="table-actions">
+          <span class="mini-icon add" id="add-res"
+                data-bind="visible: !$root.readonly(),
+                           click: function(){ $root.addElement('resources'); }">
+           </span>
+        </td>
+      </tr>
+      <tbody data-bind="foreach: { data: object.elements['resources'], as: 'item' }">
+        <tr>
+          <td><input type="text" rule="required"
+                     data-bind="attr: { name: '<%= t('views.estimates.elements.resources') %>#' +
+                                          $root.object.elements['resources'].indexOf($data) +
+                                          ' <%= t('views.estimates.code') %>',
+                                        id: 'resources_code_' +
+                                            $root.object.elements['resources'].indexOf($data)
+                                       }, value: code, disable: $root.readonly">
+          </td>
+          <td><input type="text" rule="required"
+                     data-bind="autocomplete: { source: 'assets.json',
+                                                value: 'tag',
+                                                onlySelect: false,
+                                                bind: {
+                                                 id: id,
+                                                 mu: mu
+                                                }
+                                              },
+                                 attr: { name: '<%= t('views.estimates.elements.resources') %>#' +
+                                          $root.object.elements['resources'].indexOf($data) +
+                                          ' <%= t('views.estimates.name') %>',
+                                        id: 'resources_tag_' +
+                                            $root.object.elements['resources'].indexOf($data)
+                                        }, value: tag, disable: $root.readonly">
+          </td>
+          <td><input type="text" rule="required"
+                     data-bind="attr: { name: '<%= t('views.estimates.elements.resources') %>#' +
+                                          $root.object.elements['resources'].indexOf($data) +
+                                          ' <%= t('views.resources.mu') %>',
+                                        id: 'resources_mu_' +
+                                            $root.object.elements['resources'].indexOf($data)
+                                       },
+                                       value: mu, disable: $root.readonly,
+                                       event: {keypress: $root.elementResourceClear}">
+          </td>
+          <td><input type="text" rule="required number"
+                     data-bind="attr: { name: '<%= t('views.estimates.elements.resources') %>#' +
+                                          $root.object.elements['resources'].indexOf($data) +
+                                          ' <%= t('views.estimates.rate') %>',
+                                        id: 'resources_rate_' +
+                                            $root.object.elements['resources'].indexOf($data)
+                                       },
+                                       value: rate, disable: $root.readonly">
+          </td>
+          <td class="table-actions">
+            <span class="mini-icon delete" id="remove-res"
+                  data-bind="visible: !$root.readonly(),
+                             click: function(){ $root.removeElement('resources', item); }">
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </fieldset>
+</form>

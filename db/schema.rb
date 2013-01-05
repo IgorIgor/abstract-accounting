@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121228143835) do
+ActiveRecord::Schema.define(:version => 20121229124728) do
 
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
@@ -88,7 +88,6 @@ ActiveRecord::Schema.define(:version => 20121228143835) do
     t.integer "deal_id"
     t.date    "opened"
     t.date    "closed"
-    t.integer "state"
   end
 
   add_index "deal_states", ["deal_id"], :name => "index_deal_states_on_deal_id", :unique => true
@@ -143,6 +142,8 @@ ActiveRecord::Schema.define(:version => 20121228143835) do
     t.integer "bom_id"
     t.integer "resource_id"
     t.float   "rate"
+    t.string  "uid"
+    t.integer "element_type"
   end
 
   add_index "estimate_bo_m_elements", ["bom_id"], :name => "index_bo_m_elements_on_bom_id"
@@ -150,11 +151,11 @@ ActiveRecord::Schema.define(:version => 20121228143835) do
 
   create_table "estimate_bo_ms", :force => true do |t|
     t.integer "resource_id"
-    t.string  "tab"
+    t.string  "uid"
   end
 
   add_index "estimate_bo_ms", ["resource_id"], :name => "index_bo_ms_on_resource_id"
-  add_index "estimate_bo_ms", ["tab"], :name => "index_bo_ms_on_tab"
+  add_index "estimate_bo_ms", ["uid"], :name => "index_bo_ms_on_tab"
 
   create_table "estimate_bo_ms_catalogs", :id => false, :force => true do |t|
     t.integer "bo_m_id"

@@ -1,0 +1,32 @@
+en:
+  views:
+    estimates:
+      page:
+        title:
+          new: New estimate
+          show: Show estimate
+          edit: Edit estimate
+      elements:
+        builders: "Labor costs of construction workers"
+        rank: "The average rank of work"
+        machinist: "Labor costs machinists"
+        machinery: "Machines and mechanisms"
+        resources: "Resources"
+        mu:
+          people: "man-h"
+          machine: "machine-h"
+      entity: "Entity"
+      ident_name: "Ident. name"
+      ident_value: "Ident. value"
+      catalog: "Catalog"
+      name: "Name"
+      date: "Date"
+      boms: "BoMs"
+      uid: "By catalog number"
+      bom: "BoM"
+      count: "Count"
+      sum: "Sum"
+      resource: "Resource"
+      rate: "Rate"
+      cost: "Cost"
+      code: "Cipher resource"

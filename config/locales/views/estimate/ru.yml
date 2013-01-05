@@ -27,6 +27,22 @@ ru:
         mu:
           people: "чел.-ч"
           machine: "маш.-ч"
+      catalogs:
+        root: Главный каталог
+        create: Создать каталог
+        tag: Название
+        catalog_document: Документ
+        parent_catalog: Родительский каталог
+        view_document: Просмотреть документ
+        inserted_document: Вложенный документ
+        document:
+          title: Загловок
+          data: Содержание
+        page:
+          title:
+            show: Просмотр каталога
+            edit: Редактирование каталога
+            new: Новый каталог
       entity: "Лицо"
       ident_name: "Название идентификатора"
       ident_value: "Идентификатор"

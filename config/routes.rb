@@ -39,8 +39,6 @@ Abstract::Application.routes.draw do
       get 'preview'
     end
   end
-  resources :catalogs
-
   resources :waybills, except: [:destroy] do
     collection do
       get 'preview'
@@ -178,6 +176,15 @@ Abstract::Application.routes.draw do
     resources :prices, except: [:destroy] do
       collection do
         get 'preview'
+      end
+    end
+    resources :catalogs do
+      collection do
+        get 'data'
+        get 'preview'
+      end
+      member do
+        get 'document'
       end
     end
   end

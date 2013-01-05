@@ -13,15 +13,22 @@ module Estimate
     validates_uniqueness_of :tag, :scope => :parent_id
     belongs_to :parent, class_name: Catalog
     has_many :subcatalogs,  class_name: Catalog, :foreign_key => :parent_id
-    has_and_belongs_to_many :boms, class_name: BoM
-    has_and_belongs_to_many :price_lists
+    has_many :boms, class_name: BoM
+    has_many :prices
     belongs_to :document
 
-    def price_list(filter_date, filter_tab)
-      # FIXME: it's temporary solution for date comparison
-      #  Rplace all datetime to date
-      self.price_lists.where{to_char(date, "YYYY-MM-DD").like("#{filter_date.strftime("%Y-%m-%d")}%")}.
-                       where{tab.eq(filter_tab)}.first
+    def create_or_update_document(data)
+      if document.nil?
+        create_document(data)
+      else
+        document.update_attributes(data)
+      end
+    end
+
+    class << self
+      def with_parent_id(pid)
+        where{parent_id == pid}
+      end
     end
   end
 end

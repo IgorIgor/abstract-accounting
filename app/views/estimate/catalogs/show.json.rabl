@@ -7,13 +7,13 @@
 #
 # Please see ./COPYING for details
 
-class CatalogsController < ApplicationController
-  def index
-    if params[:id]
-      catalog = Catalog.find(params[:id])
-      @catalogs = catalog.parent ? catalog.parent.subcatalogs : Catalog.where(:parent_id => nil)
-    else
-      @catalogs = Catalog.where(:parent_id => params[:parent_id])
-    end
-  end
+object false
+node(:id) { @catalog.id }
+child(@catalog => :catalog) do
+  attributes :tag, :parent_id
+  node(:parent_tag) { @catalog.parent.tag }
 end
+child(@catalog.document => :document) do
+  attributes :title, :data
+end
+node(:have_document) { @have_document }

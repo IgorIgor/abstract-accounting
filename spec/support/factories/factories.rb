@@ -192,4 +192,15 @@ FactoryGirl.define do
     resource { |b| b.association(:asset) }
     uid "sometab"
   end
+
+  factory :document, class: Estimate::Document do
+    sequence(:title) { |n| "document##{n}" }
+    data "<html><head><title>Title of document</title></head><body><h1>Data of document</h1></body></html>"
+  end
+
+  factory :catalog, class: Estimate::Catalog do
+    sequence(:tag) { |n| "catalog##{n}" }
+    parent_id nil
+    document_id nil
+  end
 end

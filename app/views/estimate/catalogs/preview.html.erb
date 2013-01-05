@@ -1,0 +1,72 @@
+<form data-bind="validate: { success: save }">
+  <div class='actions'>
+    <%= render :partial => "home/buttons", :locals => { :editable => true } %>
+  </div>
+
+  <span id="page-title">
+    <!-- ko if: readonly -->
+      <%= t('views.estimates.catalogs.page.title.show') %>
+    <!-- /ko -->
+    <!-- ko ifnot: readonly -->
+      <!-- ko if: id_presence -->
+        <%= t('views.estimates.catalogs.page.title.edit') %>
+      <!-- /ko -->
+      <!-- ko ifnot: id_presence -->
+        <%= t('views.estimates.catalogs.page.title.new') %>
+      <!-- /ko -->
+    <!-- /ko -->
+  </span>
+
+  <%= render 'home/errors' %>
+
+  <fieldset>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="catalog_tag"><%= t('views.estimates.catalogs.tag') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="catalog_tag"
+                 name="<%= t('views.estimates.catalogs.tag') %>" rule="required"
+                 data-bind="value: object.catalog.tag, disable: readonly">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="catalog_parent_id"><%= t('views.estimates.catalogs.parent_catalog') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="catalog_parent_id"
+                 name="<%= t('views.estimates.catalogs.parent_catalog') %>"
+                 data-bind="value: object.catalog.parent_tag, disable: true">
+        </span>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>
+      <label for="with_document"><%= t('views.estimates.catalogs.inserted_document') %>:</label>
+      <input id="with_document" type="checkbox" data-bind="checked: with_document, disable: readonly"/>
+    </legend>
+    <!-- ko if: with_document -->
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="document_tag"><%= t('views.estimates.catalogs.document.title') %>:</label>
+        </span>
+        <input type="text" id="document_tag"
+               name="<%= t('views.estimates.catalogs.document.title') %>" rule="required"
+               data-bind="value: object.document.title, disable: readonly">
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="document_data"><%= t('views.estimates.catalogs.document.data') %>:</label>
+        </span>
+        <textarea id="document_data" rows="12" cols="54"
+                  name="<%= t('views.estimates.catalogs.document.data') %> " rule="required"
+                  data-bind="value: object.document.data, disable: readonly"></textarea>
+      </div>
+    </div>
+    <!-- /ko -->
+  </fieldset>
+</form>

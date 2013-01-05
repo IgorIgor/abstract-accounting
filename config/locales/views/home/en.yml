@@ -54,3 +54,5 @@ en:
       notify: Notify
       notifications: Notifications
       foreman_report: "Foreman's report"
+      estamate: Estimate
+      estimate_catalogs: Catalogs

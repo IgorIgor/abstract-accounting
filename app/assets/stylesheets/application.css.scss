@@ -407,6 +407,10 @@ input[type=button]:disabled, input[type=submit]:disabled {
           padding: 0;
         }
 
+        td.min-padding {
+          padding: 2px;
+        }
+
         td.cell-entity {
           width: 12%;
         }
@@ -427,6 +431,21 @@ input[type=button]:disabled, input[type=submit]:disabled {
           width: 31%;
         }
       }
+
+      .cell-link {
+        padding: 2px 6px;
+        display: inline-block;
+        background-color: #d3d3d3;
+        border: #a9a9a9 1px solid;
+        border-radius: 2px;
+        -webkit-border-radius: 2px;
+        -moz-border-radius: 2px;
+      }
+      .cell-link:hover {
+        border-color: #808080;
+        background-color: #b8b8b8;
+      }
+
     }
 
     form, div.comments {
@@ -607,6 +626,46 @@ input[type=button]:disabled, input[type=submit]:disabled {
         width: 689px;
         font-size: smaller;
         margin: 5px 0 0 2px;
+      }
+    }
+
+    ul.path {
+      padding-left: 0;
+      margin: 0;
+
+      li {
+        height: 22px;
+        margin: 1px 0 1px 4px;
+        padding: 2px 4px;
+        display: inline-block;
+        line-height: 26px;
+      }
+      li:hover {
+        cursor: pointer;
+        outline: 1px solid #ccc;
+      }
+      li:last-child {
+        border: 1px solid #f0f0f0;
+        border-top: 2px solid #ccc;
+        border-left: 2px solid #ccc;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+      }
+      li:last-child:hover{
+        outline: 0;
+        cursor: default;
+        background: url("arrow-right.jpg") no-repeat;
+        background-position: 3px;
+      }
+      .arrow_right {
+        padding-left: 22px;
+        background: url("arrow-right.jpg") no-repeat;
+        background-position: 3px;
+      }
+      .arrow_right:hover {
+        background: url("arrow-right-grey.jpg") no-repeat;
+        background-position: 3px;
       }
     }
   }

@@ -130,7 +130,7 @@ $ ->
       @route = route
       $('.paginate').hide()
 
-    ajaxRequest: (type, url, params = {}) =>
+    ajaxRequest: (type, url, params = {}, refresh = false) =>
       $.ajax(
         type: type
         url: url
@@ -147,7 +147,7 @@ $ ->
                   hash = "documents/#{@route}/#{response['id']}"
                 else
                   hash = location.hash
-                $.sammy().refresh() unless location.hash == hash
+                $.sammy().refresh() if refresh
                 location.hash = hash
               else
                 @disable(false)
@@ -247,15 +247,15 @@ $ ->
 
     apply: =>
       @disable(true)
-      @ajaxRequest('GET', "/#{@route}/#{@object.id()}/apply")
+      @ajaxRequest('GET', "/#{@route}/#{@object.id()}/apply", {}, true)
 
     cancel: =>
       @disable(true)
-      @ajaxRequest('GET', "/#{@route}/#{@object.id()}/cancel")
+      @ajaxRequest('GET', "/#{@route}/#{@object.id()}/cancel", {}, true)
 
     reverse: =>
       @disable(true)
-      @ajaxRequest('GET', "/#{@route}/#{@object.id()}/reverse")
+      @ajaxRequest('GET', "/#{@route}/#{@object.id()}/reverse", {}, true)
 
     getState: (state) ->
       switch state

@@ -12,11 +12,84 @@ require 'spec_helper'
 describe Estimate::BoM do
   it "should have next behaviour" do
     should validate_presence_of(:resource_id)
-    should validate_presence_of(:tab)
+    should validate_presence_of(:uid)
     should belong_to(:resource).class_name("::#{Asset.name}")
     should have_many(Estimate::BoM.versions_association_name)
     should have_many(:items).class_name(Estimate::BoMElement)
+    should have_many(:builders).class_name(Estimate::BoMElement)
+    should have_many(:rank).class_name(Estimate::BoMElement)
+    should have_many(:machinist).class_name(Estimate::BoMElement)
+    should have_many(:machinery).class_name(Estimate::BoMElement)
+    should have_many(:resources).class_name(Estimate::BoMElement)
     should have_and_belong_to_many(:catalogs)
+  end
+
+  describe "#build elements" do
+    before :all do
+      create :chart
+      asset = create :asset
+      @bom = Estimate::BoM.new(uid: "123", resource_id: asset.id)
+    end
+
+    it 'should create builders and rank elements' do
+      @bom.element_builders(150, 250)
+      @bom.save.should be_true
+      @bom.builders[0].uid.should eq('1')
+      @bom.builders[0].element_type.should eq(Estimate::BoM::BUILDERS)
+      @bom.builders[0].rate.should eq(150)
+      @bom.builders[0].resource.tag.should eq(I18n.t('views.estimates.elements.builders'))
+      @bom.builders[0].resource.mu.should eq(I18n.t('views.estimates.elements.mu.people'))
+      @bom.rank[0].uid.should eq('1.1')
+      @bom.rank[0].element_type.should eq(Estimate::BoM::BUILDERS)
+      @bom.rank[0].rate.should eq(250)
+      @bom.rank[0].resource.tag.should eq(I18n.t('views.estimates.elements.rank'))
+    end
+
+    it 'should create machinist elements' do
+      @bom.element_machinist(150)
+      @bom.save.should be_true
+      @bom.machinist[0].uid.should eq('2')
+      @bom.machinist[0].element_type.should eq(Estimate::BoM::MACHINIST)
+      @bom.machinist[0].rate.should eq(150)
+      @bom.machinist[0].resource.tag.should eq(I18n.t('views.estimates.elements.machinist'))
+      @bom.machinist[0].resource.mu.should eq(I18n.t('views.estimates.elements.mu.machine'))
+    end
+
+    it 'should create machinery and resources elements' do
+      mach = create(:asset, tag: 'auto')
+      res = create(:asset, tag: 'hummer', mu: 'sht')
+      @bom.element_items({code: '123', rate: 150, tag: mach.tag },Estimate::BoM::MACHINERY)
+      @bom.element_items({code: '234', rate: 250, tag: res.tag, mu: res.mu },Estimate::BoM::RESOURCES)
+      @bom.save.should be_true
+      @bom.machinery[0].uid.should eq('123')
+      @bom.machinery[0].element_type.should eq(Estimate::BoM::MACHINERY)
+      @bom.machinery[0].rate.should eq(150)
+      @bom.machinery[0].resource.tag.should eq(mach.tag)
+      @bom.machinery[0].resource.mu.should eq(I18n.t('views.estimates.elements.mu.machine'))
+      @bom.resources[0].uid.should eq('234')
+      @bom.resources[0].element_type.should eq(Estimate::BoM::RESOURCES)
+      @bom.resources[0].rate.should eq(250)
+      @bom.resources[0].resource.tag.should eq(res.tag)
+      @bom.resources[0].resource.mu.should eq(res.mu)
+    end
+
+    it 'should create machinery and resources elements with resource_id' do
+      mach = create(:asset, tag: 'auto', mu: I18n.t('views.estimates.elements.mu.machine'))
+      res = create(:asset, tag: 'hummer', mu: 'sht')
+      @bom.element_items({code: '123', rate: 150, id: mach.id },Estimate::BoM::MACHINERY)
+      @bom.element_items({code: '234', rate: 250, id: res.id },Estimate::BoM::RESOURCES)
+      @bom.save.should be_true
+      @bom.machinery[0].uid.should eq('123')
+      @bom.machinery[0].element_type.should eq(Estimate::BoM::MACHINERY)
+      @bom.machinery[0].rate.should eq(150)
+      @bom.machinery[0].resource.tag.should eq(mach.tag)
+      @bom.machinery[0].resource.mu.should eq(I18n.t('views.estimates.elements.mu.machine'))
+      @bom.resources[0].uid.should eq('234')
+      @bom.resources[0].element_type.should eq(Estimate::BoM::RESOURCES)
+      @bom.resources[0].rate.should eq(250)
+      @bom.resources[0].resource.tag.should eq(res.tag)
+      @bom.resources[0].resource.mu.should eq(res.mu)
+    end
   end
 
   describe "#to_deal" do

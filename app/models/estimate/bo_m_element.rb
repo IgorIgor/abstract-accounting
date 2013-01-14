@@ -11,7 +11,7 @@ module Estimate
   class BoMElement < Base
     has_paper_trail
 
-    validates_presence_of :resource_id, :bom_id, :rate
+    validates_presence_of :resource_id, :rate
     belongs_to :resource, class_name: "::#{Asset.name}"
     belongs_to :bom, class_name: BoM
 

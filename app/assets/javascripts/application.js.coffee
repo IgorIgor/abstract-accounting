@@ -179,18 +179,25 @@ $ ->
       super(object, route, readonly)
       @method = 'POST'
       @id_presence = ko.observable(object.id?)
+      @id_presence = ko.observable(object.bo_m.id?)
 
     edit: =>
       @readonly(false)
       @disable(false)
       @method = 'PUT'
-      location.hash = "#documents/#{@route}/#{@object.id()}/edit"
+      if @route == 'estimate/bo_ms'
+        location.hash = "#estimates/bo_ms/#{@object.bo_m.id()}/edit"
+      else
+        location.hash = "#documents/#{@route}/#{@object.id()}/edit"
 
     save: =>
       @disable(true)
       url = "/#{@route}"
       if @method == 'PUT'
-        url = "/#{@route}/#{@object.id()}"
+        if @route == 'estimate/bo_ms'
+          url = "/#{@route}/#{@object.bo_m.id()}"
+        else
+          url = "/#{@route}/#{@object.id()}"
       @ajaxRequest(@method, url, normalizeHash(ko.mapping.toJS(@object)))
 
   class self.CommentableViewModel extends EditableObjectViewModel
@@ -467,6 +474,8 @@ $ ->
               viewModel = switch type
                 when 'catalogs'
                   new EstimateCatalogViewModel(object)
+                when 'bo_ms'
+                  new BoMViewModel(object)
 
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
@@ -485,7 +494,8 @@ $ ->
               viewModel = switch type
                 when 'catalogs'
                   new EstimateCatalogViewModel(object, true)
-
+                when 'bo_ms'
+                  new BoMViewModel(object, true)
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))

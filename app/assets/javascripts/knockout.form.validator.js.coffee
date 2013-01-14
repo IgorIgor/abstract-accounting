@@ -1,7 +1,7 @@
 $.validator.addMethod('min_strict', (value, el, param) -> value > param )
 
 init_rules = ->
-  $("input[rule='required']").each ->
+  $("input[rule~='required']").each ->
     $(this).rules('add', {
       required: true
       messages: {
@@ -72,6 +72,13 @@ init_rules = ->
         $("##{$(this).attr('dependency_required')}").get(0).value.length > 0
       messages: {
         required: "#{$(this).attr('name')} : #{$(this).attr('error-message-required') ? I18n.t('errors.messages.blank')}"
+      }
+    })
+  $("input[rule~='number']").each ->
+    $(this).rules('add', {
+      number: true
+      messages: {
+        number: "#{$(this).attr('name')} : #{$(this).attr('error-message-number') ? I18n.t('errors.messages.number')}"
       }
     })
 

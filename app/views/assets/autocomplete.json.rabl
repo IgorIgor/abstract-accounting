@@ -7,8 +7,5 @@
 #
 # Please see ./COPYING for details
 
-collection @boms
-attributes :id, :tab
-node :tag do |item|
-  item.resource.tag
-end
+collection @assets
+attributes :id, :tag, :mu

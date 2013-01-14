@@ -13,6 +13,11 @@ class AssetsController < ApplicationController
     if params[:term]
       @assets = Asset.where{lower(tag).like lower("%#{my{params[:term]}}%")}.
           order("tag").limit(5)
+      if params[:mu]
+        @assets = @assets.where{ mu == my{params[:mu]}}.
+            order("tag").limit(5)
+      end
+      render :autocomplete
     else
       filter = {}
       filter = {search: params[:like]} if params[:like]

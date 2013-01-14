@@ -179,7 +179,6 @@ $ ->
       super(object, route, readonly)
       @method = 'POST'
       @id_presence = ko.observable(object.id?)
-      @id_presence = ko.observable(object.bo_m.id?)
 
     edit: =>
       @readonly(false)
@@ -614,6 +613,19 @@ $ ->
               toggleSelect("estimate_catalogs")
               $('.paginate').show()
               viewModel = new EstimateCatalogsViewModel(data)
+              ko.cleanNode($('#main').get(0))
+              $('#container_documents').html(form)
+              ko.applyBindings(viewModel, $('#main').get(0))
+            )
+          )
+        )
+        this.get('#estimate/bo_ms', ->
+          param = this.params.catalog_id
+          $.get("/estimate/bo_ms", {}, (form) ->
+            $.getJSON("/estimate/bo_ms/data.json", {catalog_id: param}, (data) ->
+              toggleSelect("bom")
+              $('.paginate').show()
+              viewModel = new EstimateBomsViewModel(data)
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#main').get(0))

@@ -45,6 +45,7 @@ Abstract::Application.routes.draw do
     resources :bo_ms, except: [:destroy] do
       collection do
         get 'preview'
+        get 'data'
       end
     end
   end

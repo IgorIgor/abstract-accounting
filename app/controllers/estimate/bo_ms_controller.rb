@@ -9,6 +9,10 @@
 
 module Estimate
   class BoMsController < ApplicationController
+    def index
+      render 'index', layout: false
+    end
+
     def preview
       render 'estimate/bo_ms/preview', layout: false
     end
@@ -89,6 +93,21 @@ module Estimate
       else
         render json: ["#{I18n.t('views.estimates.boms')} : #{I18n.t('errors.messages.blanks')}"]
       end
+    end
+
+    def data
+      page = params[:page].nil? ? 1 : params[:page].to_i
+      per_page = params[:per_page].nil? ?
+          Settings.root.per_page.to_i : params[:per_page].to_i
+
+      if params[:catalog_id]
+        scope = BoM.joins{catalogs}.where{estimate_catalogs.id == my{params[:catalog_id]}}
+      else
+        scope = BoM
+      end
+
+      @count = scope.count
+      @bo_ms = scope.limit(per_page).offset((page - 1) * per_page).all
     end
   end
 end

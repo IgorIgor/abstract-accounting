@@ -20,16 +20,18 @@
   <tbody data-bind="foreach: documents">
     <tr>
       <td data-bind="text: tag, click: $parent.selectItem"></td>
-      <!-- ko if: document_id == null -->
-      <td></td>
-      <!-- /ko -->
-      <!-- ko if: document_id != null -->
       <td class="min-padding">
+        <!-- ko if: document_id != null -->
         <span class="cell-link" data-bind="click: $parent.showDocument">
           <%= t 'views.estimates.catalogs.view_document' %>
         </span>
+        <!-- /ko -->
+        <!-- ko if: have_boms -->
+        <span class="cell-link" data-bind="click: $parent.showBoMs">
+          <%= t 'views.estimates.catalogs.view_boms' %>
+        </span>
+        <!-- /ko -->
       </td>
-      <!-- /ko -->
     </tr>
   </tbody>
 </table>

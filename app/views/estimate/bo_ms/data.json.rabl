@@ -8,9 +8,9 @@
 # Please see ./COPYING for details
 
 object false
-child(@catalogs => :objects) do
-  attributes :id, :tag, :document_id
-  node(:have_boms) { |catalog| catalog.boms.exists? }
+child(@bo_ms => :objects) do
+  attributes :id, :uid
+  child(:resource => :resource) { attributes :tag, :mu }
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

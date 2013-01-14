@@ -88,6 +88,7 @@ ActiveRecord::Schema.define(:version => 20121229124728) do
     t.integer "deal_id"
     t.date    "opened"
     t.date    "closed"
+    t.integer "state"
   end
 
   add_index "deal_states", ["deal_id"], :name => "index_deal_states_on_deal_id", :unique => true

@@ -6,6 +6,8 @@ $ ->
       super(object, 'estimate/bo_ms', readonly)
       @readonly = ko.observable(readonly)
       @namespace = "estimate"
+      @id_presence = ko.observable(object.bo_m.id?)
+
 
     resourceClear: =>
       @object.bo_m.resource_id(null)

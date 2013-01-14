@@ -196,7 +196,7 @@ FactoryGirl.define do
 
   factory :bo_m, class: Estimate::BoM do
     resource { |b| b.association(:asset) }
-    tab "sometab"
+    sequence(:uid) { |n| "uid##{n}" }
   end
 
   factory :bo_m_element, class: Estimate::BoMElement do

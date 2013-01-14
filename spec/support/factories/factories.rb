@@ -190,7 +190,8 @@ FactoryGirl.define do
 
   factory :bo_m, class: Estimate::BoM do
     resource { |b| b.association(:asset) }
-    uid "sometab"
+    sequence(:uid) { |n| "uid##{n}" }
+    catalog
   end
 
   factory :document, class: Estimate::Document do

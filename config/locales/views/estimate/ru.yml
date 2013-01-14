@@ -34,6 +34,7 @@ ru:
         catalog_document: Документ
         parent_catalog: Родительский каталог
         view_document: Просмотреть документ
+        view_boms: Просмотреть бомы
         inserted_document: Вложенный документ
         document:
           title: Загловок

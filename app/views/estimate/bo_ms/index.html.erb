@@ -1,0 +1,22 @@
+<table>
+  <thead>
+    <tr>
+      <th id="uid">
+        <%= t('views.estimates.uid') %>
+      </th>
+      <th id="tag">
+        <%= t('views.resources.tag') %>
+      </th>
+      <th id="mu">
+        <%= t('views.resources.mu') %>
+      </th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr>
+      <td data-bind="text: uid"></td>
+      <td data-bind="text: resource.tag"></td>
+      <td data-bind="text: resource.mu"></td>
+    </tr>
+  </tbody>
+</table>

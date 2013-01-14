@@ -13,6 +13,8 @@ module Estimate
       if params[:term]
         @boms = BoM.search(uid: params[:term]).order('uid').limit(5)
         render :autocomplete
+      else
+        render 'index', layout: false
       end
     end
 
@@ -41,6 +43,17 @@ module Estimate
         bom.assign_attributes(params[:bo_m])
         bom
       end
+    end
+
+    def data
+      page = params[:page].nil? ? 1 : params[:page].to_i
+      per_page = params[:per_page].nil? ?
+          Settings.root.per_page.to_i : params[:per_page].to_i
+
+      scope = BoM
+      scope = scope.with_catalog_id(params[:catalog_id]) if params[:catalog_id]
+      @count = scope.count
+      @bo_ms = scope.paginate(page: page, per_page: per_page).all
     end
 
     private

@@ -65,9 +65,12 @@ feature 'places', %q{
       page.find("span[@class='cell-link']").click
     end
     page.driver.browser.window_handles.size.should eq(2)
+    page.driver.browser.switch_to.window(page.driver.browser.window_handles.last)
+    page.driver.browser.close
+    page.driver.browser.switch_to.window(page.driver.browser.window_handles.first)
   end
 
-  scenario 'create/edit catalog', js: true, focus: true do
+  scenario 'create/edit catalog', js: true do
     page_login
     page.find('#btn_slide_estimate').click
     click_link I18n.t('views.home.estimate_catalogs')
@@ -153,5 +156,39 @@ feature 'places', %q{
     find_field('document_tag')[:value].should eq('new document')
     find_field('document_data')[:disabled].should eq("true")
     find_field('document_data')[:value].should eq('new document data')
+  end
+
+  scenario 'view boms by catalog', js: true do
+    c1 = build(:catalog)
+    bom = create(:bo_m)
+    c1.boms<<bom
+    c1.save!
+    c2 = create(:catalog)
+    page_login
+    page.find('#btn_slide_estimate').click
+    click_link I18n.t('views.home.estimate_catalogs')
+    current_hash.should eq('estimate/catalogs')
+    page.should have_xpath("//ul[@id='slide_menu_estimate']" +
+                               "/li[@id='estimate_catalogs' and @class='sidebar-selected']")
+
+    check_content("#container_documents table", [c1, c2]) do |catalog|
+      [catalog.tag]
+    end
+
+    within(:xpath, "//table//tbody//tr[2]//td[2]") do
+      page.should_not have_content(I18n.t('views.estimates.catalogs.view_boms'))
+    end
+    within(:xpath, "//table//tbody//tr[1]//td[2]") do
+      page.find("span[@class='cell-link']").text.
+          should eq(I18n.t('views.estimates.catalogs.view_boms'))
+      page.find("span[@class='cell-link']").click
+    end
+
+    current_hash.should eq("estimate/bo_ms?catalog_id=#{c1.id}")
+    page.should have_selector('table tbody tr', count: 1)
+
+    check_content("#container_documents table", [bom]) do |b|
+      [b.uid, b.resource.tag, b.resource.mu]
+    end
   end
 end

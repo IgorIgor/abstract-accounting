@@ -120,4 +120,12 @@ describe Estimate::BoM do
       end
     end
   end
+
+  it "should filter by catalog_id" do
+    10.times { create(:bo_m) }
+    catalog = create(:catalog)
+    bom = create(:bo_m, catalog: catalog)
+    Estimate::BoM.with_catalog_id(catalog.id).should =~ Estimate::BoM.
+        where{catalog_id == my{catalog.id}}
+  end
 end

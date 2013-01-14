@@ -35,6 +35,10 @@ module Estimate
         resource = Asset.with_lower_tag_eq_to(args[:tag]).with_lower_mu_eq_to(args[:mu]).first
         resource || Asset.create(args)
       end
+
+      def with_catalog_id(cid)
+        where{catalog_id == my{cid}}
+      end
     end
 
     def build_machinery(args)

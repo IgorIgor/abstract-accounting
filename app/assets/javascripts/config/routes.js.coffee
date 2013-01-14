@@ -45,6 +45,6 @@ $ ->
     this.get "foreman/resources", "foreman#index"
 
     this.namespace "estimate", ->
-      this.resource "bo_ms", only: [Routes.NEW, Routes.SHOW]
+      this.resource "bo_ms", only: [Routes.INDEX, Routes.NEW, Routes.SHOW]
       this.resource "prices", only: [Routes.NEW, Routes.SHOW]
       this.resource "catalogs", only: [Routes.INDEX, Routes.NEW, Routes.SHOW]

@@ -32,3 +32,6 @@ $ ->
     showDocument: (object) =>
       url = location.protocol + "//" + location.host + "/estimate/catalogs/#{object.id}/document"
       window.open(url, "_blank")
+
+    showBoMs: (object) =>
+      location.hash = "estimate/bo_ms?#{$.param(catalog_id: object.id)}"

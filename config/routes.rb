@@ -177,6 +177,7 @@ Abstract::Application.routes.draw do
     resources :prices, except: [:destroy] do
       collection do
         get 'preview'
+        get 'data'
       end
     end
     resources :catalogs do

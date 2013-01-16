@@ -24,6 +24,8 @@ ru:
           data: Сметные нормы
         price:
           new: Создание сметных расценок
+          data: Расценки
+        catalogs: Каталоги
       waybill: "Накладная"
       waybills: Накладные
       allocation: Выдача
@@ -54,6 +56,3 @@ ru:
       fact: Проводка
       notify: Уведомить
       notifications: Уведомления
-      foreman_report: 'Отчет для прораба'
-      estamate: Смета
-      estimate_catalogs: Каталоги

@@ -24,5 +24,15 @@ describe Estimate::Price do
     should delegate_method(:uid).to(:bo_m)
     should delegate_method(:tag).to(:bo_m)
     should delegate_method(:mu).to(:bo_m)
+
+    should delegate_method(:resource).to(:bo_m)
+  end
+
+  it "should filter by catalog_id" do
+    10.times { create(:price) }
+    catalog = create(:catalog)
+    price = create(:price, catalog: catalog)
+    Estimate::Price.with_catalog_id(catalog.id).should =~ Estimate::Price.
+        where{catalog_id == my{catalog.id}}
   end
 end

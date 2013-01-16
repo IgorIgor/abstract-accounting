@@ -16,5 +16,12 @@ module Estimate
     belongs_to :catalog
 
     delegate :uid, :tag, :mu, to: :bo_m, allow_nil: true
+    delegate :resource, to: :bo_m, allow_nil: true
+
+    class << self
+      def with_catalog_id(cid)
+        where{catalog_id == my{cid}}
+      end
+    end
   end
 end

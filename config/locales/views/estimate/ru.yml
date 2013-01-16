@@ -7,6 +7,7 @@ ru:
             new: Новая сметная норма
             show: Просмотр сметной нормы
             edit: Редактирование сметной нормы
+        uid: Шифр
       price:
         page:
           title:
@@ -35,6 +36,7 @@ ru:
         parent_catalog: Родительский каталог
         view_document: Просмотреть документ
         view_boms: Просмотреть бомы
+        view_prices: Просмотреть расценки
         inserted_document: Вложенный документ
         document:
           title: Загловок

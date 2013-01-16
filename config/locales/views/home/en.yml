@@ -24,6 +24,8 @@ en:
           data: BoMs
         price:
           new: "Price list"
+          data: Prices
+        catalogs: Catalogs
       waybill: "Waybill"
       waybills: Waybills
       allocation: Allocation
@@ -55,5 +57,3 @@ en:
       notify: Notify
       notifications: Notifications
       foreman_report: "Foreman's report"
-      estamate: Estimate
-      estimate_catalogs: Catalogs

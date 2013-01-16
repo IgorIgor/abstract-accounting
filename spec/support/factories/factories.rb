@@ -184,8 +184,9 @@ FactoryGirl.define do
 
   factory :price, class: Estimate::Price do
     date Date.new(2012, 1, 1)
-    cost 10.0
+    direct_cost 10.0
     bo_m
+    catalog
   end
 
   factory :bo_m, class: Estimate::BoM do

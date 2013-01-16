@@ -32,6 +32,11 @@
           <%= t 'views.estimates.catalogs.view_boms' %>
         </span>
         <!-- /ko -->
+        <!-- ko if: have_prices -->
+        <span class="cell-link" data-bind="click: $parent.showPrices">
+          <%= t 'views.estimates.catalogs.view_prices' %>
+        </span>
+        <!-- /ko -->
       </td>
     </tr>
   </tbody>

@@ -191,4 +191,38 @@ feature 'places', %q{
       [b.uid, b.resource.tag, b.resource.mu]
     end
   end
+
+  scenario 'view prices by catalog', js: true do
+    c1 = build(:catalog)
+    pl = create(:price)
+    c1.price_lists<<pl
+    c1.save!
+    c2 = create(:catalog)
+    page_login
+    page.find('#btn_slide_estimate').click
+    click_link I18n.t('views.home.estimate.catalogs')
+    current_hash.should eq('estimate/catalogs')
+    page.should have_xpath("//ul[@id='slide_menu_estimate']" +
+                               "/li[@id='estimate_catalogs' and @class='sidebar-selected']")
+
+    check_content("#container_documents table", [c1, c2]) do |catalog|
+      [catalog.tag]
+    end
+
+    within(:xpath, "//table//tbody//tr[2]//td[2]") do
+      page.should_not have_content(I18n.t('views.estimates.catalogs.view_prices'))
+    end
+    within(:xpath, "//table//tbody//tr[1]//td[2]") do
+      page.find("span[@class='cell-link']").text.
+          should eq(I18n.t('views.estimates.catalogs.view_prices'))
+      page.find("span[@class='cell-link']").click
+    end
+
+    current_hash.should eq("estimate/price_lists?catalog_id=#{c1.id}")
+    page.should have_selector('table tbody tr', count: 1)
+
+    check_content("#container_documents table", [pl]) do |p|
+      [p.date.strftime('%Y-%m-%d'), p.tab, p.resource.tag, p.resource.mu]
+    end
+  end
 end

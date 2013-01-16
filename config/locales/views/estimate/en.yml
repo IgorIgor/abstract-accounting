@@ -7,6 +7,7 @@ en:
             new: New estimate
             show: Show estimate
             edit: Edit estimate
+        uid: Catalog number
       price:
         page:
           title:
@@ -35,6 +36,7 @@ en:
         parent_catalog: Parent catalog
         view_document: View document
         view_boms: View boms
+        view_prices: View prices
         inserted_document: Inserted document
         document:
           title: Title

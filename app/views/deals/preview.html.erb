@@ -231,7 +231,7 @@
                                  name: '<%=t 'views.deals.rules' %>' }">
             <td>
               <input type="text" rule="required"
-                     data-bind="disable: $root.readonly,
+                     data-bind="disable: $parent.readonly,
                                 autocomplete: {
                                     source: 'deals.json',
                                     value: 'tag',
@@ -240,14 +240,14 @@
                                       id: from_id
                                     }
                                 }, value: from.tag,
-                                attr: { id: 'rule_from_tag_' + $root.object.rules.indexOf($data),
+                                attr: { id: 'rule_from_tag_' + $parent.object.rules.indexOf($data),
                                         name: '<%=t 'views.deals.rules' %>#' +
-                                              $root.object.rules.indexOf($data) +
+                                              $parent.object.rules.indexOf($data) +
                                               ' <%=t 'views.rules.from' %>'}" />
             </td>
             <td>
               <input type="text" rule="required"
-                     data-bind="disable: $root.readonly,
+                     data-bind="disable: $parent.readonly,
                                 autocomplete: {
                                     source: 'deals.json',
                                     value: 'tag',
@@ -256,33 +256,33 @@
                                       id: to_id
                                     }
                                 }, value: to.tag,
-                                attr: { id: 'rule_to_tag_' + $root.object.rules.indexOf($data),
+                                attr: { id: 'rule_to_tag_' + $parent.object.rules.indexOf($data),
                                         name: '<%=t 'views.deals.rules' %>#' +
-                                        $root.object.rules.indexOf($data) +
+                                        $parent.object.rules.indexOf($data) +
                                         ' <%=t 'views.rules.to' %>'}" />
             </td>
             <td>
               <input type="text" rule="required_num"
-                     data-bind="value: rate, disable: $root.readonly,
-                                attr: { id: 'rule_rate_' + $root.object.rules.indexOf($data),
+                     data-bind="value: rate, disable: $parent.readonly,
+                                attr: { id: 'rule_rate_' + $parent.object.rules.indexOf($data),
                                         name: '<%=t 'views.deals.rules' %>#' +
-                                        $root.object.rules.indexOf($data) +
+                                        $parent.object.rules.indexOf($data) +
                                         ' <%=t 'views.rules.rate' %>'}"/>
             </td>
             <td>
               <input type="checkbox"
-                     data-bind="checked: fact_side, disable: $root.readonly,
-                                attr: { id: 'fact_side_' + $root.object.rules.indexOf($data),
+                     data-bind="checked: fact_side, disable: $parent.readonly,
+                                attr: { id: 'fact_side_' + $parent.object.rules.indexOf($data),
                                         name: '<%=t 'views.deals.rules' %>#' +
-                                        $root.object.rules.indexOf($data) +
+                                        $parent.object.rules.indexOf($data) +
                                         ' <%=t 'views.rules.fact_side' %>'}" />
             </td>
             <td>
               <input type="checkbox"
-                     data-bind="checked: change_side, disable: $root.readonly,
-                                attr: { id: 'change_side_' + $root.object.rules.indexOf($data),
+                     data-bind="checked: change_side, disable: $parent.readonly,
+                                attr: { id: 'change_side_' + $parent.object.rules.indexOf($data),
                                         name: '<%=t 'views.deals.rules' %>#' +
-                                        $root.object.rules.indexOf($data) +
+                                        $parent.object.rules.indexOf($data) +
                                         ' <%=t 'views.rules.change_side' %>'}" />
             </td>
             <!-- ko ifnot: $parent.readonly -->

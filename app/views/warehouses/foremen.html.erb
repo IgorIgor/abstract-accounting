@@ -72,7 +72,7 @@
   </thead>
   <tbody data-bind="foreach: documents">
     <tr>
-      <td><input type="checkbox" data-bind="value: id, checked: $root.resources.get($root.foreman_id())" /></td>
+      <td><input type="checkbox" data-bind="value: id, checked: $parent.resources.get($parent.foreman_id())" /></td>
       <td data-bind="text: tag"></td>
       <td data-bind="text: mu"></td>
       <td data-bind="text: amount"></td>

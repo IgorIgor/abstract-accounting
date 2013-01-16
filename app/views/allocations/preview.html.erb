@@ -269,7 +269,7 @@
     <tbody data-bind="foreach: documents">
       <tr>
         <td class="allocation-actions">
-          <span class="mini-icon add" data-bind="click: $root.selectResource"></span>
+          <span class="mini-icon add" data-bind="click: $root.object().selectResource"></span>
         </td>
         <td data-bind="text: tag"></td>
         <td data-bind="text: mu"></td>
@@ -338,7 +338,7 @@
     <tbody data-bind="foreach: documents">
       <tr>
         <td class="allocation-actions-by-wb">
-          <span class="mini-icon add" data-bind="click: $root.selectWaybill"></span>
+          <span class="mini-icon add" data-bind="click: $root.object().selectWaybill"></span>
         </td>
         <td data-bind="click: $parent.expandTree" class="allocation-tree-actions-by-wb">
           <div class="ui-corner-all ui-state-hover">

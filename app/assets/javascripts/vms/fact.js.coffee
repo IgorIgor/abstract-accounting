@@ -60,3 +60,6 @@ $ ->
         tag: ko.observable('')
 
       super(data)
+
+    select: (object)->
+      self.application.object().select(object)

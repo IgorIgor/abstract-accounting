@@ -115,21 +115,21 @@
       </a>
       <ul id="slide_menu_lists" class="slide_menu" style="display: none;">
         <% if current_user.root? %>
-          <li id="users"><a href="#users"><%=t 'views.home.users' %></a></li>
-          <li id="groups"><a href="#groups"><%=t 'views.home.groups' %></a></li>
-          <li id="resources"><a href="#resources"><%=t 'views.home.resources' %></a></li>
-          <li id="entities"><a href="#entities"><%=t 'views.home.entities' %></a></li>
-          <li id="quote"><a href="#quote"><%=t 'views.home.quote' %></a></li>
-          <li id="places"><a href="#places"><%=t 'views.home.places' %></a></li>
+          <li id="users_data"><a href="#users"><%=t 'views.home.users' %></a></li>
+          <li id="groups_data"><a href="#groups"><%=t 'views.home.groups' %></a></li>
+          <li id="resources_data"><a href="#resources"><%=t 'views.home.resources' %></a></li>
+          <li id="entities_data"><a href="#entities"><%=t 'views.home.entities' %></a></li>
+          <li id="quote_data"><a href="#quote"><%=t 'views.home.quote' %></a></li>
+          <li id="places_data"><a href="#places"><%=t 'views.home.places' %></a></li>
           <div class="slide_action">
             <div id="arrow_actions" class="arrow-expand arrow-right-expand"
                  data-bind="click: expandDeals"></div>
-            <a href="#deals" id="deals" class="btn_slide_action"
+            <a href="#deals" id="deals_data" class="btn_slide_action"
                data-bind="click: expandDeals"><%=t 'views.home.deals' %></a>
           </div>
           <ul id="slide_menu_deals" class="slide_menu" style="display: none;">
-            <li id="waybills"><a href="#waybills"><%=t 'views.home.waybills' %></a></li>
-            <li id="allocations">
+            <li id="waybills_data"><a href="#waybills"><%=t 'views.home.waybills' %></a></li>
+            <li id="allocations_data">
               <a href="#allocations"><%=t 'views.home.allocations' %></a>
             </li>
           </ul>
@@ -138,11 +138,11 @@
             <li id="foreman_report"><a href="#foreman/resources"><%=t 'views.home.foreman_report' %></a></li>
           <% end %>
           <% if can? :manage, Waybill %>
-            <li id="waybills"><a href="#waybills"><%=t 'views.home.waybills' %></a></li>
+            <li id="waybills_data"><a href="#waybills"><%=t 'views.home.waybills' %></a></li>
           <% end %>
           <% if can? :manage, Allocation %>
             <li id="allocations">
-              <a href="#allocations"><%=t 'views.home.allocations' %></a>
+              <a href="#allocations_data"><%=t 'views.home.allocations' %></a>
             </li>
           <% end %>
         <% end %>
@@ -156,24 +156,24 @@
       </a>
       <ul id="slide_menu_conditions" class="slide_menu" style="display: none;">
         <% if can?(:manage, Waybill) & can?(:manage, Allocation) %>
-          <li id="warehouses">
+          <li id="warehouses_data">
             <a href="#warehouses"><%=t 'views.home.warehouses' %></a>
           </li>
-          <li id="warehouses_foremen">
+          <li id="warehouses_foremen_data">
             <a href="#warehouses/foremen"><%=t 'views.home.reports.foremen' %></a>
           </li>
-          <li id="warehouses_report">
+          <li id="warehouses_report_data">
             <a href="#warehouses/report"><%=t 'views.home.reports.report' %></a>
           </li>
         <% end %>
         <% if current_user.root? %>
-          <li id="general_ledger">
+          <li id="general_ledger_data">
             <a href="#general_ledger"><%=t 'views.home.general_ledger' %></a>
           </li>
-          <li id="balance_sheet">
+          <li id="balance_sheet_data">
             <a href="#balance_sheet"><%=t 'views.home.balance_sheet' %></a>
           </li>
-          <li id="transcripts">
+          <li id="transcripts_data">
             <a href="#transcripts"><%=t 'views.home.transcripts' %></a>
           </li>
         <% end %>
@@ -190,7 +190,17 @@
     <span></span>
   </div>
 
-  <div class="operations"><%= render 'paginate' %></div>
-  <div id="container_documents"></div>
-  <div class="operations"><%= render 'paginate' %></div>
+  <div data-bind="with: object">
+    <div class="operations">
+      <!-- ko if: paginater -->
+      <%= render 'paginate' %>
+      <!-- /ko -->
+    </div>
+    <div id="container_documents" data-bind="template: { name: $root.templatePath }"></div>
+    <div class="operations">
+      <!-- ko if: paginater -->
+      <%= render 'paginate' %>
+      <!-- /ko -->
+    </div>
+  </div>
 </div>

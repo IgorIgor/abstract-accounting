@@ -73,6 +73,9 @@ $ ->
 
       super(data)
 
+    select: (object)->
+      self.application.object().select(object)
+
   class self.WarehouseResourceReportViewModel extends FolderViewModel
     constructor: (data, params = {}) ->
       @url = "/warehouses/report.json"

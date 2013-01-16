@@ -43,8 +43,9 @@ module Foreman
         format.html { render :print, layout: false }
         format.pdf do
           render pdf: 'foreman/resources/print.pdf',
-                 :template => 'foreman/resources/print.erb',
-                 :formats => [:html],
+                 template: 'foreman/resources/print',
+                 handlers: [:erb],
+                 formats: [:html],
                  encoding: 'utf-8',
                  layout: false
         end

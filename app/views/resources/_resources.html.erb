@@ -13,7 +13,7 @@
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">
-    <tr data-bind="click: $root.select">
+    <tr data-bind="click: $parent.select">
       <td data-bind="text: tag"></td>
       <td data-bind="text: ext_info"></td>
       <td data-bind="text: type"></td>

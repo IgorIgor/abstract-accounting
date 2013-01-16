@@ -43,4 +43,6 @@ group :development, :test do
   gem 'capybara'
   gem 'awesome_print'
   gem "parallel_tests"
+
+  gem 'quiet_assets'
 end

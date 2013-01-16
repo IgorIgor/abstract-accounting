@@ -188,6 +188,11 @@ Abstract::Application.routes.draw do
         get 'document'
       end
     end
+    resources :price_lists do
+      collection do
+        get 'data'
+      end
+    end
   end
 
 # The priority is based upon order of creation:

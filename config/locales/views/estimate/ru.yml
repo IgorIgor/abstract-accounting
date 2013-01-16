@@ -38,6 +38,7 @@ ru:
         parent_catalog: Родительский каталог
         view_document: Просмотреть документ
         view_boms: Просмотреть бомы
+        view_price_lists: Просмотреть цены
         inserted_document: Вложенный документ
         document:
           title: Загловок
@@ -47,3 +48,6 @@ ru:
             show: Просмотр каталога
             edit: Редактирование каталога
             new: Новый каталог
+
+      price_lists:
+        tab: Tab

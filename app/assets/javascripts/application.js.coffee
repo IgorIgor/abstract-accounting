@@ -632,6 +632,19 @@ $ ->
             )
           )
         )
+        this.get('#estimate/price_lists', ->
+          param = this.params.catalog_id
+          $.get("/estimate/price_lists", {}, (form) ->
+            $.getJSON("/estimate/price_lists/data.json", {catalog_id: param}, (data) ->
+              toggleSelect("price_lists")
+              $('.paginate').show()
+              viewModel = new EstimatePriceListsViewModel(data)
+              ko.cleanNode($('#main').get(0))
+              $('#container_documents').html(form)
+              ko.applyBindings(viewModel, $('#main').get(0))
+            )
+          )
+        )
         this.get('#:report', ->
           report = this.params.report
           delete this.params.report

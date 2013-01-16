@@ -38,6 +38,7 @@ en:
         parent_catalog: Parent catalog
         view_document: View document
         view_boms: View boms
+        view_price_lists: View price lists
         inserted_document: Inserted document
         document:
           title: Title
@@ -47,3 +48,6 @@ en:
             show: Show catalog
             edit: Edit catalog
             new: New catalog
+
+      price_lists:
+        tab: Tab

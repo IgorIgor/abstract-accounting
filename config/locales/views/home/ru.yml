@@ -48,6 +48,6 @@ ru:
       fact: Проводка
       notify: Уведомить
       notifications: Уведомления
-      estamate: Смета
       estimate_catalogs: Каталоги
+      estimate_price_lists: Цены
 

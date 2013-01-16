@@ -180,7 +180,7 @@
     <div class="slider">
       <div id="arrow_estimate" class="arrow-down-slide"></div>
       <a id="btn_slide_estimate" class="btn-slide" data-bind="click: slide">
-        <%=t 'views.home.estamate' %>
+        <%=t 'views.home.estimate' %>
       </a>
       <ul id="slide_menu_estimate" class="slide_menu" style="display: none;">
         <% if current_user.root? %>
@@ -190,6 +190,9 @@
         <% end %>
         <li id="bom">
           <a href="#estimate/bo_ms/new"><%=t 'views.home.estimate' %></a>
+        </li>
+        <li id="price_lists">
+          <a href="#estimate/price_lists"><%=t 'views.home.estimate_price_lists' %></a>
         </li>
       </ul>
     </div>

@@ -1,0 +1,26 @@
+<table>
+  <thead>
+    <tr>
+      <th id="date">
+        <%= t('views.estimates.date') %>
+      </th>
+      <th id="tab">
+        <%= t('views.estimates.price_lists.tab') %>
+      </th>
+      <th id="tag">
+        <%= t('views.resources.tag') %>
+      </th>
+      <th id="mu">
+        <%= t('views.resources.mu') %>
+      </th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr>
+      <td data-bind="text: date"></td>
+      <td data-bind="text: tab"></td>
+      <td data-bind="text: resource.tag"></td>
+      <td data-bind="text: resource.mu"></td>
+    </tr>
+  </tbody>
+</table>

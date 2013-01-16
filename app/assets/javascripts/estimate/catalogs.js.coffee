@@ -35,3 +35,6 @@ $ ->
 
     showBoMs: (object) =>
       location.hash = "estimate/bo_ms?catalog_id=#{object.id}"
+
+    showPriceLists: (object) =>
+      location.hash = "estimate/price_lists?catalog_id=#{object.id}"

@@ -184,17 +184,19 @@ $ ->
       @readonly(false)
       @disable(false)
       @method = 'PUT'
-      if @route == 'estimate/bo_ms'
-        location.hash = "#estimates/bo_ms/#{@object.bo_m.id()}/edit"
+      if @route == 'bo_ms'
+        location.hash = "##{@namespace}/#{@route}/#{@object.bo_m.id()}/edit"
       else
         location.hash = "#documents/#{@route}/#{@object.id()}/edit"
 
     save: =>
       @disable(true)
       url = "/#{@route}"
+      url = "/#{@namespace}/#{@route}" if @namespace
+
       if @method == 'PUT'
-        if @route == 'estimate/bo_ms'
-          url = "/#{@route}/#{@object.bo_m.id()}"
+        if @route == 'bo_ms'
+          url = "/#{@namespace}/#{@route}/#{@object.bo_m.id()}"
         else
           url = "/#{@route}/#{@object.id()}"
       @ajaxRequest(@method, url, normalizeHash(ko.mapping.toJS(@object)))

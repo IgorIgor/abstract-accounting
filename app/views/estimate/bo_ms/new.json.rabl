@@ -14,6 +14,9 @@ end
 child(Asset.new => :resource) do
   attributes :tag, :mu
 end
+child(Estimate::Catalog.new => :catalog) do
+  attributes :id, :tag
+end
 child(Object.new => :elements) do
   child(Estimate::BoMElement.new => :builders) do
     attributes :rate

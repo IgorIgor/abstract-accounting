@@ -15,7 +15,7 @@ module Estimate
     validates_uniqueness_of :tag, :scope => :parent_id
     belongs_to :parent, class_name: Catalog
     has_many :subcatalogs,  class_name: Catalog, :foreign_key => :parent_id
-    has_and_belongs_to_many :boms, class_name: BoM
+    has_many :boms, class_name: BoM
     has_and_belongs_to_many :price_lists
     belongs_to :document
 

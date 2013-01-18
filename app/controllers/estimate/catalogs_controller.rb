@@ -23,8 +23,12 @@ module Estimate
           Settings.root.per_page.to_i : params[:per_page].to_i
 
       scope = Catalog.where{parent_id == my{params[:parent_id]}}
+      filter = { paginate: { page: page, per_page: per_page }}
+      filter[:sort] = params[:order] if params[:order]
+
+      scope = scope.search(params[:like]) if params[:like]
       @count = scope.count
-      @catalogs = scope.order("id ASC").limit(per_page).offset((page - 1) * per_page)
+      @catalogs = scope.filtrate(filter).order("id ASC")
     end
 
     def new

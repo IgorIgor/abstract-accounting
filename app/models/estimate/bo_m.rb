@@ -11,10 +11,11 @@ module Estimate
   class BoM < Base
     has_paper_trail
 
-    validates_presence_of :resource_id, :uid
+    validates_presence_of :resource_id, :uid, :catalog_id
+    validates_uniqueness_of :uid
     belongs_to :resource, class_name: "::#{Asset.name}"
     has_many :items, class_name: BoMElement, :foreign_key => :bom_id
-    has_and_belongs_to_many :catalogs
+    belongs_to :catalog
     has_many :builders, class_name: BoMElement, :foreign_key => :bom_id, :conditions => { :uid => '1' }
     has_many :rank, class_name: BoMElement, :foreign_key => :bom_id, :conditions => { :uid => '1.1' }
     has_many :machinist, class_name: BoMElement, :foreign_key => :bom_id, :conditions => { :uid => '2' }

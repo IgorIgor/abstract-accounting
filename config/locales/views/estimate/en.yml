@@ -48,6 +48,9 @@ en:
             show: Show catalog
             edit: Edit catalog
             new: New catalog
+        activity: Activity
+        select_catalog: Select catalog
+        select: Select
 
       price_lists:
         tab: Tab

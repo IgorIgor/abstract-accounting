@@ -38,7 +38,7 @@ module Estimate
             end
             resource_id = asset.id
           end
-          bom = BoM.new(uid: params[:bo_m][:uid], resource_id: resource_id)
+          bom = BoM.new(uid: params[:bo_m][:uid], resource_id: resource_id, catalog_id: params[:catalog][:id])
           bom.element_builders(params[:elements][:builders][:rate],
                                params[:elements][:rank][:rate]) if params[:elements][:builders]
           bom.element_machinist(params[:elements][:machinist][:rate]) if params[:elements][:machinist]
@@ -83,7 +83,7 @@ module Estimate
           if params[:elements][:resources]
             params[:elements][:resources].each { |item| bom.element_items(item[1], BoM::RESOURCES)}
           end
-          if bom.update_attributes(uid: params[:bo_m][:uid], resource_id: resource_id)
+          if bom.update_attributes(uid: params[:bo_m][:uid], resource_id: resource_id, catalog_id: params[:catalog][:id])
             bom.machinist
             render json: { result: 'success', id: bom.id }
           else

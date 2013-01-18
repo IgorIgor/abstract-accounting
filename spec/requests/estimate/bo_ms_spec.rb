@@ -22,7 +22,7 @@ feature 'bo_m', %q{
     page_login
     page.find('#btn_slide_estimate').click
     click_link I18n.t('views.home.estimate')
-    current_hash.should eq('estimates/bo_ms/new')
+    current_hash.should eq('estimate/bo_ms/new')
     page.should have_content(I18n.t('views.estimates.uid'))
     page.should have_content(I18n.t('views.resources.tag'))
     page.should have_content(I18n.t('views.resources.mu'))
@@ -56,6 +56,8 @@ feature 'bo_m', %q{
 
     click_button(I18n.t('views.users.save'))
 
+    resources = nil
+
     within("#container_documents form") do
       find("#container_notification").visible?.should be_true
       within("#container_notification") do
@@ -65,6 +67,8 @@ feature 'bo_m', %q{
             'views.resources.tag')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content("#{I18n.t(
             'views.resources.mu')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.estimates.catalog')} : #{I18n.t('errors.messages.blank')}")
       end
 
       fill_in('uid', :with => '123456')
@@ -75,7 +79,23 @@ feature 'bo_m', %q{
         all(:xpath, ".//li//a")[3].click
       end
       find_field('asset_mu')[:value].should eq(resources[3].mu)
+    end
 
+    2.times{ create(:catalog) }
+    catalogs = Estimate::Catalog.order("id ASC").all
+    catalog = catalogs[0]
+    find('#bom_catalog').click
+    page.should have_selector('#catalogs_selector')
+    within('#catalogs_selector') do
+      within('table tbody') do
+        within(:xpath, './/tr[1]//td[2]') do
+          find("span[@class='cell-link']").click
+        end
+      end
+    end
+    page.should have_no_selector('#catalogs_selector')
+
+    within("#container_documents form") do
       click_button(I18n.t('views.users.save'))
       find("#container_notification").visible?.should be_true
       within("#container_notification") do
@@ -103,8 +123,6 @@ feature 'bo_m', %q{
       end
 
       fill_in('builders', :with => '150')
-
-
 
       page.should have_content('3')
       page.should have_content(I18n.t('views.estimates.elements.machinery'))
@@ -156,7 +174,6 @@ feature 'bo_m', %q{
       check_autocomplete('resources_tag_0', resources, :tag, :should_clear)
       fill_in('resources_rate_0', :with => '185')
 
-
       fill_in('builders', :with => 'a')
       fill_in('rank', :with => 'b')
       fill_in('machinist', :with => 'c')
@@ -181,13 +198,12 @@ feature 'bo_m', %q{
       fill_in('machinist', :with => '')
       fill_in('resources_rate_0', :with => '190')
 
-
       click_button(I18n.t('views.users.save'))
       wait_for_ajax
-      wait_until_hash_changed_to "estimates/bo_ms/#{Estimate::BoM.last.id}"
+      wait_until_hash_changed_to "estimate/bo_ms/#{Estimate::BoM.last.id}"
       Estimate::BoM.last.items.count.should eq(3)
       visit '#inbox'
-      visit "#estimates/bo_ms/#{Estimate::BoM.last.id}"
+      visit "#estimate/bo_ms/#{Estimate::BoM.last.id}"
     end
 
     within('#page-title') do
@@ -199,6 +215,7 @@ feature 'bo_m', %q{
     find_field('uid')[:disabled].should eq('true')
     find_field('asset_tag')[:disabled].should eq('true')
     find_field('asset_mu')[:disabled].should eq('true')
+    find_field('bom_catalog')[:disabled].should eq('true')
     find_field('builders')[:disabled].should eq('true')
     find_field('rank')[:disabled].should eq('true')
     find_field('resources_code_0')[:disabled].should eq('true')
@@ -225,6 +242,7 @@ feature 'bo_m', %q{
     find_field('uid')[:value].should eq(bom.uid)
     find_field('asset_tag')[:value].should eq(bom.resource.tag)
     find_field('asset_mu')[:value].should eq(bom.resource.mu)
+    find_field('bom_catalog')[:value].should eq(catalog.tag)
     find_field('builders')[:value].should eq(bom.builders[0].rate.to_i.to_s)
     find_field('rank')[:value].should eq(bom.rank[0].rate.to_i.to_s)
     find_field('resources_code_0')[:value].should eq(bom.resources[0].uid)
@@ -264,6 +282,7 @@ feature 'bo_m', %q{
     find_field('uid')[:disabled].should eq(nil)
     find_field('asset_tag')[:disabled].should eq(nil)
     find_field('asset_mu')[:disabled].should eq(nil)
+    find_field('bom_catalog')[:disabled].should eq(nil)
     find_field('builders')[:disabled].should eq(nil)
     find_field('rank')[:disabled].should eq(nil)
     find_field('resources_code_0')[:disabled].should eq(nil)
@@ -272,6 +291,16 @@ feature 'bo_m', %q{
     find_field('resources_rate_0')[:disabled].should eq(nil)
 
     fill_in('asset_mu', :with => 'asdfg')
+    find('#bom_catalog').click
+    page.should have_selector('#catalogs_selector')
+    within('#catalogs_selector') do
+      within('table tbody') do
+        within(:xpath, './/tr[2]//td[2]') do
+          find("span[@class='cell-link']").click
+        end
+      end
+    end
+    page.should have_no_selector('#catalogs_selector')
     fill_in('builders', :with => '')
     fill_in('rank', :with => '')
     fill_in('machinist', :with => '')
@@ -294,10 +323,10 @@ feature 'bo_m', %q{
 
     click_button(I18n.t('views.users.save'))
     wait_for_ajax
-    wait_until_hash_changed_to "estimates/bo_ms/#{bom.id}"
+    wait_until_hash_changed_to "estimate/bo_ms/#{bom.id}"
     Estimate::BoM.last.items.count.should eq(2)
     visit '#inbox'
-    visit "#estimates/bo_ms/#{Estimate::BoM.last.id}"
+    visit "#estimate/bo_ms/#{Estimate::BoM.last.id}"
 
     within('#page-title') do
       page.should have_content(I18n.t('views.estimates.page.title.show'))
@@ -308,6 +337,7 @@ feature 'bo_m', %q{
     find_field('uid')[:disabled].should eq('true')
     find_field('asset_tag')[:disabled].should eq('true')
     find_field('asset_mu')[:disabled].should eq('true')
+    find_field('bom_catalog')[:disabled].should eq('true')
     find_field('machinist')[:disabled].should eq('true')
     find_field('machinery_code_0')[:disabled].should eq('true')
     find_field('machinery_tag_0')[:disabled].should eq('true')
@@ -329,13 +359,80 @@ feature 'bo_m', %q{
     end
 
     bom = Estimate::BoM.last
+    catalog = catalogs[1]
 
     find_field('uid')[:value].should eq(bom.uid)
     find_field('asset_tag')[:value].should eq(bom.resource.tag)
     find_field('asset_mu')[:value].should eq(bom.resource.mu)
+    find_field('bom_catalog')[:value].should eq(catalog.tag)
     find_field('machinist')[:value].should eq(bom.machinist[0].rate.to_i.to_s)
     find_field('machinery_code_0')[:value].should eq(bom.machinery[0].uid)
     find_field('machinery_tag_0')[:value].should eq(bom.machinery[0].resource.tag)
     find_field('machinery_rate_0')[:value].should eq(bom.machinery[0].rate.to_i.to_s)
+  end
+
+  scenario 'catalogs dialog selector', js: true do
+    per_page = Settings.root.per_page
+    (per_page + 1).times { create(:catalog) }
+    catalogs = Estimate::Catalog.limit(per_page).order("id ASC")
+    first_catalog = catalogs[0]
+    parent_catalog = catalogs[1]
+    catalog_named = catalogs[3]
+    catalog_named.tag = "aaaaa"
+    catalog_named.save!
+    count = per_page + 1
+    page_login
+    page.find('#btn_slide_estimate').click
+    click_link I18n.t('views.home.estimate')
+
+    find('#bom_catalog').click
+    within('#catalogs_selector') do
+      titles = [I18n.t('views.estimates.catalogs.tag'), I18n.t('views.estimates.catalogs.select')]
+      check_header("table", titles)
+      check_content("table", catalogs) do |catalog|
+        [catalog.tag]
+      end
+
+      check_paginate("div[@class='paginate']", count, per_page)
+      next_page("div[@class='paginate']")
+      catalogs = Estimate::Catalog.limit(per_page).offset(per_page).order("id ASC")
+      check_content("table", catalogs) do |catalog|
+        [catalog.tag]
+      end
+
+      first_catalog.parent = parent_catalog
+      first_catalog.save!
+
+      prev_page("div[@class='paginate']")
+
+      page.should have_selector("div[@class='breadcrumbs'] ul li", count: 1)
+      page.find(:xpath, "table//tbody//tr[1]//td[1]").text.should eq(parent_catalog.tag)
+      find("span[@data-bind='text: count']").should have_content((count-1).to_s)
+
+      page.find(:xpath, "table//tbody//tr[1]//td[1]").click
+      page.should have_selector('table tbody tr', count: 1)
+      page.should have_selector("div[@class='breadcrumbs'] ul li", count: 2)
+      page.find(:xpath, "//div[@class='breadcrumbs']//ul//li[2]").text.should eq(parent_catalog.tag)
+      find("span[@data-bind='text: count']").should have_content('1')
+      find("span[@data-bind='text: range']").should have_content("1-1")
+
+      within(:xpath, "table//tbody//tr[1]//td[2]") do
+        page.find("span[@class='cell-link']").text.
+            should eq(I18n.t('views.estimates.catalogs.select_catalog'))
+      end
+
+      page.find(:xpath, "//div[@class='breadcrumbs']//ul//li[1]").click
+      page.should have_selector('table tbody tr', count: per_page)
+      page.should have_selector("div[@class='breadcrumbs'] ul li", count: 1)
+      find("span[@data-bind='text: count']").should have_content(count-1)
+      find("span[@data-bind='text: range']").should have_content("1-#{per_page}")
+
+      fill_in('dialog_search', :with => 'aaaa')
+      click_button(I18n.t('views.home.search'))
+      page.should have_selector('table tbody tr', count: 1)
+      find("span[@data-bind='text: count']").should have_content('1')
+      find("span[@data-bind='text: range']").should have_content("1-1")
+      page.find(:xpath, "table//tbody//tr[1]//td[1]").text.should eq(catalog_named.tag)
+    end
   end
 end

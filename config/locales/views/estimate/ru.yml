@@ -48,6 +48,9 @@ ru:
             show: Просмотр каталога
             edit: Редактирование каталога
             new: Новый каталог
+        activity: Действия
+        select_catalog: Выбрать каталог
+        select: Выбрать
 
       price_lists:
         tab: Tab

@@ -32,7 +32,7 @@ feature 'places', %q{
     page.should have_xpath("//ul[@id='slide_menu_estimate']" +
                            "/li[@id='estimate_catalogs' and @class='sidebar-selected']")
 
-    titles = [I18n.t('views.estimates.catalogs.tag'), I18n.t('views.estimates.catalogs.catalog_document')]
+    titles = [I18n.t('views.estimates.catalogs.tag'), I18n.t('views.estimates.catalogs.activity')]
     check_header("#container_documents table", titles)
     check_content("#container_documents table", catalogs) do |catalog|
       [catalog.tag]

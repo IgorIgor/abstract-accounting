@@ -10,10 +10,14 @@
 object false
 node(:id) { @bo_m.id }
 child(@bo_m => :bo_m) do
-  attributes :uid, :resource_id, :amount, :workers_amount, :avg_work_level, :drivers_amount
+  attributes :uid, :resource_id, :amount, :workers_amount, :avg_work_level, :drivers_amount,
+             :catalog_id
 end
 child(@bo_m.resource => :resource) do
   attributes :tag, :mu
+end
+child(@bo_m.catalog => :catalog) do
+  attributes :tag
 end
 child(@bo_m.machinery => :machinery) do
   attributes :uid, :resource_id, :amount

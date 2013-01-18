@@ -14,6 +14,7 @@ module Estimate
     MATERIALS = 3
 
     validates_presence_of :resource_id, :uid, :bom_type
+    validates_presence_of :catalog_id, if: Proc.new { |bom| bom.bom_type == BOM }
     validates_inclusion_of :bom_type, in: [BOM, MACHINERY, MATERIALS]
 
     belongs_to :resource, class_name: "::#{Asset.name}"

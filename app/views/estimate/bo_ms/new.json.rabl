@@ -9,10 +9,14 @@
 
 object false
 child(@bo_m => :bo_m) do
-  attributes :uid, :resource_id, :amount, :workers_amount, :avg_work_level, :drivers_amount
+  attributes :uid, :resource_id, :amount, :workers_amount, :avg_work_level, :drivers_amount,
+             :catalog_id
 end
-child(Asset.new => :resource) do
+child(@bo_m.build_resource => :resource) do
   attributes :tag, :mu
+end
+child(@bo_m.build_catalog => :catalog) do
+  attributes :tag
 end
 child(@bo_m.machinery => :machinery)
 child(@bo_m.materials => :materials)

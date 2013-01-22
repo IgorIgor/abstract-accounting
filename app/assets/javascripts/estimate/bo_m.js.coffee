@@ -5,6 +5,7 @@ $ ->
       @elements = ko.mapping.fromJS(object.elements)
       super(object, 'estimate/bo_ms', readonly)
       @readonly = ko.observable(readonly)
+      @id_presence = ko.observable(object.bo_m.id?)
 
     resourceClear: =>
       @object.bo_m.resource_id(null)

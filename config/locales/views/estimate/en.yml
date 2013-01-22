@@ -1,11 +1,18 @@
 en:
   views:
     estimates:
-      page:
-        title:
-          new: New estimate
-          show: Show estimate
-          edit: Edit estimate
+      bo_m:
+        page:
+          title:
+            new: New estimate
+            show: Show estimate
+            edit: Edit estimate
+      price_list:
+        page:
+          title:
+            new: New price list
+            show: Show price list
+            edit: Edit price list
       elements:
         builders: "Labor costs of construction workers"
         rank: "The average rank of work"
@@ -20,7 +27,7 @@ en:
       ident_value: "Ident. value"
       catalog: "Catalog"
       name: "Name"
-      date: "Date"
+      date: 'Created at'
       boms: "BoMs"
       uid: "By catalog number"
       bom: "BoM"
@@ -30,3 +37,4 @@ en:
       rate: "Rate"
       cost: "Cost"
       code: "Cipher resource"
+      price: "Price"

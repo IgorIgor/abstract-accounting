@@ -7,12 +7,9 @@
 #
 # Please see ./COPYING for details
 
-module Estimate
-  class Price < Base
-    has_paper_trail
-
-    validates_presence_of :rate
-    belongs_to :price_list
-    belongs_to :bo_m_element, class_name: BoMElement
+class AddBomIdToPriceList < ActiveRecord::Migration
+  def change
+    add_column :estimate_price_lists, :bo_m_id, :integer
+    add_column :estimate_price_lists, :catalog_id, :integer
   end
 end

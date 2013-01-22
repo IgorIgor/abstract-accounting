@@ -20,6 +20,7 @@ module Estimate
     has_many :machinist, class_name: BoMElement, :foreign_key => :bom_id, :conditions => { :uid => '2' }
     has_many :machinery, class_name: BoMElement, :foreign_key => :bom_id, :conditions => { :element_type => '3' }
     has_many :resources, class_name: BoMElement, :foreign_key => :bom_id, :conditions => { :element_type => '4' }
+    has_many :price_lists, class_name: PriceList, foreign_key: :bo_m_id
 
     BUILDERS = 1
     MACHINIST = 2
@@ -54,6 +55,24 @@ module Estimate
       end
       self.items.build(uid: args[:code], element_type: type,
                         rate: args[:rate], resource_id: resource_id)
+    end
+
+    def self.filing_items(array)
+      new_array = []
+      array.each do |item|
+        new_array.push(bo_m_element:{id: item.id,
+                        bom_id: item.bom_id,
+                        resource_id: item.resource_id,
+                        rate: item.rate,
+                        uid: item.uid,
+                        element_type: item.element_type,
+                        resource_tag: item.resource.tag,
+                        resource_mu: item.resource.mu,
+                        price_rate: ''
+                       })
+
+      end
+      new_array
     end
 
     def sum(prices, physical_amount)

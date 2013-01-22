@@ -9,6 +9,14 @@
 
 module Estimate
   class BoMsController < ApplicationController
+    def index
+      if params[:term]
+        @boms = BoM.where{lower(uid).like lower("%#{my{params[:term]}}%")}.
+            order('uid').limit(5)
+        render :autocomplete
+      end
+    end
+
     def preview
       render 'estimate/bo_ms/preview', layout: false
     end

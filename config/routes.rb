@@ -39,10 +39,14 @@ Abstract::Application.routes.draw do
     end
   end
   resources :catalogs
-  resources :price_lists
 
   namespace :estimate do
     resources :bo_ms, except: [:destroy] do
+      collection do
+        get 'preview'
+      end
+    end
+    resources :price_lists, except: [:destroy] do
       collection do
         get 'preview'
       end

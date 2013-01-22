@@ -7,12 +7,11 @@
 #
 # Please see ./COPYING for details
 
-module Estimate
-  class Price < Base
-    has_paper_trail
-
-    validates_presence_of :rate
-    belongs_to :price_list
-    belongs_to :bo_m_element, class_name: BoMElement
+class RemoveColumnsFromPrices < ActiveRecord::Migration
+  def change
+    remove_column :estimate_prices, :resource_id
+    remove_column :estimate_price_lists, :resource_id
+    remove_column :estimate_price_lists, :tab
+    drop_table :estimate_catalogs_price_lists
   end
 end

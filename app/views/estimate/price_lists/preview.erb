@@ -1,0 +1,169 @@
+<form data-bind="validate: { success: save }">
+<div class='actions'>
+  <%= render :partial => "home/buttons", :locals => { :editable => true } %>
+</div>
+
+  <span id="page-title">
+    <!-- ko if: readonly -->
+    <%= t('views.estimates.price_list.page.title.show') %>
+    <!-- /ko -->
+    <!-- ko ifnot: readonly -->
+      <!-- ko if: id_presence -->
+    <%= t('views.estimates.price_list.page.title.edit') %>
+    <!-- /ko -->
+      <!-- ko ifnot: id_presence -->
+    <%= t('views.estimates.price_list.page.title.new') %>
+    <!-- /ko -->
+    <!-- /ko -->
+  </span>
+
+<%= render 'home/errors' %>
+
+<fieldset>
+<div>
+  <div>
+    <span class="form-cell-label">
+      <label for="date"><%= t 'views.estimates.date' %>:</label>
+    </span>
+    <span>
+      <input type="text" id="date" name="<%= t 'views.estimates.date' %>"
+             rule="required" data-bind="monthpicker:{ value: object.price_list.date },
+                                        disable: readonly">
+    </span>
+  </div>
+  <div>
+    <span class="form-cell-label">
+      <label for="uid"><%= t('views.estimates.uid') %>:</label>
+    </span>
+    <span>
+      <input id="uid" type="text" name="<%= t('views.estimates.uid') %>"  rule="required"
+             data-bind="autocomplete: { source: 'estimate/bo_ms.json',
+                                        value: 'uid',
+                                        onlySelect: true,
+                                        bind: {
+                                          id: object.price_list.bo_m_id,
+                                          tag: object.resource.tag,
+                                          mu: object.resource.mu,
+                                          builders_id: object.elements.builders.bo_m_element_id || nil,
+                                          builders_rate: object.elements.builders.bo_m_element_rate,
+                                          rank_rate: object.elements.rank_rate,
+                                          machinist_id: object.elements.machinist.bo_m_element_id,
+                                          machinist_rate: object.elements.machinist.bo_m_element_rate,
+                                          machinery: object.elements.machinery,
+                                          machinery_length: object.elements.machinery_length,
+                                          resources: object.elements.resources,
+                                          resources_length: object.elements.resources_length
+                                        }
+                                       },
+                        value: object.price_list.uid,
+                        disable: readonly"/>
+    </span>
+  </div>
+  <div>
+    <span class="form-cell-label">
+      <label for="asset_tag"><%= t('views.resources.tag') %>:</label>
+    </span>
+    <span>
+      <input type="text" id="asset_tag"
+             name="<%= t('views.resources.tag') %>" rule="required"
+             data-bind="value: object.resource.tag, disable: true">
+    </span>
+  </div>
+  <div>
+    <span class="form-cell-label">
+      <label for="asset_mu"><%= t('views.resources.mu') %>:</label>
+    </span>
+    <span>
+      <input type="text" id="asset_mu"
+             name="<%= t('views.resources.mu') %>"
+             data-bind="value: object.resource.mu, disable: true">
+    </span>
+  </div>
+</div>
+  <table class="elements-align-center">
+    <thead>
+      <tr>
+        <th class="col-width"><%= t('views.estimates.code') %></th>
+        <th><%= t('views.resources.tag') %></th>
+        <th class="col-width"><%= t('views.resources.mu') %></th>
+        <th class="col-width"><%= t('views.estimates.rate') %></th>
+        <th class="col-width"><%= t('views.estimates.price') %></th>
+      </tr>
+    </thead>
+    <tr class="font-bold" data-bind="visible: object.elements.builders.bo_m_element_id">
+      <td>1</td>
+      <td><%= t('views.estimates.elements.builders') %></td>
+      <td><%= t('views.estimates.elements.mu.people') %></td>
+      <td id="builders"  data-bind="text: object.elements.builders.bo_m_element_rate"></td>
+      <td><input id="builders_rate" type="text" rule="required number"
+                 data-bind="value: object.elements.builders.rate, disable: readonly,
+                            attr: { name: '<%= t('views.estimates.elements.builders') %>.' +
+                                          ' <%= t('views.estimates.price') %>'}">
+      </td>
+    </tr>
+    <tr data-bind="visible: object.elements.rank_rate">
+      <td>1.1</td>
+      <td><%= t('views.estimates.elements.rank') %></td>
+      <td></td>
+      <td id="rank_rate"  data-bind="text: object.elements.rank_rate"></td>
+      <td></td>
+    </tr>
+    <tr class="font-bold" data-bind="visible: object.elements.machinist.bo_m_element_id">
+      <td>2</td>
+      <td><%= t('views.estimates.elements.machinist') %></td>
+      <td><%= t('views.estimates.elements.mu.people') %></td>
+      <td id="machinist" data-bind="text: object.elements.machinist.bo_m_element_rate"></td>
+      <td><input id="machinist_rate"type="text" rule="required number"
+                 data-bind="value: object.elements.machinist.rate, disable: readonly,
+                            attr: { name: '<%= t('views.estimates.elements.machinist') %>.' +
+                                          ' <%= t('views.estimates.price') %>'}"></td>
+    </tr>
+    <tr class="font-bold" data-bind="visible: object.elements.machinery_length() > 0">
+      <td>3</td>
+      <td><%= t('views.estimates.elements.machinery') %></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tbody data-bind="foreach: { data: object.elements.machinery, as: 'item' }">
+    <tr>
+      <td data-bind="text: bo_m_element.uid"></td>
+      <td data-bind="text: bo_m_element.resource_tag"></td>
+      <td><%= t('views.estimates.elements.mu.machine') %></td>
+      <td data-bind="text: bo_m_element.rate" ></td>
+      <td><input type="text" rule="required number"
+                 data-bind="value: bo_m_element.price_rate, disable: $root.readonly,
+                            attr: { name: '<%= t('views.estimates.elements.machinery') %>#' +
+                                          $root.object.elements['machinery'].indexOf($data) +
+                                          ' <%= t('views.estimates.price') %>',
+                                    id: 'machinery#' +
+                                          $root.object.elements['machinery'].indexOf($data)}">
+      </td>
+    </tr>
+    </tbody>
+    <tr class="font-bold" data-bind="visible: object.elements.resources_length() > 0">
+      <td>4</td>
+      <td><%= t('views.estimates.elements.resources') %></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tbody data-bind="foreach: { data: object.elements.resources, as: 'item' }">
+    <tr>
+      <td data-bind="text: bo_m_element.uid"></td>
+      <td data-bind="text: bo_m_element.resource_tag"></td>
+      <td data-bind="text: bo_m_element.resource_mu"></td>
+      <td data-bind="text: bo_m_element.rate"></td>
+      <td><input type="text" rule="required number"
+                 data-bind="value: bo_m_element.price_rate, disable: $root.readonly,
+                            attr: { name: '<%= t('views.estimates.elements.resources') %>#' +
+                                          $root.object.elements['resources'].indexOf($data) +
+                                          ' <%= t('views.estimates.price') %>',
+                                     id: 'resources#' +
+                                          $root.object.elements['resources'].indexOf($data)}">
+      </td>
+    </tr>
+    </tbody>
+</table>
+</fieldset>
+</form>

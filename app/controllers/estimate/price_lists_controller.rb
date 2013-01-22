@@ -26,6 +26,57 @@ module Estimate
 
       @count = scope.count
       @price_lists = scope.limit(per_page).offset((page - 1) * per_page).all
+      @price_lists = scope.select(:date).uniq.where("date LIKE ?", "#{params[:q]}%").
+          order("date").limit(5)
+    end
+
+    def preview
+      render 'estimate/price_lists/preview', layout: false
+    end
+
+    def new
+      @price_list = PriceList.new
+    end
+
+    def show
+      @price_list = PriceList.find params[:id]
+    end
+
+    def create
+      if params[:resource]
+        PriceList.transaction do
+          price_list = PriceList.new(bo_m_id: params[:price_list][:bo_m_id],
+                                     date: DateTime.parse(params[:price_list][:date]).
+                                                    change(hour: 12, offset: 0))
+          price_list.build_items params[:elements]
+          if price_list.save
+            render json: { result: 'success', id: price_list.id }
+          else
+            render json: price_list.errors.full_messages
+          end
+        end
+      else
+        render json: ["#{I18n.t('views.estimates.uid')} : #{I18n.t('errors.messages.invalid')}"]
+      end
+    end
+
+    def update
+      if params[:resource]
+        price_list = PriceList.find params[:id]
+        PriceList.transaction do
+          price_list.items.delete_all
+          price_list.build_items params[:elements]
+          if price_list.update_attributes(bo_m_id: params[:price_list][:bo_m_id],
+                                          date: DateTime.parse(params[:price_list][:date]).
+                                              change(hour: 12, offset: 0))
+            render json: { result: 'success', id: price_list.id }
+          else
+            render json: price_list.errors.full_messages
+          end
+        end
+      else
+        render json: ["#{I18n.t('views.estimates.uid')} : #{I18n.t('errors.messages.invalid')}"]
+      end
     end
   end
 end

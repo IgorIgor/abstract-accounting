@@ -7,12 +7,8 @@
 #
 # Please see ./COPYING for details
 
-module Estimate
-  class Price < Base
-    has_paper_trail
+require 'spec_helper'
 
-    validates_presence_of :rate
-    belongs_to :price_list
-    belongs_to :bo_m_element, class_name: BoMElement
-  end
+describe Estimate::PriceListsController do
+  check_authentication Estimate::PriceListsController
 end

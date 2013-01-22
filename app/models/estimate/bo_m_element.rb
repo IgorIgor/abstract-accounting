@@ -14,6 +14,7 @@ module Estimate
     validates_presence_of :resource_id, :rate
     belongs_to :resource, class_name: "::#{Asset.name}"
     belongs_to :bom, class_name: BoM
+    has_many :price, class_name: Price
 
     def sum(price, physical_amount)
       self.rate * price.rate * physical_amount

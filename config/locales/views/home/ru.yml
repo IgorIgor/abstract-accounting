@@ -18,6 +18,7 @@ ru:
       search: "Поиск"
       logout: "Выйти"
       estimate: "Смета"
+      price_list: "Список цен"
       waybill: "Накладная"
       waybills: Накладные
       allocation: Выдача

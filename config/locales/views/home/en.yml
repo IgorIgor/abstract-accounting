@@ -18,6 +18,7 @@ en:
       search: "Search"
       logout: "Logout"
       estimate: "Estimate"
+      price_list: "Price list"
       waybill: "Waybill"
       waybills: Waybills
       allocation: Allocation

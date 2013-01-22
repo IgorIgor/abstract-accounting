@@ -39,7 +39,6 @@ Abstract::Application.routes.draw do
     end
   end
   resources :catalogs
-  resources :price_lists
 
   resources :waybills, except: [:destroy] do
     collection do
@@ -185,9 +184,10 @@ Abstract::Application.routes.draw do
         get 'data'
       end
     end
-    resources :price_lists do
+    resources :price_lists, except: [:destroy] do
       collection do
         get 'data'
+        get 'preview'
       end
     end
   end

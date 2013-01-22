@@ -146,6 +146,8 @@ $ ->
                 hash = ''
                 if response['id']
                   hash = "#{@namespace}/#{@route}/#{response['id']}"
+                  hash = "estimates/bo_ms/#{response['id']}" if @route == 'bo_ms'
+                  hash = "estimates/price_lists/#{response['id']}" if @route == 'price_lists'
                 else
                   hash = location.hash
                 $.sammy().refresh() unless location.hash == hash
@@ -186,6 +188,8 @@ $ ->
       @method = 'PUT'
       if @route == 'bo_ms'
         location.hash = "##{@namespace}/#{@route}/#{@object.bo_m.id()}/edit"
+      else if @route == 'price_lists'
+        location.hash = "##{@namespace}/#{@route}/#{@object.price_list.id()}/edit"
       else
         location.hash = "#documents/#{@route}/#{@object.id()}/edit"
 
@@ -197,6 +201,8 @@ $ ->
       if @method == 'PUT'
         if @route == 'bo_ms'
           url = "/#{@namespace}/#{@route}/#{@object.bo_m.id()}"
+        else if @route == 'price_lists'
+          url = "/#{@namespace}/#{@route}/#{@object.price_list.id()}"
         else
           url = "/#{@route}/#{@object.id()}"
       @ajaxRequest(@method, url, normalizeHash(ko.mapping.toJS(@object)))
@@ -477,6 +483,8 @@ $ ->
                   new EstimateCatalogViewModel(object)
                 when 'bo_ms'
                   new BoMViewModel(object)
+                when 'price_lists'
+                  new PriceListViewModel(object)
 
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
@@ -491,12 +499,15 @@ $ ->
           delete filter.type
           $.get("/estimate/#{type}/preview", {}, (form) ->
             $.getJSON("/estimate/#{type}/#{id}.json", normalizeHash(filter), (object) ->
-
+              toggleSelect("estimate")
               viewModel = switch type
                 when 'catalogs'
                   new EstimateCatalogViewModel(object, true)
                 when 'bo_ms'
                   new BoMViewModel(object, true)
+                when 'price_lists'
+                  new PriceListViewModel(object, true)
+
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#container_documents').get(0))

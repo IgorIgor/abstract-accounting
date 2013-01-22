@@ -26,6 +26,7 @@ describe Estimate::BoM do
                with_foreign_key(:parent_id).conditions(bom_type: Estimate::BoM::MACHINERY)
     should have_many(:materials).class_name(Estimate::BoM).
                with_foreign_key(:parent_id).conditions(bom_type: Estimate::BoM::MATERIALS)
+    should have_many(:prices)
 
     should delegate_method(:tag).to(:resource)
     should delegate_method(:mu).to(:resource)

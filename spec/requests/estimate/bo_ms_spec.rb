@@ -42,7 +42,7 @@ feature 'bo_m', %q{
     page.should have_content(I18n.t('views.estimates.elements.mu.people'))
 
     within('#page-title') do
-      page.should have_content(I18n.t('views.estimates.page.title.new'))
+      page.should have_content(I18n.t('views.estimates.bo_m.page.title.new'))
     end
 
     find_button(I18n.t('views.users.save'))[:disabled].should eq(nil)
@@ -191,7 +191,7 @@ feature 'bo_m', %q{
     end
 
     within('#page-title') do
-      page.should have_content(I18n.t('views.estimates.page.title.show'))
+      page.should have_content(I18n.t('views.estimates.bo_m.page.title.show'))
     end
 
     find_button(I18n.t('views.users.save'))[:disabled].should eq('true')
@@ -239,7 +239,7 @@ feature 'bo_m', %q{
     find_button(I18n.t('views.users.edit'))[:disabled].should eq("true")
 
     within('#page-title') do
-      page.should have_content(I18n.t('views.estimates.page.title.edit'))
+      page.should have_content(I18n.t('views.estimates.bo_m.page.title.edit'))
     end
 
     page.should have_content('1')
@@ -300,7 +300,7 @@ feature 'bo_m', %q{
     visit "#estimates/bo_ms/#{Estimate::BoM.last.id}"
 
     within('#page-title') do
-      page.should have_content(I18n.t('views.estimates.page.title.show'))
+      page.should have_content(I18n.t('views.estimates.bo_m.page.title.show'))
     end
 
     find_button(I18n.t('views.users.save'))[:disabled].should eq('true')

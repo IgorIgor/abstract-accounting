@@ -40,7 +40,7 @@ Abstract::Application.routes.draw do
     end
   end
   resources :catalogs
-  resources :price_lists
+
   resources :waybills, except: [:destroy] do
     collection do
       get 'preview'
@@ -171,6 +171,11 @@ Abstract::Application.routes.draw do
 
   namespace :estimate do
     resources :bo_ms, except: [:destroy] do
+      collection do
+        get 'preview'
+      end
+    end
+    resources :prices, except: [:destroy] do
       collection do
         get 'preview'
       end

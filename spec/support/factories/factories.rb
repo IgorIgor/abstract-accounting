@@ -183,15 +183,9 @@ FactoryGirl.define do
 
 
   factory :price, class: Estimate::Price do
-    resource { |price| price.association(:asset) }
-    rate 10.0
-    price_list_id 1
-  end
-
-  factory :price_list, class: Estimate::PriceList do
-    resource { |plist| plist.association(:asset) }
     date Date.new(2012, 1, 1)
-    tab "sometab"
+    cost 10.0
+    bo_m
   end
 
   factory :bo_m, class: Estimate::BoM do

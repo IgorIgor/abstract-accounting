@@ -11,11 +11,18 @@ require 'spec_helper'
 
 describe Estimate::Price do
   it "should have next behaviour" do
-    should validate_presence_of :resource_id
-    should validate_presence_of :price_list_id
-    should validate_presence_of :rate
-    should belong_to(:resource).class_name("::#{Asset.name}")
-    should belong_to(:price_list)
+    should validate_presence_of :date
+    should validate_presence_of :bo_m_id
+    should validate_presence_of :direct_cost
+
+    should validate_uniqueness_of(:date).scoped_to(:catalog_id, :bo_m_id)
+
+    should belong_to(:bo_m).class_name(Estimate::BoM)
+    should belong_to :catalog
     should have_many(Estimate::Price.versions_association_name)
+
+    should delegate_method(:uid).to(:bo_m)
+    should delegate_method(:tag).to(:bo_m)
+    should delegate_method(:mu).to(:bo_m)
   end
 end

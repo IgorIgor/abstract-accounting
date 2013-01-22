@@ -24,6 +24,7 @@ module Estimate
              conditions: { bom_type: MACHINERY }
     has_many :materials, class_name: BoM, foreign_key: :parent_id,
              conditions: { bom_type: MATERIALS }
+    has_many :prices
 
     delegate :tag, :mu, to: :resource
 

@@ -21,6 +21,8 @@ ru:
         tag: Сметы
         bo_ms:
           new: Создание сметной нормы
+        price:
+          new: Создание сметных расценок
       waybill: "Накладная"
       waybills: Накладные
       allocation: Выдача

@@ -29,7 +29,11 @@ body, html {
   background: white;
   font-size: 14px;
 }
-
+.hiden {
+  .ui-datepicker-calendar  {
+    display: none!important;
+  }
+}
 a { cursor: pointer; }
 
 input[type=button] {

@@ -7,8 +7,5 @@
 #
 # Please see ./COPYING for details
 
-collection @price_lists
-attributes :date
-node :date do |item|
-  item.date.strftime("%Y-%m-%d")
-end
+collection @boms
+attributes :id, :uid, :tag, :mu

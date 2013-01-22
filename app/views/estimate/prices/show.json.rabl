@@ -7,10 +7,9 @@
 #
 # Please see ./COPYING for details
 
-class PriceListsController < ApplicationController
-  def index
-    @price_lists = PriceList.joins(:catalogs).
-        where("catalogs_price_lists.catalog_id = ?", params[:catalog_id]).
-        select(:date).uniq.where("date LIKE ?", "#{params[:q]}%").order("date").limit(5)
-  end
+object false
+node(:id) { @price.id }
+child(@price => :price) do
+  attributes :date, :bo_m_id, :uid, :tag, :mu, :direct_cost, :workers_cost,
+             :machinery_cost, :drivers_cost, :materials_cost
 end

@@ -9,6 +9,13 @@
 
 module Estimate
   class BoMsController < ApplicationController
+    def index
+      if params[:term]
+        @boms = BoM.search(uid: params[:term]).order('uid').limit(5)
+        render :autocomplete
+      end
+    end
+
     def preview
       render 'preview', layout: false
     end

@@ -9,8 +9,12 @@
 
 module Estimate
   class Price < Base
-    validates_presence_of :resource_id, :price_list_id, :rate
-    belongs_to :resource, class_name: "::#{::Asset.name}"
-    belongs_to :price_list
+    validates_presence_of :date, :bo_m_id, :direct_cost
+    validates_uniqueness_of :date, :scope => [:bo_m_id, :catalog_id]
+
+    belongs_to :bo_m, class_name: BoM
+    belongs_to :catalog
+
+    delegate :uid, :tag, :mu, to: :bo_m, allow_nil: true
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121229123749) do
+ActiveRecord::Schema.define(:version => 20130115083834) do
 
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
@@ -165,13 +165,6 @@ ActiveRecord::Schema.define(:version => 20121229123749) do
   add_index "estimate_catalogs", ["parent_id", "tag"], :name => "index_catalogs_on_parent_id_and_tag", :unique => true
   add_index "estimate_catalogs", ["parent_id"], :name => "index_catalogs_on_parent_id"
 
-  create_table "estimate_catalogs_price_lists", :id => false, :force => true do |t|
-    t.integer "catalog_id"
-    t.integer "price_list_id"
-  end
-
-  add_index "estimate_catalogs_price_lists", ["catalog_id", "price_list_id"], :name => "index_catalogs_price_lists_on_catalog_id_and_price_list_id", :unique => true
-
   create_table "estimate_documents", :force => true do |t|
     t.string "title"
     t.binary "data"
@@ -197,23 +190,16 @@ ActiveRecord::Schema.define(:version => 20121229123749) do
   add_index "estimate_locals", ["deal_id"], :name => "index_estimates_on_deal_id"
   add_index "estimate_locals", ["legal_entity_id"], :name => "index_estimates_on_legal_entity_id"
 
-  create_table "estimate_price_lists", :force => true do |t|
-    t.integer  "resource_id"
-    t.datetime "date"
-    t.string   "tab"
-  end
-
-  add_index "estimate_price_lists", ["resource_id"], :name => "index_price_lists_on_resource_id"
-  add_index "estimate_price_lists", ["tab"], :name => "index_price_lists_on_tab"
-
   create_table "estimate_prices", :force => true do |t|
-    t.integer "resource_id"
-    t.float   "rate"
-    t.integer "price_list_id"
+    t.date    "date"
+    t.integer "bo_m_id"
+    t.integer "catalog_id"
+    t.float   "direct_cost"
+    t.float   "workers_cost"
+    t.float   "machinery_cost"
+    t.float   "drivers_cost"
+    t.float   "materials_cost"
   end
-
-  add_index "estimate_prices", ["price_list_id"], :name => "index_prices_on_price_list_id"
-  add_index "estimate_prices", ["resource_id"], :name => "index_prices_on_resource_id"
 
   create_table "facts", :force => true do |t|
     t.datetime "day"

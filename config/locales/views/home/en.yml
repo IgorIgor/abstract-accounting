@@ -21,6 +21,8 @@ en:
         tag: Estimates
         bo_ms:
           new: BoM creation
+        price:
+          new: "Price list"
       waybill: "Waybill"
       waybills: Waybills
       allocation: Allocation

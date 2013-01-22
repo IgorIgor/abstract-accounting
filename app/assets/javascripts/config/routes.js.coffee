@@ -46,3 +46,4 @@ $ ->
 
     this.namespace "estimate", ->
       this.resource "bo_ms", only: [Routes.NEW, Routes.SHOW]
+      this.resource "prices", only: [Routes.NEW, Routes.SHOW]

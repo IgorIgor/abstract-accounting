@@ -11,5 +11,8 @@ object false
 node(:id) { @price.id }
 child(@price => :price) do
   attributes :date, :bo_m_id, :uid, :tag, :mu, :direct_cost, :workers_cost,
-             :machinery_cost, :drivers_cost, :materials_cost
+             :machinery_cost, :drivers_cost, :materials_cost, :catalog_id
+end
+child(@price.catalog => :catalog) do
+  attributes :tag
 end

@@ -14,6 +14,7 @@ describe Estimate::Price do
     should validate_presence_of :date
     should validate_presence_of :bo_m_id
     should validate_presence_of :direct_cost
+    should validate_presence_of :catalog_id
 
     should validate_uniqueness_of(:date).scoped_to(:catalog_id, :bo_m_id)
 

@@ -11,11 +11,12 @@ $ ->
       @render 'estimate/prices/preview'
       $.getJSON("estimate/prices/new.json", {}, (object) ->
         toggleSelect("estimate_prices_new")
-        self.application.object(new PriceViewModel(object))
+        self.application.object(new EstimatePriceViewModel(object))
       )
 
     show: =>
       @render 'estimate/prices/preview'
       $.getJSON("estimate/prices/#{this.params.id}.json", {}, (object) ->
-        self.application.object(new PriceViewModel(object, true))
+        toggleSelect("estimate_prices_data")
+        self.application.object(new EstimatePriceViewModel(object, true))
       )

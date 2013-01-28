@@ -70,6 +70,25 @@
                data-bind="value: object.price.mu, disable: true">
       </span>
     </div>
+    <div>
+      <span class="form-cell-label">
+        <label for="price_catalog"><%= t('views.estimates.catalog') %>:</label>
+      </span>
+      <span>
+        <input type="text" id="price_catalog" rule="required"
+               name="<%= t('views.estimates.catalog') %>"
+               data-bind="dialog: { autoOpen: false,
+                                     modal: true,
+                                     minWidth: 480,
+                                     minHeight: 300,
+                                     bind: { id: object.price.catalog_id,
+                                            tag: object.catalog.tag }
+                                   },
+                          dialogId: 'catalogs_selector',
+                          value: object.catalog.tag,
+                          disable: readonly">
+      </span>
+    </div>
   </div>
     <table class="elements-align-center">
       <thead>
@@ -98,3 +117,8 @@
     </table>
   </fieldset>
 </form>
+
+<%= render :partial => "home/select_dialog",
+           :locals => { :dialog_id => 'catalogs_selector',
+           :dialog_model => 'dialog_catalogs',
+           :data_path => 'estimate/catalogs/catalogs' } %>

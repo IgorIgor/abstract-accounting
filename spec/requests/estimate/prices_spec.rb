@@ -51,6 +51,7 @@ feature 'price_list', %q{
     page.should have_content(I18n.t('views.estimates.uid'))
     page.should have_content(I18n.t('views.resources.tag'))
     page.should have_content(I18n.t('views.resources.mu'))
+    page.should have_content(I18n.t('views.estimates.catalog'))
     titles = [I18n.t('views.estimates.code'), I18n.t('views.resources.tag'),
               I18n.t('views.resources.mu'), I18n.t('views.estimates.rate')]
     check_header("#container_documents table", titles)
@@ -65,6 +66,7 @@ feature 'price_list', %q{
     find_field('uid')[:disabled].should eq(nil)
     find_field('asset_tag')[:disabled].should eq("true")
     find_field('asset_mu')[:disabled].should eq("true")
+    find_field('price_list_catalog')[:disabled].should eq(nil)
 
     click_button(I18n.t('views.users.save'))
 
@@ -75,6 +77,8 @@ feature 'price_list', %q{
             'views.estimates.uid')} : #{I18n.t('errors.messages.blank')}")
         page.should have_content("#{I18n.t(
             'views.estimates.date')} : #{I18n.t('errors.messages.blank')}")
+        page.should have_content("#{I18n.t(
+            'views.estimates.catalog')} : #{I18n.t('errors.messages.blank')}")
       end
     end
 
@@ -83,6 +87,20 @@ feature 'price_list', %q{
     within(:xpath, "//ul[contains(@class, 'ui-autocomplete') and contains(@style, 'display: block')]") do
       all(:xpath, ".//li//a")[0].click
     end
+
+    2.times{ create(:catalog) }
+    catalogs = Estimate::Catalog.order("id ASC").all
+    catalog = catalogs[0]
+    find('#price_list_catalog').click
+    page.should have_selector('#catalogs_selector')
+    within('#catalogs_selector') do
+      within('table tbody') do
+        within(:xpath, './/tr[1]//td[2]') do
+          find("span[@class='cell-link']").click
+        end
+      end
+    end
+    page.should have_no_selector('#catalogs_selector')
 
     page.should have_content('1')
     page.should have_content(I18n.t('views.estimates.elements.builders'))
@@ -173,6 +191,7 @@ feature 'price_list', %q{
     find_field('uid')[:disabled].should eq("true")
     find_field('asset_tag')[:disabled].should eq("true")
     find_field('asset_mu')[:disabled].should eq("true")
+    find_field('price_list_catalog')[:disabled].should eq("true")
     find_field('builders_rate')[:disabled].should eq("true")
     find_field('machinist_rate')[:disabled].should eq("true")
     find_field('machinery#0')[:disabled].should eq("true")
@@ -200,6 +219,7 @@ feature 'price_list', %q{
     find_field('uid')[:value].should eq(price_list.bo_m.uid)
     find_field('asset_tag')[:value].should eq(price_list.bo_m.resource.tag)
     find_field('asset_mu')[:value].should eq(price_list.bo_m.resource.mu)
+    find_field('price_list_catalog')[:value].should eq(catalog.tag)
     find_field('builders_rate')[:value].should eq(price_list.
                                   item_by_element_type(Estimate::BoM::BUILDERS)[0].rate.to_s)
     find_field('machinist_rate')[:value].should eq(price_list.
@@ -227,6 +247,7 @@ feature 'price_list', %q{
     find_field('uid')[:disabled].should eq(nil)
     find_field('asset_tag')[:disabled].should eq("true")
     find_field('asset_mu')[:disabled].should eq("true")
+    find_field('price_list_catalog')[:disabled].should eq(nil)
     find_field('builders_rate')[:disabled].should eq(nil)
     find_field('machinist_rate')[:disabled].should eq(nil)
     find_field('machinery#0')[:disabled].should eq(nil)
@@ -270,13 +291,13 @@ feature 'price_list', %q{
     find_field('asset_tag')[:value].should eq(price_list.bo_m.resource.tag)
     find_field('asset_mu')[:value].should eq(price_list.bo_m.resource.mu)
     find_field('builders_rate')[:value].should eq(price_list.
-                                                      item_by_element_type(Estimate::BoM::BUILDERS)[0].rate.to_s)
+                item_by_element_type(Estimate::BoM::BUILDERS)[0].rate.to_s)
     find_field('machinist_rate')[:value].should eq(price_list.
-                                                       item_by_element_type(Estimate::BoM::MACHINIST)[0].rate.to_s)
+                item_by_element_type(Estimate::BoM::MACHINIST)[0].rate.to_s)
     find_field('machinery#0')[:value].should eq(price_list.
-                                                    item_by_element_type(Estimate::BoM::MACHINERY)[0].rate.to_s)
+                item_by_element_type(Estimate::BoM::MACHINERY)[0].rate.to_s)
     find_field('resources#0')[:value].should eq(price_list.
-                                                    item_by_element_type(Estimate::BoM::RESOURCES)[0].rate.to_s)
+                item_by_element_type(Estimate::BoM::RESOURCES)[0].rate.to_s)
     find_field('builders_rate')[:value].should eq('5.5')
     find_field('machinist_rate')[:value].should eq('5.5')
     find_field('machinery#0')[:value].should eq('5.5')

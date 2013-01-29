@@ -1,6 +1,6 @@
 $ ->
   class self.EstimateBomsViewModel extends FolderViewModel
-    constructor: (data) ->
+    constructor: (data, options = {}) ->
       @url = '/estimate/bo_ms/data.json'
 
       super(data)
@@ -9,3 +9,4 @@ $ ->
         page: @page
         per_page: @per_page
 
+      @params.catalog_id = options.catalog_id if options.catalog_id?

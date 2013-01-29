@@ -23,5 +23,21 @@ module Estimate
         where{catalog_id == my{cid}}
       end
     end
+
+    custom_sort(:uid) do |dir|
+      joins{bo_m}.order{bo_m.uid.__send__(dir)}
+    end
+
+    custom_sort(:tag) do |dir|
+      joins{bo_m.resource}.order{bo_m.resource.tag.__send__(dir)}
+    end
+
+    custom_sort(:mu) do |dir|
+      joins{bo_m.resource}.order{bo_m.resource.mu.__send__(dir)}
+    end
+
+    custom_sort(:catalog_tag) do |dir|
+      joins{catalog}.order{catalog.tag.__send__(dir)}
+    end
   end
 end

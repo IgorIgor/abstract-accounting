@@ -21,7 +21,7 @@ feature 'bo_m', %q{
   scenario 'bom - bom', js: true do
     page_login
     page.find('#btn_slide_estimate').click
-    click_link I18n.t('views.home.estimate')
+    click_link I18n.t('views.home.bom')
     current_hash.should eq('estimate/bo_ms/new')
     page.should have_content(I18n.t('views.estimates.uid'))
     page.should have_content(I18n.t('views.resources.tag'))
@@ -383,7 +383,7 @@ feature 'bo_m', %q{
     count = per_page + 1
     page_login
     page.find('#btn_slide_estimate').click
-    click_link I18n.t('views.home.estimate')
+    click_link I18n.t('views.home.bom')
 
     find('#bom_catalog').click
     within('#catalogs_selector') do
@@ -434,5 +434,55 @@ feature 'bo_m', %q{
       find("span[@data-bind='text: range']").should have_content("1-1")
       page.find(:xpath, "table//tbody//tr[1]//td[1]").text.should eq(catalog_named.tag)
     end
+  end
+
+  scenario 'view and sort boms', js: true do
+    per_page = Settings.root.per_page
+    (per_page + 1).times { create(:bo_m)}
+    count = Estimate::BoM.all.count
+    boms = Estimate::BoM.limit(per_page)
+
+    page_login
+    page.find('#btn_slide_estimate').click
+    click_link I18n.t('views.home.boms')
+    current_hash.should eq('estimate/bo_ms')
+    wait_for_ajax
+    titles = [I18n.t('views.estimates.uid'),
+              I18n.t('views.resources.tag'), I18n.t('views.resources.mu'),
+              I18n.t('views.estimates.catalogs.tag')]
+    check_header("#container_documents table", titles)
+    check_content("#container_documents table", boms) do |bom|
+      [bom.uid, bom.resource.tag, bom.resource.mu, bom.catalog.tag]
+    end
+    wait_for_ajax
+    check_paginate("div[@class='paginate']", count, per_page)
+
+    test_order = lambda do |field, type|
+      boms = Estimate::BoM.limit(per_page).send("sort_by_#{field}","#{type}")
+      within('#container_documents table') do
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      check_content("#container_documents table", boms) do |bom|
+        [bom.uid, bom.resource.tag, bom.resource.mu, bom.catalog.tag]
+      end
+    end
+
+    test_order.call('uid','asc')
+    test_order.call('uid','desc')
+    test_order.call('tag','asc')
+    test_order.call('tag','desc')
+    test_order.call('mu','asc')
+    test_order.call('mu','desc')
+    test_order.call('catalog_tag','asc')
+    test_order.call('catalog_tag','desc')
   end
 end

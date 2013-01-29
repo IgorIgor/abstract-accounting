@@ -2,9 +2,9 @@ $ ->
   class self.BoMsController extends self.ApplicationController
     index: =>
       @render 'estimate/bo_ms'
-      $.getJSON('estimate/bo_ms/data.json', normalizeHash(this.params.toHash()), (objects) ->
+      $.getJSON('estimate/bo_ms/data.json', normalizeHash(this.params.toHash()), (objects) =>
         toggleSelect("estimate_bo_ms_data")
-        self.application.object(new EstimateBomsViewModel(objects))
+        self.application.object(new EstimateBomsViewModel(objects, this.params.toHash()))
       )
 
     new: =>

@@ -8,4 +8,5 @@
 # Please see ./COPYING for details
 
 collection @boms
-attributes :id, :uid, :tag, :mu
+attributes :id, :uid, :tag, :mu, :catalog_id
+node(:catalog_tag) { |bom| bom.catalog.tag }

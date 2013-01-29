@@ -1,14 +1,17 @@
 <table>
   <thead>
     <tr>
-      <th id="uid">
-        <%= t('views.estimates.uid') %>
+      <th id="uid" data-bind="click: sortBy">
+        <%= t('views.estimates.uid') %><span></span>
       </th>
-      <th id="tag">
-        <%= t('views.resources.tag') %>
+      <th id="tag" data-bind="click: sortBy">
+        <%= t('views.resources.tag') %><span></span>
       </th>
-      <th id="mu">
-        <%= t('views.resources.mu') %>
+      <th id="mu" data-bind="click: sortBy">
+        <%= t('views.resources.mu') %><span></span>
+      </th>
+      <th id="catalog_tag" data-bind="click: sortBy">
+        <%= t('views.estimates.catalog') %><span></span>
       </th>
     </tr>
   </thead>
@@ -17,6 +20,7 @@
       <td data-bind="text: uid"></td>
       <td data-bind="text: resource.tag"></td>
       <td data-bind="text: resource.mu"></td>
+      <td data-bind="text: catalog.tag"></td>
     </tr>
   </tbody>
 </table>

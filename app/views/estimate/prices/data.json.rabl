@@ -9,8 +9,10 @@
 
 object false
 child(@prices => :objects) do
-  attributes :id, :date, :uid
+  attributes :id, :uid
+  node(:date) { |pl| pl.date.strftime('%m/%Y')}
   child(:resource => :resource) { attributes :tag, :mu }
+  child(:catalog => :catalog) { attributes :tag }
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

@@ -21,7 +21,10 @@ module Estimate
       scope = Price
       scope = scope.with_catalog_id(params[:catalog_id]) if params[:catalog_id]
       @count = scope.count
-      @prices = scope.paginate(page: page, per_page: per_page).all
+
+      filter = { paginate: { page: page, per_page: per_page }}
+      filter[:sort] = params[:order] if params[:order]
+      @prices = scope.filtrate(filter).all
     end
 
     def preview

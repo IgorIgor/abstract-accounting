@@ -11,6 +11,7 @@ object false
 child(@bo_ms => :objects) do
   attributes :id, :uid
   child(:resource => :resource) { attributes :tag, :mu }
+  child(:catalog => :catalog) { attributes :tag }
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

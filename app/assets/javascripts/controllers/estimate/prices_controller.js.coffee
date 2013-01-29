@@ -2,9 +2,9 @@ $ ->
   class self.PricesController extends self.ApplicationController
     index: =>
       @render 'estimate/prices'
-      $.getJSON('estimate/prices/data.json', normalizeHash(this.params.toHash()), (objects) ->
+      $.getJSON('estimate/prices/data.json', normalizeHash(this.params.toHash()), (objects) =>
         toggleSelect("estimate_prices_data")
-        self.application.object(new EstimatePricesViewModel(objects))
+        self.application.object(new EstimatePricesViewModel(objects, this.params.toHash()))
       )
 
     new: =>

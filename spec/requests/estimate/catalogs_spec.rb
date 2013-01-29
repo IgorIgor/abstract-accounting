@@ -185,6 +185,7 @@ feature 'places', %q{
     end
 
     current_hash.should eq("estimate/bo_ms?catalog_id=#{c1.id}")
+    wait_for_ajax
     page.should have_selector('table tbody tr', count: 1)
 
     check_content("#container_documents table", [bom]) do |b|
@@ -209,20 +210,21 @@ feature 'places', %q{
       [catalog.tag]
     end
 
-    within(:xpath, "//table//tbody//tr[2]//td[2]") do
+    within(:xpath, "//table//tbody//tr[4]//td[2]") do
       page.should_not have_content(I18n.t('views.estimates.catalogs.view_prices'))
     end
-    within(:xpath, "//table//tbody//tr[1]//td[2]") do
+    within(:xpath, "//table//tbody//tr[3]//td[2]") do
       page.find("span[@class='cell-link']").text.
           should eq(I18n.t('views.estimates.catalogs.view_prices'))
       page.find("span[@class='cell-link']").click
     end
 
     current_hash.should eq("estimate/price_lists?catalog_id=#{c1.id}")
+    wait_for_ajax
     page.should have_selector('table tbody tr', count: 1)
 
     check_content("#container_documents table", [pl]) do |p|
-      [p.date.strftime('%Y-%m-%d'), p.tab, p.resource.tag, p.resource.mu]
+      [p.date.strftime('%m/%Y'), p.bo_m.resource.tag, p.bo_m.resource.mu]
     end
   end
 end

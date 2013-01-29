@@ -183,7 +183,7 @@ FactoryGirl.define do
 
 
   factory :price, class: Estimate::Price do
-    date Date.new(2012, 1, 1)
+    sequence(:date) { |i| Date.new(2000 + i, 1, 1)}
     direct_cost 10.0
     bo_m
     catalog

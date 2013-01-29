@@ -11,7 +11,7 @@ module Estimate
   class BoMsController < ApplicationController
     def index
       if params[:term]
-        @boms = BoM.search(uid: params[:term]).order('uid').limit(5)
+        @boms = BoM.only_boms.search(uid: params[:term]).order('uid').limit(5)
         render :autocomplete
       else
         render 'index', layout: false
@@ -50,10 +50,13 @@ module Estimate
       per_page = params[:per_page].nil? ?
           Settings.root.per_page.to_i : params[:per_page].to_i
 
-      scope = BoM
+      scope = BoM.only_boms
       scope = scope.with_catalog_id(params[:catalog_id]) if params[:catalog_id]
       @count = scope.count
-      @bo_ms = scope.paginate(page: page, per_page: per_page).all
+
+      filter = { paginate: { page: page, per_page: per_page }}
+      filter[:sort] = params[:order] if params[:order]
+      @bo_ms = scope.filtrate(filter).all
     end
 
     private

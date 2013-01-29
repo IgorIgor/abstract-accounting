@@ -346,4 +346,57 @@ feature 'price_list', %q{
     page.should_not have_no_content('4')
     page.should_not have_no_content(I18n.t('views.estimates.elements.resources'))
   end
+
+  scenario 'view and sort price lists', js: true do
+    per_page = Settings.root.per_page
+    (per_page + 1).times { create(:price_list)}
+    count = Estimate::PriceList.all.count
+    pls = Estimate::PriceList.limit(per_page)
+
+    page_login
+    page.find('#btn_slide_estimate').click
+    click_link I18n.t('views.home.estimate_price_lists')
+    current_hash.should eq('estimate/price_lists')
+
+    titles = [I18n.t('views.estimates.uid'), I18n.t('views.estimates.date'),
+              I18n.t('views.resources.tag'), I18n.t('views.resources.mu'),
+              I18n.t('views.estimates.catalogs.tag')]
+    wait_for_ajax
+
+    check_header("#container_documents table", titles)
+    check_content("#container_documents table", pls) do |pl|
+      [pl.date.strftime('%m/%Y'), pl.bo_m.uid, pl.bo_m.resource.tag, pl.bo_m.resource.mu, pl.catalog.tag]
+    end
+    check_paginate("div[@class='paginate']", count, per_page)
+
+    test_order = lambda do |field, type|
+      pls = Estimate::PriceList.limit(per_page).send("sort_by_#{field}","#{type}")
+      within('#container_documents table') do
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      check_content("#container_documents table", pls) do |pl|
+        [pl.date.strftime('%m/%Y'), pl.bo_m.uid, pl.bo_m.resource.tag, pl.bo_m.resource.mu, pl.catalog.tag]
+      end
+    end
+
+    test_order.call('date','asc')
+    test_order.call('date','desc')
+    test_order.call('uid','asc')
+    test_order.call('uid','desc')
+    test_order.call('tag','asc')
+    test_order.call('tag','desc')
+    test_order.call('mu','asc')
+    test_order.call('mu','desc')
+    test_order.call('catalog_tag','asc')
+    test_order.call('catalog_tag','desc')
+  end
 end

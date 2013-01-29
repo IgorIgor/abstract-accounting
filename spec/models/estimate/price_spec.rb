@@ -36,4 +36,40 @@ describe Estimate::Price do
     Estimate::Price.with_catalog_id(catalog.id).should =~ Estimate::Price.
         where{catalog_id == my{catalog.id}}
   end
+
+  it 'should sort prices' do
+    10.times { create(:price) }
+
+    pls = Estimate::Price.sort(field: "date", type: "asc").all
+    test_pls = Estimate::Price.order("date").all
+    pls.should eq(test_pls)
+    pls = Estimate::Price.sort_by_uid("asc").all
+    test_pls = Estimate::Price.joins{bo_m}.order("estimate_bo_ms.uid").all
+    pls.should eq(test_pls)
+    pls = Estimate::Price.sort_by_tag("asc").all
+    test_pls = Estimate::Price.joins{bo_m.resource}.order("assets.tag").all
+    pls.should eq(test_pls)
+    pls = Estimate::Price.sort_by_mu("asc").all
+    test_pls = Estimate::Price.joins{bo_m.resource}.order("assets.mu").all
+    pls.should eq(test_pls)
+    pls = Estimate::Price.sort_by_catalog_tag("asc").all
+    test_pls = Estimate::Price.joins{catalog}.order("estimate_catalogs.tag").all
+    pls.should eq(test_pls)
+
+    pls = Estimate::Price.sort(field: "date", type: "desc").all
+    test_pls = Estimate::Price.order("date desc").all
+    pls.should eq(test_pls)
+    pls = Estimate::Price.sort_by_uid("desc")
+    test_pls = Estimate::Price.joins{bo_m}.order("estimate_bo_ms.uid desc").all
+    pls.should eq(test_pls)
+    pls = Estimate::Price.sort_by_tag("desc")
+    test_pls = Estimate::Price.joins{bo_m.resource}.order("assets.tag desc").all
+    pls.should eq(test_pls)
+    pls = Estimate::Price.sort_by_mu("desc")
+    test_pls = Estimate::Price.joins{bo_m.resource}.order("assets.mu desc").all
+    pls.should eq(test_pls)
+    pls = Estimate::Price.sort_by_catalog_tag("desc")
+    test_pls = Estimate::Price.joins{catalog}.order("estimate_catalogs.tag desc").all
+    pls.should eq(test_pls)
+  end
 end

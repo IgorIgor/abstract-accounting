@@ -31,6 +31,18 @@ module Estimate
 
     after_initialize :initialize_bom_type
 
+    custom_sort(:tag) do |dir|
+      joins{resource}.order{resource.tag.__send__(dir)}
+    end
+
+    custom_sort(:mu) do |dir|
+      joins{resource}.order{resource.mu.__send__(dir)}
+    end
+
+    custom_sort(:catalog_tag) do |dir|
+      joins{catalog}.order{catalog.tag.__send__(dir)}
+    end
+
     class << self
       def create_resource(args)
         resource = Asset.with_lower_tag_eq_to(args[:tag]).with_lower_mu_eq_to(args[:mu]).first
@@ -39,6 +51,10 @@ module Estimate
 
       def with_catalog_id(cid)
         where{catalog_id == my{cid}}
+      end
+
+      def only_boms
+        where{bom_type == BOM}
       end
     end
 

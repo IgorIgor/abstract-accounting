@@ -128,4 +128,34 @@ describe Estimate::BoM do
     Estimate::BoM.with_catalog_id(catalog.id).should =~ Estimate::BoM.
         where{catalog_id == my{catalog.id}}
   end
+
+  it 'should sort bo_ms' do
+    10.times { create(:bo_m)}
+
+    bo_ms = Estimate::BoM.sort(field: "uid", type: "asc").all
+    test_bo_ms = Estimate::BoM.order("uid").all
+    bo_ms.should eq(test_bo_ms)
+    bo_ms = Estimate::BoM.sort_by_tag("asc").all
+    test_bo_ms = Estimate::BoM.joins{resource}.order("assets.tag").all
+    bo_ms.should eq(test_bo_ms)
+    bo_ms = Estimate::BoM.sort_by_mu("asc").all
+    test_bo_ms = Estimate::BoM.joins{resource}.order("assets.mu").all
+    bo_ms.should eq(test_bo_ms)
+    bo_ms = Estimate::BoM.sort_by_catalog_tag("asc").all
+    test_bo_ms = Estimate::BoM.joins{catalog}.order("estimate_catalogs.tag").all
+    bo_ms.should eq(test_bo_ms)
+
+    bo_ms = Estimate::BoM.sort(field: "uid", type: "desc").all
+    test_bo_ms = Estimate::BoM.order("uid desc").all
+    bo_ms.should eq(test_bo_ms)
+    bo_ms = Estimate::BoM.sort_by_tag("desc").all
+    test_bo_ms = Estimate::BoM.joins{resource}.order("assets.tag desc").all
+    bo_ms.should eq(test_bo_ms)
+    bo_ms = Estimate::BoM.sort_by_mu("desc").all
+    test_bo_ms = Estimate::BoM.joins{resource}.order("assets.mu desc").all
+    bo_ms.should eq(test_bo_ms)
+    bo_ms = Estimate::BoM.sort_by_catalog_tag("desc").all
+    test_bo_ms = Estimate::BoM.joins{catalog}.order("estimate_catalogs.tag desc").all
+    bo_ms.should eq(test_bo_ms)
+  end
 end

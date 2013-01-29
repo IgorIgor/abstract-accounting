@@ -7,12 +7,11 @@
 #
 # Please see ./COPYING for details
 
-object false
-child(@price_lists => :objects) do
-  attributes :id, :date, :tab
-  child(:bo_m => :bo_m) do
-    child(:resource => :bo_m.resource) { attributes :tag, :mu }
+object @price_list
+attributes :id
+child(@bom => :bom) do
+  attributes :id
+  child(@bom.resource => :resource) do
+    attributes :tag, :mu
   end
 end
-node(:per_page) { Settings.root.per_page }
-node(:count) { @count }

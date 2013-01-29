@@ -107,13 +107,21 @@ module Estimate
           Settings.root.per_page.to_i : params[:per_page].to_i
 
       if params[:catalog_id]
-        scope = BoM.joins{catalogs}.where{estimate_catalogs.id == my{params[:catalog_id]}}
+        children = Catalog.find(params[:catalog_id]).children
+        scope = BoM.joins{catalog}.where{catalog.id >> my{children}}
       else
         scope = BoM
       end
-
       @count = scope.count
       @bo_ms = scope.limit(per_page).offset((page - 1) * per_page).all
+    end
+
+    def find
+      if params[:catalog_id] && params[:bom_uid]
+        children = Catalog.find(params[:catalog_id]).children
+        @bom = BoM.joins{catalog}.
+            where{(catalog.id >> my{children}) & (uid == my{params[:bom_uid]})}
+      end
     end
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130117151442) do
+ActiveRecord::Schema.define(:version => 20130122151015) do
 
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
@@ -175,23 +175,19 @@ ActiveRecord::Schema.define(:version => 20130117151442) do
 
   create_table "estimate_local_elements", :force => true do |t|
     t.integer "local_id"
-    t.integer "bom_id"
     t.float   "amount"
+    t.integer "price_list_id"
   end
 
-  add_index "estimate_local_elements", ["bom_id"], :name => "index_estimate_elements_on_bom_id"
   add_index "estimate_local_elements", ["local_id"], :name => "index_estimate_elements_on_estimate_id"
 
   create_table "estimate_locals", :force => true do |t|
     t.integer  "catalog_id"
-    t.integer  "deal_id"
-    t.integer  "legal_entity_id"
     t.datetime "date"
+    t.string   "tag"
   end
 
   add_index "estimate_locals", ["catalog_id"], :name => "index_estimates_on_catalog_id"
-  add_index "estimate_locals", ["deal_id"], :name => "index_estimates_on_deal_id"
-  add_index "estimate_locals", ["legal_entity_id"], :name => "index_estimates_on_legal_entity_id"
 
   create_table "estimate_price_lists", :force => true do |t|
     t.datetime "date"

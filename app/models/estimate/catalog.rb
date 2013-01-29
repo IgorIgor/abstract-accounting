@@ -14,9 +14,9 @@ module Estimate
     validates :tag, :presence => true
     validates_uniqueness_of :tag, :scope => :parent_id
     belongs_to :parent, class_name: Catalog
-    has_many :subcatalogs,  class_name: Catalog, :foreign_key => :parent_id
+    has_many :subcatalogs, class_name: Catalog, :foreign_key => :parent_id
     has_many :boms, class_name: BoM
-    has_and_belongs_to_many :price_lists
+    has_many :price_lists
     belongs_to :document
 
     def price_list(filter_date, filter_tab)
@@ -24,6 +24,15 @@ module Estimate
       #  Rplace all datetime to date
       self.price_lists.where{to_char(date, "YYYY-MM-DD").like("#{filter_date.strftime("%Y-%m-%d")}%")}.
                        where{tab.eq(filter_tab)}.first
+    end
+
+    def children(catalog = self, array_of_children = [])
+      return if catalog.nil?
+      array_of_children << catalog
+      catalog.subcatalogs.each do |subcatalog|
+        children(subcatalog, array_of_children)
+      end
+      array_of_children
     end
   end
 end

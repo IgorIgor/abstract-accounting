@@ -62,3 +62,14 @@ ru:
       price_lists:
         tab: Tab
       price: "Цена"
+
+      locals:
+        tag: Название
+        date: Дата создания
+        catalog: Каталог
+        amount: Объём
+        page:
+          title:
+            show: Просмотр сметы
+            edit: Редактирование сметы
+            new: Новая смета

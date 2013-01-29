@@ -8,11 +8,10 @@
 # Please see ./COPYING for details
 
 object false
-child(@price_lists => :objects) do
-  attributes :id, :date, :tab
-  child(:bo_m => :bo_m) do
-    child(:resource => :bo_m.resource) { attributes :tag, :mu }
-  end
+child(@locals => :objects) do
+  attributes :id, :tag
+  node(:date) { |local| local.date.strftime('%Y-%m-%d') }
+  node(:catalog_tag) { |local| local.catalog.tag }
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

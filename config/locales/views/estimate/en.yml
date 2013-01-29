@@ -62,3 +62,14 @@ en:
       price_lists:
         tab: Tab
       price: "Price"
+
+      locals:
+        tag: Tag
+        date: Date
+        catalog: Catalog
+        amount: Amount
+        page:
+          title:
+            show: Show local
+            edit: Edit local
+            new: New local

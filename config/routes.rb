@@ -182,9 +182,17 @@ Abstract::Application.routes.draw do
       collection do
         get 'preview'
         get 'data'
+        get 'find'
       end
     end
     resources :price_lists, except: [:destroy] do
+      collection do
+        get 'data'
+        get 'preview'
+        get 'find'
+      end
+    end
+    resources :locals, except: [:destroy] do
       collection do
         get 'data'
         get 'preview'

@@ -183,20 +183,20 @@ FactoryGirl.define do
 
 
   factory :price, class: Estimate::Price do
-    resource { |price| price.association(:asset) }
     rate 10.0
     price_list_id 1
   end
 
   factory :price_list, class: Estimate::PriceList do
-    resource { |plist| plist.association(:asset) }
     date Date.new(2012, 1, 1)
-    tab "sometab"
+    catalog
+    bo_m
   end
 
   factory :bo_m, class: Estimate::BoM do
     resource { |b| b.association(:asset) }
     sequence(:uid) { |n| "uid##{n}" }
+    catalog
   end
 
   factory :bo_m_element, class: Estimate::BoMElement do
@@ -214,5 +214,11 @@ FactoryGirl.define do
     sequence(:tag) { |n| "catalog##{n}" }
     parent_id nil
     document_id nil
+  end
+
+  factory :local, class: Estimate::Local do
+    sequence(:tag) { |n| "local##{n}" }
+    catalog { |local| local.association(:catalog) }
+    date DateTime.now
   end
 end

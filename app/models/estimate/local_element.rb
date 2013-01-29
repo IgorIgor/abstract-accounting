@@ -11,9 +11,9 @@ module Estimate
   class LocalElement < Base
     has_paper_trail
 
-    validates_presence_of :amount, :bom_id
-    validates_uniqueness_of :bom_id, :scope => :local_id
-    belongs_to :bom, class_name: BoM
+    validates_presence_of :amount, :price_list_id
+    validates_uniqueness_of :price_list_id, :scope => :local_id
+    belongs_to :price_list
     belongs_to :estimate, class_name: Local, foreign_key: :local_id
 
     def to_rule(deal, place, price_list = nil)

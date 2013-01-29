@@ -10,7 +10,11 @@
 module Estimate
   class PriceListsController < ApplicationController
     def index
-      render 'index', layout: false
+      if params[:bom_id]
+        @price_lists = Estimate::PriceList.joins{bom}.where{bom.id == params[:bom_id]}
+      else
+        render 'index', layout: false
+      end
     end
 
     def data
@@ -26,8 +30,6 @@ module Estimate
 
       @count = scope.count
       @price_lists = scope.limit(per_page).offset((page - 1) * per_page).all
-      @price_lists = scope.select(:date).uniq.where("date LIKE ?", "#{params[:q]}%").
-          order("date").limit(5)
     end
 
     def preview
@@ -76,6 +78,28 @@ module Estimate
         end
       else
         render json: ["#{I18n.t('views.estimates.uid')} : #{I18n.t('errors.messages.invalid')}"]
+      end
+    end
+
+    def find
+      @price_list = nil
+      if params[:bom_id] && params[:date]
+        @price_list = Estimate::PriceList.
+            where{(bo_m_id == my{params[:bom_id]}) & (estimate_price_lists.date <= my{params[:date]})}.
+            order('estimate_price_lists.date DESC').first
+      end
+      if params[:bom_uid] && params[:date] && params[:catalog_id]
+        children = Catalog.find(params[:catalog_id]).children
+        @price_list = Estimate::PriceList.joins{bo_m}.
+            where{(bo_m.uid == my{params[:bom_uid]}) &
+                (estimate_price_lists.catalog_id >> my{children}) &
+                (estimate_price_lists.date <= my{params[:date]})}.
+            order('estimate_price_lists.date DESC').first
+      end
+      if @price_list.nil?
+        @bom = nil
+      else
+        @bom = @price_list.bo_m
       end
     end
   end

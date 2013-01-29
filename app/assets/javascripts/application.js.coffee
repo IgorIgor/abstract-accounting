@@ -485,6 +485,8 @@ $ ->
                   new BoMViewModel(object)
                 when 'price_lists'
                   new PriceListViewModel(object)
+                when 'locals'
+                  new EstimateLocalViewModel(object)
 
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
@@ -507,6 +509,8 @@ $ ->
                   new BoMViewModel(object, true)
                 when 'price_lists'
                   new PriceListViewModel(object, true)
+                when 'locals'
+                  new EstimateLocalViewModel(object, true)
 
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
@@ -652,6 +656,18 @@ $ ->
               toggleSelect("price_lists")
               $('.paginate').show()
               viewModel = new EstimatePriceListsViewModel(data)
+              ko.cleanNode($('#main').get(0))
+              $('#container_documents').html(form)
+              ko.applyBindings(viewModel, $('#main').get(0))
+            )
+          )
+        )
+        this.get('#estimate/locals', ->
+          $.get("/estimate/locals", {}, (form) ->
+            $.getJSON("/estimate/locals/data.json", {}, (data) ->
+              toggleSelect("estimate_locals")
+              $('.paginate').show()
+              viewModel = new EstimateLocalsViewModel(data)
               ko.cleanNode($('#main').get(0))
               $('#container_documents').html(form)
               ko.applyBindings(viewModel, $('#main').get(0))

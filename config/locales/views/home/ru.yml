@@ -51,4 +51,5 @@ ru:
       notifications: Уведомления
       estimate_catalogs: Каталоги
       estimate_price_lists: Цены
-
+      estimate_local: Локальная смета
+      estimate_locals: Локальные сметы

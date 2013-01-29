@@ -48,6 +48,7 @@ module Estimate
     def data
       scope = BoM.only_boms
       scope = scope.with_catalog_id(params[:catalog_id]) if params[:catalog_id]
+      scope = scope.with_catalog_pid(params[:catalog_pid]) if params[:catalog_pid]
       scope = scope.search(params[:like]) if params[:like]
       @count = scope.count
 

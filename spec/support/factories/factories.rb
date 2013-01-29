@@ -210,4 +210,10 @@ FactoryGirl.define do
     place
     customer { |pr| pr.association(:entity)}
   end
+
+  factory :local, class: Estimate::Local do
+    sequence(:tag) { |n| "local##{n}" }
+    catalog
+    date DateTime.now
+  end
 end

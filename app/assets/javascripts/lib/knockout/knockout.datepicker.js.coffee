@@ -1,14 +1,14 @@
 ko.bindingHandlers.datepicker =
   init: (element, valueAccessor) ->
-    $(element).datepicker($.datepicker.
-    regional[I18n.locale])
+    $(element).datepicker($.datepicker.regional[I18n.locale])
+    $(element).datepicker( "option", "dateFormat", "yy-mm-dd")
     if valueAccessor().maxDate?
       $(element).datepicker( "option", "maxDate", ko.utils.unwrapObservable(valueAccessor().maxDate))
     else if valueAccessor().minDate?
       $(element).datepicker( "option", "minDate", ko.utils.unwrapObservable(valueAccessor().minDate))
     ko.utils.registerEventHandler(element, "change", ->
       observable = valueAccessor().value
-      observable($(element).datepicker("getDate"))
+      observable($.datepicker.formatDate("yy-mm-dd", $(element).datepicker("getDate")))
     )
     ko.utils.domNodeDisposal.addDisposeCallback(element, ->
       $(element).datepicker("destroy")

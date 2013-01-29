@@ -174,12 +174,14 @@ Abstract::Application.routes.draw do
       collection do
         get 'preview'
         get 'data'
+        get 'find'
       end
     end
     resources :prices, except: [:destroy] do
       collection do
         get 'preview'
         get 'data'
+        get 'find'
       end
     end
     resources :catalogs do
@@ -189,6 +191,12 @@ Abstract::Application.routes.draw do
       end
       member do
         get 'document'
+      end
+    end
+    resources :locals, except: [:destroy] do
+      collection do
+        get 'data'
+        get 'preview'
       end
     end
     resources :projects, except: [:destroy] do

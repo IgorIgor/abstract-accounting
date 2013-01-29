@@ -7,11 +7,8 @@
 #
 # Please see ./COPYING for details
 
-module Estimate
-  class LocalElement < Base
-    validates_presence_of :amount, :price_id
-    validates_uniqueness_of :price_id, :scope => :local_id
-    belongs_to :price
-    belongs_to :local
+class RenamePriceColumnOnEstimateLocalElements < ActiveRecord::Migration
+  def change
+    rename_column :estimate_local_elements, :price_list_id, :price_id
   end
 end

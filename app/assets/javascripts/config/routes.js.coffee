@@ -49,3 +49,4 @@ $ ->
       this.resource "prices", only: [Routes.INDEX, Routes.NEW, Routes.SHOW]
       this.resource "catalogs", only: [Routes.INDEX, Routes.NEW, Routes.SHOW]
       this.resource "projects", only: [Routes.INDEX, Routes.NEW, Routes.SHOW]
+      this.resource "locals", only: [Routes.NEW, Routes.SHOW]

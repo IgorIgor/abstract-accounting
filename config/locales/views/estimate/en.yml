@@ -77,3 +77,13 @@ en:
             new: New project
         place: Place
         customer: Customer
+      locals:
+        tag: Tag
+        date: Date
+        catalog: Catalog
+        amount: Amount
+        page:
+          title:
+            show: Show local estimate
+            edit: Edit local estimate
+            new: New local estimate

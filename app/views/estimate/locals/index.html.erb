@@ -1,0 +1,22 @@
+<table>
+  <thead>
+    <tr>
+      <th id="local_tag">
+        <%= t 'views.estimates.locals.tag' %>
+      </th>
+      <th id="local_date">
+        <%= t 'views.estimates.locals.date' %>
+      </th>
+      <th id="local_catalog">
+        <%= t 'views.estimates.locals.catalog' %>
+      </th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr>
+      <td data-bind="text: tag"></td>
+      <td data-bind="text: date"></td>
+      <td data-bind="text: catalog_tag"></td>
+    </tr>
+  </tbody>
+</table>

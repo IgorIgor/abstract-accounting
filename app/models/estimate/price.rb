@@ -22,6 +22,23 @@ module Estimate
       def with_catalog_id(cid)
         where{catalog_id == my{cid}}
       end
+
+      def with_bo_m_id(bid)
+        where{bo_m_id == bid}
+      end
+
+      def with_date_less_or_eq_to(arg_date)
+        where{date <= my{arg_date}}
+      end
+
+      def with_uid(uid)
+        joins{bo_m}.where{bo_m.uid == uid}
+      end
+
+      def with_catalog_pid(cpid)
+        children = Catalog.find(cpid).children
+        where{catalog_id.in(children)}
+      end
     end
 
     custom_sort(:uid) do |dir|

@@ -53,6 +53,11 @@ module Estimate
         where{catalog_id == my{cid}}
       end
 
+      def with_catalog_pid(cpid)
+        children = Catalog.find(cpid).children
+        where{catalog_id.in(children)}
+      end
+
       def only_boms
         where{bom_type == BOM}
       end

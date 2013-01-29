@@ -1,0 +1,151 @@
+<form data-bind="validate: { success: save }">
+  <div class='actions'>
+    <%= render :partial => "home/buttons", :locals => { :editable => true } %>
+  </div>
+
+  <span id="page-title">
+    <!-- ko if: readonly -->
+      <%= t('views.estimates.locals.page.title.show') %>
+    <!-- /ko -->
+    <!-- ko ifnot: readonly -->
+      <!-- ko if: id_presence -->
+        <%= t('views.estimates.locals.page.title.edit') %>
+      <!-- /ko -->
+      <!-- ko ifnot: id_presence -->
+        <%= t('views.estimates.locals.page.title.new') %>
+      <!-- /ko -->
+    <!-- /ko -->
+  </span>
+
+  <%= render 'home/errors' %>
+
+  <fieldset>
+    <div>
+      <div>
+        <span class="form-cell-label">
+          <label for="local_tag"><%= t('views.estimates.locals.tag') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="local_tag"
+                 name="<%= t('views.estimates.locals.tag') %>" rule="required"
+                 data-bind="value: object.local.tag, disable: readonly">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="local_date"><%= t('views.estimates.locals.date') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="local_date"
+                 name="<%= t('views.estimates.locals.date') %>" rule="required"
+                 data-bind="datepicker:{ value: object.local.date, maxDate: '+0'},
+                            disable: readonly">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="local_catalog"><%= t('views.estimates.locals.catalog') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="local_catalog"
+                 name="<%= t('views.estimates.locals.catalog') %>" rule="required"
+                 data-bind="dialog: { autoOpen: false,
+                                       modal: true,
+                                       minWidth: 480,
+                                       minHeight: 300,
+                                       bind: { id: object.catalog.id, tag: object.catalog.tag }
+                                     },
+                            dialogId: 'catalogs_selector',
+                            value: object.catalog.tag,
+                            disable: readonly">
+        </span>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset class="with-legend">
+    <legend><%=t 'views.waybills.waybill_entry' %></legend>
+    <input type="button" value="<%= t('views.waybills.add') %>"
+           data-bind="dialog: { autoOpen: false,
+                                modal: true,
+                                minWidth: 480,
+                                minHeight: 300,
+                                bind: { id: object.catalog.id, tag: object.catalog.tag }
+                              },
+                      dialogId: 'boms_selector',
+                      disable: readonly() || !can_add_items()"/>
+    <table class="elements-align-center">
+      <thead>
+        <tr>
+          <th class="col-width"><%= t('views.estimates.code') %></th>
+          <th><%= t('views.resources.tag') %></th>
+          <th class="col-width"><%= t('views.resources.mu') %></th>
+          <th class="col-width"><%= t('views.estimates.locals.amount') %></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach: { data: object.items }">
+        <tr data-bind="attr: { idx: $parent.object.items.indexOf($data),
+                                id: 'item_' + $parent.object.items.indexOf($data) }">
+          <td>
+            <input type="text" rule="required"
+                   data-bind="value: price.bom.uid, disable: $parent.readonly,
+                              attr: { id: 'uid_' + $parent.object.items.indexOf($data),
+                                      name: '<%=t 'views.waybills.item' %>#' +
+                                            $parent.object.items.indexOf($data) +
+                                            ' <%=t 'views.waybills.entry_name' %>'}" />
+          </td>
+          <td>
+            <input type="text" rule="required"
+                   readonly="readonly"
+                   data-bind="value: price.bom.resource.tag, disable: $parent.readonly,
+                              attr: { id: 'mu_' + $parent.object.items.indexOf($data),
+                                      name: '<%=t 'views.waybills.item' %>#' +
+                                      $parent.object.items.indexOf($data) +
+                                      ' <%=t 'views.waybills.measure' %>'}" />
+          </td>
+          <td>
+            <input type="text" rule="required"
+                   readonly="readonly"
+                   data-bind="value: price.bom.resource.mu, disable: $parent.readonly,
+                              attr: { id: 'count_' + $parent.object.items.indexOf($data),
+                                      name: '<%=t 'views.waybills.item' %>#' +
+                                      $parent.object.items.indexOf($data) +
+                                      ' <%=t 'views.waybills.count' %>'}"/>
+          </td>
+          <td>
+            <input type="text" rule="required_num"
+                   data-bind="value: amount, disable: $parent.readonly,
+                              attr: { id: 'price_' + $parent.object.items.indexOf($data),
+                                      name: '<%=t 'views.waybills.item' %>#' +
+                                      $parent.object.items.indexOf($data) +
+                                      ' <%=t 'views.waybills.price' %>'}" />
+          </td>
+          <!-- ko ifnot: $parent.readonly -->
+          <td class="table-actions">
+            <label data-bind="click: $parent.removeItem"></label>
+          </td>
+          <!-- /ko -->
+        </tr>
+      </tbody>
+    </table>
+    <input type="button" value="<%= t('views.waybills.add') %>"
+           data-bind="dialog: { autoOpen: false,
+                                modal: true,
+                                minWidth: 480,
+                                minHeight: 300,
+                                bind: { id: object.catalog.id, tag: object.catalog.tag }
+                              },
+                      dialogId: 'boms_selector',
+                      disable: readonly() || !can_add_items()"/>
+  </fieldset>
+</form>
+
+<%= render :partial => "home/select_dialog",
+           :locals => { :dialog_id => 'catalogs_selector',
+                        :dialog_model => 'dialog_catalogs',
+                        :data_path => 'estimate/catalogs/catalogs' } %>
+
+<%= render :partial => "home/select_dialog",
+           :locals => { :dialog_id => 'boms_selector',
+                        :dialog_model => 'dialog_boms',
+                        :data_path => 'estimate/bo_ms/boms' } %>

@@ -12,7 +12,7 @@ module Estimate
     validates :tag, :presence => true
     validates_uniqueness_of :tag, :scope => :parent_id
     belongs_to :parent, class_name: Catalog
-    has_many :subcatalogs,  class_name: Catalog, :foreign_key => :parent_id
+    has_many :subcatalogs, class_name: Catalog, :foreign_key => :parent_id
     has_many :boms, class_name: BoM
     has_many :prices
     belongs_to :document
@@ -29,6 +29,15 @@ module Estimate
       def with_parent_id(pid)
         where{parent_id == pid}
       end
+    end
+
+    def children(catalog = self)
+      return if catalog.nil?
+      array_of_children = [catalog]
+      catalog.subcatalogs.each do |subcatalog|
+        array_of_children = array_of_children.concat(children(subcatalog))
+      end
+      array_of_children
     end
   end
 end

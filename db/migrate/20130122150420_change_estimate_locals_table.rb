@@ -7,11 +7,10 @@
 #
 # Please see ./COPYING for details
 
-module Estimate
-  class LocalElement < Base
-    validates_presence_of :amount, :price_id
-    validates_uniqueness_of :price_id, :scope => :local_id
-    belongs_to :price
-    belongs_to :local
+class ChangeEstimateLocalsTable < ActiveRecord::Migration
+  def change
+    remove_column :estimate_locals, :deal_id
+    remove_column :estimate_locals, :legal_entity_id
+    add_column :estimate_locals, :tag, :string
   end
 end

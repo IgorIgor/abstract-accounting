@@ -806,9 +806,23 @@ input[type=button]:disabled, input[type=submit]:disabled {
 
 .margtop { margin-top: 10px; }
 
+.margbot { margin-bottom: 10px!important; }
+
 .padleft { padding-left: 5px;}
 
 .width { width:100%; }
+
+.delete {
+  width: 16px;
+  background: url("close.png") no-repeat;
+  background-position: center;
+}
+
+.withoutborder {
+  td {
+    border: none!important;
+  }
+}
 
 table {
   .cell-link {

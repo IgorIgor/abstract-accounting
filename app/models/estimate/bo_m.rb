@@ -72,6 +72,27 @@ module Estimate
       self.materials.build(args)
     end
 
+    custom_search(:mu) do |value|
+      joins{resource}.where{lower(resource.mu).like(lower("%#{value}%"))}
+    end
+
+    custom_search(:tags) do |value|
+      joins{resource}.where do
+        scope = lower(resource.tag).like(lower("%#{my{value["main"]}}%"))
+        if my{value["more"]}
+          my{value["more"]}.each do |item|
+            tmp_scope = lower(resource.tag).like(lower("%#{item[1][:tag]}%"))
+            if item[1][:type] == I18n.t('views.estimates.filter.and')
+              scope = scope ? scope & tmp_scope : tmp_scope
+            else
+              scope = scope ? scope | tmp_scope : tmp_scope
+            end
+          end
+        end
+        scope
+      end
+    end
+
     private
       def initialize_bom_type
         self.bom_type ||= BOM

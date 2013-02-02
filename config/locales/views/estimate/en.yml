@@ -65,3 +65,8 @@ en:
       cost: "Cost"
       code: "Cipher resource"
       price: "Price"
+
+      filter:
+        and: and
+        or: or
+        add_inclusion: Add inclusion

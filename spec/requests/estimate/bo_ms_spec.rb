@@ -485,4 +485,81 @@ feature 'bo_m', %q{
     test_order.call('catalog_tag','asc')
     test_order.call('catalog_tag','desc')
   end
+
+  scenario 'check filtrate', js: true do
+    20.times do |i|
+      ass = create(:asset, tag: "tag#{i}", mu: "mu#{i}")
+      create(:bo_m, uid: "uid#{i}", resource_id: ass.id)
+    end
+    page_login
+    page.find('#btn_slide_estimate').click
+    click_link I18n.t('views.home.boms')
+    wait_for_ajax
+    page.find("#show-filter").click
+    within('#filter-area') do
+      fill_in('filter_uid', with: '1')
+      fill_in('filter_mu', with: '1')
+      page.find("#addtag")[:disabled].should eq("true")
+      fill_in('filter_tag', with: '1')
+      page.find("#addtag")[:disabled].should eq(nil)
+      click_button(I18n.t('views.estimates.inclusion'))
+      fill_in('tag0', with: '2')
+      click_button_and_wait(I18n.t('views.home.search'))
+    end
+    boms = Estimate::BoM.search_by({ like: { uid: '1', mu: '1', tag: '1',
+                                              tags: { 0 => {tag:'2',
+                                                            type: "#{I18n.t('views.estimates.or')}"}}}})
+    check_content("#container_documents table", boms) do |bom|
+      [bom.uid, bom.resource.tag, bom.resource.mu, bom.catalog.tag]
+    end
+    page.find("#show-filter").click
+    within('#filter-area') do
+      find('#type')['value'].should eq(I18n.t('views.estimates.or'))
+      select("#{I18n.t('views.estimates.and')}", from: "type")
+      find('#type')['value'].should eq(I18n.t('views.estimates.and'))
+      click_button_and_wait(I18n.t('views.home.search'))
+    end
+    boms = Estimate::BoM.search_by({ like: { uid: '1', mu: '1', tag: '1',
+                                             tags: { 0 => { tag:'2',
+                                                           type: "#{I18n.t('views.estimates.and')}"}}}})
+    check_content("#container_documents table", boms) do |bom|
+      [bom.uid, bom.resource.tag, bom.resource.mu, bom.catalog.tag]
+    end
+    page.find("#show-filter").click
+    within('#filter-area') do
+      find('#filter_uid')['value'].should eq('1')
+      find('#filter_mu')['value'].should eq('1')
+      find('#filter_tag')['value'].should eq('1')
+      find('#tag0')['value'].should eq('2')
+
+      page.find("#clear_filter").click
+
+      find('#filter_uid')['value'].should eq('')
+      find('#filter_mu')['value'].should eq('')
+      find('#filter_tag')['value'].should eq('')
+      page.should_not have_selector('tag0')
+      click_button_and_wait(I18n.t('views.home.search'))
+    end
+    boms = Estimate::BoM.all
+    check_content("#container_documents table", boms) do |bom|
+      [bom.uid, bom.resource.tag, bom.resource.mu, bom.catalog.tag]
+    end
+    page.find("#show-filter").click
+
+    within('#filter-area') do
+      fill_in('filter_tag', with: '1')
+      click_button(I18n.t('views.estimates.inclusion'))
+      fill_in('tag0', with: '2')
+      click_button(I18n.t('views.estimates.inclusion'))
+      fill_in('tag1', with: '3')
+      page.find("#delete1").click
+      click_button_and_wait(I18n.t('views.home.search'))
+    end
+    boms = Estimate::BoM.search_by({ like: { tag: '1',
+                                             tags: { 0 => {tag:'2',
+                                                           type: "#{I18n.t('views.estimates.or')}"}}}})
+    check_content("#container_documents table", boms) do |bom|
+      [bom.uid, bom.resource.tag, bom.resource.mu, bom.catalog.tag]
+    end
+  end
 end

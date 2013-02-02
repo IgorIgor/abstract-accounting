@@ -16,8 +16,9 @@ ko.bindingHandlers.slider =
 
     $(document).click (event) ->
       if $("##{slidearea}").css("display") != 'none' &&
-         ($(event.target).parents("##{slidearea}").length == 0 ||
-          $(event.target).attr('type') == 'button')
+         ($(event.target).parents("##{slidearea}").length == 0 &&
+         !~ $(event.target).get(0).id.indexOf "delete") ||
+         $(event.target).get(0).value == I18n.t("views.home.search")
         $("##{slidearea}").slideUp("fast")
 
 

@@ -158,4 +158,16 @@ describe Estimate::BoM do
     test_bo_ms = Estimate::BoM.joins{catalog}.order("estimate_catalogs.tag desc").all
     bo_ms.should eq(test_bo_ms)
   end
+
+  it 'should search bo_ms' do
+    bo_ms = Estimate::BoM.search({ uid: '2' })
+    bo_ms.count.should eq(4)
+    bo_ms = Estimate::BoM.search({ mu: '2' })
+    bo_ms.count.should eq(4)
+    bo_ms = Estimate::BoM.search({ tags: {"main" => '2' }})
+    bo_ms.count.should eq(4)
+
+    bo_ms = Estimate::BoM.search({ tags: {"main" => '2', "more" => { 0 => {type:'or', tag:'3'}}}})
+    bo_ms.count.should eq(6)
+  end
 end

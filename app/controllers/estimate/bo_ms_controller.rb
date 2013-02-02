@@ -14,7 +14,7 @@ module Estimate
         @boms = BoM.only_boms.search(uid: params[:term]).order('uid').limit(5)
         render :autocomplete
       else
-        render 'index', layout: false
+        render 'index', layout: "data_with_filter"
       end
     end
 
@@ -52,6 +52,8 @@ module Estimate
 
       scope = BoM.only_boms
       scope = scope.with_catalog_id(params[:catalog_id]) if params[:catalog_id]
+      scope = scope.search(params[:like]) if params[:like]
+
       @count = scope.count
 
       filter = { paginate: { page: page, per_page: per_page }}

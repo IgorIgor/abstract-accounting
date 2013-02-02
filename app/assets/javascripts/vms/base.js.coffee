@@ -265,7 +265,10 @@ $ ->
 
     clearFilter: =>
       for attr, value of @filter
-        value('')
+        if typeof this["clearFilter#{attr.camelize()}"] == 'function'
+          this["clearFilter#{attr.camelize()}"]()
+        else
+          value('')
 
     sortBy: (object, event) =>
       el = $(event.target).find('span')

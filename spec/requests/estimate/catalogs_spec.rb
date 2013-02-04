@@ -227,4 +227,32 @@ feature 'places', %q{
       [p.date.strftime('%m/%Y'), p.bo_m.resource.tag, p.bo_m.resource.mu]
     end
   end
+
+  scenario 'sort catalogs', js: true, focus: true do
+    10.times { create(:catalog) }
+    page_login
+    page.find('#btn_slide_estimate').click
+    click_link I18n.t('views.home.estimate_catalogs')
+
+    test_order = lambda do |field, type|
+      cs = Estimate::Catalog.filtrate({sort: { field: field, type: type}})
+      within('#container_documents table') do
+        within('thead tr') do
+          page.find("##{field}").click
+          if type == 'asc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-s']")
+          elsif type == 'desc'
+            page.should have_xpath("//th[@id='#{field}']" +
+                                       "/span[@class='ui-icon ui-icon-triangle-1-n']")
+          end
+        end
+      end
+      check_content("#container_documents table", cs) do |c|
+        [c.tag]
+      end
+    end
+    test_order.call('tag','asc')
+    test_order.call('tag','desc')
+  end
 end

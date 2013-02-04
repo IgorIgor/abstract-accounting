@@ -399,4 +399,16 @@ feature 'price_list', %q{
     test_order.call('catalog_tag','asc')
     test_order.call('catalog_tag','desc')
   end
+
+  scenario 'show price', js: true, focus: true do
+    10.times { create(:price_list) }
+    page_login
+    page.find('#btn_slide_estimate').click
+    click_link I18n.t('views.home.estimate.price.data')
+    wait_for_ajax
+    find(:xpath, "//tr[1]/td[1]").click
+    wait_for_ajax
+    pl = Estimate::PriceList.first
+    current_hash.should eq("estimate/prices/#{pl.id}")
+  end
 end

@@ -19,7 +19,7 @@
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">
-    <tr>
+    <tr data-bind="click: $parent.show">
       <td data-bind="text: date"></td>
       <td data-bind="text: uid"></td>
       <td data-bind="text: resource.tag"></td>

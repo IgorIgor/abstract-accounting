@@ -562,4 +562,16 @@ feature 'bo_m', %q{
       [bom.uid, bom.resource.tag, bom.resource.mu, bom.catalog.tag]
     end
   end
+
+  scenario 'show bom', js: true do
+    10.times { create(:bo_m) }
+    page_login
+    page.find('#btn_slide_estimate').click
+    click_link I18n.t('views.home.estimate.bo_ms.data')
+    wait_for_ajax
+    find(:xpath, "//tr[1]/td[1]").click
+    wait_for_ajax
+    bom = Estimate::BoM.first
+    current_hash.should eq("estimate/bo_ms/#{bom.id}")
+  end
 end

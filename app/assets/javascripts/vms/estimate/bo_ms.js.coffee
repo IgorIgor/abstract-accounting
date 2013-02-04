@@ -32,3 +32,9 @@ $ ->
     clearFilterTags: () =>
       @filter.tags.main('')
       @filter.tags.more([])
+
+    getType: (o)=>
+      "bo_ms"
+
+    namespace: =>
+      "estimate"

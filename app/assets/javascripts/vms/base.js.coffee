@@ -230,7 +230,10 @@ $ ->
 
     show: (object) =>
       type = @getType(object)
-      location.hash = "documents/#{type}/#{object.id}"
+      location.hash = "#{@namespace()}/#{type}/#{object.id}"
+
+    namespace: =>
+      "documents"
 
     clearData: =>
       @documents([])

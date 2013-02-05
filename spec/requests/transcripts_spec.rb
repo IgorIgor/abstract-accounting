@@ -313,7 +313,6 @@ feature "Transcripts", %q{
 
     page.find('#btn_slide_lists').click
     click_link I18n.t('views.home.deals')
-    click_link I18n.t('views.home.deals')
     current_hash.should eq('deals')
 
     within('#container_documents') do

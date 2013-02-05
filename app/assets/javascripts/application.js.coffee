@@ -110,7 +110,7 @@ $ ->
           toggle = false
           location.hash = $('#deals_data').attr('href')
       else
-        if event.target.id == 'deals'
+        if event.target.id == 'deals_data'
           location.hash = $('#deals_data').attr('href')
         $('#arrow_actions').removeClass('arrow-right-expand')
         $('#arrow_actions').addClass('arrow-down-expand')

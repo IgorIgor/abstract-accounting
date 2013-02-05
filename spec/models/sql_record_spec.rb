@@ -122,7 +122,7 @@ describe SqlRecord do
 
   describe "#select" do
     it "should raise error on empty sql" do
-      expect { SqlRecord.new.select("some") }.should raise_error
+      expect { SqlRecord.new.select("some") }.to raise_error
     end
 
     it "should return data array" do
@@ -144,7 +144,7 @@ describe SqlRecord do
 
   describe "#all" do
     it "should raise error on empty sql" do
-      expect { SqlRecord.new.all }.should raise_error
+      expect { SqlRecord.new.all }.to raise_error
     end
 
     it "should return data array" do
@@ -166,7 +166,7 @@ describe SqlRecord do
 
   describe "#count" do
     it "should raise error on empty sql" do
-      expect { SqlRecord.new.count }.should raise_error
+      expect { SqlRecord.new.count }.to raise_error
     end
 
     it "should return count of records" do

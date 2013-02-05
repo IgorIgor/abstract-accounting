@@ -28,11 +28,11 @@ class Quote < ActiveRecord::Base
   end
 
   def do_before_save
-    if !self.balances_as_give.empty? and !self.money.quotes(:force_reload).empty?
+    if !self.balances_as_give(:reload).empty? and !self.money.quotes(:reload).empty?
       self.diff += (self.balances_as_give.not_paid.passive.sum("amount").to_f *
                     (self.money.quote.rate - self.rate)) .accounting_norm
     end
-    if !self.balances_as_take.empty? and !self.money.quotes(:force_reload).empty?
+    if !self.balances_as_take(:reload).empty? and !self.money.quotes(:reload).empty?
       self.diff += (self.balances_as_take.not_paid.active.sum("amount").to_f *
                     (self.rate - self.money.quote.rate)) .accounting_norm
     end

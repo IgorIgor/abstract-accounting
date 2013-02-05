@@ -7,11 +7,16 @@ $ ->
       @deal_id = ko.observable()
       @deal_tag = ko.observable()
 
+      @dialog_deals = ko.observable(null)
+      @select_item = ko.observable(null)
+      @dialog_id = null
+      @dialog_element_id = null
+
       unless $.isEmptyObject(params)
         @deal_id(params.deal_id)
         @date_from($.datepicker.parseDate('yy-mm-dd', params.date_from))
         @date_to($.datepicker.parseDate('yy-mm-dd', params.date_to))
-        @deal_tag(data.deal.tag) if data.deal
+      @deal_tag(data.deal.tag) if data.deal?.tag?
 
       @parse_date_from = ko.observable(
         $.datepicker.formatDate('yy-mm-dd', @date_from()))
@@ -51,19 +56,29 @@ $ ->
       @to(ko.mapping.fromJS(data.to))
       @totals(ko.mapping.fromJS(data.totals))
 
-
-    selectDeals: =>
-      $('<div id="container_selection"></div>').insertAfter('#main')
-      $('#main').hide()
-
-      $.get("/deals", selection: true, (form) ->
-        $.getJSON("/deals/data.json", {}, (data) ->
-          $('#container_selection').html(form)
-          ko.applyBindings(new DealsViewModel(data, true),
-            $('#container_selection').get(0))
-        )
-      )
-
     selectTranscript: (object) =>
       @deal_tag(object.account)
       @deal_id(object.deal_id)
+
+    select: (object) =>
+      @select_item(object)
+      $("##{@dialog_id}").dialog( "close" )
+
+    setDialogViewModel: (dialogId, dialog_element_id) =>
+      @dialog_id = dialogId
+      @dialog_element_id = dialog_element_id
+      if dialogId == 'deals_selector'
+        $.getJSON('deals/data.json', {}, (data) =>
+          @dialog_deals(new TranscriptDealsViewModel(data))
+        )
+
+  class self.TranscriptDealsViewModel extends FolderViewModel
+    constructor: (data) ->
+      @url = 'deals/data.json'
+      @filter =
+        tag: ko.observable('')
+
+      super(data)
+
+    select: (object)->
+      self.application.object().select(object)

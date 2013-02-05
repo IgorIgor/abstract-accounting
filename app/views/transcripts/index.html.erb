@@ -1,7 +1,16 @@
 <div class="left">
-  <input type="text" id="deal_tag" readonly="readonly" data-bind="value: deal_tag"/>
-  <input type="button" value="<%=t 'views.transcripts.select_deal' %>"
-         data-bind="click: selectDeals"/>
+   <span class="form-cell-label">
+          <label for="deal_tag"><%=t 'views.transcripts.deal' %>:</label>
+        </span>
+  <input type="text" id="deal_tag"
+         data-bind="dialog: { autoOpen: false,
+                                      modal: true,
+                                      minWidth: 480,
+                                      minHeight: 300,
+                                      bind: { id: deal_id, tag: deal_tag }
+                                    },
+                            dialogId: 'deals_selector',
+                            value: deal_tag"/>
 </div>
 <div class="left">
   <label for="transcript_date_from"><%=t 'views.transcripts.from' %></label>
@@ -80,3 +89,4 @@
   </tr>
   </tbody>
 </table>
+<%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'deals_selector', :dialog_model => 'dialog_deals', :data_path => 'deals/deals' } %>

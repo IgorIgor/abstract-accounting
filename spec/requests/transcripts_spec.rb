@@ -43,7 +43,6 @@ feature "Transcripts", %q{
     page.find('#btn_slide_conditions').click
     click_link I18n.t('views.home.transcripts')
     current_hash.should eq('transcripts')
-    page.should have_xpath("//li[@id='transcripts' and @class='sidebar-selected']")
 
     page.should have_datepicker("transcript_date_from")
     page.should have_datepicker("transcript_date_to")
@@ -53,14 +52,19 @@ feature "Transcripts", %q{
     date_from = Time.now.months_ago(1).change(day: 10).to_date
     date_to = Date.today
 
-    click_button(I18n.t('views.transcripts.select_deal'))
-    page.should_not have_selector('#main')
-    page.find('#container_selection').visible?.should be_true
-    within('#container_selection table tbody') do
-      page.find(:xpath, ".//tr[1]/td[2]").click
+    page.find('#deal_tag').click
+    page.should have_selector('#deals_selector')
+    within('#deals_selector') do
+      within('table tbody') do
+        all(:xpath, './/tr//td[1]').each do |td|
+          if td.has_content?(share.tag)
+            td.click
+            break
+          end
+        end
+      end
     end
-    page.find('#main').visible?.should be_true
-    page.should_not have_selector('#container_selection')
+    page.should have_no_selector('#deals_selector')
 
     transcript = Transcript.new(share, DateTime.now.change(day: 10, month:
                                                            DateTime.now.prev_month.month),
@@ -277,7 +281,6 @@ feature "Transcripts", %q{
     date = facts[0].day.strftime('%Y-%m-%d')
     current_hash.should eq(
       "transcripts?date_from=#{date}&date_to=#{date}&deal_id=#{bank.id}")
-
     page.find('#deal_tag')[:value].should eq(bank.tag)
     page.find('#transcript_date_from')[:value].
         should eq(facts[0].day.strftime('%d.%m.%Y'))
@@ -310,11 +313,13 @@ feature "Transcripts", %q{
 
     page.find('#btn_slide_lists').click
     click_link I18n.t('views.home.deals')
+    click_link I18n.t('views.home.deals')
     current_hash.should eq('deals')
 
     within('#container_documents') do
-      page.find(:xpath, './/table/tbody/tr[1]/td[2]').click
+      page.find(:xpath, './/table/tbody/tr[1]/td[1]/input').click
     end
+    click_button(I18n.t 'views.deals.report_on_selected')
 
     deal = Deal.limit(per_page).first
     date = DateTime.now.strftime('%Y-%m-%d')
@@ -376,21 +381,24 @@ feature "Transcripts", %q{
     page.find('#btn_slide_conditions').click
     click_link I18n.t('views.home.transcripts')
     current_hash.should eq('transcripts')
-    page.should have_xpath("//li[@id='transcripts' and @class='sidebar-selected']")
 
     page.should have_datepicker("transcript_date_from")
     page.should have_datepicker("transcript_date_to")
 
     page.datepicker("transcript_date_from").prev_month.day(10)
 
-    click_button(I18n.t('views.transcripts.select_deal'))
-    page.should_not have_selector('#main')
-    page.find('#container_selection').visible?.should be_true
-    within('#container_selection table tbody') do
-      page.find(:xpath, ".//tr[1]/td[2]").click
+    page.find('#deal_tag').click
+    page.should have_selector('#deals_selector')
+    within('#deals_selector') do
+      within('table tbody') do
+        all(:xpath, './/tr//td[1]').each do |td|
+          if td.has_content?(share.tag)
+            td.click
+            break
+          end
+        end
+      end
     end
-    page.find('#main').visible?.should be_true
-    page.should_not have_selector('#container_selection')
 
     transcript = Transcript.new(share,
                                 DateTime.now.change(day: 10, month: DateTime.now.prev_month.month),

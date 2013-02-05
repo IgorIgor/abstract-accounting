@@ -19,7 +19,7 @@ feature "Transcripts", %q{
     create(:chart)
   end
 
-  scenario 'visit transcripts page', js: true, focus: true do
+  scenario 'visit transcripts page', js: true do
     rub = Chart.first.currency
     aasii = create(:asset)
     share = create(:deal,
@@ -425,5 +425,50 @@ feature "Transcripts", %q{
 
     test_order.call('day', 'asc')
     test_order.call('day', 'desc')
+  end
+
+  scenario 'deal in not exist', js: true, focus: true do
+    rub = Chart.first.currency
+    wh = create(:deal,
+                give: build(:deal_give, resource: rub),
+                take: build(:deal_take, resource: rub),
+                rate: 1,
+                isOffBalance: true)
+    f = create(:fact, from: nil, to: wh, resource: rub)
+    create(:txn, fact: f)
+
+    page_login
+    page.find('#btn_slide_conditions').click
+    click_link I18n.t('views.home.transcripts')
+    current_hash.should eq('transcripts')
+
+    page.should have_datepicker("transcript_date_from")
+    page.should have_datepicker("transcript_date_to")
+
+    page.datepicker("transcript_date_from").prev_month.day(10)
+
+    date_from = Time.now.months_ago(1).change(day: 10).to_date
+    date_to = Date.today
+
+    page.find('#deal_tag').click
+    page.should have_selector('#deals_selector')
+    within('#deals_selector') do
+      within('table tbody') do
+        all(:xpath, './/tr//td[1]').each do |td|
+          if td.has_content?(wh.tag)
+            td.click
+            break
+          end
+        end
+      end
+    end
+    page.should have_no_selector('#deals_selector')
+    within('#container_documents table tbody') do
+      page.find(:xpath, ".//tr[1]/td[2]").should have_content("#{
+        I18n.t 'views.transcripts.not_exist'}")
+      page.find(:xpath, ".//tr[1]/td[2]").click
+      page.find(:xpath, ".//tr[1]/td[2]").should have_content("#{
+        I18n.t 'views.transcripts.not_exist'}")
+    end
   end
 end

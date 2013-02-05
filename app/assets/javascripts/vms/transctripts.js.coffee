@@ -57,8 +57,9 @@ $ ->
       @totals(ko.mapping.fromJS(data.totals))
 
     selectTranscript: (object) =>
-      @deal_tag(object.account)
-      @deal_id(object.deal_id)
+      if object.deal_id
+        @deal_tag(object.account)
+        @deal_id(object.deal_id)
 
     select: (object) =>
       @select_item(object)

@@ -14,3 +14,4 @@ en:
       currency: "currency"
       mu: "Unit of measurement"
       select_deal: "Select deal"
+      not_exist: 'Deal is not exist'

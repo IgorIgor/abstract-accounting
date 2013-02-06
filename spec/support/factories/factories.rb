@@ -196,12 +196,6 @@ FactoryGirl.define do
 
   factory :bo_m, class: Estimate::BoM do
     resource { |b| b.association(:asset) }
-    tab "sometab"
-  end
-
-  factory :bo_m_element, class: Estimate::BoMElement do
-    resource { |element| element.association(:asset) }
-    rate 0.45
-    bom_id 1
+    uid "sometab"
   end
 end

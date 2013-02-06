@@ -7,5 +7,5 @@
 #
 # Please see ./COPYING for details
 
-object @estimate
-attributes :legal_entity_id, :catalog_id, :date
+collection @assets
+attributes :id, :tag, :mu

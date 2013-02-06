@@ -26,9 +26,9 @@
 #
 #= require_tree ./lib
 #= require vms/base
-#= require_directory ./vms
+#= require_tree ./vms
 #= require controllers/application_controller
-#= require_directory ./controllers
+#= require_tree ./controllers
 #= require_directory ./config
 #= require_self
 $ ->
@@ -124,6 +124,8 @@ $ ->
           @slideMenu('#slide_menu_lists', '#arrow_lists')
         when 'btn_slide_services'
           @slideMenu('#slide_menu_services', '#arrow_services')
+        when 'btn_slide_estimate'
+          @slideMenu('#slide_menu_estimate', '#arrow_estimate')
 
     slideMenu: (slide_id, arrow_id) ->
         if $(slide_id).is(":visible")

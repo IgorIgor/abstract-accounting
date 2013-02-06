@@ -43,3 +43,6 @@ $ ->
 
 
     this.get "foreman/resources", "foreman#index"
+
+    this.namespace "estimate", ->
+      this.resource "bo_ms", only: [Routes.NEW, Routes.SHOW]

@@ -11,98 +11,112 @@ require 'spec_helper'
 
 describe Estimate::BoM do
   it "should have next behaviour" do
-    should validate_presence_of(:resource_id)
-    should validate_presence_of(:tab)
+    should validate_presence_of :resource_id
+    should validate_presence_of :uid
+    should validate_presence_of :bom_type
+    should allow_value(Estimate::BoM::BOM, Estimate::BoM::MACHINERY,
+                       Estimate::BoM::MATERIALS).for(:bom_type)
+
     should belong_to(:resource).class_name("::#{Asset.name}")
+    should belong_to :catalog
     should have_many(Estimate::BoM.versions_association_name)
-    should have_many(:items).class_name(Estimate::BoMElement)
-    should have_and_belong_to_many(:catalogs)
+
+    should have_many(:items).class_name(Estimate::BoM).with_foreign_key(:parent_id)
+    should have_many(:machinery).class_name(Estimate::BoM).
+               with_foreign_key(:parent_id).conditions(bom_type: Estimate::BoM::MACHINERY)
+    should have_many(:materials).class_name(Estimate::BoM).
+               with_foreign_key(:parent_id).conditions(bom_type: Estimate::BoM::MATERIALS)
+
+    should delegate_method(:tag).to(:resource)
+    should delegate_method(:mu).to(:resource)
   end
 
-  describe "#to_deal" do
-    before(:all) do
-      create(:chart)
-      @entity = create(:entity)
-      @truck = create(:asset)
-      @compressor = create(:asset)
-      @compaction = create(:asset)
-      @prices = create(:price_list,
-                        :resource => create(:asset,:tag => "TUP of the Leningrad region"),
-                        :date => DateTime.civil(2011, 11, 01, 12, 0, 0))
-      @prices.items.create!(:resource => @truck, :rate => (74.03 * 4.70))
-      @prices.items.create!(:resource => @compressor, :rate => (59.76 * 4.70))
-      @bom = create(:bo_m, :resource => @compaction)
-      @bom.items.create!(:resource => @truck, :rate => 0.33)
-      @bom.items.create!(:resource => @compressor,
-                        :rate => 0.46)
+  describe "#create resource" do
+    it "should create asset by params" do
+      asset = Estimate::BoM.create_resource(tag: "tag33", mu: "mu33")
+      asset.should_not be_new_record
+      asset.tag.should eq("tag33")
+      asset.mu.should eq("mu33")
     end
 
-    it "should create deal with rules" do
-      deal = nil
-      lambda {
-        deal = @bom.to_deal(@entity, create(:place), @prices, 1)
-      }.should change(Deal, :count).by(4)
-      deal.should_not be_nil
-      deal.entity.should eq(@entity)
-      deal.give.resource.should eq(@compaction)
-      deal.take.resource.should eq(@compaction)
-      deal.rate.should eq(1.00)
-      deal.isOffBalance.should be_true
-      deal.rules.count.should eq(2)
-      [deal.rules.all.first.from.give.resource,
-       deal.rules.all.last.from.give.resource].should =~ [@compressor, @truck]
-      deal.rules.each do |rule|
-        if rule.from.give == @truck
-          rule.rate.should eq(0.33 * (74.03 * 4.70))
-          rule.from.rate.should eq(0.33)
-        elsif rule.from.give == @compressor
-          rule.rate.should eq(0.46 * (59.76 * 4.70))
-          rule.from.rate.should eq(0.46)
-        end
-      end
-    end
-
-    it "should create different deal for same entity and bom" do
-      @bom.to_deal(@entity, create(:place), @prices, 1).should_not be_nil
-    end
-
-    it "should resend physical volume to rule creation" do
-      deal = @bom.to_deal(@entity, create(:place), @prices, 2)
-      deal.rules.count.should eq(2)
-      [deal.rules.all.first.from.give.resource,
-       deal.rules.all.last.from.give.resource].should =~ [@compressor, @truck]
-      deal.rules.each do |rule|
-        if rule.from.give == @truck
-          rule.rate.should eq(0.33 * (74.03 * 4.70) * 2)
-          rule.from.rate.should eq(0.33)
-        elsif rule.from.give == @compressor
-          rule.rate.should eq(0.46 * (59.76 * 4.70) * 2)
-          rule.from.rate.should eq(0.46)
-        end
-      end
+    it "should find asset by params with case insensitive" do
+      asset = create(:asset, tag: "TAG122", mu: "mu222")
+      asset2 = Estimate::BoM.create_resource(tag: "tag122", mu: "MU222")
+      asset.should eq(asset2)
     end
   end
 
-  it "should return sum by bom" do
-    truck = create(:asset)
-    compressor = create(:asset)
-    compaction = create(:asset)
-    prices = create(:price_list,
-                      :resource => create(:asset,:tag => "TUP of the Leningrad region"),
-                      :date => DateTime.civil(2011, 11, 01, 12, 0, 0))
-    prices.items.create!(:resource => truck, :rate => (74.03 * 4.70))
-    prices.items.create!(:resource => compressor, :rate => (59.76 * 4.70))
-    bom = create(:bo_m, :resource => compaction)
-    bom.items.create!(:resource => truck, :rate => 0.33)
-    bom.items.create!(:resource => compressor,
-                      :rate => 0.46)
-    bom.sum(prices, 1).accounting_norm.should eq(
-      ((0.33 * (74.03 * 4.70)) + (0.46 * (59.76 * 4.70))).accounting_norm)
-    bom.sum(prices, 2).accounting_norm.should eq(
-      (((0.33 * (74.03 * 4.70)) + (0.46 * (59.76 * 4.70))) * 2).accounting_norm)
-    catalog = Estimate::Catalog.create!(tag: "some catalog")
-    catalog.price_lists << prices
-    bom.sum_by_catalog(catalog, prices.date, 2).accounting_norm.should eq(
-           (((0.33 * (74.03 * 4.70)) + (0.46 * (59.76 * 4.70))) * 2).accounting_norm)
+  describe "#create elements" do
+    let(:bom) { create(:bo_m) }
+
+    describe "#build machinery" do
+      it "should use asset id" do
+        asset = create(:asset)
+        bom.build_machinery(uid: "ALSA11", resource_id: asset.id, amount: 10)
+        bom.machinery.size.should eq(1)
+        mach = bom.machinery.first
+        mach.uid.should eq("ALSA11")
+        mach.resource.should eq(asset)
+        mach.amount.should eq(10)
+      end
+
+      it "should create asset by params" do
+        bom.machinery.delete_all
+        bom.build_machinery(uid: "ALSA112", resource: {tag: "tag", mu: "mu"}, amount: 102)
+        bom.machinery.size.should eq(1)
+        mach = bom.machinery.first
+        mach.uid.should eq("ALSA112")
+        mach.resource.should_not be_new_record
+        mach.resource.tag.should eq("tag")
+        mach.resource.mu.should eq("mu")
+        mach.amount.should eq(102)
+      end
+
+      it "should find asset by params with case insensitive" do
+        bom.machinery.delete_all
+        asset = create(:asset, tag: "TAG1", mu: "mu2")
+        bom.build_machinery(uid: "ALSA1121", resource: {tag: "tAg1", mu: "MU2"}, amount: 102)
+        bom.machinery.size.should eq(1)
+        mach = bom.machinery.first
+        mach.uid.should eq("ALSA1121")
+        mach.resource.should eq(asset)
+        mach.amount.should eq(102)
+      end
+    end
+
+    describe "#build materials" do
+      it "should use asset id" do
+        asset = create(:asset)
+        bom.build_materials(uid: "ALSA", resource_id: asset.id, amount: 10)
+        bom.materials.size.should eq(1)
+        mat = bom.materials.first
+        mat.uid.should eq("ALSA")
+        mat.resource.should eq(asset)
+        mat.amount.should eq(10)
+      end
+
+      it "should create asset by params" do
+        bom.materials.delete_all
+        bom.build_materials(uid: "ALSA2", resource: {tag: "tag", mu: "mu"}, amount: 102)
+        bom.materials.size.should eq(1)
+        mat = bom.materials.first
+        mat.uid.should eq("ALSA2")
+        mat.resource.should_not be_new_record
+        mat.resource.tag.should eq("tag")
+        mat.resource.mu.should eq("mu")
+        mat.amount.should eq(102)
+      end
+
+      it "should find asset by params with case insensitive" do
+        bom.materials.delete_all
+        asset = create(:asset, tag: "TAG11", mu: "mu21")
+        bom.build_materials(uid: "ALSA21", resource: {tag: "tAg11", mu: "MU21"}, amount: 102)
+        bom.materials.size.should eq(1)
+        mat = bom.materials.first
+        mat.uid.should eq("ALSA21")
+        mat.resource.should eq(asset)
+        mat.amount.should eq(102)
+      end
+    end
   end
 end

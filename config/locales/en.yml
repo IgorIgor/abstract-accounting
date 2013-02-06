@@ -5,6 +5,7 @@ en:
   errors:
     messages:
       blank: can't be empty.
+      blanks: can't be empty
       taken: already exist
       greater_than: may have a value greater than %{count}
       greater_than_or_equal_to: may have a value greater than or equal %{count}
@@ -12,6 +13,7 @@ en:
       min_length: must have length greater or equal than %{count}
       equal_to: value of field must equal to %{value}
       digits: value of field must be digit only
+      number: value of field must be number only
       too_short:
         few: insufficient length (can not be less than %{count} characters)
         many: insufficient length (can not be less than %{count} characters)

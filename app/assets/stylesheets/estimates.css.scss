@@ -50,3 +50,16 @@
     cursor: pointer;
   }
 }
+
+.elements-align-center {
+  text-align: center;
+  input {
+    text-align: center;
+  }
+  .col-width {
+    width: 100px!important;
+  }
+  .font-bold {
+    font-weight: bold;
+  }
+}

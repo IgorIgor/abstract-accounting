@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121228143835) do
+ActiveRecord::Schema.define(:version => 20121229123749) do
 
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
@@ -140,29 +140,21 @@ ActiveRecord::Schema.define(:version => 20121228143835) do
 
   add_index "entities", ["detail_id"], :name => "index_entities_on_detail_id"
 
-  create_table "estimate_bo_m_elements", :force => true do |t|
-    t.integer "bom_id"
-    t.integer "resource_id"
-    t.float   "rate"
-  end
-
-  add_index "estimate_bo_m_elements", ["bom_id"], :name => "index_bo_m_elements_on_bom_id"
-  add_index "estimate_bo_m_elements", ["resource_id"], :name => "index_bo_m_elements_on_resource_id"
-
   create_table "estimate_bo_ms", :force => true do |t|
     t.integer "resource_id"
-    t.string  "tab"
+    t.string  "uid"
+    t.integer "catalog_id"
+    t.integer "parent_id"
+    t.float   "amount"
+    t.float   "workers_amount"
+    t.float   "avg_work_level"
+    t.float   "drivers_amount"
+    t.integer "bom_type"
   end
 
   add_index "estimate_bo_ms", ["resource_id"], :name => "index_bo_ms_on_resource_id"
-  add_index "estimate_bo_ms", ["tab"], :name => "index_bo_ms_on_tab"
-
-  create_table "estimate_bo_ms_catalogs", :id => false, :force => true do |t|
-    t.integer "bo_m_id"
-    t.integer "catalog_id"
-  end
-
-  add_index "estimate_bo_ms_catalogs", ["bo_m_id", "catalog_id"], :name => "index_bo_ms_catalogs_on_bo_m_id_and_catalog_id", :unique => true
+  add_index "estimate_bo_ms", ["uid"], :name => "index_bo_ms_on_tab"
+  add_index "estimate_bo_ms", ["uid"], :name => "index_estimate_bo_ms_on_uid"
 
   create_table "estimate_catalogs", :force => true do |t|
     t.string  "tag"

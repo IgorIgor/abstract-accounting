@@ -19,6 +19,16 @@ class Asset < ActiveRecord::Base
   has_many :deal_takes, :class_name => "Deal", :through => :terms_as_take, :source => :deal
   has_many :terms, :as => :resource
   belongs_to :detail, :class_name => "DetailedAsset"
+
+  class << self
+    def with_lower_tag_eq_to(value)
+      where{lower(tag) == lower(value)}
+    end
+
+    def with_lower_mu_eq_to(value)
+      where{lower(mu) == lower(value)}
+    end
+  end
 end
 
 # vim: ts=2 sts=2 sw=2 et:

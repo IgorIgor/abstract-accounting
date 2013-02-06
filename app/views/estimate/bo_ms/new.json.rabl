@@ -7,8 +7,12 @@
 #
 # Please see ./COPYING for details
 
-collection @boms
-attributes :id, :tab
-node :tag do |item|
-  item.resource.tag
+object false
+child(@bo_m => :bo_m) do
+  attributes :uid, :resource_id, :amount, :workers_amount, :avg_work_level, :drivers_amount
 end
+child(Asset.new => :resource) do
+  attributes :tag, :mu
+end
+child(@bo_m.machinery => :machinery)
+child(@bo_m.materials => :materials)

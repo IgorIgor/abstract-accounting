@@ -17,7 +17,10 @@ ru:
       transcripts: "Выписки"
       search: "Поиск"
       logout: "Выйти"
-      estimate: "Смета"
+      estimate:
+        tag: Сметы
+        bo_ms:
+          new: Создание сметной нормы
       waybill: "Накладная"
       waybills: Накладные
       allocation: Выдача

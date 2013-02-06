@@ -30,6 +30,8 @@ $ ->
         slideShow('#slide_menu_lists', '#arrow_lists')
       when 'slide_menu_services'
         slideShow('#slide_menu_services', '#arrow_services')
+      when 'slide_menu_estimate'
+        slideShow('#slide_menu_estimate', '#arrow_estimate')
       else
         false
 
@@ -82,7 +84,8 @@ $ ->
               if response['result'] == 'success'
                 hash = ''
                 if response['id']
-                  hash = "documents/#{@route}/#{response['id']}"
+                  hash = if @namespace().length > 0 then "#{@namespace()}/" else ""
+                  hash += "#{@route}/#{response['id']}"
                 else
                   hash = location.hash
                 $.sammy().refresh() if refresh
@@ -121,7 +124,11 @@ $ ->
       @readonly(false)
       @disable(false)
       @method = 'PUT'
-      location.hash = "#documents/#{@route}/#{@object.id()}/edit"
+      hash = if @namespace().length > 0 then "#{@namespace()}/" else ""
+      location.hash = hash + "#{@route}/#{@object.id()}/edit"
+
+    namespace: =>
+      "documents"
 
     save: =>
       @disable(true)

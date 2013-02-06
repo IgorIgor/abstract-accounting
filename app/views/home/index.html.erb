@@ -179,6 +179,17 @@
         <% end %>
       </ul>
     </div>
+    <div class="slider">
+      <div id="arrow_estimate" class="arrow-down-slide"></div>
+      <a id="btn_slide_estimate" class="btn-slide" data-bind="click: slide">
+        <%=t 'views.home.estimate.tag' %>
+      </a>
+      <ul id="slide_menu_estimate" class="slide_menu" style="display: none;">
+        <li id="estimate_bo_ms_new">
+          <a href="#estimate/bo_ms/new"><%=t 'views.home.estimate.bo_ms.new' %></a>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
 

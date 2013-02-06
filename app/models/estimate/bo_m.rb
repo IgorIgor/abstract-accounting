@@ -9,36 +9,50 @@
 
 module Estimate
   class BoM < Base
-    validates_presence_of :resource_id, :tab
+    BOM = 1
+    MACHINERY = 2
+    MATERIALS = 3
+
+    validates_presence_of :resource_id, :uid, :bom_type
+    validates_inclusion_of :bom_type, in: [BOM, MACHINERY, MATERIALS]
+
     belongs_to :resource, class_name: "::#{Asset.name}"
-    has_many :items, class_name: BoMElement, :foreign_key => :bom_id
-    has_and_belongs_to_many :catalogs
+    belongs_to :catalog
 
-    def sum(prices, physical_amount)
-      self.items.reduce(0) do |sum, item|
-        sum + item.sum(prices.items.where(resource_id: item.resource_id).first,
-                       physical_amount)
+    has_many :items, class_name: BoM, foreign_key: :parent_id
+    has_many :machinery, class_name: BoM, foreign_key: :parent_id,
+             conditions: { bom_type: MACHINERY }
+    has_many :materials, class_name: BoM, foreign_key: :parent_id,
+             conditions: { bom_type: MATERIALS }
+
+    delegate :tag, :mu, to: :resource
+
+    after_initialize :initialize_bom_type
+
+    class << self
+      def create_resource(args)
+        resource = Asset.with_lower_tag_eq_to(args[:tag]).with_lower_mu_eq_to(args[:mu]).first
+        resource || Asset.create(args)
       end
     end
 
-    def sum_by_catalog(catalog, date, physical_amount)
-      self.sum(catalog.price_list(date, self.tab), physical_amount)
+    def build_machinery(args)
+      if args.has_key?(:resource) && args[:resource].kind_of?(Hash)
+        args[:resource] = BoM.create_resource(args[:resource])
+      end
+      self.machinery.build(args)
     end
 
-    def to_deal(entity, place, prices, physical_amount)
-      deal = Deal.new(:tag => "estimate deal for bom: #{self.id}; ##{
-      Deal.where("tag LIKE 'estimate deal for bom: #{self.id}; #%'").count() + 1
-      }",
-                      :entity => entity,
-                      :rate => 1.0, :isOffBalance => true)
-      deal.build_give(:resource => self.resource, :place => place)
-      deal.build_take(:resource => self.resource, :place => place)
-      deal.save!
-      self.items.each do |element|
-        price = prices.items.where("resource_id = ?", element.resource_id).first
-        element.to_rule(deal, place, price, physical_amount)
+    def build_materials(args)
+      if args.has_key?(:resource) && args[:resource].kind_of?(Hash)
+        args[:resource] = BoM.create_resource(args[:resource])
       end
-      deal
+      self.materials.build(args)
     end
+
+    private
+      def initialize_bom_type
+        self.bom_type ||= BOM
+      end
   end
 end

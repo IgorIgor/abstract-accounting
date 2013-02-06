@@ -22,4 +22,14 @@ describe Asset do
     should have_many Asset.versions_association_name
     should belong_to(:detail).class_name(DetailedAsset)
   end
+
+  it "should search by lower tag" do
+    create(:asset, tag: "TAg")
+    Asset.with_lower_tag_eq_to("taG").should eq(Asset.where{lower(tag) == lower("taG")})
+  end
+
+  it "should search by lower mu" do
+    create(:asset, mu: "TAg")
+    Asset.with_lower_mu_eq_to("taG").should eq(Asset.where{lower(mu) == lower("taG")})
+  end
 end

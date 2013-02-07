@@ -47,9 +47,15 @@
               <span class="form-cell-label">
                 <label for="legal_entity"><%= t 'views.legal_entities.name' %>:</label>
               </span>
+              <span>
+                <input type="text" id="legal_entity" rule="required"
+                       name="<%= t 'views.legal_entities.name' %>"
+                       data-bind="value: object.project.legal_entity.tag,
+                                  event: { keypress: clearCustomerId },
+                                  disable: readonly">
+              </span>
               <span class="width">
-               <input type="text" id="legal_entity" rule="required"
-                      name="<%= t 'views.legal_entities.name' %>"
+               <input type="button" id="for_legal_entity"
                       data-bind="dialog: { autoOpen: false,
                                            modal: true,
                                            minWidth: 480,
@@ -59,7 +65,7 @@
                                    identifier_value: object.project.legal_entity.identifier_value}
                                        },
                               dialogId: 'legal_entities_selector',
-                              value: object.project.legal_entity.tag,
+                              value: '<%= t 'views.estimates.catalogs.select'%>',
                               disable: readonly">
               </span>
             </div>
@@ -68,10 +74,11 @@
                 <label for="ident_value"><%=t 'views.legal_entities.identifier.vatin' %>:</label>
               </span>
               <span class="width">
-                <input id="ident_value" type="text" readonly='true'
+                <input id="ident_value" type="text"
                        data-field="identifier_value"
                        rule="required" name="<%=t 'views.legal_entities.identifier.vatin' %>"
                        data-bind="value: object.project.legal_entity.identifier_value,
+                                  event: { keypress: clearCustomerId },
                                   disable: readonly" />
               </span>
             </div>
@@ -83,7 +90,13 @@
               </span>
               <span class="width">
                 <input type="text" id="entity" rule="required"
-                       name="<%= t('views.entities.tag') %>"
+                       name="<%= t 'views.entities.tag' %>"
+                       data-bind="value: object.project.entity.tag,
+                                  event: { keypress: clearCustomerId },
+                                  disable: readonly">
+              </span>
+              <span>
+                <input type="button" id="for_entity"
                        data-bind="dialog: { autoOpen: false,
                                          modal: true,
                                          minWidth: 480,
@@ -92,7 +105,7 @@
                                                  tag: object.project.entity.tag }
                                          },
                                   dialogId: 'entities_selector',
-                                  value: object.project.entity.tag,
+                                  value: '<%= t 'views.estimates.catalogs.select'%>',
                                   disable: readonly">
               </span>
             </div>
@@ -106,8 +119,12 @@
           <label for="place"><%= t 'activerecord.models.place' %>:</label>
         </span>
         <span>
-          <input type="text" id="place" rule="required"
+          <input type="text" id="place" rule="required" class='width550'
                  name="<%= t 'activerecord.models.place' %>"
+                 data-bind="value: object.project.place.tag,
+                            event: { keypress: clearPlaceId },
+                            disable: readonly">
+          <input type="button" id="for_place"
                  data-bind="dialog: { autoOpen: false,
                                        modal: true,
                                        minWidth: 480,
@@ -116,7 +133,7 @@
                                                 tag: object.project.place.tag }
                                      },
                             dialogId: 'places_selector',
-                            value: object.project.place.tag,
+                            value: '<%= t 'views.estimates.catalogs.select'%>',
                             disable: readonly">
         </span>
       </div>
@@ -126,10 +143,10 @@
 
 <%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'places_selector',
                                                           :dialog_model => 'dialog_places',
-                                                          :data_path => 'places/places' } %>
+                                                          :data_path => 'items' } %>
 <%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'entities_selector',
                                                         :dialog_model => 'dialog_entities',
-                                                        :data_path => 'entities/entities' } %>
+                                                        :data_path => 'items' } %>
 <%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'legal_entities_selector',
                                                         :dialog_model => 'dialog_legal_entities',
-                                                        :data_path => 'entities/entities' } %>
+                                                        :data_path => 'items' } %>

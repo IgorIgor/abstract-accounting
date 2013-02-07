@@ -37,6 +37,7 @@ module Estimate
 
     def create
       Project.transaction do
+        project_params = Project.build_params params
         project = Project.new(project_params)
         if project.save
           render json: { result: 'success', id: project.id }
@@ -49,6 +50,7 @@ module Estimate
     def update
       project = Project.find params[:id]
       Project.transaction do
+        project_params = Project.build_params params
         if project.update_attributes(project_params)
           render json: { result: 'success', id: project.id }
         else
@@ -56,13 +58,5 @@ module Estimate
         end
       end
     end
-
-    private
-      def project_params
-        params[:project].delete(:place)
-        params[:project].delete(:entity)
-        params[:project].delete(:legal_entity)
-        params[:project]
-      end
   end
 end

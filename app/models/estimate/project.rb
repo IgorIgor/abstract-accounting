@@ -10,7 +10,7 @@
 module Estimate
   class Project < Base
     validates_presence_of :place_id, :customer_id, :customer_type
-    belongs_to :customer, :polymorphic => true
+    belongs_to :customer, polymorphic: true
     belongs_to :place
 
     custom_sort(:customer_tag) do |dir|
@@ -23,6 +23,42 @@ module Estimate
 
     custom_sort(:place_tag) do |dir|
       joins{place}.order("places.tag #{dir}")
+    end
+
+    def self.build_params params
+      if params[:project][:customer_id]
+        customer_id = params[:project][:customer_id]
+      else
+        if params[:project][:customer_type] == LegalEntity.name
+          country = Country.find_or_create_by_tag(
+              I18n.t("activerecord.attributes.country.default.tag")
+          )
+          customer = LegalEntity.find_by_name_and_country_id(
+              params[:project][:legal_entity][:tag], country)
+          if customer.nil?
+            customer_id = LegalEntity.create(
+                tag: params[:project][:legal_entity][:tag],
+                identifier_value: params[:project][:legal_entity][:identifier_value],
+                identifier_name: 'vatin',
+                country: country
+            ).id
+          else
+            customer_id = customer.id
+          end
+        else
+          customer_id = Entity.find_or_create_by_tag(params[:project][:entity][:tag]).id
+        end
+      end
+      if params[:project][:place_id]
+        place_id = params[:project][:place_id]
+      else
+        place_id = Place.find_or_create_by_tag(params[:project][:place][:tag]).id
+      end
+      {
+          place_id: place_id,
+          customer_id: customer_id,
+          customer_type: params[:project][:customer_type]
+      }
     end
   end
 end

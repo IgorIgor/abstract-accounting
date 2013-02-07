@@ -33,7 +33,16 @@ $ ->
           @dialog_legal_entities(new ProjectLegalEntitiesViewModel(data))
         )
 
+    clearCustomerId: =>
+      @object.project.customer_id(null)
+      true
+
+    clearPlaceId: =>
+      @object.project.place_id(null)
+      true
+
     changeTab: =>
+      @clearCustomerId
       $.each($("div.tab"), (idx, div) =>
         if $(div).data("tabId").toString() == @object.project.customer_type()
           $(div).css('display', 'block')

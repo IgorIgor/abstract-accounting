@@ -43,4 +43,105 @@ describe Estimate::Project do
         joins{customer(LegalEntity).outer}.order("#{query} desc")
     pr.should eq pr_test
   end
+
+  it 'should build_params params' do
+    legal = create :legal_entity
+    place = create :place
+    params = { project: {
+      customer_id: legal.id,
+      customer_type: LegalEntity.name,
+      place_id: place.id
+    }}
+    Estimate::Project.build_params(params).should eq ({
+        customer_id: legal.id,
+        customer_type: LegalEntity.name,
+        place_id: place.id
+    })
+
+    params = { project: {
+        customer_id: nil,
+        customer_type: LegalEntity.name,
+        place_id: nil,
+        legal_entity: {
+            tag: legal.tag,
+            identifier_value: legal.identifier_value
+        },
+        place: {tag: place.tag}
+    }}
+    Estimate::Project.build_params(params).should eq ({
+        customer_id: legal.id + 1,
+        customer_type: LegalEntity.name,
+        place_id: place.id
+    })
+
+    params = { project: {
+        customer_id: nil,
+        customer_type: LegalEntity.name,
+        place_id: place.id,
+        legal_entity: {
+            tag: legal.tag,
+            identifier_value: legal.identifier_value
+        }
+    }}
+    Estimate::Project.build_params(params).should eq ({
+        customer_id: legal.id + 1,
+        customer_type: LegalEntity.name,
+        place_id: place.id
+    })
+
+    params = { project: {
+        customer_id: nil,
+        customer_type: LegalEntity.name,
+        place_id: place.id,
+        legal_entity: {
+            tag: 'legal.tag',
+            identifier_value: 'legal.identifier_value'
+        }
+    }}
+    Estimate::Project.build_params(params).should eq ({
+        customer_id: legal.id + 2,
+        customer_type: LegalEntity.name,
+        place_id: place.id
+    })
+
+    entity = create :entity
+    params = { project: {
+        customer_id: nil,
+        customer_type: Entity.name,
+        place_id: place.id,
+        entity: {
+            tag: entity.tag,
+        }
+    }}
+    Estimate::Project.build_params(params).should eq ({
+        customer_id: entity.id,
+        customer_type: Entity.name,
+        place_id: place.id
+    })
+
+    params = { project: {
+        customer_id: nil,
+        customer_type: Entity.name,
+        place_id: place.id,
+        entity: {
+            tag: 'entity.tag',
+        }
+    }}
+    Estimate::Project.build_params(params).should eq ({
+        customer_id: entity.id + 1,
+        customer_type: Entity.name,
+        place_id: place.id
+    })
+
+    params = { project: {
+        customer_id: entity.id,
+        customer_type: Entity.name,
+        place_id: place.id
+    }}
+    Estimate::Project.build_params(params).should eq ({
+        customer_id: entity.id,
+        customer_type: Entity.name,
+        place_id: place.id
+    })
+  end
 end

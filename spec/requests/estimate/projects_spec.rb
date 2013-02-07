@@ -37,7 +37,6 @@ feature 'project', %q{
     find_button(I18n.t('views.users.edit'))[:disabled].should eq("true")
     page.find("#legal_entity")[:disabled].should eq nil
     page.find("#ident_value")[:disabled].should eq nil
-    page.find("#ident_value")[:readonly].should eq 'true'
     page.find("#place")[:disabled].should eq nil
 
     click_button(I18n.t('views.users.save'))
@@ -54,7 +53,7 @@ feature 'project', %q{
       end
     end
 
-    page.find("#legal_entity").click
+    page.find("#for_legal_entity").click
     page.should have_selector('#legal_entities_selector')
     within('#legal_entities_selector') do
       within('table tbody') do
@@ -78,7 +77,7 @@ feature 'project', %q{
       end
     end
 
-    page.find("#entity").click
+    page.find("#for_entity").click
     page.should have_selector('#entities_selector')
     within('#entities_selector') do
       within('table tbody') do
@@ -87,7 +86,7 @@ feature 'project', %q{
     end
     page.should have_no_selector('#entities_selector')
 
-    page.find("#place").click
+    page.find("#for_place").click
     page.should have_selector('#places_selector')
     within('#places_selector') do
       within('table tbody') do
@@ -136,9 +135,8 @@ feature 'project', %q{
     page.find("#ident_value")[:disabled].should eq nil
     page.find("#legal_entity")[:value].should eq ''
     page.find("#ident_value")[:value].should eq ''
-    page.find("#ident_value")[:readonly].should eq 'true'
 
-    page.find("#legal_entity").click
+    page.find("#for_legal_entity").click
     page.should have_selector('#legal_entities_selector')
     within('#legal_entities_selector') do
       within('table tbody') do

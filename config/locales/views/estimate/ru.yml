@@ -65,8 +65,15 @@ ru:
       cost: "Цена"
       code: "Шифр ресурса"
       price: "Цена"
-
       filter:
         and: и
         or: или
         add_inclusion: Добавить вложенность
+      projects:
+        page:
+          title:
+            show: Просмотр проекта
+            edit: Редактирование проекта
+            new: Новый проект
+        place: Место
+        customer: Заказчик

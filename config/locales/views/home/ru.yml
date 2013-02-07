@@ -26,6 +26,9 @@ ru:
           new: Создание сметных расценок
           data: Расценки
         catalogs: Каталоги
+        projects:
+          new: Создание проекта
+          data: Проекты
       waybill: "Накладная"
       waybills: Накладные
       allocation: Выдача

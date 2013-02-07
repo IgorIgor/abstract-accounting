@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130115083834) do
+ActiveRecord::Schema.define(:version => 20130205132229) do
 
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
@@ -199,6 +199,12 @@ ActiveRecord::Schema.define(:version => 20130115083834) do
     t.float   "machinery_cost"
     t.float   "drivers_cost"
     t.float   "materials_cost"
+  end
+
+  create_table "estimate_projects", :force => true do |t|
+    t.integer "place_id"
+    t.integer "customer_id"
+    t.string  "customer_type"
   end
 
   create_table "facts", :force => true do |t|

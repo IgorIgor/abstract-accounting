@@ -7,13 +7,8 @@
 #
 # Please see ./COPYING for details
 
-class LegalEntity < ActiveRecord::Base
-  has_paper_trail
+require 'spec_helper'
 
-  validates_presence_of :name, :country_id, :identifier_name, :identifier_value
-  validates_uniqueness_of :name, :scope => :country_id
-  belongs_to :country
-  belongs_to :detail, :polymorphic => true
-
-  alias_attribute :tag, :name
+describe Estimate::ProjectsController do
+  check_authentication Estimate::ProjectsController
 end

@@ -2,13 +2,14 @@ ru:
   activerecord:
     models:
       asset: Ресурс
-      entity: Лицо
+      entity: Физ. лицо
       group: Группа
       legal_entity: Юр. лицо
       money: Деньги
       waybill: Накладная
       deal: Сделка
       notification: Уведомление
+      place: Место
     attributes:
       country:
         default:

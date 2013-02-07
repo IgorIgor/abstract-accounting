@@ -1,0 +1,135 @@
+<form data-bind="validate: { success: save }">
+  <div class='actions'>
+    <%= render :partial => "home/buttons", :locals => { :editable => true } %>
+  </div>
+
+  <span id="page-title">
+    <!-- ko if: readonly -->
+    <%= t('views.estimates.projects.page.title.show') %>
+    <!-- /ko -->
+    <!-- ko ifnot: readonly -->
+      <!-- ko if: id_presence -->
+    <%= t('views.estimates.projects.page.title.edit') %>
+    <!-- /ko -->
+      <!-- ko ifnot: id_presence -->
+    <%= t('views.estimates.projects.page.title.new') %>
+    <!-- /ko -->
+    <!-- /ko -->
+  </span>
+
+  <%= render 'home/errors' %>
+
+  <fieldset>
+    <legend><%= t 'views.estimates.projects.customer' %></legend>
+    <div id="projects_tabs"
+         data-bind="value: object.project.customer_type,
+                    jqTabs: {
+                      current: object.project.customer_type() == '<%= LegalEntity.name %>' ? 0 : 1,
+                      tabSelect: changeTab,
+                      disable: readonly,
+                      scrollable: false }">
+      <div>
+        <ul id="head">
+          <li>
+            <a href='#<%= LegalEntity.name %>' tab-id='<%= LegalEntity.name %>'>
+              <%= t 'activerecord.models.legal_entity' %>
+            </a>
+          </li>
+          <li>
+            <a href='#<%= Entity.name %>' tab-id='<%= Entity.name %>'>
+              <%= t 'activerecord.models.entity' %>
+            </a>
+          </li>
+        </ul>
+        <div>
+          <div class="tab margtop padleft" data-tab-id='<%= LegalEntity.name %>'>
+            <div>
+              <span class="form-cell-label">
+                <label for="legal_entity"><%= t 'views.legal_entities.name' %>:</label>
+              </span>
+              <span class="width">
+               <input type="text" id="legal_entity" rule="required"
+                      name="<%= t 'views.legal_entities.name' %>"
+                      data-bind="dialog: { autoOpen: false,
+                                           modal: true,
+                                           minWidth: 480,
+                                           minHeight: 300,
+                                           bind: { id: object.project.customer_id,
+                                                  tag: object.project.legal_entity.tag,
+                                   identifier_value: object.project.legal_entity.identifier_value}
+                                       },
+                              dialogId: 'legal_entities_selector',
+                              value: object.project.legal_entity.tag,
+                              disable: readonly">
+              </span>
+            </div>
+            <div>
+              <span class="form-cell-label">
+                <label for="ident_value"><%=t 'views.legal_entities.identifier.vatin' %>:</label>
+              </span>
+              <span class="width">
+                <input id="ident_value" type="text" readonly='true'
+                       data-field="identifier_value"
+                       rule="required" name="<%=t 'views.legal_entities.identifier.vatin' %>"
+                       data-bind="value: object.project.legal_entity.identifier_value,
+                                  disable: readonly" />
+              </span>
+            </div>
+          </div>
+          <div class="tab margtop padleft" data-tab-id='<%= Entity.name %>'>
+            <div>
+              <span class="form-cell-label">
+                <label for="entity"><%= t 'views.entities.tag' %>:</label>
+              </span>
+              <span class="width">
+                <input type="text" id="entity" rule="required"
+                       name="<%= t('views.entities.tag') %>"
+                       data-bind="dialog: { autoOpen: false,
+                                         modal: true,
+                                         minWidth: 480,
+                                         minHeight: 300,
+                                         bind: { id: object.project.customer_id,
+                                                 tag: object.project.entity.tag }
+                                         },
+                                  dialogId: 'entities_selector',
+                                  value: object.project.entity.tag,
+                                  disable: readonly">
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class='margtop'>
+      <div>
+        <span class="form-cell-label">
+          <label for="place"><%= t 'activerecord.models.place' %>:</label>
+        </span>
+        <span>
+          <input type="text" id="place" rule="required"
+                 name="<%= t 'activerecord.models.place' %>"
+                 data-bind="dialog: { autoOpen: false,
+                                       modal: true,
+                                       minWidth: 480,
+                                       minHeight: 300,
+                                       bind: { id: object.project.place_id,
+                                                tag: object.project.place.tag }
+                                     },
+                            dialogId: 'places_selector',
+                            value: object.project.place.tag,
+                            disable: readonly">
+        </span>
+      </div>
+    </div>
+    </fieldset>
+</form>
+
+<%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'places_selector',
+                                                          :dialog_model => 'dialog_places',
+                                                          :data_path => 'places/places' } %>
+<%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'entities_selector',
+                                                        :dialog_model => 'dialog_entities',
+                                                        :data_path => 'entities/entities' } %>
+<%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'legal_entities_selector',
+                                                        :dialog_model => 'dialog_legal_entities',
+                                                        :data_path => 'entities/entities' } %>

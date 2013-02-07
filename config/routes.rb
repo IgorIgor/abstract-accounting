@@ -37,6 +37,7 @@ Abstract::Application.routes.draw do
   resources :legal_entities do
     collection do
       get 'preview'
+      get 'list'
     end
   end
   resources :waybills, except: [:destroy] do
@@ -64,6 +65,7 @@ Abstract::Application.routes.draw do
       get 'data'
       get 'preview'
       get 'autocomplete'
+      get 'list'
     end
   end
   resources :warehouses, only: [:index] do
@@ -187,6 +189,12 @@ Abstract::Application.routes.draw do
       end
       member do
         get 'document'
+      end
+    end
+    resources :projects, except: [:destroy] do
+      collection do
+        get 'preview'
+        get 'data'
       end
     end
   end

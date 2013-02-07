@@ -8,6 +8,7 @@ en:
       money: Money
       waybill: Waybill
       deal: Deal
+      place: Place
     attributes:
       country:
         default:

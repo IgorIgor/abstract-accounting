@@ -9,7 +9,11 @@
 
 class LegalEntitiesController < ApplicationController
   def index
-    @entities = LegalEntity.where{name.like "#{my{params[:term]}}%"}.order("name").limit(5)
+    if params[:term]
+      @entities = LegalEntity.search(name: params[:term]).order("name").limit(5)
+    else
+      render 'index', layout: false
+    end
   end
 
   def preview
@@ -22,6 +26,17 @@ class LegalEntitiesController < ApplicationController
 
   def show
     @legal_entity = LegalEntity.find(params[:id])
+  end
+
+  def list
+    page = params[:page].nil? ? 1 : params[:page].to_i
+    per_page = params[:per_page].nil? ?
+        Settings.root.per_page.to_i : params[:per_page].to_i
+    filter = { paginate: { page: page, per_page: per_page }}
+    filter[:sort] = params[:order] if params[:order]
+    filter[:search] = params[:like]  if params[:like]
+    @entities = LegalEntity.filtrate(filter).all
+    @count = @entities.count
   end
 
   def create

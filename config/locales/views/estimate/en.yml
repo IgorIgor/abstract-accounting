@@ -65,8 +65,15 @@ en:
       cost: "Cost"
       code: "Cipher resource"
       price: "Price"
-
       filter:
         and: and
         or: or
         add_inclusion: Add inclusion
+      projects:
+        page:
+          title:
+            show: Show project
+            edit: Edit project
+            new: New project
+        place: Place
+        customer: Customer

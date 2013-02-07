@@ -40,6 +40,17 @@ class EntitiesController < ApplicationController
     @count = SubjectOfLaw.count
   end
 
+  def list
+    page = params[:page].nil? ? 1 : params[:page].to_i
+    per_page = params[:per_page].nil? ?
+        Settings.root.per_page.to_i : params[:per_page].to_i
+    filter = { paginate: { page: page, per_page: per_page }}
+    filter[:sort] = params[:order] if params[:order]
+    filter[:search] = params[:like] if params[:like]
+    @entities = Entity.filtrate(filter).all
+    @count = @entities.count
+  end
+
   def autocomplete
     @entities = SubjectOfLaw.where({tag: {like: params[:term]}}).limit(5).order('tag').all
   end

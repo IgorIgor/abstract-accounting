@@ -205,4 +205,9 @@ FactoryGirl.define do
     parent_id nil
     document_id nil
   end
+
+  factory :project, class: Estimate::Project do
+    place
+    customer { |pr| pr.association(:entity)}
+  end
 end

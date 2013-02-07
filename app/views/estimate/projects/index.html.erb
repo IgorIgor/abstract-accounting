@@ -1,0 +1,18 @@
+<table>
+  <thead>
+    <tr>
+      <th id="customer_tag" data-bind="click: sortBy">
+        <%= t('views.estimates.projects.customer') %><span></span>
+      </th>
+      <th id="place_tag" data-bind="click: sortBy">
+        <%= t('views.estimates.projects.place') %><span></span>
+      </th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr data-bind="click: $parent.show">
+      <td data-bind="text: customer.tag"></td>
+      <td data-bind="text: place.tag"></td>
+    </tr>
+  </tbody>
+</table>

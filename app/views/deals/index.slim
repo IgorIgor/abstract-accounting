@@ -1,0 +1,60 @@
+div.actions.with-padding
+  input#report_on_selected[type="button" value="#{t('views.deals.report_on_selected')}"
+                           data-bind="click: toReport,  disable: selected().length == 0"]
+table
+  thead
+    tr
+      th
+      th
+      th#tag data-bind="click: sortBy"
+        = t('views.deals.tag')
+        span
+      th#name data-bind="click: sortBy"
+        = t('views.deals.entity')
+        span
+      th#give data-bind="click: sortBy"
+        = t('views.deals.give.tag')
+        span
+      th#take data-bind="click: sortBy"
+        = t('views.deals.take.tag')
+        span
+      th#rate data-bind="click: sortBy"
+        = t('views.deals.rate')
+        span
+  tbody data-bind="foreach: documents"
+    tr
+      td
+        input type="checkbox" data-bind="value: id, checked: $parent.selected"
+      td.tree-actions data-bind="click: has_rules > 0 ? $parent.expandTree : null"
+        div.ui-corner-all[data-bind="css: { 'ui-state-hover': has_rules > 0, 'ui-state-default': has_rules <= 0 }"]
+          span.ui-icon.ui-icon-circle-plus
+      td data-bind="text: tag, click: $parent.show"
+      td data-bind="text: entity_tag, click: $parent.show"
+      td data-bind="text: give, click: $parent.show"
+      td data-bind="text: take, click: $parent.show"
+      td data-bind="text: rate, click: $parent.show"
+    tr data-bind="attr: {id: 'rules_' + id}, with: subitems"
+      td
+      td.td-inner-table colspan="6"
+        .paginate
+          span data-bind="text: range"
+          = t('views.home.of')
+          span data-bind="text: count"
+          input type="button" value="<" data-bind="click: prev, disable: page() < 2"
+          input.paginate-right[type="button" value=">"
+                               data-bind="click: next, disable: page()*per_page() >= count()"]
+        table.inner-table
+          thead
+          tr
+            th = t('views.rules.tag')
+            th = t('views.rules.from')
+            th = t('views.rules.to')
+            th = t('views.rules.resource')
+            th = t('views.rules.rate')
+          tbody data-bind="foreach: documents"
+          tr
+            td data-bind="text: tag"
+            td data-bind="text: from"
+            td data-bind="text: to"
+            td data-bind="text: resource"
+            td data-bind="text: rate"

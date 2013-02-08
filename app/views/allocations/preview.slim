@@ -1,0 +1,278 @@
+form data-bind="validate: { success: save }"
+  div.actions
+    = render :partial => "home/buttons", :locals => { :editable => true }
+    div.buttons-separator data-bind='visible: readonly'
+    = render :partial => "state/buttons", :locals => { :model => Allocation }
+    div.buttons-separator data-bind='visible: readonly'
+    input type='button' value="#{t('views.allocations.print')}" data-bind='click: print, visible: readonly'
+
+  span#page-title
+    /! ko if: readonly
+    = t('views.allocations.page_title_show')
+    /! /ko
+    /! ko ifnot: readonly
+    = t('views.allocations.page_title_new')
+    /! /ko
+
+  = render 'home/errors'
+
+  fieldset
+    div
+      label for="created"
+        = t('views.allocations.created_at')
+        | :
+      input#created[type="text" rule="required" name="#{t('views.allocations.created_at')}"
+                    data-bind="datepicker:{ value: object.allocation.created, maxDate: '+0'}, \
+                               disable: readonly"]
+    /! ko if: readonly
+    div
+      label for="state"
+        = t('views.statable.state')
+        | :
+      input#state type="text" disabled="disabled" data-bind="value: getState(object.allocation.state())"
+    /! /ko
+    /! ko ifnot: readonly
+    div
+      label
+        = t('views.allocations.motion.name')
+        | :
+      .radio
+        input#motion-allocation[type="radio" name="motion" value="0" data-bind="checked: motion"]
+        label for="motion-allocation" = t('views.allocations.motion.allocation')
+        input#motion-warehouse[type="radio" name="motion" value="1" data-bind="checked: motion"]
+        label for="motion-warehouse" = t('views.allocations.motion.warehouse')
+    /! /ko
+
+  fieldset
+    legend = t('views.allocations.warehouse.name')
+    div
+      label for="warehouses"
+        = t('views.allocations.warehouse.name')
+        | :
+      select#warehouses[rule="required" name="#{t('views.allocations.warehouse.name')}"
+                        data-bind="options: object.warehouses, \
+                                   optionsCaption: '#{t('views.allocations.warehouse.select')}', \
+                                     optionsText: function(item) { \
+                                       return item.tag() + \
+                                         '(#{t('views.allocations.warehouse.storekeeper')} : ' + \
+                                         item.storekeeper() + ')' \
+                                     }, \
+                                     optionsValue: 'id', \
+                                     value: object.allocation.warehouse_id, \
+                                     disable: disable_warehouse"]
+
+  fieldset
+    legend
+      /! ko if: motion() == '0'
+      = t('views.allocations.foreman')
+      /! /ko
+      /! ko if: motion() == '1'
+      = t('views.allocations.warehouse.remote')
+      /! /ko
+    /! ko if: motion() == '0'
+    div data-bind='with: object.foreman'
+      label for="foreman_entity"
+        = t('views.allocations.entity')
+        | :
+      input#foreman_entity[type='text' name='#{t('views.allocations.foreman')}' rule='required'
+                           data-bind="autocomplete: { \
+                                        source: '/entities.json', \
+                                        value: 'tag', \
+                                        bind: { id: $parent.object.allocation.foreman_id } \
+                                      }, value: tag, disable: $parent.readonly"]
+    div data-bind='with: object.foreman_place'
+      label for="foreman_place"
+        = t('views.allocations.place')
+        | :
+      input#foreman_place[type='text' name='#{t('views.allocations.foreman_place')}'
+                          rule='required' data-bind="value: tag" disabled="disabled"]
+    /! /ko
+    /! ko if: motion() == '1'
+    div
+      label for="remote_warehouses"
+        = t('views.allocations.warehouse.name')
+        | :
+      select#remote_warehouses[rule="required" name="#{t('views.allocations.warehouse.remote')}"
+                               data-bind="options: remote_warehouses, \
+                                          optionsCaption: '#{t('views.allocations.warehouse.select')}', \
+                                          optionsText: function(item) { \
+                                            return item.tag() + \
+                                              '(#{t('views.allocations.warehouse.storekeeper')}: ' + \
+                                              item.storekeeper() + ')' \
+                                          }, \
+                                          optionsValue: 'id', \
+                                          value: remote_warehouse_id, \
+                                          disable: readonly"]
+    /! /ko
+
+  /! ko if: motion() == '1'
+  fieldset
+    legend = t('views.allocations.freighter')
+    div data-bind='with: object.foreman'
+      label for="freighter_entity"
+        = t('views.allocations.freighter_name')
+        | :
+      input#freighter_entity[type='text' name='#{t('views.allocations.freighter')}' rule='required'
+                             data-bind="autocomplete: { \
+                                          source: '/entities.json', \
+                                          value: 'tag', \
+                                          bind: { id: $parent.object.allocation.foreman_id } \
+                                        }, value: tag, disable: $parent.readonly"]
+  /! /ko
+
+  fieldset
+    table#selected-resources
+      caption
+        span.caption
+          = t('views.allocations.selected_resources')
+      thead
+        tr
+          /! ko ifnot: readonly
+          th.table-actions
+          /! /ko
+          th.selected-resources-tag = t('views.allocations.tag')
+          th.selected-resources-mu = t('views.allocations.mu')
+          /!-- ko ifnot: readonly
+          th.selected-resources-real-amount = t('views.allocations.real_amount')
+          /!-- /ko
+          th.selected-resources-count = t('views.allocations.amount')
+      tbody data-bind="foreach: object.items"
+        tr
+          /! ko ifnot: $parent.readonly
+          td.table-actions
+            span.mini-icon.delete data-bind="click: $parent.unselectResource"
+          /! /ko
+          td data-bind="text: tag"
+          td data-bind="text: mu"
+          /! ko ifnot: $parent.readonly
+          td data-bind="text: real_amount"
+          /! /ko
+          td
+            input[type="text" size="8" name='#{t('views.allocations.amount')}' rule="required_num"
+                  data-bind="value: amount, disable: $parent.readonly"]
+
+  /! ko ifnot: readonly
+  fieldset
+    /! ko if: availableMode() == '0'
+    table#available-resources data-bind="with: warehouse"
+      caption
+        span.caption
+          = t('views.allocations.available_resources')
+        div#search_available_resources[class="ui-corner-all ui-state-hover search-button"
+                                       data-bind="click: $parent.search_area"]
+          span.ui-icon.ui-icon-search
+        div.radio.in-line
+          input#mode-resources[type="radio" name="mode" value="0"
+                               data-bind="checked: $parent.availableMode"]
+          label for="mode-resources"
+            = t('views.allocations.by_resource')
+          input#mode-waybills[type="radio" name="mode" value="1"
+                              data-bind="checked: $parent.availableMode"]
+          label for="mode-waybills" = t('views.allocations.by_waybills')
+        = render 'home/paginate'
+      thead
+        tr
+          th.table-actions
+          th#tag.available-resources-tag data-bind="click: sortBy"
+            = t 'views.allocations.tag'
+            span
+          th#mu.available-resources-mu data-bind="click: sortBy"
+            = t 'views.allocations.mu'
+            span
+          th#real_amount.available-resources-real-amount data-bind="click: sortBy"
+            = t 'views.allocations.real_amount'
+            span
+        tr#resource_filter style="display: none" data-bind="event: { keyup: $parent.serchByEnter }"
+          th.allocation-tree-actions-by-wb
+            div#filtrate.ui-corner-all.ui-state-hover data-bind="click: filterData"
+              span.ui-icon.ui-icon-play
+          th.available-resources-tag
+            input#resource_filter_tag type="text" data-bind="value: filter.tag"
+          th.available-resources-mu
+            input#resource_filter_mu type="text" data-bind="value: filter.mu"
+          th.available-resources-real-amount
+            input#resource_filter_real_amount type="text" data-bind="value: filter.real_amount"
+      tbody data-bind="foreach: documents"
+        tr
+          td.table-actions
+            span.mini-icon.add data-bind="click: $root.object().selectResource"
+          td data-bind="text: tag"
+          td data-bind="text: mu"
+          td data-bind="text: real_amount"
+    /! /ko
+
+    /! ko if: availableMode() == '1'
+    table#available-resources-by-wb data-bind="with: warehouse"
+      caption
+        span.caption
+          = t('views.allocations.available_resources')
+        div#search_available_waybills[class="ui-corner-all ui-state-hover search-button"
+                                      data-bind="click: $parent.search_area"]
+          span.ui-icon.ui-icon-search
+        div.radio.in-line
+          input#mode-resources-by-wb[type="radio" name="mode-by-wb" value="0"
+                                     data-bind="checked: $parent.availableMode"]
+          label for="mode-resources-by-wb" = t('views.allocations.by_resource')
+          input#mode-waybills-by-wb[type="radio" name="mode-by-wb" value="1"
+                                    data-bind="checked: $parent.availableMode"]
+          label for="mode-waybills-by-wb" = t('views.allocations.by_waybills')
+        = render 'home/paginate'
+      thead
+        tr
+          th.table-actions
+          th
+          th#document_id data-bind="click: sortBy"
+            = t('views.allocations.document_id')
+            span
+          th#created data-bind="click: sortBy"
+            = t('views.allocations.created_at')
+            span
+          th#distributor data-bind="click: sortBy"
+            = t('views.allocations.distributor')
+            span
+        tr#waybill_filter style="display: none" data-bind="event: { keyup: $parent.serchByEnter }"
+          th.allocation-tree-actions-by-wb
+            div#filtrate_waybills.ui-corner-all.ui-state-hover data-bind="click: filterData"
+              span.ui-icon.ui-icon-play
+          th
+          th.available-resources-tag
+            input#filter_document_id type="text" data-bind="value: filter.document_id"
+          th.available-resources-mu
+            input#filter_created_at type="text" data-bind="value: filter.created"
+          th.available-resources-real-amount
+            input#filter_distributor type="text" data-bind="value: filter.distributor"
+      tbody data-bind="foreach: documents"
+        tr
+          td.table-actions
+            span.mini-icon.add data-bind="click: $root.object().selectWaybill"
+          td.allocation-tree-actions-by-wb data-bind="click: $parent.expandTree"
+            div.ui-corner-all.ui-state-hover
+              span.ui-icon.ui-icon-circle-plus
+          td data-bind="text: document_id"
+          td data-bind="text: created"
+          td data-bind="text: distributor"
+        tr data-bind="with: subitems"
+          td
+          td colspan="6"
+            .paginate
+              span data-bind="text: range" = t('views.home.of')
+              span data-bind="text: count"
+              input type="button" value="<" data-bind="click: prev, disable: page() < 2"
+              input.paginate-right[type="button" value=">"
+                                   data-bind="click: next, disable: page()*per_page() >= count()"]
+            table
+              thead
+                tr
+                  th.available-resources-tag = t('views.allocations.tag')
+                  th.available-resources-mu = t('views.allocations.mu')
+                  th.available-resources-amount = t('views.allocations.amount')
+              tbody data-bind="foreach: documents"
+                tr
+                  td data-bind="text: tag"
+                  td data-bind="text: mu"
+                  td data-bind="text: amount"
+    /! /ko
+
+  /! /ko
+
+  div.clear-div

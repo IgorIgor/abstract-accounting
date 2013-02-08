@@ -1,0 +1,63 @@
+form data-bind="validate: { success: save }"
+  .actions
+    = render :partial => "home/buttons", :locals => { :editable => true }
+  span#page-title
+    /! ko if: readonly
+    = t('views.groups.page_title_show')
+    /! /ko
+    /! ko ifnot: readonly
+    /! ko if: id_presence
+    = t('views.groups.page_title_edit')
+    /! /ko
+    /! ko ifnot: id_presence
+    = t('views.groups.page_title_new')
+    /! /ko
+    /! /ko
+  = render 'home/errors'
+
+  fieldset
+    div
+      label for="group_tag"
+        = t('views.groups.tag')
+        | :
+      input#group_tag[type="text" name="#{t('views.groups.tag')}" rule="required"
+                      data-bind="value: object.group.tag, disable: readonly"]
+    div data-bind='with: object.manager'
+      label for="group_manager"
+        = t('views.groups.manager')
+        | :
+      input#group_manager[type="text" name="#{t('views.groups.manager')}" rule="required"
+                          data-bind="autocomplete: { source: '/users/names.json', \
+                                                     bind: { id: $parent.object.group.manager_id }, \
+                                                     onlySelect: true, \
+                                                     value: 'tag'}, \
+                                     value: tag, disable: $parent.readonly"]
+
+  fieldset
+    legend = t('views.groups.users')
+    input[type="button" value="#{t('views.groups.add')}"
+          data-bind="click: addUser, disable: readonly"]
+    table
+      thead
+        tr
+          th = t('views.groups.user_name')
+          th.table-actions
+      tbody data-bind="foreach: object.users, elementValidate: object.users"
+        tr data-bind="attr: { idx: $parent.object.users.indexOf($data) }"
+          td
+            input[type="text" rule="required"
+                  data-bind="autocomplete: { source: '/users/names.json', \
+                                             bind: { id: id }, \
+                                             onlySelect: true, \
+                                             value: 'tag' }, \
+                             attr: { name: '#{t('views.groups.user_name')}#'+ \
+                                           $parent.object.users.indexOf($data) + \
+                                           ' #{t('views.groups.user')}', \
+                                     id: 'user_' + $parent.object.users.indexOf($data) }, \
+                             value: tag, disable: $parent.readonly"]
+          /! ko ifnot: $parent.readonly
+          td.table-actions
+            span.ui-icon.delete data-bind="click: $parent.deleteUser"
+          /! /ko
+    input[type="button" value="#{t('views.groups.add')}"
+          data-bind="click: addUser, disable: readonly"]

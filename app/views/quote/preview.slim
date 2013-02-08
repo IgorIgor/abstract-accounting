@@ -1,0 +1,48 @@
+form data-bind="validate: { success: save }"
+  .actions
+    = render :partial => "home/buttons", :locals => { :editable => true }
+  span#page-title
+    /! ko if: readonly
+    = t('views.quote.page.title.show')
+    /! /ko
+    /! ko ifnot: readonly
+    /! ko if: id_presence
+    = t('views.quote.page.title.edit')
+    /! /ko
+    /! ko ifnot: id_presence
+    = t('views.quote.page.title.new')
+    /! /ko
+    /! /ko
+  = render 'home/errors'
+
+  fieldset
+    div
+      div
+        span.form-cell-label
+          label for="quote_day"
+            = t('views.quote.date')
+            | :
+        span
+          input#quote_day[type="text" name="#{t('views.quote.date')}" rule="required"
+                          data-bind="datepicker:{ value: object.quote.day, maxDate: '+0' }, \
+                                     disable: readonly"]
+      div
+        span.form-cell-label
+          label for="quote_rate"
+            = t('views.quote.rate')
+            | :
+        span
+          input#quote_rate[type="text" name="#{t('views.quote.rate')}" rule="required"
+                           data-bind="value: object.quote.rate, disable: readonly"]
+      div
+        span.form-cell-label
+          label for="quote_money"
+            = t('views.quote.money')
+            | :
+        span data-bind='with: object.money'
+          input#quote_money[type="text" name="#{t('views.quote.resource')}" rule="required"
+                            data-bind="autocomplete: { source: '/money.json', \
+                                                       bind: { id: $parent.object.quote.money_id }, \
+                                                       onlySelect: true, \
+                                                       value: 'alpha_code'}, \
+                                       value: alpha_code, disable: $parent.readonly"]

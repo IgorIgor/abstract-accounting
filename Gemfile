@@ -14,6 +14,7 @@ group :assets do
   gem 'sass-rails'
   gem 'coffee-rails'
   gem 'uglifier'
+  gem 'compass-rails'
 end
 
 gem 'jquery-rails', '2.1.1'
@@ -31,6 +32,8 @@ gem 'wicked_pdf'
 gem 'i18n-js'
 
 gem 'activerecord-tableless'
+
+gem 'slim'
 
 group :development, :test do
   gem 'rspec-rails'

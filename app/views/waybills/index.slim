@@ -1,0 +1,86 @@
+- content_for :search  do
+  = render 'filter'
+
+.actions
+  ul.list-icons
+    li
+      a#table_view.button.table-view[href="#waybills?view=table"]
+    li
+      a#tree_view.button.tree-view.pressed[href="#waybills"]
+    li
+      = render partial: "state/filter"
+
+table
+  thead
+    tr
+      th
+      th#created data-bind="click: sortBy"
+        = t('views.waybills.created_at')
+        span
+      th#document_id data-bind="click: sortBy"
+        = t('views.waybills.document_id')
+        span
+      th#distributor data-bind="click: sortBy"
+        = t('views.waybills.distributor')
+        span
+      - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+        th#storekeeper data-bind="click: sortBy"
+          = t('views.waybills.storekeeper')
+          span
+        th#storekeeper_place data-bind="click: sortBy"
+          = t('views.waybills.storekeeper_place')
+          span
+      th#sum data-bind="click: sortBy"
+        = t('views.waybills.sum')
+        span
+      th#state data-bind="click: sortBy"
+        = t('views.statable.state')
+        span
+  tbody data-bind="foreach: documents"
+    tr
+      td.tree-actions data-bind="click: $parent.expandTree"
+        div.ui-corner-all.ui-state-hover
+          span.ui-icon.ui-icon-circle-plus
+      td data-bind="text: created, click: $parent.show"
+      td data-bind="text: document_id, click: $parent.show"
+      td data-bind="text: distributor, click: $parent.show"
+      - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+        td data-bind="text: storekeeper, click: $parent.show"
+        td data-bind="text: storekeeper_place, click: $parent.show"
+      td data-bind="text: sum, click: $parent.show"
+      td data-bind="text: state, click: $parent.show"
+    tr data-bind="attr: {id: 'resource_' + id}, with: subitems"
+      td
+      td.td-inner-table colspan="7"
+        .paginate
+          span data-bind="text: range"
+          = t('views.home.of')
+          span data-bind="text: count"
+          input type="button" value="<" data-bind="click: prev, disable: page() < 2"
+          input.paginate-right[type="button" value=">"
+                               data-bind="click: next, disable: page()*per_page() >= count()"]
+        table.inner-table
+          thead
+            tr
+              th = t('views.waybills.resource.tag')
+              th = t('views.waybills.resource.mu')
+              th = t('views.waybills.resource.amount')
+              th = t('views.waybills.resource.price')
+              th = t('views.waybills.resource.sum')
+          tbody data-bind="foreach: documents"
+            tr
+              td data-bind="text: tag"
+              td data-bind="text: mu"
+              td data-bind="text: amount"
+              td data-bind="text: price"
+              td data-bind="text: sum"
+  tfoot
+    tr
+      - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+        td colspan="6"
+          = t('views.waybills.total')
+      - else
+        td colspan="4"
+          = t('views.waybills.total')
+      td data-bind="text: total"
+      td

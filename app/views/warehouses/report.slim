@@ -1,0 +1,67 @@
+.actions
+  - if current_user.root? || current_user.managed_group
+    select#warehouse_filter[size="1" data-bind="options: warehouses, \
+                                                optionsText: 'tag', \
+                                                optionsValue: 'place_id', \
+                                                optionsCaption: '#{t('views.warehouses.filter.select.warehouse')}', \
+                                                value: warehouse_id, \
+                                                event: {change: filterData}"]
+  input[type='button' value="#{t('views.warehouses.filter.select.asset')}"
+        data-bind="dialog: { autoOpen: false, \
+                              modal: true, \
+                              minWidth: 480, \
+                              minHeight: 300, \
+                              bind: { id: resource_id, tag: resource.tag, mu: resource.mu } \
+                            }, \
+                   dialogId: 'resources_selector'"]
+
+  input[type='button' value="#{t('views.warehouses.report.print')}"
+        data-bind="click: print, visible: documents().length > 0"]
+
+table
+  thead
+    tr
+      td = t('views.warehouses.tag')
+      td colspan="6" data-bind="text: resource.tag"
+    tr
+      td = t('views.warehouses.mu')
+      td colspan="6" data-bind="text: resource.mu"
+    tr
+      td = t('views.warehouses.place')
+      td colspan="6" data-bind="text: place.tag"
+    tr
+      th = t('views.warehouses.resource.report.date')
+      th = t('views.warehouses.resource.report.income')
+      th = t('views.warehouses.resource.report.document_id')
+      th = t('views.warehouses.resource.report.amount')
+      th = t('views.warehouses.resource.report.consumption')
+      th = t('views.warehouses.resource.report.amount')
+      th = t('views.warehouses.resource.report.state')
+  tbody data-bind="foreach: documents"
+    /! ko if: side == '#{WarehouseResourceReport::WAYBILL_SIDE}'
+    tr data-bind="click: $parent.show"
+      td data-bind="text: date"
+      td data-bind="text: name"
+      td data-bind="text: document_id"
+      td data-bind="text: amount"
+      td
+      td
+      td data-bind="text: state"
+    /! /ko
+    /! ko if: side == '#{WarehouseResourceReport::ALLOCATION_SIDE}'
+    tr data-bind="click: $parent.show"
+      td data-bind="text: date"
+      td
+      td
+      td
+      td data-bind="text: name"
+      td data-bind="text: amount"
+      td data-bind="text: state"
+    /! /ko
+  tfoot
+    tr
+      td = t('views.warehouses.resource.report.total')
+      td colspan="5"
+      td data-bind="text: total"
+
+= render :partial => "home/select_dialog", :locals => { :dialog_id => 'resources_selector', :dialog_model => 'dialog_resources', :data_path => 'resources/resources' }

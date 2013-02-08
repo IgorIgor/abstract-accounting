@@ -1,0 +1,63 @@
+- content_for :search  do
+  = render 'filter'
+
+.actions
+  ul.list-icons
+    li
+      a#table_view.button.table-view[href="#allocations?view=table"]
+    li
+      a#tree_view.button.tree-view.pressed[href="#allocations"]
+    li
+      = render partial: "state/filter"
+
+table
+  thead
+    tr
+      th
+      th#created data-bind="click: sortBy"
+        = t('views.allocations.created_at')
+        span
+      - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+        th#storekeeper data-bind="click: sortBy"
+          = t('views.allocations.storekeeper')
+          span
+        th#storekeeper_place data-bind="click: sortBy"
+          = t('views.allocations.storekeeper_place')
+          span
+      th#foreman data-bind="click: sortBy"
+        = t('views.allocations.foreman')
+        span
+      th#state data-bind="click: sortBy"
+        = t('views.statable.state')
+        span
+  tbody data-bind="foreach: documents"
+    tr
+      td.tree-actions data-bind="click: $parent.expandTree"
+        div.ui-corner-all.ui-state-hover
+          span.ui-icon.ui-icon-circle-plus
+      td data-bind="text: created, click: $parent.show"
+      - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+        td data-bind="text: storekeeper, click: $parent.show"
+        td data-bind="text: storekeeper_place, click: $parent.show"
+      td data-bind="text: foreman, click: $parent.show"
+      td data-bind="text: state, click: $parent.show"
+    tr data-bind="attr: {id: 'resource_' + id}, with: subitems"
+      td
+      td.td-inner-table colspan="6"
+        .paginate
+          span data-bind="text: range" = t('views.home.of')
+          span data-bind="text: count"
+          input type="button" value="<" data-bind="click: prev, disable: page() < 2"
+          input.paginate-right[type="button" value=">"
+                               data-bind="click: next, disable: page()*per_page() >= count()"]
+        table.inner-table
+          thead
+          tr
+            th = t('views.allocations.resource.tag')
+            th = t('views.allocations.resource.mu')
+            th = t('views.allocations.resource.amount')
+          tbody data-bind="foreach: documents"
+          tr
+            td data-bind="text: tag"
+            td data-bind="text: mu"
+            td data-bind="text: amount"

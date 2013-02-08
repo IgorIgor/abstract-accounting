@@ -1,0 +1,15 @@
+div.actions.with-padding
+  input#report_on_selected[type="button" value="#{t('views.places.report_on_selected')}"
+                           data-bind="click: showBalances,  disable: selected().length == 0"]
+table
+  thead
+    tr
+      th
+      th#tag data-bind="click: sortBy"
+        = t('views.places.tag')
+        span
+  tbody data-bind="foreach: documents"
+    tr
+      td.cell-checkbox
+        input type="checkbox" data-bind="value: id, checked: $parent.selected"
+      td data-bind="text: tag, click: $parent.show"

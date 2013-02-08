@@ -1,0 +1,24 @@
+div.actions.with-padding
+  input#report_on_selected[type="button" value="#{t('views.resources.report_on_selected')}"
+                           data-bind="click: showBalances,  disable: selected().length == 0"]
+table
+  thead
+    tr
+      th
+      th#tag data-bind="click: sortBy"
+        = t 'views.resources.tag'
+        span
+      th#ext_info data-bind="click: sortBy"
+        = t 'views.resources.ext_info'
+        span
+      th#type data-bind="click: sortBy"
+        = t 'views.resources.type'
+        span
+  tbody data-bind="foreach: documents"
+    tr
+      td.cell-checkbox
+        input[type="checkbox" data-bind="attr: { 'data-item-type': klass, value: id }, \
+                                         polymorphic_checked: $parent.selected"]
+      td data-bind="text: tag, click: $parent.show"
+      td data-bind="text: ext_info, click: $parent.show"
+      td data-bind="text: type, click: $parent.show"

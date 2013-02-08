@@ -1,0 +1,27 @@
+.div-login
+
+  span = t('views.user_sessions.login')
+
+  - unless flash[:notice].nil?
+    .container-notice
+      = flash[:notice]
+  - unless flash[:alert].nil?
+    .container-alert
+      = flash[:alert]
+
+  - form_tag user_sessions_path do
+    .field
+      = label_tag :email
+      br
+      = text_field_tag :email, params[:email]
+    .field
+      = label_tag :password, t('views.user_sessions.password')
+      br
+      = password_field_tag :password
+    .options
+      = check_box_tag :remember_me, 1, params[:remember_me]
+      = label_tag :remember_me, t('views.user_sessions.remember_me')
+    .login_actions
+      = submit_tag t('views.user_sessions.login')
+      br
+      = link_to t('views.user_sessions.reset_password'), new_password_reset_path

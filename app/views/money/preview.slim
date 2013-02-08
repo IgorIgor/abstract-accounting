@@ -1,0 +1,32 @@
+form data-bind="validate: { success: save }"
+  .actions
+    = render :partial => "home/buttons", :locals => { :editable => true }
+
+  span#page-title
+    /! ko if: readonly
+    = t('views.money.page.title.show')
+    /! /ko
+    /! ko ifnot: readonly
+    /! ko if: id_presence
+    = t('views.money.page.title.edit')
+    /! /ko
+    /! ko ifnot: id_presence
+    = t('views.money.page.title.new')
+    /! /ko
+    /! /ko
+
+  = render 'home/errors'
+
+  fieldset
+    div
+      label for="money_alpha_code"
+        = t('views.money.alpha_code')
+        | :
+      input#money_alpha_code[type="text" name="#{t('views.money.alpha_code')}" rule="required"
+                             data-bind="value: object.money.alpha_code, disable: readonly"]
+    div
+      label for="money_num_code"
+        = t('views.money.num_code')
+        | :
+      input#money_num_code[type="text" name="#{t('views.money.num_code')}"
+                           data-bind="value: object.money.num_code, disable: readonly"]

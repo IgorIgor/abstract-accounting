@@ -1,0 +1,11 @@
+.div-send-psw
+  span = t('views.password_resets.password_reset')
+  - form_tag password_resets_path, :method => :post do
+    .field
+      = label_tag :email, t('views.password_resets.email')
+      br
+      = text_field_tag :email
+    .login_actions
+      = submit_tag t('views.password_resets.password_reset')
+      br
+      = link_to t('views.password_resets.back'), login_path

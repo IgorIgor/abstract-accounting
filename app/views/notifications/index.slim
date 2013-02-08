@@ -1,0 +1,9 @@
+table
+  thead
+    tr
+      th = t('views.user_notification.title')
+      th = t('views.user_notification.date')
+  tbody data-bind="foreach: documents"
+    tr
+      td data-bind="text: title, click: $parent.show"
+      td data-bind="text: date, click: $parent.show"

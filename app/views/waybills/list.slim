@@ -1,0 +1,73 @@
+- content_for :search  do
+  = render 'filter'
+
+.actions
+  ul.list-icons
+    li
+      a#table_view.button.table-view.pressed[href="#waybills?view=table"]
+    li
+      a#tree_view.button.tree-view[href="#waybills"]
+    li
+      = render partial: "state/filter"
+
+table
+  thead
+    tr
+      th#created data-bind="click: sortBy"
+        = t('views.waybills.created_at')
+        span
+      th#document_id data-bind="click: sortBy"
+        = t('views.waybills.document_id')
+        span
+      th#distributor data-bind="click: sortBy"
+        = t('views.waybills.distributor')
+        span
+      - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+        th#storekeeper data-bind="click: sortBy"
+          = t('views.waybills.storekeeper')
+          span
+        th#storekeeper_place data-bind="click: sortBy"
+          = t('views.waybills.storekeeper_place')
+          span
+      th#state data-bind="click: sortBy"
+        = t('views.statable.state')
+        span
+      th#resource_tag data-bind="click: sortBy"
+        = t('views.waybills.resource.tag')
+        span
+      th#resource_mu data-bind="click: sortBy"
+        = t('views.waybills.resource.mu')
+        span
+      th#resource_amount data-bind="click: sortBy"
+        = t('views.waybills.resource.amount')
+        span
+      th#resource_price data-bind="click: sortBy"
+        = t('views.waybills.resource.price')
+        span
+      th#resource_sum data-bind="click: sortBy"
+        = t('views.waybills.resource.sum')
+        span
+  tbody data-bind="foreach: documents"
+    tr data-bind="click: $parent.show"
+      td data-bind="text: created"
+      td data-bind="text: document_id"
+      td data-bind="text: distributor"
+      - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+        td data-bind="text: storekeeper"
+        td data-bind="text: storekeeper_place"
+      td data-bind="text: state"
+      td data-bind="text: resource_tag"
+      td data-bind="text: resource_mu"
+      td data-bind="text: resource_amount"
+      td data-bind="text: resource_price"
+      td data-bind="text: resource_sum"
+  tfoot
+    tr
+      - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+        td colspan="10"
+          = t('views.waybills.total')
+      - else
+        td colspan="8"
+          = t('views.waybills.total')
+      td data-bind="text: total"
+      td

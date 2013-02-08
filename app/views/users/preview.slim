@@ -1,0 +1,98 @@
+form data-bind="validate: { success: save }"
+  .actions
+    = render :partial => "home/buttons", :locals => { :editable => true }
+
+  span#page-title
+    /! ko if: readonly
+    = t('views.users.page_title_show')
+    /! /ko
+    /! ko ifnot: readonly
+    /! ko if: id_presence
+    = t('views.users.page_title_edit')
+    /! /ko
+    /! ko ifnot: id_presence
+    = t('views.users.page_title_new')
+    /! /ko
+    /! /ko
+
+  = render 'home/errors'
+
+  fieldset
+    div data-bind='with: object.entity'
+      label for="user_entity"
+        = t('views.users.user_name')
+        | :
+      input#user_entity[type="text" name="#{t('views.users.user_name')}" rule="required"
+                        data-bind="autocomplete: { source: '/entities.json', \
+                                                   value: 'tag', \
+                                                   bind: { id: $parent.object.user.entity_id } }, \
+                                                   value: tag, disable: $parent.readonly"]
+    div
+      label for="user_email"
+        = t('views.users.email')
+        | :
+      input#user_email[type="text" name="#{t('views.users.email')}" rule="email"
+                       error-message-email="#{t('errors.messages.email')}"
+                       data-bind="value: object.user.email, disable: readonly"]
+  fieldset
+    /! ko ifnot: readonly
+    /! ko if: id_presence
+    legend
+      label for="change_pass"
+        = t('views.users.change_password')
+        | :
+      input#change_pass type="checkbox" data-bind="checked: change_password"
+    /! /ko
+    /! /ko
+    div
+      label for="user_password"
+        = t('views.users.password')
+        | :
+      input#user_password[type="password" name="#{t('views.users.password')}"
+                          rule="min_length" min_length="6"
+                          error-message-min-length="#{t('errors.messages.too_short.few', count: 6)}"
+                          data-bind="value: object.user.password, disable: !change_password()"]
+    div
+      label for="user_password_confirmation"
+        = t('views.users.password_confirmation')
+        | :
+      input#user_password_confirmation[type="password" rule="equal_to"
+                                       name="#{t('views.users.password_confirmation')}"
+                                       equal_to="user_password"
+                                       error-message-equal-to="#{t('errors.messages.equal_to', value: t('views.users.password'))}"
+                                       data-bind="value: object.user.password_confirmation, \
+                                                  disable: !change_password()"]
+
+  fieldset
+    legend = t('views.users.credentials')
+    input[type="button" value="#{t('views.users.add')}"
+          data-bind="click: addCredential, disable: readonly"]
+    table
+      thead
+        tr
+          th = t('views.users.place')
+          th = t('views.users.document_type')
+          th.table-actions
+      tbody data-bind="foreach: object.credentials, elementValidate: object.credentials"
+        tr data-bind="attr: { idx: $parent.object.credentials.indexOf($data) }"
+          td
+            input[type="text" rule="required"
+                  data-bind="autocomplete: { source: '/places.json', \
+                                             value: 'tag' }, \
+                             attr: { name: '#{t('views.users.credential')}#' + \
+                                           $parent.object.credentials.indexOf($data) + \
+                                           ' #{t('views.users.place')}'}, \
+                             value: tag, disable: $parent.readonly"]
+          td
+            select data-bind="value: document_type, disable: $parent.readonly"
+              - @document_types.each do |document|
+                option value="#{document}"
+                  = t("views.home.#{document.downcase}")
+              option value="#{WarehouseForemanReport.name}"
+                = t("views.home.foreman_report")
+          /! ko ifnot: $parent.readonly
+          td.table-actions
+            span.ui-icon.delete data-bind="click: $parent.deleteCredential"
+          /! /ko
+    input[type="button" value="#{t('views.users.add')}"
+          data-bind="click: addCredential, disable: readonly"]

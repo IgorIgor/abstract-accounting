@@ -1,0 +1,163 @@
+#header
+  #current_user
+    .avatar
+    span.user-name = current_user.root? ? current_user.email : current_user.entity.tag
+    div.logout.indented
+      = link_to(t('views.home.logout'), :logout)
+  #main_filter
+    .filter
+      div.filter-bar[data-bind="slider: { pressed: 'show-filter', slidearea: 'filter-area' }"]
+        input type='text' value=''
+        #show-filter
+          div#arrow_down.arrow_down
+      input type='button' value="#{t('views.home.search')}"
+  /#main_options
+  /  .option
+  /    a href="#notifications" = t('views.home.notifications')
+  /  .option
+  /    a href="#helps" = t('views.home.help')
+  /  - if current_user.root?
+  /    .option
+  /      a href="#settings" = t('views.home.settings')
+  /    .option
+  /      a href="#documents/notifications/new" = t('views.home.notify')
+
+  ul#main_options
+    li.indented
+      a href="#notifications" = t('views.home.notifications')
+    li.indented
+      a href="#helps" = t('views.home.help')
+    - if current_user.root?
+      li.indented
+        a href="#settings" = t('views.home.settings')
+      li.indented
+        a href="#documents/notifications/new" = t('views.home.notify')
+#main
+  #sidebar
+    - unless @types.empty?
+      #create_button
+        div data-bind="slider: { pressed: 'create_btn', slidearea: 'create_menu' }, slidemenu: {}"
+          div#create_btn.button
+            .data =t('views.home.create')
+            div.data.arrow_down
+          ul#create_menu
+            - @types.each do |type|
+              li = link_to(t("views.home.#{type.underscore}"), "#documents#{send("new_#{type.underscore}_path")}")
+
+    /! Temporary removed: logic not implemented
+    /!<ul>
+      /!<li id="inbox"><a href="#inbox"><%=t 'views.home.inbox' %></a></li>
+      /!<li><a><%=t 'views.home.starred' %></a></li>
+      /!<li><a><%=t 'views.home.drafts' %></a></li>
+      /!<li><a><%=t 'views.home.sent' %></a></li>
+      /!<li><a><%=t 'views.home.trash' %></a></li>
+      /!<li id="archive"><a href="#archive"><%=t 'views.home.archive' %></a></li>
+      /!<hr>
+    /!</ul>
+
+
+    #main_menu
+      - if current_user.root?
+        .slider
+          div#arrow_services.arrow-down-slide
+          a#btn_slide_services.btn-slide[data-bind="click: slide"]
+            = t('views.home.services')
+          ul#slide_menu_services.slide_menu[style="display: none;"]
+            .slide_action
+              div#arrow_resources_actions.arrow-expand.arrow-right-expand[data-bind="click: expandResources"]
+              a#resource.btn_slide_action[data-bind="click: expandResources"]
+                = t('views.home.resources')
+            ul#slide_menu_resources.slide_menu[style="display: none;"]
+              li#assets_new
+                a href="#documents/assets/new" = t ('views.home.asset')
+              li#money_new
+                a href="#documents/money/new" = t 'views.home.money'
+            li#places_new
+              a href="#documents/places/new" = t ('views.home.place')
+            .slide_action
+              div#arrow_entities_actions.arrow-expand.arrow-right-expand[data-bind="click: expandEntities"]
+              a#entity.btn_slide_action[data-bind="click: expandEntities"]
+                = t('views.home.entities')
+            ul#slide_menu_entities.slide_menu[style="display: none;"]
+              li#entities_new
+                a href="#documents/entities/new" = t ('views.home.entity')
+              li#legal_entities_new
+                a href="#documents/legal_entities/new" = t ('views.home.legal_entity')
+            li#quote_new
+              a href="#documents/quote/new" = t('views.home.quote')
+            li#deals_new
+              a href="#documents/deals/new" = t('views.home.deal')
+            li#facts_new
+              a href="#documents/facts/new" = t('views.home.fact')
+
+      .slider
+        div#arrow_lists.arrow-down-slide
+        a#btn_slide_lists.btn-slide[data-bind="click: slide"] = t('views.home.lists')
+        ul#slide_menu_lists.slide_menu[style="display: none;"]
+          - if current_user.root?
+            li#users_data
+              a href="#users" = t('views.home.users')
+            li#groups_data
+              a href="#groups" = t('views.home.groups')
+            li#resources_data
+              a href="#resources" = t('views.home.resources')
+            li#entities_data
+              a href="#entities" = t('views.home.entities')
+            li#quote_data
+              a href="#quote" = t('views.home.quote')
+            li#places_data
+              a href="#places" = t('views.home.places')
+            .slide_action
+              div#arrow_actions.arrow-expand.arrow-right-expand[data-bind="click: expandDeals"]
+              a#deals_data.btn_slide_action href="#deals" data-bind="click: expandDeals"
+                = t('views.home.deals')
+            ul#slide_menu_deals.slide_menu[style="display: none;"]
+              li#waybills_data
+                a href="#waybills" = t('views.home.waybills')
+              li#allocations_data
+                a href="#allocations" = t('views.home.allocations')
+          - else
+            - if can?(:manage, WarehouseForemanReport)
+              li#foreman_report
+                a href="#foreman/resources" = t('views.home.foreman_report')
+            - if can? :manage, Waybill
+              li#waybills_data
+                a href="#waybills" = t('views.home.waybills')
+            - if can? :manage, Allocation
+              li#allocations
+                a href="#allocations_data" = t('views.home.allocations')
+
+      .slider
+        div#arrow_conditions.arrow-down-slide
+        a#btn_slide_conditions.btn-slide[data-bind="click: slide"]
+          = t('views.home.conditions')
+        ul#slide_menu_conditions.slide_menu[style="display: none;"]
+          - if can?(:manage, Waybill) & can?(:manage, Allocation)
+            li#warehouses_data
+              a href="#warehouses" = t('views.home.warehouses')
+            li#warehouses_foremen_data
+              a href="#warehouses/foremen" = t('views.home.reports.foremen')
+            li#warehouses_report_data
+              a href="#warehouses/report" = t('views.home.reports.report')
+          - if current_user.root?
+            li#general_ledger_data
+              a href="#general_ledger" = t('views.home.general_ledger')
+            li#balance_sheet_data
+              a href="#balance_sheet" = t('views.home.balance_sheet')
+            li#transcripts_data
+              a href="#transcripts" = t('views.home.transcripts')
+
+  /! The overlay and the box
+  div#message_box.message-box msgType='information' style="display: none"
+    span
+
+  #page data-bind="with: object"
+    .operations
+      /! ko if: paginater
+      = render 'paginate'
+      /! /ko
+    div#work_field data-bind="template: { name: $root.templatePath }"
+    .operations
+      /! ko if: paginater
+      = render 'paginate'
+      /! /ko

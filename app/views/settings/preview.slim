@@ -1,0 +1,23 @@
+form data-bind="validate: { success: save }"
+  .actions
+    = render :partial => "home/buttons", :locals => { :editable => false }
+  span#page-title = t('views.settings.page_title')
+
+  = render 'home/errors'
+
+  fieldset
+    legend
+      = t('views.settings.currency')
+      | :
+    div data-bind='with: object.money'
+      label for="money_alpha_code"
+        = t('views.settings.tag')
+        | :
+      input#money_alpha_code[type="text" name="#{t('views.settings.tag')}" rule="required"
+                             data-bind="value: alpha_code, disable: $parent.readonly"]
+    div data-bind='with: object.money'
+      label for="money_num_code"
+        = t('views.settings.code')
+        | :
+      input#money_num_code[type="text" name="#{t('views.settings.code')}" rule="required"
+                           data-bind="value: num_code, disable: $parent.readonly"]

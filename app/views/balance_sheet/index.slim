@@ -1,0 +1,67 @@
+- content_for :search  do
+  label = t('views.balance_sheet.resource')
+  input#filter-resource type="text" data-bind="value: filter.resource"
+  label = t('views.balance_sheet.place')
+  input#filter-place type="text" data-bind="value: filter.place"
+  label = t('views.balance_sheet.entity')
+  input#filter-entity type="text" data-bind="value: filter.entity"
+
+div.actions.with-padding
+  input[type='button' value="#{t('views.balance_sheet.report_on_selected')}"
+        data-bind="click: reportOnSelected, disable: !selected()"]
+  select#balance_sheet_group size="1" data-bind="value: group_by"
+    option value="" = t('views.balance_sheet.group_none')
+    option value="place" = t('views.balance_sheet.group_place')
+    option value="resource" = t('views.balance_sheet.group_resource')
+    option value="entity" = t('views.balance_sheet.group_entity')
+.left
+  label for="balance_date_start"
+    = t('views.balance_sheet.date')
+    | :
+  input#balance_date_start[type="text" data-bind="datepicker:{ value: balances_date, maxDate: '+0'}, \
+                                                  event: {change: filterData}"]
+.left
+  span
+    = t('views.balance_sheet.mu')
+    | :
+  input#natural_mu type="radio" name="mu" value="natural" data-bind="checked: mu"
+  label for="natural_mu" = t('views.balance_sheet.natural')
+  input#currency_mu type="radio" name="mu" value="currency" data-bind="checked: mu"
+  label for="currency_mu" = t('views.balance_sheet.currency')
+.clear
+table
+  thead
+    tr
+      th.cell-checkbox
+      th#deal data-bind="click: sortBy"
+        = t('views.balance_sheet.deal')
+        span
+      th#entity data-bind="click: sortBy"
+        = t('views.balance_sheet.entity')
+        span
+      th#resource data-bind="click: sortBy"
+        = t('views.balance_sheet.resource')
+        span
+      th#place data-bind="click: sortBy"
+        = t('views.balance_sheet.place')
+        span
+      th = t('views.balance_sheet.debit')
+      th = t('views.balance_sheet.credit')
+  tfoot
+    tr
+      td colspan="5"
+        = t('views.balance_sheet.total')
+        | :
+      td data-bind="text: total_debit"
+      td data-bind="text: total_credit"
+  tbody data-bind="foreach: documents"
+    tr
+      td.cell-checkbox
+        input[type="checkbox" data-bind="click: $parent.selectBalance, \
+                                         attr: {id: 'balance_' + deal_id}"]
+      td data-bind="text: tag"
+      td data-bind="text: entity"
+      td data-bind="text: resource"
+      td data-bind="text: place"
+      td data-bind="text: type == 'debit' ? ($parent.mu() == 'natural' ? amount : value) : ''"
+      td data-bind="text: type == 'credit' ? ($parent.mu() == 'natural' ? amount : value) : ''"

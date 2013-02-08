@@ -1,0 +1,566 @@
+/*
+ Copyright (C) 2011 Sergey Yanovich <ynvich@gmail.com>
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License as
+ published by the Free Software Foundation; either version 3 of the
+ License, or (at your option) any later version.
+
+ Please see ./COPYING for details*/
+/*
+*= require_self
+*= require jquery.ui.datepicker
+*= require jquery.ui.core
+*= require jquery.ui.theme
+*= require jquery-ui
+*= require sticky
+*/
+
+$table_border: 1px solid #d8d8d8;
+$table_head_background: #ededed;
+$table_head_title: #878787;
+$menu_selected: #e5e5e5;
+
+body, html{
+  margin: 0;
+  padding: 0;
+  color: black;
+  background: white;
+  font-size: 14px;
+}
+
+#header{
+  padding: 12px 4px;
+  background: #f5f5f5;
+  border-bottom: $table_border;
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+
+  span, a {
+    font-size: 16px;
+  }
+
+  #current_user{
+    width: 22%;
+    float: left;
+    font-weight: bold;
+
+    .user-name{
+      float: left;
+      margin: 4px 6px;
+    }
+
+    .logout{
+      float: left;
+
+      a{
+        font-size: 14px;
+      }
+    }
+  }
+
+  ul#main_options{
+    width: 38%;
+    float: right;
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+
+    li{
+      float: right;
+      display: inline-block;
+      cursor: pointer;
+      margin: 0 3px;
+    }
+  }
+
+  #main_filter{
+    width: 40%;
+    float: left;
+
+    .filter-bar {
+      display: inline-block;
+      text-decoration: none;
+      border: 1px solid #cccccc;
+      color: #000000;
+      white-space: nowrap;
+      border-radius: 3px;
+      -webkit-border-radius: 3px;
+      -moz-border-radius: 3px;
+      height: 23px;
+      width: 300px;
+
+      input[type=text] {
+        margin: 0;
+        height: 21px;
+        width: 280px;
+        border: none;
+      }
+
+      #show-filter {
+        display: inline-block;
+        height: 100%;
+        width: 16px;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+#header:after {
+  display: block;
+  content: '';
+  clear: both;
+  width: 0;
+  height: 0;
+}
+
+#main{
+  position: relative;
+  width: 100%;
+  top: 49px;
+  z-index: 50;
+
+  #sidebar{
+    left: 0;
+    text-align: left;
+    position: fixed;
+    width: 160px;
+    padding: 4px;
+    top: 50px;
+
+    #create_button{
+      text-align: center;
+
+      ul{
+        text-align: left;
+      }
+    }
+
+    #create_menu{
+      width: 100%;
+
+      a{
+        text-decoration: none;
+      }
+    }
+
+    #main_menu{
+      padding-left: 14px;
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 14px 0 0;
+        clear: left;
+
+        li {
+
+          a {
+            color: black;
+            text-decoration: none;
+            display: block;
+            padding: 2px;
+          }
+
+          a:hover{
+            background: $menu_selected;
+            font-weight: bold;
+          }
+        }
+
+        .sidebar-selected {
+          font-weight: bold;
+          background: $menu_selected;
+          border-left: 2px solid #a5a5a5;
+          margin-left: -2px;
+        }
+      }
+    }
+  }
+
+  #page{
+    left: 8px;
+    right: 0;
+
+    #work_field{
+      margin-left: 172px;
+      border-left: $table_border;
+      min-height: 189px;
+
+      .actions {
+        padding: 3px;
+        position: absolute;
+        top: 5px;
+
+        input[type=button] {
+          height: 25px;
+          min-width: 60px;
+          margin: 0;
+        }
+
+        .inline-block{
+          display: inline-block;
+        }
+      }
+    }
+  }
+}
+
+#footer{
+
+}
+
+.operations{
+  background: #f5f5f5;
+  border: $table_border;
+  margin-left: 172px;
+  padding: 7px;
+  height: 25px;
+  clear: left;
+}
+
+.indented{
+  background: #dedede;
+  border: 1px solid #8e8e8e;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  -webkit-box-shadow: 0 1px 2px #7d7d7d inset, 0 1px 0 white;
+  -moz-box-shadow: 0 1px 2px #7d7d7d inset, 0 1px 0 white;
+  box-shadow: 0 1px 2px #7d7d7d inset, 0 1px 0 white;
+
+  a{
+    display: block;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: #797979;
+    text-shadow: 0 1px #F5F5F5;
+    text-decoration: none;
+  }
+  a:hover{
+    color: #494949;
+  }
+}
+
+.paginate{
+  float: right;
+
+  span {
+    font-weight: bold;
+    padding: 2px;
+  }
+
+  input{
+    float: none;
+    height: 25px;
+    min-width: 30px;
+  }
+
+  .paginate-right {
+    margin-left: -3px;
+  }
+}
+
+.list-icons {
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+
+  li {
+    display: inline-block;
+    cursor: pointer;
+    margin-left: 4px;
+    margin-top: -3px;
+
+    .button {
+      display: block;
+      width: 32px;
+      height: 32px;
+      padding: 0px;
+    }
+
+    .table-view {
+      background: url("table-view.png") no-repeat transparent;
+    }
+
+    .tree-view {
+      background: url("tree-view.png") no-repeat transparent;
+    }
+
+    .checklist {
+      background-image: url("checklist.jpg");
+      //background-image: linear-gradient(top, rgba(0,0,0,0) 0%, rgba(150,150,150,0.7) 100%), url("checklist.jpg");
+      //background-image: -o-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(150,150,150,0.7) 100%), url("checklist.jpg");
+      //background-image: -ms-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(150,150,150,0.7) 100%), url("checklist.jpg");
+      //background-image: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(150,150,150,0.7) 100%), url("checklist.jpg");
+      //background-image: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(150,150,150,0.7) 100%), url("checklist.jpg");
+    }
+
+    .checklist:active {
+      //background-image: url("checklist_1.jpg");
+      //background-image: linear-gradient(bottom, rgba(0,0,0,0) 0%, rgba(150,150,150,0.7) 100%), url("checklist_1.jpg");
+      //background-image: -o-linear-gradient(bottom, rgba(0,0,0,0) 0%, rgba(150,150,150,0.7) 100%), url("checklist_1.jpg");
+      //background-image: -ms-linear-gradient(bottom, rgba(0,0,0,0) 0%, rgba(150,150,150,0.7) 100%), url("checklist_1.jpg");
+      //background-image: -moz-linear-gradient(bottom, rgba(0,0,0,0) 0%, rgba(150,150,150,0.7) 100%), url("checklist_1.jpg");
+      //background-image: -webkit-linear-gradient(bottom, rgba(0,0,0,0) 0%, rgba(150,150,150,0.7) 100%), url("checklist_1.jpg");
+    }
+
+    .pressed {
+      cursor: default;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+      -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+      -moz-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+.multiple-choice {
+  background: #f5f5f5;
+  cursor: default;
+  list-style: none;
+  width: 100%;
+
+  li {
+    padding: 2px 4px;
+    text-align: left;
+
+    input[type=checkbox] {
+      cursor: pointer;
+      height: 14px;
+      min-width: 14px;
+      margin: 2px;
+    }
+    label {
+      cursor: pointer;
+    }
+  }
+  li:hover {
+    background: #ececec;
+    color: #24313C;
+  }
+  li.not-hover:hover {
+    background: #f5f5f5;
+  }
+}
+
+.menu-button {
+  cursor: pointer;
+  text-align: center;
+  font-weight: bolder;
+  color: #24313C;
+  padding-top: 4px;
+  padding-bottom: 4px;
+
+  background-image: linear-gradient(bottom, rgb(194,194,194) 0%, rgb(232,232,232) 100%);
+  background-image: -o-linear-gradient(bottom, rgb(194,194,194) 0%, rgb(232,232,232) 100%);
+  background-image: -moz-linear-gradient(bottom, rgb(194,194,194) 0%, rgb(232,232,232) 100%);
+  background-image: -webkit-linear-gradient(bottom, rgb(194,194,194) 0%, rgb(232,232,232) 100%);
+  background-image: -ms-linear-gradient(bottom, rgb(194,194,194) 0%, rgb(232,232,232) 100%);
+
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+
+.menu-button:hover {
+  color: #000000;
+}
+
+.menu-button:active {
+  background-image: linear-gradient(bottom, rgb(232,232,232) 0%, rgb(194,194,194) 100%);
+  background-image: -o-linear-gradient(bottom, rgb(232,232,232) 0%, rgb(194,194,194) 100%);
+  background-image: -moz-linear-gradient(bottom, rgb(232,232,232) 0%, rgb(194,194,194) 100%);
+  background-image: -webkit-linear-gradient(bottom, rgb(232,232,232) 0%, rgb(194,194,194) 100%);
+  background-image: -ms-linear-gradient(bottom, rgb(232,232,232) 0%, rgb(194,194,194) 100%);
+}
+
+#container_notification {
+  display: none;
+  border-color: red;
+  margin: -5px 0 8px 2px;
+  color: red;
+
+  legend { color: red; }
+
+  ul {
+    font-size: 13px;
+    margin: 0;
+    padding-left: 20px;
+    list-style: circle;
+
+    label {
+      cursor: pointer;
+    }
+  }
+}
+
+form{
+
+  fieldset {
+    border: $table_border;
+    width: 700px;
+    margin-bottom: 2px;
+  }
+
+  label{
+    float: left;
+    clear: both;
+    width: 150px;
+    text-align: right;
+    margin-right: 10px;
+    margin-top: 2px;
+  }
+
+  input, textarea{
+    float: left;
+  }
+
+  input[type=text], input[type=password], textarea {
+    width: 538px;
+  }
+
+  table{
+
+    input[type=text], input[type=password], textarea {
+      width: 100%;
+    }
+  }
+
+  .radio{
+    float: left;
+
+    input{
+      float: left;
+      clear: left;
+    }
+
+    label{
+      width: auto;
+      float: left;
+      clear: none;
+    }
+  }
+
+  .radio.in-line{
+
+    input{
+      clear: none;
+    }
+  }
+
+  .in-tabs{
+
+    label{
+      width: 150px;
+    }
+
+    input, textarea{
+      float: none;
+    }
+
+    input[type=text], input[type=password], textarea {
+      width: 526px;
+    }
+  }
+}
+
+table{
+  border-spacing: 0;
+  width: 100%;
+  //margin: 30px 0 5px 0;
+  border-top: $table_border;
+  border-left: $table_border;
+
+  .caption{
+
+  }
+
+  .table-actions {
+    width: 17px;
+    padding: 4px 2px 0 3px;
+    vertical-align: top;
+
+    label {
+      padding-left: 16px;
+    }
+  }
+
+  th {
+    border-right: $table_border;
+    border-bottom: $table_border;
+    background: $table_head_background;
+    padding-top: 4px;
+    color: $table_head_title;
+
+    span.ui-icon {
+      display: inline-block;
+      margin-left: 2px;
+      vertical-align: text-bottom;
+    }
+  }
+
+  tr {
+    cursor: pointer;
+
+    td {
+      border-bottom: $table_border;
+      border-right: $table_border;
+      height: 20px;
+      padding: 4px 5px 0 5px;
+    }
+
+    td.cell-checkbox {
+      width: 15px;
+
+      input {
+        margin: 0;
+      }
+    }
+
+    td.cell-star {
+      width: 15px;
+
+      p {
+        margin: 0;
+        float: left;
+        position: relative;
+        width: 16px;
+        height: 16px;
+      }
+
+      .checkbox-old {
+        float: left;
+        display: none;
+      }
+
+      .star {
+        position: absolute;
+        cursor: pointer;
+        padding-top: 16px;
+        padding-left: 16px;
+        background: url(star-off.png) no-repeat;
+        margin-top: -3px;
+      }
+
+      .checkbox-old:checked + .star {
+        background: url(star.png) no-repeat;
+      }
+    }
+
+    td.tree-actions {
+      width: 10px;
+      padding: 0 5px;
+      cursor: pointer;
+    }
+  }
+
+  .list{
+
+  }
+
+  .tree{
+
+  }
+}

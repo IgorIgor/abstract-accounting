@@ -1,0 +1,27 @@
+div.div-update-psw
+
+  span = t('views.password_resets.update_password')
+
+  - form_for @user, :url => password_reset_path(@user), :html => {:method => :put} do |f|
+
+    - if @user.errors.any?
+      .container-alert
+        = t('views.password_resets.enter_error')
+
+    .field
+      = label_tag :email, t('views.password_resets.email')
+      br
+      = text_field_tag :email, @user.email, :disabled => true
+    .field
+      = label_tag :password, t('views.password_resets.password')
+      br
+      = f.password_field :password
+    .field
+      = label_tag(:password_confirmation, t('views.password_resets.password_confirmation'))
+      br
+      = f.password_field :password_confirmation
+    = hidden_field_tag :token, @token
+    .login_actions
+      = submit_tag t('views.password_resets.update_password')
+      br
+      = link_to t('views.password_resets.back'), login_path

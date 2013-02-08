@@ -1,0 +1,25 @@
+table
+  thead
+    tr
+      th#tag data-bind="click: sortBy"
+        = t('views.deals.tag')
+        span
+      th#name data-bind="click: sortBy"
+        = t('views.deals.entity')
+        span
+      th#give data-bind="click: sortBy"
+        = t('views.deals.give.tag')
+        span
+      th#take data-bind="click: sortBy"
+        = t('views.deals.take.tag')
+        span
+      th#rate data-bind="click: sortBy"
+        = t('views.deals.rate')
+        span
+  tbody data-bind="foreach: documents"
+    tr data-bind="click: $parent.select"
+      td data-bind="text: tag"
+      td data-bind="text: entity_tag"
+      td data-bind="text: give"
+      td data-bind="text: take"
+      td data-bind="text: rate"

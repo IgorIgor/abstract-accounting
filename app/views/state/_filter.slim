@@ -1,0 +1,25 @@
+div.action_element[data-bind="slider: {pressed: 'statable_type', \
+                                       slidearea: 'statable_types_menu', \
+                                       closed: false, pressed_style: true}"]
+  #statable_type
+    div.button.checklist
+  ul#statable_types_menu.menu.multiple-choice
+    li
+      input#check_inwork[type="checkbox" value="#{::Helpers::Statable::INWORK}"
+                         data-bind="checked: filter_state"]
+      label for="check_inwork" = t('views.statable.inwork')
+    li
+      input#check_canceled[type="checkbox" value="#{::Helpers::Statable::CANCELED}"
+                           data-bind="checked: filter_state"]
+      label for="check_canceled" = t('views.statable.canceled')
+    li
+      input#check_applied[type="checkbox" value="#{::Helpers::Statable::APPLIED}"
+                          data-bind="checked: filter_state"]
+      label for="check_applied" = t('views.statable.applied')
+    li
+      input#check_reverced[type="checkbox" value="#{::Helpers::Statable::REVERSED}"
+                           data-bind="checked: filter_state"]
+      label for="check_reverced" = t('views.statable.reversed')
+    li.not-hover
+      div.menu-button data-bind="click: filterData, closeSlidearea: {slidearea: 'statable_types_menu'}"
+        = t('views.statable.buttons.apply')

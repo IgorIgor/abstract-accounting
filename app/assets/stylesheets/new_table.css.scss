@@ -1,0 +1,51 @@
+$table_border: 1px solid #d8d8d8;
+$table_head_background: #ededed;
+$table_head_title: #878787;
+$menu_selected: #e5e5e5;
+
+#main #work_field{
+  table{
+    border-spacing: 0;
+    width: 100%;
+    //margin: 30px 0 5px 0;
+    border-top: $table_border;
+    border-left: $table_border;
+    //margin-left: 160px;
+    margin: 0;
+    border-spacing: 0;
+    width: 100%;
+
+    .delete {
+      background: url("close.png") no-repeat;
+      cursor: pointer;
+    }
+
+    .table-actions {
+      width: 17px;
+      padding: 4px 2px 0 3px;
+      vertical-align: top;
+    }
+
+    th {
+      border-right: $table_border;
+      border-bottom: $table_border;
+      background: $table_head_background;
+      padding-top: 4px;
+      color: $table_head_title;
+
+      span.ui-icon {
+        display: inline-block;
+        margin-left: 2px;
+        vertical-align: text-bottom;
+      }
+    }
+  }
+
+
+
+  form{
+    table{
+
+    }
+  }
+}

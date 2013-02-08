@@ -1,0 +1,7 @@
+div#filter-area.filter-area
+  == yield :search
+  input type="button" value="#{t('views.home.search')}" data-bind="click: filterData"
+  a#clear_filter href="#" data-bind="click: clearFilter"
+    = t('views.home.clear_filter')
+
+== yield

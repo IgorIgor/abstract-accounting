@@ -1,0 +1,50 @@
+html
+  head
+    meta http-equiv='Content-Type' content='text/html; charset=UTF-8'
+    = wicked_pdf_stylesheet_link_tag 'pdf'
+body
+  #pdf-wrapper
+    table
+      thead
+        tr
+          td = t('views.warehouses.tag')
+          td colspan="6" = @resource.tag
+        tr
+          td = t('views.warehouses.mu')
+          td colspan="6" = @resource.mu
+        tr
+          td = t('views.warehouses.place')
+          td colspan="6" = @place.tag
+        tr
+          th = t('views.warehouses.resource.report.date')
+          th = t('views.warehouses.resource.report.income')
+          th = t('views.warehouses.resource.report.document_id')
+          th = t('views.warehouses.resource.report.amount')
+          th = t('views.warehouses.resource.report.consumption')
+          th = t('views.warehouses.resource.report.amount')
+          th = t('views.warehouses.resource.report.state')
+      tbody data-bind="foreach: documents"
+      - @warehouse.each do |item|
+        - if item.side == WarehouseResourceReport::WAYBILL_SIDE
+          tr
+            td = item.date.strftime('%Y-%m-%d')
+            td = item.entity.name
+            td = item.document_id
+            td = item.amount
+            td
+            td
+            td = item.state
+        - elsif item.side == WarehouseResourceReport::ALLOCATION_SIDE
+          tr
+            td = item.date.strftime('%Y-%m-%d')
+            td
+            td
+            td
+            td = item.entity.name
+            td = item.amount
+            td = item.state
+      tfoot
+        tr
+          td = t('views.warehouses.resource.report.total')
+          td colspan="5"
+          td = @total

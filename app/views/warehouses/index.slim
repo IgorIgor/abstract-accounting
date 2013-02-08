@@ -1,0 +1,43 @@
+- content_for :search  do
+  - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+    label = t('views.warehouses.place')
+    input#filter-place type="text" data-bind="value: filter.place"
+  label = t('views.warehouses.tag')
+  input#filter-tag type="text" data-bind="value: filter.tag"
+  label = t('views.warehouses.mu')
+  input#filter-mu type="text" data-bind="value: filter.mu"
+  label = t('views.warehouses.real_amount')
+  input#filter-real-amount type="text" data-bind="value: filter.real_amount"
+
+.actions
+  - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+    select#warehouse_group size="1" data-bind="value: group_by"
+      option value="" = t('views.warehouses.group_none')
+      option value="place" = t('views.warehouses.group_place')
+      option value="tag" = t('views.warehouses.group_tag')
+  input[type='button' value="#{t('views.warehouses.report.print')}"
+        data-bind='click: print, visible: documents().length > 0']
+
+table
+  thead
+    tr
+      - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+        th#place.warehouse-place[data-bind="click: sortBy"]
+          = t('views.warehouses.place')
+          span
+      th#tag.warehouse-tag[data-bind="click: sortBy"]
+        = t('views.warehouses.tag')
+        span
+      th#mu.warehouse-mu[data-bind="click: sortBy"]
+        = t('views.warehouses.mu')
+        span
+      th#real_amount.warehouse-rel-amount[data-bind="click: sortBy"]
+        = t('views.warehouses.real_amount')
+        span
+  tbody data-bind="foreach: documents"
+    tr data-bind="click: $parent.showReport"
+      - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+        td data-bind="text: place"
+      td data-bind="text: tag"
+      td data-bind="text: mu"
+      td data-bind="text: real_amount"

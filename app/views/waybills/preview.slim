@@ -1,0 +1,181 @@
+form data-bind="validate: { success: save }"
+  .actions
+    = render :partial => "home/buttons", :locals => { :editable => true }
+    div.buttons-separator data-bind='visible: readonly'
+    = render :partial => "state/buttons", :locals => { :model => Waybill }
+
+  span#page-title
+    /! ko if: readonly
+    = t('views.waybills.page_title_show')
+    /! /ko
+    /! ko ifnot: readonly
+    = t('views.waybills.page_title_new')
+    /! /ko
+
+  = render 'home/errors'
+
+  fieldset
+    div
+      label for="created"
+        = t('views.waybills.created_at')
+        | :
+      input#created[type="text" name="#{t('views.waybills.created_at')}" rule="required"
+                    data-bind="datepicker:{ value: object.waybill.created, maxDate: '+0' }, \
+                               disable: readonly"]
+    div
+      label for="waybill_document_id"
+        = t('views.waybills.document_id')
+        | :
+      input#waybill_document_id[type="text" name="#{t('views.waybills.document_id')}"
+                                rule="required" data-bind="value: object.waybill.document_id, \
+                                                           disable: readonly"]
+    /! ko if: readonly
+    div
+      label for="state"
+        = t('views.statable.state')
+        | :
+      input#state[type="text" disabled="disabled"
+                  data-bind="value: getState(object.waybill.state())"]
+    /! /ko
+
+  fieldset
+    legend = t('views.waybills.distributor')
+    div#waybill_tabs[data-bind="value: entity_type, \
+                                jqTabs: {current: object.waybill.distributor_type() == '#{LegalEntity.name}' ? 0 : 1, \
+                                         tabSelect: changeTab, \
+                                         disable: readonly, \
+                                         scrollable: false }"]
+      div
+        ul#head
+          li
+            a[href='#1' tab-id='1'
+              data-bind="event: {click: function() { object.waybill.distributor_type('#{LegalEntity.name}');}}"]
+              = t('views.waybills.distrib.legal_entity')
+          li
+            a[href='#2' tab-id='2'
+              data-bind="event: {click: function() { object.waybill.distributor_type('#{Entity.name}');}}"]
+              = t('views.waybills.distrib.entity')
+        div
+          div.tab.margtop.padleft data-tab-id='1' data-bind='with: object.legal_entity'
+            div.in-tabs
+              label for="waybill_legal_entity"
+                = t('views.waybills.entity')
+                | :
+              input#waybill_legal_entity[type='text' rule='required'
+                                         name='#{t('views.waybills.distributor')}'
+                                         data-bind="autocomplete: { source: '/legal_entities.json', \
+                                                                    value: 'name', \
+                                                                    bind: { \
+                                                                            id: $parent.object.waybill.distributor_id \
+                                                                    }}, \
+                                                    value: name, disable: $parent.readonly"]
+            div.in-tabs
+              label for="waybill_ident_value"
+                = t('views.waybills.ident_name_VATIN')
+                | :
+              input#waybill_ident_value[type="text" data-field="identifier_value" rule="required"
+                                        name="#{t('views.waybills.ident_value')}"
+                                        data-bind="value: identifier_value, \
+                                                   disable: $parent.readonly"]
+          div.tab.margtop.padleft data-tab-id='2' data-bind='with: object.entity'
+            div.in-tabs
+              label for="waybill_entity"
+                = t('views.waybills.entity')
+                | :
+              input#waybill_entity[type='text' rule='required'
+                                   name='#{t('views.waybills.distributor')}'
+                                   data-bind="autocomplete: { source: '/entities.json', \
+                                                              value: 'tag', \
+                                                              bind: { \
+                                                                id: $parent.object.waybill.distributor_id } \
+                                                            }, \
+                                              value: tag, disable: $parent.readonly"]
+    .margtop
+      div data-bind="with: object.distributor_place"
+        label for="distributor_place"
+          = t('views.waybills.place')
+          | :
+        input#distributor_place[type='text' rule='required'
+                                name='#{t('views.waybills.distributor_place')}'
+                                data-bind="autocomplete: { source: '/places.json', \
+                                                           value: 'tag', \
+                                                           bind: { id: $parent.object.waybill.distributor_place_id } \
+                                                          }, \
+                                           value: tag, disable: $parent.readonly"]
+
+  fieldset
+    legend = t('views.waybills.warehouse.name')
+    div
+      label for="warehouses"
+        = t('views.waybills.warehouse.name')
+        | :
+      select#warehouses[rule="required" name="#{t('views.waybills.warehouse.name')}"
+                        data-bind="options: object.warehouses, \
+                                   optionsCaption: '#{t('views.waybills.warehouse.select')}', \
+                                   optionsText: function(item) { \
+                                     return item.tag() + \
+                                       '(#{t('views.waybills.warehouse.storekeeper')}: ' + \
+                                       item.storekeeper() + ')' \
+                                   }, \
+                                   optionsValue: 'id', \
+                                   value: object.waybill.warehouse_id, \
+                                   disable: disable_warehouse"]
+
+  fieldset.with-legend
+    legend = t('views.waybills.waybill_entry')
+    input[type="button" value="#{t('views.waybills.add')}"
+          data-bind="click: addResource, disable: readonly"]
+    table
+      thead
+        tr
+          th.waybill-entry-tag = t('views.waybills.entry_name')
+          th.waybill-entry-mu  = t('views.waybills.measure')
+          th.waybill-entry-count = t('views.waybills.count')
+          th.waybill-entry-price = t('views.waybills.price')
+          th.waybill-entry-sum = t('views.waybills.sum')
+          /! ko ifnot: readonly
+          th.table-actions
+          /! /ko
+      tbody data-bind="foreach: object.items, elementValidate: object.items"
+        tr data-bind="attr: { idx: $parent.object.items.indexOf($data) }"
+          td
+            input[type="text" rule="required"
+                  data-bind="value: tag, disable: $parent.readonly, \
+                             attr: { id: 'tag_' + $parent.object.items.indexOf($data), \
+                                     name: '#{t('views.waybills.item')}#' + \
+                                           $parent.object.items.indexOf($data) + \
+                                           ' #{t('views.waybills.entry_name')}'}"]
+          td
+            input[type="text" rule="required"
+                  data-bind="value: mu, disable: $parent.readonly, \
+                             attr: { id: 'mu_' + $parent.object.items.indexOf($data), \
+                                     name: '#{t('views.waybills.item')}#' + \
+                                            $parent.object.items.indexOf($data) + \
+                                           ' #{t('views.waybills.measure')}'}"]
+          td
+            input[type="text" rule="required_num"
+                  data-bind="value: amount, disable: $parent.readonly, \
+                             attr: { id: 'count_' + $parent.object.items.indexOf($data), \
+                                     name: '#{t('views.waybills.item')}#' + \
+                                     $parent.object.items.indexOf($data) + \
+                                     ' #{t('views.waybills.count')}'}"]
+          td
+            input[type="text" rule="required_num"
+                  data-bind="value: price, disable: $parent.readonly, \
+                             attr: { id: 'price_' + $parent.object.items.indexOf($data), \
+                                     name: '#{t('views.waybills.item')}#' + \
+                                     $parent.object.items.indexOf($data) + \
+                                     ' #{t('views.waybills.price')}'}"]
+          td data-bind="text: sum"
+          /! ko ifnot: $parent.readonly
+          td.table-actions
+            span.ui-icon.delete data-bind="click: $parent.removeResource"
+          /! /ko
+      tfoot
+        tr
+          td colspan="2" = t('views.waybills.total')
+          td data-bind="text: totalAmount"
+          td
+          td data-bind="text: totalSum"
+    input[type="button" value="#{t('views.waybills.add')}"
+          data-bind="click: addResource, disable: readonly"]

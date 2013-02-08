@@ -1,0 +1,17 @@
+table
+  thead
+    tr
+      th#tag data-bind="click: sortBy"
+        = t('views.resources.tag')
+        span
+      th#ext_info data-bind="click: sortBy"
+        = t('views.resources.ext_info')
+        span
+      th#type data-bind="click: sortBy"
+        = t('views.resources.type')
+        span
+  tbody data-bind="foreach: documents"
+    tr data-bind="click: $parent.select"
+      td data-bind="text: tag"
+      td data-bind="text: ext_info"
+      td data-bind="text: type"

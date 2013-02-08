@@ -1,0 +1,9 @@
+
+- if can? :modify, model
+  input[type='button' value="#{t('views.statable.buttons.apply')}"
+        data-bind='click: apply, visible: visibleApply(), disable: disableButton()']
+  input[type='button' value="#{t('views.statable.buttons.cancel')}"
+        data-bind='click: cancel, visible: visibleCancel(), disable: disableButton()']
+- if can? :reverse, model
+  input[type='button' value="#{t('views.statable.buttons.reverse')}"
+        data-bind='click: reverse, visible: visibleReverse(), disable: disableButton()']

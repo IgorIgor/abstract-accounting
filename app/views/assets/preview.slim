@@ -1,0 +1,32 @@
+form data-bind="validate: { success: save }"
+  .actions
+    = render :partial => "home/buttons", :locals => { :editable => true }
+
+  span#page-title
+    /! ko if: readonly
+    = t('views.resources.page.title.show')
+    /! /ko
+    /! ko ifnot: readonly
+    /! ko if: id_presence
+    = t('views.resources.page.title.edit')
+    /! /ko
+    /! ko ifnot: id_presence
+    = t('views.resources.page.title.new')
+    /! /ko
+    /! /ko
+
+  = render 'home/errors'
+
+  fieldset
+    div
+      label for="asset_tag"
+        = t('views.resources.tag')
+        | :
+      input.asset_tag[type="text" name="#{t('views.resources.tag')}" rule="required"
+                      data-bind="value: object.asset.tag, disable: readonly"]
+    div
+      label for="asset_mu"
+        = t('views.resources.mu')
+        | :
+      input.asset_mu[type="text" name="#{t('views.resources.mu')}"
+                     data-bind="value: object.asset.mu, disable: readonly"]

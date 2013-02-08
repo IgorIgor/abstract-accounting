@@ -1,0 +1,23 @@
+html
+  head
+    meta http-equiv='Content-Type' content='text/html; charset=UTF-8'
+    = wicked_pdf_stylesheet_link_tag 'pdf'
+  body
+    #pdf-wrapper
+      table
+        thead
+          tr
+            td colspan="4"
+              = "#{t('views.warehouses.place')}: #{@warehouse.first.place}"
+          tr
+            th #
+            th = t('views.warehouses.tag')
+            th = t('views.warehouses.mu')
+            th = t('views.warehouses.real_amount')
+        tbody
+          - @warehouse.each_with_index do |item, idx|
+            tr
+              td = idx + 1
+              td = item.tag
+              td = item.mu
+              td = item.real_amount

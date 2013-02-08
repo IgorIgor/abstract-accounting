@@ -1,0 +1,13 @@
+table
+  thead
+    tr
+      th#tag data-bind="click: sortBy"
+        = t('views.users.user_name')
+        span
+      th#email data-bind="click: sortBy"
+        = t('views.users.email')
+        span
+  tbody data-bind="foreach: documents"
+    tr
+      td data-bind="text: tag, click: $parent.showUser"
+      td data-bind="text: email, click: $parent.showUser"

@@ -1,0 +1,17 @@
+table
+  thead
+    tr
+      th#alpha_code data-bind="click: sortBy"
+        = t('views.quote.resource')
+        span
+      th#day data-bind="click: sortBy"
+        = t('views.quote.date')
+        span
+      th#rate data-bind="click: sortBy"
+        = t('views.quote.rate')
+        span
+  tbody data-bind="foreach: documents"
+    tr
+      td data-bind="text: resource, click: $parent.show"
+      td data-bind="text: day, click: $parent.show"
+      td data-bind="text: rate, click: $parent.show"

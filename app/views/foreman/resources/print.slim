@@ -1,0 +1,24 @@
+html
+  head
+    meta http-equiv='Content-Type' content='text/html; charset=UTF-8'
+    = wicked_pdf_stylesheet_link_tag 'pdf'
+  body
+    #pdf-wrapper
+      table
+        thead
+          tr
+            th = t('views.warehouses.foremen.report.index')
+            th = t('views.warehouses.foremen.report.resource.name')
+            th = t('views.warehouses.foremen.report.resource.mu')
+            th = t('views.warehouses.foremen.report.amount')
+            th = t('views.warehouses.foremen.report.price')
+            th = t('views.warehouses.foremen.report.sum')
+        tbody
+          - @resources.each_with_index do |item, idx|
+            tr
+              td = idx + 1
+              td = item.resource.tag
+              td = item.resource.mu
+              td = item.amount
+              td = item.price
+              td = item.sum

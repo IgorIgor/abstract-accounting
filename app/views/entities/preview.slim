@@ -1,0 +1,26 @@
+form data-bind="validate: { success: save }"
+  .actions
+    = render :partial => "home/buttons", :locals => { :editable => true }
+
+  span#page-title
+    /! ko if: readonly
+    = t('views.entities.page.title.show')
+    /! /ko
+    /! ko ifnot: readonly
+    /! ko if: id_presence
+    = t('views.entities.page.title.edit')
+    /!-- /ko -->
+    /!-- ko ifnot: id_presence -->
+    = t('views.entities.page.title.new')
+    /! /ko
+    /! /ko
+
+  = render 'home/errors'
+
+  fieldset
+    div
+      label for="entity_tag"
+        = t('views.entities.tag')
+        | :
+      input#entity_tag[type="text" name="#{t('views.entities.tag')}" rule="required"
+                       data-bind="value: object.entity.tag, disable: readonly"]

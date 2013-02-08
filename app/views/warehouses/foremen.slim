@@ -1,0 +1,65 @@
+
+.actions
+  - if current_user.root? || current_user.managed_group
+    select#warehouse_filter[size="1"
+                            data-bind="options: warehouses, optionsText: 'tag', \
+                                       optionsValue: 'place_id', \
+                                       optionsCaption: '#{t('views.warehouses.filter.select.warehouse')}', \
+                                       value: warehouse_id, event: {change: assignForemen}"]
+  label for="foremen_filter_from"
+    = t('views.warehouses.foremen.report.dates.from')
+    | :
+  input#foremen_filter_from[type="text" style="width: 80px;"
+                            data-bind="datepicker:{ value: from, maxDate: '+0' }, \
+                                       event: {change: filterData}"]
+  label for="foremen_filter_to"
+    = t('views.warehouses.foremen.report.dates.to')
+    | :
+  input#foremen_filter_to[type="text" style="width: 80px;"
+                          data-bind="datepicker:{ value: to, maxDate: '+0' }, \
+                                     event: {change: filterData}"]
+  div.inline-block[data-bind="slider: { pressed: 'print_btn', slidearea: 'print-menu' }, slidemenu: {}, \
+                           visible: foremen().length > 0"]
+    div#print_btn.button
+      div.data.print
+      div.data.arrow_down
+    ul#print-menu
+      li
+        a data-bind='click: function() { print(true, false); }'
+          = t('views.warehouses.report.print_all')
+      li data-bind="visible: documents().length > 0"
+        a data-bind='click: function() { print(false, false); }'
+          = t('views.warehouses.report.print')
+      li data-bind="visible: print_visibility"
+        a data-bind="click: function() { print(true, true); }"
+          = t('views.warehouses.report.print_check_all')
+      li[data-bind="visible: resources.hasKey(foreman_id()) && resources.get(foreman_id())().length != 0"]
+        a data-bind="click: function() { print(false, true); }"
+          = t('views.warehouses.report.print_check')
+/! ko if: foremen().length != 0
+div#foremen_tabs[data-bind="jqTabs: { current: 0, headers: foremen, \
+                                      tabSelect: filterData, \
+                                      scrollable: true }, \
+                            value: foreman_id"]
+  div
+    ul#head
+
+table
+  thead
+    tr
+      th
+      th = t('views.warehouses.foremen.report.resource.name')
+      th = t('views.warehouses.foremen.report.resource.mu')
+      th = t('views.warehouses.foremen.report.amount')
+      th = t('views.warehouses.foremen.report.price')
+      th = t('views.warehouses.foremen.report.sum')
+  tbody data-bind="foreach: documents"
+    tr
+      td.cell-checkbox
+        input type="checkbox" data-bind="value: id, checked: $parent.resources.get($parent.foreman_id())"
+      td data-bind="text: tag"
+      td data-bind="text: mu"
+      td data-bind="text: amount"
+      td data-bind="text: price"
+      td data-bind="text: sum"
+/! /ko

@@ -1,0 +1,37 @@
+- if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+  .actions
+    select#warehouse_group[size="1" data-bind="value: group_by"]
+      option value="" = t('views.warehouses.group_none')
+      option value="place" = t('views.warehouses.group_place')
+      option value="tag" = t('views.warehouses.group_tag')
+
+table
+  thead
+    tr
+      th
+      th#place.warehouse-place =t('views.warehouses.place')
+      th#tag.warehouse-tag = t('views.warehouses.tag')
+      th#mu.warehouse-mu = t('views.warehouses.mu')
+      th#real_amount.warehouse-rel-amount = t('views.warehouses.real_amount')
+  tbody data-bind="foreach: documents"
+    tr
+      td.distribution-tree-actions-by-wb[data-bind="click: $parent.expandTree"]
+        div.ui-corner-all.ui-state-hover
+          span.ui-icon.ui-icon-circle-plus
+      td colspan="5" data-bind="text: group_value"
+    tr data-bind="attr: {id: 'group_' + group_id}, with: subitems"
+      td
+      td.td-inner-table colspan="5"
+        .paginate
+          span data-bind="text: range" = t('views.home.of')
+          span data-bind="text: count"
+          input type="button" value="<" data-bind="click: prev, disable: page() < 2"
+          input.paginate-right[type="button" value=">"
+                               data-bind="click: next, disable: page()*per_page() >= count()"]
+        table.inner-table
+          tbody data-bind="foreach: documents"
+          tr data-bind="click: $parent.showReport"
+            td.warehouse-place data-bind="text: place"
+            td.warehouse-tag data-bind="text: tag"
+            td.warehouse-mu data-bind="text: mu"
+            td.warehouse-rel-amount data-bind="text: real_amount"

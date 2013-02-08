@@ -1,0 +1,63 @@
+.actions
+  span.form-cell-label
+    label for="deal_tag"
+      = t('views.transcripts.deal')
+      | :
+  input#deal_tag[type="text" data-bind="dialog: { autoOpen: false, \
+                                                  modal: true, \
+                                                  minWidth: 480, \
+                                                  minHeight: 300, \
+                                                  bind: { id: deal_id, tag: deal_tag } \
+                                                 }, \
+                                        dialogId: 'deals_selector', \
+                                        value: deal_tag"]
+  label for="transcript_date_from" = t('views.transcripts.from')
+  input#transcript_date_from[type="text"
+                             data-bind="datepicker:{ value: date_from, maxDate: '+0' }"]
+  label for="transcript_date_to" = t('views.transcripts.to')
+  input#transcript_date_to[type="text" data-bind="datepicker:{ value: date_to, maxDate: '+0' }"]
+  /div.clear
+  span
+    = t('views.transcripts.mu')
+    | :
+  input#natural_mu type="radio" name="mu" value="natural" data-bind="checked: mu"
+  label for="natural_mu"
+    = t('views.transcripts.natural')
+  input#currency_mu type="radio" name="mu" value="currency" data-bind="checked: mu"
+  label for="currency_mu"
+    = t('views.transcripts.currency')
+table
+  thead
+    tr.without-border data-bind="with: from"
+      td colspan="2" data-bind="text:$parent.parse_date_from"
+      td data-bind="text: type == 'debit' ? ($parent.mu() == 'natural' ? amount() : value()) : '0.0'"
+      td data-bind="text: type == 'credit' ? ($parent.mu() == 'natural' ? amount() : value()) : '0.0'"
+    tr
+      th#day data-bind="click: sortBy"
+        = t('views.transcripts.date')
+        span
+      th = t('views.transcripts.account')
+      th = t('views.transcripts.debit')
+      th = t('views.transcripts.credit')
+  tfoot.without-border
+    tr data-bind="with:totals"
+      td colspan="2" = t('views.transcripts.total_circulation')
+      td data-bind="text: $parent.mu() == 'natural' ? debit.amount() : debit.value()"
+      td data-bind="text: $parent.mu() == 'natural' ? credit.amount() : credit.value()"
+    tr data-bind="with:totals"
+      td colspan="2" = t('views.transcripts.rate_differences')
+      td data-bind="text: $parent.mu() == 'natural' ? '' : debit.diff()"
+      td data-bind="text: $parent.mu() == 'natural' ? '' : credit.diff()"
+    tr data-bind="with: to"
+      td colspan="2" data-bind="text:$parent.parse_date_to"
+      td data-bind="text: type() == 'debit' ? ($parent.mu() == 'natural' ? amount() : value()) : '0.0'"
+      td data-bind="text: type() == 'credit' ? ($parent.mu() == 'natural' ? amount() : value()) : '0.0'"
+  tbody data-bind="foreach: documents"
+    tr
+      td data-bind="text: date, click: $parent.selectTranscript"
+      td data-bind="text: account, click: $parent.selectTranscript"
+      td[data-bind="text: type == 'debit' ? ($parent.mu() == 'natural' ? amount : value) : '', \
+                    click: $parent.selectTranscript"]
+      td[data-bind="text: type == 'credit' ? ($parent.mu() == 'natural' ? amount : value) : '', \
+                    click: $parent.selectTranscript"]
+= render :partial => "home/select_dialog", :locals => { :dialog_id => 'deals_selector', :dialog_model => 'dialog_deals', :data_path => 'deals/deals' }

@@ -1,0 +1,12 @@
+
+label = t('views.allocations.created_at')
+input#filter_created_at type="text" data-bind="value: filter.created"
+label = t('views.allocations.foreman')
+input#filter_foreman type="text" data-bind="value: filter.foreman"
+- if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+  label = t('views.allocations.storekeeper')
+  input#filter_storekeeper type="text" data-bind="value: filter.storekeeper"
+  label = t('views.allocations.storekeeper_place')
+  input#filter_storekeeper_place type="text" data-bind="value: filter.storekeeper_place"
+label = t('views.allocations.resource.name')
+input#filter_resource type="text" data-bind="value: filter.resource_tag"

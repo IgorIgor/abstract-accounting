@@ -1,0 +1,55 @@
+form data-bind="validate: { success: save }"
+  .actions
+    = render :partial => "home/buttons", :locals => { :editable => true }
+
+  span#page-title
+    /! ko if: readonly
+    = t('views.legal_entities.page.title.show')
+    /! /ko
+    /! ko ifnot: readonly
+    /! ko if: id_presence
+    = t('views.legal_entities.page.title.edit')
+    /! /ko
+    /! ko ifnot: id_presence
+    = t('views.legal_entities.page.title.new')
+    /! /ko
+    /! /ko
+
+  = render 'home/errors'
+
+  fieldset
+    div
+      label for="legal_entity_name"
+        = t('views.legal_entities.name')
+        | :
+      input#legal_entity_name[type="text" name="#{t('views.legal_entities.name')}"
+                              rule="required"
+                              data-bind="value: object.legal_entity.name, disable: readonly"]
+    div data-bind='with: object.country'
+      label for="legal_entity_country"
+        = t('views.legal_entities.country')
+        | :
+      input#legal_entity_country[type="text" name="#{t('views.legal_entities.country')}"
+                                 rule="required"
+                                 data-bind="autocomplete: { source: 'countries.json', \
+                                                            value: 'tag', \
+                                                            bind: { id: $parent.object.legal_entity.country_id } \
+                                                          }, \
+                                             value: tag, disable: $parent.readonly"]
+    div
+      label for="legal_entity_ident_name"
+        = t('views.legal_entities.ident_name')
+        | :
+      select#legal_entity_ident_name[name="#{t('views.legal_entities.ident_name')}"
+                                     data-bind="value: object.legal_entity.identifier_name, \
+                                                disable: readonly"]
+        option value="MSRN" = t('views.waybills.ident_name_MSRN')
+        option value="VATIN" = t('views.waybills.ident_name_VATIN')
+    div
+      label for="legal_entity_ident_value"
+        = t('views.legal_entities.ident_value')
+        | :
+      input#legal_entity_ident_value[type="text" rule="required"
+                                     name="#{t('views.legal_entities.ident_value')}"
+                                     data-bind="value: object.legal_entity.identifier_value, \
+                                                disable: readonly"]

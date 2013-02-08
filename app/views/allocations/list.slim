@@ -1,0 +1,51 @@
+- content_for :search  do
+  = render 'filter'
+
+div.actions
+  ul.list-icons
+    li
+      a#table_view.button.table-view.pressed[href="#allocations?view=table"]
+    li
+      a#tree_view.button.tree-view[href="#allocations"]
+    li
+      = render partial: "state/filter"
+
+table
+  thead
+    tr
+      th#created data-bind="click: sortBy"
+        = t('views.allocations.created_at')
+        span
+      - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+        th#storekeeper data-bind="click: sortBy"
+          = t('views.allocations.storekeeper')
+          span
+        th#storekeeper_place data-bind="click: sortBy"
+          = t('views.allocations.storekeeper_place')
+          span
+      th#foreman data-bind="click: sortBy"
+        = t('views.allocations.foreman')
+        span
+      th#state data-bind="click: sortBy"
+        = t('views.statable.state')
+        span
+      th#resource_tag data-bind="click: sortBy"
+        = t('views.allocations.resource.tag')
+        span
+      th#resource_mu data-bind="click: sortBy"
+        = t('views.allocations.resource.mu')
+        span
+      th#resource_amount data-bind="click: sortBy"
+        = t('views.allocations.resource.amount')
+        span
+  tbody data-bind="foreach: documents"
+    tr data-bind="click: $parent.show"
+      td data-bind="text: created"
+      - if can?(:reverse, Waybill) && can?(:reverse, Allocation)
+        td data-bind="text: storekeeper"
+        td data-bind="text: storekeeper_place"
+      td data-bind="text: foreman"
+      td data-bind="text: state"
+      td data-bind="text: resource_tag"
+      td data-bind="text: resource_mu"
+      td data-bind="text: resource_amount"

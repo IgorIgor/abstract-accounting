@@ -14,7 +14,7 @@ class MoneyController < ApplicationController
   end
 
   def preview
-    render 'money/preview', layout: false
+    render 'preview', layout: false
   end
 
   def new

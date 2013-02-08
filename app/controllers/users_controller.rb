@@ -9,12 +9,12 @@
 
 class UsersController < ApplicationController
   def index
-    render "users/index", layout: false
+    render "index", layout: false
   end
 
   def preview
     @document_types = Document.documents
-    render "users/preview", layout: false
+    render "preview", layout: false
   end
 
   def new
@@ -49,13 +49,9 @@ class UsersController < ApplicationController
   end
 
   def data
-    page = params[:page].nil? ? 1 : params[:page].to_i
-    per_page = params[:per_page].nil? ?
-        Settings.root.per_page.to_i : params[:per_page].to_i
-    scope = User
-    scope = scope.joins{entity}.
-        order("#{params[:order][:field]} #{params[:order][:type]}") if params[:order]
-    @users = scope.limit(per_page).offset((page - 1) * per_page).all
+    filter = generate_paginate
+    filter[:sort] = params[:order] if params[:order]
+    @users = User.filtrate(filter).all
     @count = User.count
   end
 

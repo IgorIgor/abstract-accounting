@@ -17,7 +17,7 @@ class LegalEntitiesController < ApplicationController
   end
 
   def preview
-    render 'legal_entities/preview', layout: false
+    render 'preview', layout: false
   end
 
   def new
@@ -29,14 +29,13 @@ class LegalEntitiesController < ApplicationController
   end
 
   def list
-    page = params[:page].nil? ? 1 : params[:page].to_i
-    per_page = params[:per_page].nil? ?
-        Settings.root.per_page.to_i : params[:per_page].to_i
-    filter = { paginate: { page: page, per_page: per_page }}
-    filter[:sort] = params[:order] if params[:order]
+    filter = {}
     filter[:search] = params[:like]  if params[:like]
-    @entities = LegalEntity.filtrate(filter).all
+    @entities = LegalEntity.filtrate(filter)
     @count = @entities.count
+    filter = generate_paginate
+    filter[:sort] = params[:order] if params[:order]
+    @entities = @entities.filtrate(filter)
   end
 
   def create

@@ -19,20 +19,15 @@ class AssetsController < ApplicationController
       render :autocomplete
     else
       filter = {}
-      filter = {search: params[:like]} if params[:like]
+      filter[:search] = params[:like] if params[:like]
       @assets = Asset.filtrate(filter)
       @count = @assets.count
-      filter = {}
-      page = params[:page].nil? ? 1 : params[:page].to_i
-      per_page = params[:per_page].nil? ?
-          Settings.root.per_page.to_i : params[:per_page].to_i
-      filter[:paginate] = { page: page, per_page: per_page }
-      @assets = @assets.filtrate(filter)
+      @assets = @assets.filtrate(generate_paginate)
     end
   end
 
   def preview
-    render 'assets/preview', layout: false
+    render 'preview', layout: false
   end
 
   def new

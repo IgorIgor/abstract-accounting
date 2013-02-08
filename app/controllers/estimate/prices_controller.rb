@@ -14,15 +14,11 @@ module Estimate
     end
 
     def data
-      page = params[:page].nil? ? 1 : params[:page].to_i
-      per_page = params[:per_page].nil? ?
-          Settings.root.per_page.to_i : params[:per_page].to_i
-
       scope = Price
       scope = scope.with_catalog_id(params[:catalog_id]) if params[:catalog_id]
       @count = scope.count
 
-      filter = { paginate: { page: page, per_page: per_page }}
+      filter = generate_paginate
       filter[:sort] = params[:order] if params[:order]
       @prices = scope.filtrate(filter).all
     end

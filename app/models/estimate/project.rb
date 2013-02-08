@@ -13,6 +13,9 @@ module Estimate
     belongs_to :customer, polymorphic: true
     belongs_to :place
 
+    include Helpers::Commentable
+    has_comments
+
     custom_sort(:customer_tag) do |dir|
       query = "case customer_type
                   when 'Entity'      then entities.tag

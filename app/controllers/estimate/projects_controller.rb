@@ -9,12 +9,14 @@
 
 module Estimate
   class ProjectsController < ApplicationController
+    layout 'comments'
+
     def index
       render 'index', layout: false
     end
 
     def preview
-      render 'preview', layout: false
+      render 'preview'
     end
 
     def new

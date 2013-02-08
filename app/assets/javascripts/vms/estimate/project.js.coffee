@@ -1,5 +1,5 @@
 $ ->
-  class self.EstimateProjectViewModel extends EditableObjectViewModel
+  class self.EstimateProjectViewModel extends CommentableViewModel
     constructor: (object, readonly = false) ->
       super(object, 'estimate/projects', readonly)
 

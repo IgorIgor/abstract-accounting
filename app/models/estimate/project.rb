@@ -13,6 +13,8 @@ module Estimate
     belongs_to :customer, polymorphic: true
     belongs_to :place
 
+    has_many :locals
+
     include Helpers::Commentable
     has_comments
 

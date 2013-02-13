@@ -18,6 +18,7 @@ describe Estimate::Project do
     should belong_to :customer
     should belong_to :place
     should have_many Estimate::Project.versions_association_name
+    should have_many :locals
   end
 
   it 'should sort projects' do

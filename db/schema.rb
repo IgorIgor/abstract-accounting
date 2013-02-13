@@ -183,6 +183,7 @@ ActiveRecord::Schema.define(:version => 20130213095323) do
     t.datetime "date"
     t.string   "tag"
     t.datetime "approved"
+    t.integer  "project_id"
   end
 
   add_index "estimate_locals", ["catalog_id"], :name => "index_estimates_on_catalog_id"

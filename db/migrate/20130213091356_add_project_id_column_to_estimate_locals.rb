@@ -7,16 +7,8 @@
 #
 # Please see ./COPYING for details
 
-module Estimate
-  class Local < Base
-    validates_presence_of :tag, :catalog_id, :date, :project_id
-
-    belongs_to :catalog
-    belongs_to :project
-
-    has_many :items, class_name: LocalElement, foreign_key: :local_id
-
-    include Helpers::Commentable
-    has_comments
+class AddProjectIdColumnToEstimateLocals < ActiveRecord::Migration
+  def change
+    add_column :estimate_locals, :project_id, :integer
   end
 end

@@ -214,6 +214,7 @@ FactoryGirl.define do
   factory :local, class: Estimate::Local do
     sequence(:tag) { |n| "local##{n}" }
     catalog
+    project
     date DateTime.now
   end
 end

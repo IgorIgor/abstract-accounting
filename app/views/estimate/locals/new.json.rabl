@@ -9,7 +9,7 @@
 
 object false
 child(@local => :local) do
-  attributes :tag, :catalog_id
+  attributes :tag, :catalog_id, :project_id
   node(:date) { Date.today.strftime('%Y-%m-%d') }
 end
 child(Estimate::Catalog.new => :catalog) do

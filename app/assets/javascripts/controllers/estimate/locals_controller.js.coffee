@@ -2,7 +2,7 @@ $ ->
   class self.LocalsController extends self.ApplicationController
     new: =>
       @render 'estimate/locals/preview'
-      $.getJSON("estimate/locals/new.json", {}, (object) ->
+      $.getJSON("estimate/locals/new.json", normalizeHash(this.params.toHash()), (object) ->
         self.application.object(new EstimateLocalViewModel(object))
       )
 

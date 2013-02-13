@@ -25,7 +25,8 @@
 #= require koExternalTemplateEngine
 #
 #= require_tree ./lib
-#= require vms/base
+#= require vms/common/base
+#= require_tree ./vms/common
 #= require_tree ./vms
 #= require controllers/application_controller
 #= require_tree ./controllers

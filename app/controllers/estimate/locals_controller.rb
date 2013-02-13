@@ -22,6 +22,7 @@ module Estimate
     def data
       scope = Local
       scope = scope.search(params[:like]) if params[:like]
+      scope = scope.by_project(params[:project_id]) if params[:project_id]
       @count = scope.count
 
       filter = generate_paginate

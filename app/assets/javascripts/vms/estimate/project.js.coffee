@@ -10,6 +10,10 @@ $ ->
       @dialog_id = null
       @dialog_element_id = null
 
+      if readonly
+        @object.locals = ko.observable(new EstimateLocalsViewModel({objects: []}, {project_id: @object.id()}))
+        @object.locals().getPaginateData()
+
     namespace: =>
       ""
 

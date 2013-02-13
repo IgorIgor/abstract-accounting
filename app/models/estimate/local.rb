@@ -18,5 +18,11 @@ module Estimate
 
     include Helpers::Commentable
     has_comments
+
+    class << self
+      def by_project(pid)
+        where{project_id == pid}
+      end
+    end
   end
 end

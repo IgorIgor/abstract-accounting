@@ -20,7 +20,4 @@ child(@project => :project) do
   child(Entity.new => :entity) do
     attributes :tag
   end
-  child([] => :locals) do
-    attributes :tag, :date
-  end
 end

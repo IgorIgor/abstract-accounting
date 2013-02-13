@@ -12,7 +12,7 @@ class CommentsController < ApplicationController
     scope = Comment.with_item(params[:item_id],params[:item_type])
     @count = scope.count
     scope = scope.filtrate(generate_paginate) if params[:paginate]
-    @comments = scope
+    @comments = scope.includes(user: [:entity])
   end
 
   def create

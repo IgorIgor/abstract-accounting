@@ -15,5 +15,8 @@ module Estimate
     belongs_to :project
 
     has_many :items, class_name: LocalElement, foreign_key: :local_id
+
+    include Helpers::Commentable
+    has_comments
   end
 end

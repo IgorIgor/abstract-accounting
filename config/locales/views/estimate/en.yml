@@ -64,7 +64,6 @@ en:
       rate: "Rate"
       cost: "Cost"
       code: "Cipher resource"
-      price: "Price"
       filter:
         and: and
         or: or

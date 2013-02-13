@@ -66,13 +66,7 @@
     <tr data-bind="attr: {id: 'resource_' + id}, with: subitems">
       <td></td>
       <td colspan="7" class="td-inner-table">
-        <div class="paginate">
-          <span data-bind="text: range"></span> <%= t('views.home.of') %>
-          <span data-bind="text: count"></span>
-          <input type="button" value="<" data-bind="click: prev, disable: page() < 2"/>
-          <input type="button" class="paginate-right" value=">"
-                 data-bind="click: next, disable: page()*per_page() >= count()"/>
-        </div>
+        <%= render :partial => "home/items_paginate" %>
         <table class="inner-table">
           <thead>
             <tr>

@@ -59,3 +59,4 @@ ru:
       fact: Проводка
       notify: Уведомить
       notifications: Уведомления
+      foreman_report: "Отчет для бригадира"

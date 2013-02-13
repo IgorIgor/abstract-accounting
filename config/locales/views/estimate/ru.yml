@@ -64,7 +64,6 @@ ru:
       rate: "Количество"
       cost: "Цена"
       code: "Шифр ресурса"
-      price: "Цена"
       filter:
         and: и
         or: или

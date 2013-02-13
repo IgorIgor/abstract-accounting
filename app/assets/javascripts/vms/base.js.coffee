@@ -143,6 +143,9 @@ $ ->
       @message = ko.observable('')
       @messages = ko.observableArray([])
       @getMessages()
+      @disableSaveComment = ko.computed( =>
+        @message() == ''
+      )
 
     getMessages: =>
       params =
@@ -150,7 +153,7 @@ $ ->
         item_type: @object.type
 
       $.getJSON('/comments.json', params, (comments) =>
-        @messages(comments)
+        @messages(comments.objects)
       )
 
     saveComment: =>

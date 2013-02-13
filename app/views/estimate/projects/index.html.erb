@@ -1,6 +1,7 @@
 <table>
   <thead>
     <tr>
+      <th></th>
       <th id="customer_tag" data-bind="click: sortBy">
         <%= t('views.estimates.projects.customer') %><span></span>
       </th>
@@ -10,9 +11,20 @@
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">
-    <tr data-bind="click: $parent.show">
-      <td data-bind="text: customer.tag"></td>
-      <td data-bind="text: place.tag"></td>
+    <tr>
+      <td class='with-comment' data-bind="text: comments_count, click: $parent.receiveComments"></td>
+      <td data-bind="text: customer.tag, click: $parent.show"></td>
+      <td data-bind="text: place.tag, click: $parent.show"></td>
     </tr>
+    <tr data-bind="with: subitems">
+      <td rowspan="2"></td>
+      <td colspan="2">
+        <%= render :partial => "home/items_paginate" %>
+      </td>
+    </tr>
+    <tr data-bind="with: subitems">
+      <td colspan="2" class="padright padbot">
+        <%= render :partial => "home/comments", :locals => { :items => 'documents' } %>
+      </td>
   </tbody>
 </table>

@@ -808,6 +808,8 @@ input[type=button]:disabled, input[type=submit]:disabled {
 
 .margbot { margin-bottom: 10px!important; }
 
+.padbot { padding-bottom: 5px!important; }
+
 .padleft { padding-left: 5px;}
 
 .width { width:100%; }
@@ -818,7 +820,16 @@ input[type=button]:disabled, input[type=submit]:disabled {
   background-position: center;
 }
 
+.with-comment {
+  width: 35px;
+  background: url("comment.png") no-repeat;
+  background-position: left;
+  text-align: right;
+}
+
 .width550 { width:550px!important;}
+
+.padright { padding-right: 16px!important;}
 
 .withoutborder {
   td {

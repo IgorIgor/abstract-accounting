@@ -487,6 +487,9 @@ input[type=button]:disabled, input[type=submit]:disabled {
             background: #fff;
           }
         }
+        table.withoutmargin {
+          margin: 0;
+        }
 
         legend{
           font-size: smaller;

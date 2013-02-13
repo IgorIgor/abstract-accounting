@@ -22,9 +22,21 @@ child(@local.items => :items) do
   child(:price) do
     attributes :id
     child(:bo_m => :bom) do
-      attributes :id, :uid
+      attributes :id, :uid, :workers_amount, :avg_work_level, :drivers_amount
       child(:resource => :resource) do
         attributes :tag, :mu
+      end
+      child(:machinery => :machinery) do
+        attributes :uid, :amount
+        glue(:resource => :resource) do
+          attributes :tag, :mu
+        end
+      end
+      child(:materials => :materials) do
+        attributes :uid, :amount
+        glue(:resource => :resource) do
+          attributes :tag, :mu
+        end
       end
     end
   end

@@ -7,8 +7,8 @@ $ ->
       @select_item = ko.observable(null)
       @dialog_id = null
       @dialog_element_id = null
-
       @idx = 0
+      @openedBomIds = ko.observableArray([])
 
       @can_add_items = ko.computed(=>
         @object.catalog.id()? && @object.local.date()?
@@ -41,6 +41,20 @@ $ ->
     apply: =>
       @disable(true)
       @ajaxRequest('GET', "/#{@route}/#{@object.id()}/apply", {}, true)
+
+    resourceVisibility: (bomId) =>
+      bomId in @openedBomIds()
+
+    showResources: (obj, event) =>
+      el = $(event.target).find('span')
+      el = $(event.target) unless el.length
+      el.toggleClass('ui-icon-circle-plus')
+      el.toggleClass('ui-icon-circle-minus')
+
+      if obj.price.bom.id() in @openedBomIds()
+        @openedBomIds.remove(obj.price.bom.id())
+      else
+        @openedBomIds.push(obj.price.bom.id())
 
     itemsRefindByCatalog: (val) =>
       item = @object.items()[@idx]

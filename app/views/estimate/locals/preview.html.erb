@@ -88,6 +88,9 @@
     <table class="elements-align-center">
       <thead>
         <tr>
+          <!-- ko if: readonly -->
+          <th></th>
+          <!-- /ko -->
           <th class="col-width"><%= t('views.estimates.code') %></th>
           <th><%= t('views.resources.tag') %></th>
           <th class="col-width"><%= t('views.resources.mu') %></th>
@@ -98,6 +101,11 @@
       <tbody data-bind="foreach: { data: object.items }">
         <tr data-bind="attr: { idx: $parent.object.items.indexOf($data),
                                 id: 'item_' + $parent.object.items.indexOf($data) }">
+          <!-- ko if: $parent.readonly -->
+          <td data-bind="click: $parent.showResources" class="tree-actions">
+              <span class="ui-icon ui-icon-circle-plus ui-corner-all ui-state-hover"></span>
+          </td>
+          <!-- /ko -->
           <td>
             <input type="text" rule="required"
                    data-bind="value: price.bom.uid, disable: $parent.readonly,
@@ -138,6 +146,92 @@
           </td>
           <!-- /ko -->
         </tr>
+        <!-- ko if: $parent.readonly -->
+        <tr data-bind="visible: $parent.resourceVisibility($data.price.bom.id())">
+          <td></td>
+          <td colspan="4" class="td-inner-table">
+            <table class="elements-align-center inner-table withoutmargin">
+              <thead>
+              <tr>
+                <th class="col-width"><%= t('views.estimates.code') %></th>
+                <th><%= t('views.resources.tag') %></th>
+                <th class="col-width"><%= t('views.resources.mu') %></th>
+                <th class="col-width"><%= t('views.estimates.rate') %></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr class="font-bold" data-bind="visible: price.bom.workers_amount">
+                <td>1</td>
+                <td><%= t('views.estimates.elements.builders') %></td>
+                <td><%= t('views.estimates.elements.mu.people') %></td>
+                <td><input type="text"
+                           data-bind="value: price.bom.workers_amount, disable: true">
+                </td>
+              </tr>
+              <tr data-bind="visible: price.bom.avg_work_level">
+                <td>1.1</td>
+                <td><%= t('views.estimates.elements.rank') %></td>
+                <td></td>
+                <td><input type="text" id="rank"
+                           data-bind="value: price.bom.avg_work_level, disable: true">
+                </td>
+              </tr>
+              <tr class="font-bold" data-bind="visible: price.bom.drivers_amount">
+                <td>2</td>
+                <td><%= t('views.estimates.elements.machinist') %></td>
+                <td><%= t('views.estimates.elements.mu.people') %></td>
+                <td><input type="text"
+                           data-bind="value: price.bom.drivers_amount, disable: true">
+                </td>
+              </tr>
+              <tr class="font-bold" data-bind="visible: price.bom.machinery().length > 0">
+                <td>3</td>
+                <td><%= t('views.estimates.elements.machinery') %></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <!-- ko foreach: price.bom.machinery -->
+              <tr>
+                <td>
+                  <input type="text" data-bind="value: uid, disable: true">
+                </td>
+                <td>
+                  <input type="text"
+                         data-bind="value: tag, disable: true">
+                </td>
+                <td><%= t('views.estimates.elements.mu.machine') %></td>
+                <td>
+                  <input type="text" data-bind="value: amount, disable: true">
+                </td>
+              </tr>
+              <!-- /ko -->
+              <tr class="font-bold" data-bind="visible: price.bom.materials().length > 0">
+                <td>4</td>
+                <td><%= t('views.estimates.elements.resources') %></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <!-- ko foreach: price.bom.materials -->
+              <tr>
+                <td><input type="text"
+                           data-bind="value: uid, disable: true">
+                </td>
+                <td><input type="text"
+                           data-bind="value: tag, disable: true">
+                </td>
+                <td><input type="text"
+                           data-bind="value: mu, disable: true">
+                </td>
+                <td><input type="text"
+                           data-bind="value: amount, disable: true">
+                </td>
+              </tr>
+              <!-- /ko -->
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <!-- /ko -->
       </tbody>
     </table>
     <input type="button" value="<%= t('views.waybills.add') %>"

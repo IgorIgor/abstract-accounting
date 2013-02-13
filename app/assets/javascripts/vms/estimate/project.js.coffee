@@ -50,6 +50,12 @@ $ ->
           $(div).css('display', 'none')
       )
 
+    showLocal: (object) =>
+      location.hash = "#estimate/locals/#{object.id()}"
+
+    addLocal: =>
+      location.hash = "#estimate/locals/new?#{$.param(project_id: @object.id())}"
+
   class self.ProjectPlacesViewModel extends FolderViewModel
     constructor: (data) ->
       @url = 'places/data.json'

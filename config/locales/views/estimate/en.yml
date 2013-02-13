@@ -76,6 +76,9 @@ en:
             new: New project
         place: Place
         customer: Customer
+        locals:
+          name: Local estimate
+          add: Add local estimate
       locals:
         tag: Tag
         date: Date

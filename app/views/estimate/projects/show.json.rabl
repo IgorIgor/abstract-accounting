@@ -30,4 +30,8 @@ child(@project => :project) do
       attributes :tag
     end
   end
+  child(:locals => :locals) do
+    attributes :id, :tag
+    node(:date) { Date.today.strftime('%Y-%m-%d') }
+  end
 end

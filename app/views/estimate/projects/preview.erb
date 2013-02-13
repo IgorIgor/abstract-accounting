@@ -138,7 +138,30 @@
         </span>
       </div>
     </div>
-    </fieldset>
+  </fieldset>
+  <!-- ko if: readonly -->
+  <fieldset>
+    <legend><%= t 'views.estimates.projects.locals.name' %></legend>
+    <input type="button" data-bind="click: addLocal, disable: !readonly()"
+           value="<%= t 'views.estimates.projects.locals.add' %>"/>
+    <table>
+      <thead>
+        <tr>
+          <th><%= t 'views.estimates.locals.tag' %></th>
+          <th><%= t 'views.estimates.locals.date' %></th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach: object.project.locals">
+        <tr>
+          <td data-bind="text: tag, click: $parent.showLocal"></td>
+          <td data-bind="text: date, click: $parent.showLocal"></td>
+        </tr>
+      </tbody>
+    </table>
+    <input type="button" data-bind="click: addLocal, disable: !readonly()"
+           value="<%= t 'views.estimates.projects.locals.add' %>"/>
+  </fieldset>
+  <!-- /ko -->
 </form>
 
 <%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'places_selector',

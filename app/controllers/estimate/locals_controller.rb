@@ -28,7 +28,7 @@ module Estimate
     end
 
     def new
-      @local = Local.new
+      @local = Local.new(project_id: params[:project_id])
     end
 
     def create

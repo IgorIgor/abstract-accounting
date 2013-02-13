@@ -11,12 +11,16 @@ require 'spec_helper'
 
 describe Estimate::LocalElement do
   it "should have next behaviour" do
-    Estimate::LocalElement.create!(:local_id => 0, :price_list_id => 0, :amount => 10)
-    should validate_presence_of :price_list_id
+    Estimate::LocalElement.create!(local_id: 0, price_id: 0, amount: 10)
+
+    should validate_presence_of :price_id
     should validate_presence_of :amount
-    should validate_uniqueness_of(:price_list_id).scoped_to(:local_id)
-    should belong_to :estimate
-    should belong_to(:price_list).class_name(Estimate::PriceList)
+
+    should validate_uniqueness_of(:price_id).scoped_to(:local_id)
+
+    should belong_to :local
+    should belong_to :price
+
     should have_many Estimate::LocalElement.versions_association_name
   end
 end

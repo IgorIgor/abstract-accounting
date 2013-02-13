@@ -81,6 +81,7 @@ en:
         date: Date
         catalog: Catalog
         amount: Amount
+        approved: Approved
         page:
           title:
             show: Show local estimate

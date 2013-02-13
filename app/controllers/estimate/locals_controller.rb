@@ -74,5 +74,14 @@ module Estimate
     def show
       @local = Local.find(params[:id])
     end
+
+    def apply
+      local = Local.find(params[:id])
+      if local.update_attribute(:approved, DateTime.now)
+        render json: { result: 'success', id: local.id }
+      else
+        render json: local.errors.full_messages
+      end
+    end
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130213074351) do
+ActiveRecord::Schema.define(:version => 20130213095323) do
 
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
@@ -182,6 +182,7 @@ ActiveRecord::Schema.define(:version => 20130213074351) do
     t.integer  "catalog_id"
     t.datetime "date"
     t.string   "tag"
+    t.datetime "approved"
   end
 
   add_index "estimate_locals", ["catalog_id"], :name => "index_estimates_on_catalog_id"

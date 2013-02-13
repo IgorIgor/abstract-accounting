@@ -1,6 +1,8 @@
 <form data-bind="validate: { success: save }">
   <div class='actions'>
     <%= render :partial => "home/buttons", :locals => { :editable => true } %>
+    <input type='button' value="<%= t('views.statable.buttons.apply') %>"
+           data-bind='click: apply, visible: visibleApply(), disable: disableButton()'/>
   </div>
 
   <span id="page-title">
@@ -21,6 +23,16 @@
 
   <fieldset>
     <div>
+      <div data-bind="visible: object.local.approved">
+        <span class="form-cell-label">
+          <label for="local_approved"><%= t('views.estimates.locals.approved') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="local_approved"
+                 name="<%= t('views.estimates.locals.approved') %>"
+                 data-bind="value: object.local.approved, disable: true">
+        </span>
+      </div>
       <div>
         <span class="form-cell-label">
           <label for="local_tag"><%= t('views.estimates.locals.tag') %>:</label>

@@ -2,7 +2,6 @@ $ ->
   class self.EstimateLocalViewModel extends CommentableViewModel
     constructor: (object, readonly = false) ->
       super(object, 'estimate/locals', readonly)
-
       @dialog_catalogs = ko.observable(null)
       @dialog_boms = ko.observable(null)
       @select_item = ko.observable(null)
@@ -29,6 +28,19 @@ $ ->
 
     namespace: =>
       ""
+
+    visibleApply: =>
+      @readonly() && !@object.local.approved()?
+
+    disableEdit: =>
+      @disable() || !@readonly() || @object.local.approved()?
+
+    disableButton: =>
+      @disable()
+
+    apply: =>
+      @disable(true)
+      @ajaxRequest('GET', "/#{@route}/#{@object.id()}/apply", {}, true)
 
     itemsRefindByCatalog: (val) =>
       item = @object.items()[@idx]

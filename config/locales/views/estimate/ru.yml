@@ -81,6 +81,7 @@ ru:
         date: Дата создания
         catalog: Каталог
         amount: Объём
+        approved: Применено
         page:
           title:
             show: Просмотр локальной сметы

@@ -198,6 +198,9 @@ Abstract::Application.routes.draw do
         get 'data'
         get 'preview'
       end
+      member do
+        get 'apply'
+      end
     end
     resources :projects, except: [:destroy] do
       collection do

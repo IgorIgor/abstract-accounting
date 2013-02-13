@@ -12,5 +12,8 @@ module Estimate
     validates_presence_of :tag, :catalog_id, :date
     belongs_to :catalog, class_name: "Estimate::Catalog"
     has_many :items, class_name: LocalElement, foreign_key: :local_id
+
+    include Helpers::Commentable
+    has_comments
   end
 end

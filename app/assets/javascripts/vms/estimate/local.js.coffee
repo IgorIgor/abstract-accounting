@@ -1,5 +1,5 @@
 $ ->
-  class self.EstimateLocalViewModel extends EditableObjectViewModel
+  class self.EstimateLocalViewModel extends CommentableViewModel
     constructor: (object, readonly = false) ->
       super(object, 'estimate/locals', readonly)
 

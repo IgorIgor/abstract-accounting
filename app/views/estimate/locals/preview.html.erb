@@ -85,17 +85,33 @@
                               },
                       dialogId: 'boms_selector',
                       disable: readonly() || !can_add_items()"/>
-    <table class="elements-align-center">
+    <div class="overflow">
+    <table class="elements-align-center withoutmargin">
       <thead>
         <tr>
-          <!-- ko if: readonly -->
-          <th></th>
-          <!-- /ko -->
-          <th class="col-width"><%= t('views.estimates.code') %></th>
-          <th><%= t('views.resources.tag') %></th>
-          <th class="col-width"><%= t('views.resources.mu') %></th>
-          <th class="col-width"><%= t('views.estimates.locals.amount') %></th>
-          <th></th>
+          <th rowspan="3"></th>
+          <th class="col-width" rowspan="3"><%= t('views.estimates.code') %></th>
+          <th class="tag-width" rowspan="3"><%= t('views.resources.tag') %></th>
+          <th class="col-width" rowspan="3"><%= t('views.resources.mu') %></th>
+          <th class="col-width" rowspan="3"><%= t('views.estimates.locals.amount') %></th>
+          <th colspan="10"><%= t 'views.estimates.locals.prices.one' %></th>
+          <th colspan="10"><%= t 'views.estimates.locals.prices.all' %></th>
+        </tr>
+        <tr class="with-pad">
+          <th colspan="6" rowspan="2"><%= t 'views.estimates.locals.prices.total' %></th>
+          <th colspan="4"><%= t 'views.estimates.locals.prices.including' %></th>
+          <th colspan="6" rowspan="2"><%= t 'views.estimates.locals.prices.total' %></th>
+          <th colspan="4"><%= t 'views.estimates.locals.prices.including' %></th>
+        </tr>
+        <tr class="with-pad">
+          <th><%= t 'views.estimates.locals.prices.basic' %></th>
+          <th><%= t 'views.estimates.locals.prices.machine_operation' %></th>
+          <th><%= t 'views.estimates.locals.prices.machine_salary' %></th>
+          <th><%= t 'views.estimates.locals.prices.materials' %></th>
+          <th><%= t 'views.estimates.locals.prices.basic' %></th>
+          <th><%= t 'views.estimates.locals.prices.machine_operation' %></th>
+          <th><%= t 'views.estimates.locals.prices.machine_salary' %></th>
+          <th><%= t 'views.estimates.locals.prices.materials' %></th>
         </tr>
       </thead>
       <tbody data-bind="foreach: { data: object.items }">
@@ -104,6 +120,11 @@
           <!-- ko if: $parent.readonly -->
           <td data-bind="click: $parent.showResources" class="tree-actions">
               <span class="ui-icon ui-icon-circle-plus ui-corner-all ui-state-hover"></span>
+          </td>
+          <!-- /ko -->
+          <!-- ko ifnot: $parent.readonly -->
+          <td class="table-actions">
+            <label data-bind="click: $parent.removeItem"></label>
           </td>
           <!-- /ko -->
           <td>
@@ -135,16 +156,22 @@
           <td>
             <input type="text" rule="required_num"
                    data-bind="value: amount, disable: $parent.readonly,
+                              valueUpdate: 'afterkeydown',
                               attr: { id: 'price_' + $parent.object.items.indexOf($data),
                                       name: '<%=t 'views.waybills.item' %>#' +
                                       $parent.object.items.indexOf($data) +
                                       ' <%=t 'views.waybills.price' %>'}" />
           </td>
-          <!-- ko ifnot: $parent.readonly -->
-          <td class="table-actions">
-            <label data-bind="click: $parent.removeItem"></label>
-          </td>
-          <!-- /ko -->
+          <td data-bind="text: price.direct_cost" colspan="6"></td>
+          <td data-bind="text: price.workers_cost"></td>
+          <td data-bind="text: price.drivers_cost"></td>
+          <td data-bind="text: price.machinery_cost"></td>
+          <td data-bind="text: price.materials_cost"></td>
+          <td data-bind="text: total_direct_cost" colspan="6"></td>
+          <td data-bind="text: total_workers_cost"></td>
+          <td data-bind="text: total_drivers_cost"></td>
+          <td data-bind="text: total_machinery_cost"></td>
+          <td data-bind="text: total_materials_cost"></td>
         </tr>
         <!-- ko if: $parent.readonly -->
         <tr data-bind="visible: $parent.resourceVisibility($data.price.bom.id())">
@@ -234,6 +261,7 @@
         <!-- /ko -->
       </tbody>
     </table>
+    </div>
     <input type="button" value="<%= t('views.waybills.add') %>"
            data-bind="dialog: { autoOpen: false,
                                 modal: true,

@@ -23,4 +23,11 @@ describe Estimate::LocalElement do
 
     should have_many Estimate::LocalElement.versions_association_name
   end
+
+  it 'should calculate total sum' do
+    p = create :price
+    l = Estimate::LocalElement.create(price_id: p.id, local_id: 1, amount: 15.0)
+    l.total(:direct_cost).should eq 150
+    l.total(:direct_cost).should eq l.price.direct_cost * l.amount
+  end
 end

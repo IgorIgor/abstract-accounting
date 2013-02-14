@@ -13,5 +13,9 @@ module Estimate
     validates_uniqueness_of :price_id, :scope => :local_id
     belongs_to :price
     belongs_to :local
+
+    def total(field)
+      self.price.send(field) * self.amount
+    end
   end
 end

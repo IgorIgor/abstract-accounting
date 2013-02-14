@@ -8,7 +8,7 @@
 # Please see ./COPYING for details
 
 object @price
-attributes :id
+attributes :id, :direct_cost, :workers_cost, :machinery_cost, :drivers_cost, :materials_cost
 child(@bom => :bom) do
   attributes :id
   child(:resource => :resource) do

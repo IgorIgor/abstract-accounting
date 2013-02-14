@@ -90,3 +90,12 @@ en:
             show: Show local estimate
             edit: Edit local estimate
             new: New local estimate
+        prices:
+          total: Direct costs
+          including: including
+          one: Cost per unit
+          all: Total cost
+          basic: basic salary
+          machine_operation: operation of machine
+          machine_salary: salary of machine
+          materials: cost of materials

@@ -335,6 +335,10 @@ input[type=button]:disabled, input[type=submit]:disabled {
         }
       }
 
+      tr.with-pad th{
+        padding: 0 4px;
+      }
+
       th {
         border-right: $table_border;
         border-bottom: $table_border;
@@ -838,6 +842,14 @@ input[type=button]:disabled, input[type=submit]:disabled {
   td {
     border: none!important;
   }
+}
+
+.overflow {
+  padding-top: 10px;
+  margin-bottom: 10px;
+  display: block!important;
+  overflow-x: scroll;
+  z-index: 2000;
 }
 
 table {

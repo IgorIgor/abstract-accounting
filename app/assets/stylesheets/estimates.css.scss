@@ -57,7 +57,10 @@
     text-align: center;
   }
   .col-width {
-    width: 100px!important;
+    min-width: 100px;
+  }
+  .tag-width {
+    min-width: 200px;
   }
   .font-bold {
     font-weight: bold;

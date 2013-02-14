@@ -13,14 +13,19 @@ node(:type) { @local.class.name }
 child(@local => :local) do
   attributes :tag, :date, :catalog_id
   child(@local.catalog => :catalog) { attributes :id, :tag }
-  node(:approved) { |l| l.approved.strftime('%Y-%m-%d') if l.approved}
+  node(:approved) { |l| l.approved.strftime('%Y-%m-%d') if l.approved }
 end
 child(@local.catalog => :catalog) { attributes :id, :tag }
 child(@local.items => :items) do
   attributes :amount
   node(:correct) { true }
+  node(:total_direct_cost) { |l| l.total(:direct_cost) }
+  node(:total_workers_cost) { |l| l.total(:workers_cost) }
+  node(:total_machinery_cost) { |l| l.total(:machinery_cost) }
+  node(:total_drivers_cost) { |l| l.total(:drivers_cost) }
+  node(:total_materials_cost) { |l| l.total(:materials_cost) }
   child(:price) do
-    attributes :id
+    attributes :id, :direct_cost, :workers_cost, :machinery_cost, :drivers_cost, :materials_cost
     child(:bo_m => :bom) do
       attributes :id, :uid, :workers_amount, :avg_work_level, :drivers_amount
       child(:resource => :resource) do

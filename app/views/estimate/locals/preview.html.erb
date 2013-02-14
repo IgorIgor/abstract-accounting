@@ -152,12 +152,13 @@
   </fieldset>
 </form>
 
-<%= render :partial => "home/select_dialog",
-           :locals => { :dialog_id => 'catalogs_selector',
-                        :dialog_model => 'dialog_catalogs',
-                        :data_path => 'estimate/catalogs/catalogs' } %>
+<%= render partial: "home/select_dialog",
+           locals: { dialog_id: 'catalogs_selector',
+                     dialog_model: 'dialog_catalogs',
+                     data_path: 'estimate/catalogs/catalogs' } %>
 
-<%= render :partial => "home/select_dialog",
-           :locals => { :dialog_id => 'boms_selector',
-                        :dialog_model => 'dialog_boms',
-                        :data_path => 'estimate/bo_ms/boms' } %>
+<%= render partial: "home/select_dialog",
+           locals: { dialog_id: 'boms_selector',
+                     dialog_model: 'dialog_boms',
+                     data_path: 'estimate/bo_ms/boms',
+                     custom_search: 'estimate/bo_ms/dialog_search' } %>

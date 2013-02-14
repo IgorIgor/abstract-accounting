@@ -115,24 +115,12 @@ $ ->
       @dialog_element_id = dialog_element_id
       if dialogId == 'boms_selector'
         $.getJSON('estimate/bo_ms/data.json', {catalog_pid: @object.local.catalog_id()}, (data) =>
-          @dialog_boms(new LocalBomsViewModel(data, @object.local.catalog_id()))
+          @dialog_boms(new DialogEstimateBomsViewModel(data, @object.local.catalog_id()))
         )
       if dialogId == 'catalogs_selector'
         $.getJSON('estimate/catalogs/data.json', {}, (data) =>
           @dialog_catalogs(new LocalCatalogsViewModel(data))
         )
-
-  class self.LocalBomsViewModel extends FolderViewModel
-    constructor: (data, catalog_pid) ->
-      @url = 'estimate/bo_ms/data.json'
-      @filter =
-        tag: ko.observable('')
-        catalog_pid: catalog_pid
-
-      super(data)
-
-    select: (object) =>
-      window.application.object().select(object)
 
   class self.LocalCatalogsViewModel extends FolderViewModel
     constructor: (data) ->

@@ -20,7 +20,6 @@ class TranscriptsController < ApplicationController
       @transcript = Transcript.new(Deal.find(params[:deal_id]),
                                    DateTime.parse(params[:date_from]),
                                    DateTime.parse(params[:date_to]))
-
       @transcripts = @transcript.all({per_page: params[:per_page], page: params[:page] || 1, order: params[:order] || nil}).
                                 includes(fact: [:from, :to])
     end

@@ -7,12 +7,12 @@
 #
 # Please see ./COPYING for details
 
-object false
-child(@local => :local) do
-  attributes :tag, :project_id
-  node(:date) { Date.today.strftime('%Y-%m-%d') }
+class RemoveCatalogIdFromEstimateLocals < ActiveRecord::Migration
+  def up
+    remove_column :estimate_locals, :catalog_id
+  end
+
+  def down
+    add_column :estimate_locals, :catalog_id, :integer
+  end
 end
-child(@local.boms_catalog => :boms_catalog) do
-  attributes :id, :tag
-end
-child([] => :items)

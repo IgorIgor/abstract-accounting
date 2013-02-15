@@ -2,14 +2,13 @@ $ ->
   class self.EstimateProjectViewModel extends CommentableViewModel
     constructor: (object, readonly = false) ->
       super(object, 'estimate/projects', readonly)
-
+      @dialog_catalogs = ko.observable(null)
       @dialog_places = ko.observable(null)
       @dialog_entities = ko.observable(null)
       @dialog_legal_entities = ko.observable(null)
       @select_item = ko.observable(null)
       @dialog_id = null
       @dialog_element_id = null
-
       if readonly
         @object.locals = ko.observable(new EstimateLocalsViewModel({objects: []}, {project_id: @object.id()}))
         @object.locals().getPaginateData()
@@ -20,6 +19,9 @@ $ ->
     select: (object) =>
       @select_item(object)
       $("##{@dialog_id}").dialog( "close" )
+      if @dialog_id == 'catalogs_selector'
+        @object.project.boms_catalog.id(object.id)
+        @object.project.boms_catalog.tag(object.tag)
 
     setDialogViewModel: (dialogId, dialog_element_id) =>
       @dialog_id = dialogId
@@ -35,6 +37,10 @@ $ ->
       if dialogId == 'legal_entities_selector'
         $.getJSON('legal_entities/list.json', {}, (data) =>
           @dialog_legal_entities(new ProjectLegalEntitiesViewModel(data))
+        )
+      if dialogId == 'catalogs_selector'
+        $.getJSON('estimate/catalogs/data.json', {}, (data) =>
+          @dialog_catalogs(new ProjectCatalogsViewModel(data))
         )
 
     clearCustomerId: =>
@@ -86,6 +92,29 @@ $ ->
       @filter =
         name: ko.observable('')
       super(data)
+
+    select: (object) =>
+      window.application.object().select(object)
+
+  class self.ProjectCatalogsViewModel extends FolderViewModel
+    constructor: (data) ->
+      @url = 'estimate/catalogs/data.json'
+      @filter =
+        tag: ko.observable('')
+      @parents = ko.observableArray([{id: null, tag: "Главный каталог"}])
+
+      super(data)
+
+    selectItem: (object) =>
+      @parents.push(object)
+      @params["parent_id"] = object.id
+      @filterData()
+
+    selectParent: (object) =>
+      index = @parents().indexOf(object)
+      @parents(@parents().slice(0, index+1))
+      @params["parent_id"] = object.id
+      @filterData()
 
     select: (object) =>
       window.application.object().select(object)

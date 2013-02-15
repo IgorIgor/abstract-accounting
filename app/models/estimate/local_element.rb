@@ -15,7 +15,7 @@ module Estimate
     belongs_to :local
 
     def total(field)
-      self.price.send(field) * self.amount
+      self.price.send(field) * self.amount unless self.price.send(field).nil?
     end
   end
 end

@@ -7,12 +7,8 @@
 #
 # Please see ./COPYING for details
 
-object false
-child(@local => :local) do
-  attributes :tag, :project_id
-  node(:date) { Date.today.strftime('%Y-%m-%d') }
+class AddBomsCatalogIdToEstimateProjects < ActiveRecord::Migration
+  def change
+    add_column :estimate_projects, :boms_catalog_id, :integer
+  end
 end
-child(@local.boms_catalog => :boms_catalog) do
-  attributes :id, :tag
-end
-child([] => :items)

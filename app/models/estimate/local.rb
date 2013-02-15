@@ -9,10 +9,10 @@
 
 module Estimate
   class Local < Base
-    validates_presence_of :tag, :catalog_id, :date, :project_id
+    validates_presence_of :tag, :date, :project_id
 
-    belongs_to :catalog
     belongs_to :project
+    delegate :boms_catalog, to: :project
 
     has_many :items, class_name: LocalElement, foreign_key: :local_id
 

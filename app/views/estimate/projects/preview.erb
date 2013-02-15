@@ -137,6 +137,24 @@
                             disable: readonly">
         </span>
       </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="local_catalog"><%= t('views.estimates.locals.catalog') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="local_catalog"
+                 name="<%= t('views.estimates.locals.catalog') %>" rule="required"
+                 data-bind="dialog: { autoOpen: false,
+                                       modal: true,
+                                       minWidth: 480,
+                                       minHeight: 300,
+                                       bind: { id: object.project.boms_catalog.id, tag: object.project.boms_catalog.tag }
+                                     },
+                            dialogId: 'catalogs_selector',
+                            value: object.project.boms_catalog.tag,
+                            disable: readonly">
+        </span>
+      </div>
     </div>
   </fieldset>
   <!-- ko if: readonly -->
@@ -160,3 +178,7 @@
 <%= render :partial => "home/select_dialog", :locals => { :dialog_id => 'legal_entities_selector',
                                                         :dialog_model => 'dialog_legal_entities',
                                                         :data_path => 'items' } %>
+<%= render partial: "home/select_dialog",
+           locals: { dialog_id: 'catalogs_selector',
+                     dialog_model: 'dialog_catalogs',
+                     data_path: 'estimate/catalogs/catalogs' } %>

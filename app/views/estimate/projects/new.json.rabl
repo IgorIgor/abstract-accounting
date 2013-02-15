@@ -14,6 +14,9 @@ child(@project => :project) do
   child(Place.new => :place) do
     attributes :tag
   end
+  child(Estimate::Catalog.new => :boms_catalog) do
+    attributes :id, :tag
+  end
   child(LegalEntity.new => :legal_entity) do
     attributes :tag, :identifier_value
   end

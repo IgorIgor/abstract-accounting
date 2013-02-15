@@ -12,6 +12,7 @@ node(:id) { @project.id }
 node(:type) { @project.class.name }
 child(@project => :project) do
   attributes :place_id, :customer_id, :customer_type
+  child(:boms_catalog => :boms_catalog) { attributes :id, :tag }
   child(:place => :place) do
     attributes :tag
   end

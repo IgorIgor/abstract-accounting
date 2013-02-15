@@ -52,7 +52,7 @@ module Estimate
 
     def update
       local = Local.find(params[:id])
-      params[:local].delete(:catalog)
+      params[:local].delete(:boms_catalog)
       if local.update_attributes(params[:local])
         local.items.delete_all
         if params[:items]

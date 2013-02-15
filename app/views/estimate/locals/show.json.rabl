@@ -11,11 +11,10 @@ object false
 node(:id) { @local.id }
 node(:type) { @local.class.name }
 child(@local => :local) do
-  attributes :tag, :date, :catalog_id
-  child(@local.catalog => :catalog) { attributes :id, :tag }
+  attributes :tag, :date
   node(:approved) { |l| l.approved.strftime('%Y-%m-%d') if l.approved }
 end
-child(@local.catalog => :catalog) { attributes :id, :tag }
+child(@local.boms_catalog => :boms_catalog) { attributes :id, :tag }
 child(@local.items => :items) do
   attributes :amount
   node(:correct) { true }

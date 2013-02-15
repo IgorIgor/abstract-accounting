@@ -54,34 +54,16 @@
                             disable: readonly">
         </span>
       </div>
-      <div>
-        <span class="form-cell-label">
-          <label for="local_catalog"><%= t('views.estimates.locals.catalog') %>:</label>
-        </span>
-        <span>
-          <input type="text" id="local_catalog"
-                 name="<%= t('views.estimates.locals.catalog') %>" rule="required"
-                 data-bind="dialog: { autoOpen: false,
-                                       modal: true,
-                                       minWidth: 480,
-                                       minHeight: 300,
-                                       bind: { id: object.catalog.id, tag: object.catalog.tag }
-                                     },
-                            dialogId: 'catalogs_selector',
-                            value: object.catalog.tag,
-                            disable: readonly">
-        </span>
-      </div>
+
     </div>
   </fieldset>
   <fieldset class="with-legend">
     <legend><%=t 'views.waybills.waybill_entry' %></legend>
-    <input type="button" value="<%= t('views.waybills.add') %>"
+    <input type="button" value="<%= t('views.waybills.add') %>" id="local_boms"
            data-bind="dialog: { autoOpen: false,
                                 modal: true,
                                 minWidth: 480,
-                                minHeight: 300,
-                                bind: { id: object.catalog.id, tag: object.catalog.tag }
+                                minHeight: 300
                               },
                       dialogId: 'boms_selector',
                       disable: readonly() || !can_add_items()"/>
@@ -266,18 +248,12 @@
            data-bind="dialog: { autoOpen: false,
                                 modal: true,
                                 minWidth: 480,
-                                minHeight: 300,
-                                bind: { id: object.catalog.id, tag: object.catalog.tag }
+                                minHeight: 300
                               },
                       dialogId: 'boms_selector',
                       disable: readonly() || !can_add_items()"/>
   </fieldset>
 </form>
-
-<%= render partial: "home/select_dialog",
-           locals: { dialog_id: 'catalogs_selector',
-                     dialog_model: 'dialog_catalogs',
-                     data_path: 'estimate/catalogs/catalogs' } %>
 
 <%= render partial: "home/select_dialog",
            locals: { dialog_id: 'boms_selector',

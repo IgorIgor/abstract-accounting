@@ -10,8 +10,11 @@
 object false
 child(@locals => :objects) do
   attributes :id, :tag
+  glue :class do
+    attributes :name => :type
+  end
   node(:date) { |local| local.date.strftime('%Y-%m-%d') }
-  node(:catalog_tag) { |local| local.catalog.tag }
+  node(:comments_count) { |local| local.comments.count }
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

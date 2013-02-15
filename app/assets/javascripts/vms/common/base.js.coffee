@@ -58,7 +58,7 @@ $ ->
   Array.prototype.remove = (value) ->
     this.splice(this.indexOf(value), 1)
 
-  class self.BaseViewModel
+  class self.BaseViewModel extends self.Module
     constructor: (paginater = false) ->
       @paginater = ko.observable(paginater)
 
@@ -322,6 +322,9 @@ $ ->
       el.toggleClass('ui-icon-circle-plus')
       el.toggleClass('ui-icon-circle-minus')
 
+      @loadSubitems(object)
+
+    loadSubitems: (object)=>
       if object.subitems() == null
         params = @generateChildrenParams(object)
         $.getJSON(@generateItemsUrl(object), params, (data) =>

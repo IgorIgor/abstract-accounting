@@ -328,7 +328,7 @@ describe Waybill do
     wb.save!
     wb.state.should eq(Waybill::INWORK)
 
-    comment = Comment.last
+    comment = Comment.first
     comment.user_id.should eq(user.id)
     comment.item_id.should eq(wb.id)
     comment.item_type.should eq(wb.class.name)
@@ -338,7 +338,7 @@ describe Waybill do
                          :distributor_type => Entity.name,
                          :distributor_place_id => create(:place).id)
 
-    comment = Comment.last
+    comment = Comment.first
     comment.user_id.should eq(user.id)
     comment.item_id.should eq(wb.id)
     comment.item_type.should eq(wb.class.name)
@@ -348,7 +348,7 @@ describe Waybill do
     wb.cancel.should be_true
     wb.state.should eq(Waybill::CANCELED)
 
-    comment = Comment.last
+    comment = Comment.first
     comment.user_id.should eq(user.id)
     comment.item_id.should eq(wb.id)
     comment.item_type.should eq(wb.class.name)
@@ -360,7 +360,7 @@ describe Waybill do
     wb.apply.should be_true
     wb.state.should eq(Waybill::APPLIED)
 
-    comment = Comment.last
+    comment = Comment.first
     comment.user_id.should eq(user.id)
     comment.item_id.should eq(wb.id)
     comment.item_type.should eq(wb.class.name)
@@ -370,7 +370,7 @@ describe Waybill do
     wb.reverse.should be_true
     wb.state.should eq(Waybill::REVERSED)
 
-    comment = Comment.last
+    comment = Comment.first
     comment.user_id.should eq(user.id)
     comment.item_id.should eq(wb.id)
     comment.item_type.should eq(wb.class.name)

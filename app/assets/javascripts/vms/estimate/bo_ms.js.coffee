@@ -38,3 +38,10 @@ $ ->
 
     namespace: =>
       "estimate"
+
+  class self.DialogEstimateBomsViewModel extends EstimateBomsViewModel
+    constructor: (data, catalog_pid = null) ->
+      super(data)
+      @params.catalog_pid = catalog_pid if catalog_pid?
+
+    @include DialogsHelper

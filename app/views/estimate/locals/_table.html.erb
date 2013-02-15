@@ -1,20 +1,20 @@
 <table>
   <thead>
     <tr>
-      <th></th>
-      <th id="customer_tag" data-bind="click: sortBy">
-        <%= t('views.estimates.projects.customer') %><span></span>
+      <th class="comments-table-column"></th>
+      <th id="local_tag">
+        <%= t 'views.estimates.locals.tag' %>
       </th>
-      <th id="place_tag" data-bind="click: sortBy">
-        <%= t('views.estimates.projects.place') %><span></span>
+      <th id="local_date">
+        <%= t 'views.estimates.locals.date' %>
       </th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">
     <tr>
       <td class='with-comment' data-bind="text: comments_count, click: $parent.loadSubitems"></td>
-      <td data-bind="text: customer.tag, click: $parent.show"></td>
-      <td data-bind="text: place.tag, click: $parent.show"></td>
+      <td data-bind="text: tag, click: $parent.show"></td>
+      <td data-bind="text: date, click: $parent.show"></td>
     </tr>
     <tr data-bind="with: subitems">
       <td rowspan="2"></td>

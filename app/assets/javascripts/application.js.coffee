@@ -25,7 +25,8 @@
 #= require koExternalTemplateEngine
 #
 #= require_tree ./lib
-#= require vms/base
+#= require vms/common/base
+#= require_tree ./vms/common
 #= require_tree ./vms
 #= require controllers/application_controller
 #= require_tree ./controllers
@@ -110,7 +111,7 @@ $ ->
           toggle = false
           location.hash = $('#deals_data').attr('href')
       else
-        if event.target.id == 'deals'
+        if event.target.id == 'deals_data'
           location.hash = $('#deals_data').attr('href')
         $('#arrow_actions').removeClass('arrow-right-expand')
         $('#arrow_actions').addClass('arrow-down-expand')

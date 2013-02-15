@@ -54,7 +54,7 @@ module Estimate
       end
 
       def with_catalog_pid(cpid)
-        children = Catalog.find(cpid).children
+        children = Estimate::Catalog.find(cpid).children
         where{catalog_id.in(children)}
       end
 

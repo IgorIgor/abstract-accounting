@@ -137,13 +137,18 @@
                             disable: readonly">
         </span>
       </div>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend><%= t 'views.estimates.projects.find_by_catalogs' %></legend>
+    <div>
       <div>
         <span class="form-cell-label">
-          <label for="local_catalog"><%= t('views.estimates.locals.catalog') %>:</label>
+          <label for="boms_catalog"><%= t('views.estimates.projects.boms_catalog') %>:</label>
         </span>
         <span>
-          <input type="text" id="local_catalog"
-                 name="<%= t('views.estimates.locals.catalog') %>" rule="required"
+          <input type="text" id="boms_catalog"
+                 name="<%= t('views.estimates.projects.boms_catalog') %>" rule="required"
                  data-bind="dialog: { autoOpen: false,
                                        modal: true,
                                        minWidth: 480,
@@ -152,6 +157,25 @@
                                      },
                             dialogId: 'catalogs_selector',
                             value: object.project.boms_catalog.tag,
+                            disable: readonly">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="prices_catalog"><%= t('views.estimates.projects.prices_catalog') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="prices_catalog"
+                 name="<%= t('views.estimates.projects.prices_catalog') %>" rule="required"
+                 data-bind="dialog: { autoOpen: false,
+                                       modal: true,
+                                       minWidth: 480,
+                                       minHeight: 300,
+                                       bind: { id: object.project.prices_catalog.id,
+                                               tag: object.project.prices_catalog.tag }
+                                     },
+                            dialogId: 'catalogs_selector',
+                            value: object.project.prices_catalog.tag,
                             disable: readonly">
         </span>
       </div>

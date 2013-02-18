@@ -8,14 +8,6 @@ $ ->
       @dialog_element_id = null
       @idx = 0
       @openedBomIds = ko.observableArray([])
-      @can_add_items = ko.computed(=>
-        @object.boms_catalog.id()? && @object.local.date()?
-      , self)
-      @object.local.date.subscribe((val) =>
-        if @object.items().length > 0
-          alert("Список цен для материалов будет переискан")
-          @itemRefindByDate(val)
-      )
 
     namespace: =>
       ""
@@ -47,23 +39,8 @@ $ ->
       else
         @openedBomIds.push(obj.price.bom.id())
 
-    itemRefindByDate: (val) =>
-      item = @object.items()[@idx]
-      @idx = @idx + 1
-      if @idx > @object.items().length
-        @idx = 0
-        return true
-      $.getJSON("estimate/prices/find.json", {bom_id: item.price.bom.id, date: val}, (data) =>
-        if data.id? > 0 && data.bom? && data.bom.resource?
-          item.price = ko.mapping.fromJS(data)
-          item.correct(true)
-        else
-          item.correct(false)
-        @itemRefindByDate(val)
-      )
-
     addItem: =>
-      $.getJSON("estimate/prices/find.json", {bom_id: @select_item().id, date: @object.local.date()}, (data) =>
+      $.getJSON("estimate/prices/find.json", {bom_id: @select_item().id, catalog_id: @object.prices_catalog.id()}, (data) =>
         if data.id?
           item =
             price:

@@ -13,6 +13,7 @@ module Estimate
 
     belongs_to :project
     delegate :boms_catalog, to: :project
+    delegate :prices_catalog, to: :project
 
     has_many :items, class_name: LocalElement, foreign_key: :local_id
 

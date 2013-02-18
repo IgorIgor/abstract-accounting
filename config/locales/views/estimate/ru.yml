@@ -79,6 +79,9 @@ ru:
         locals:
           name: Локальные сметы
           add: Добавить локальную смету
+        boms_catalog: Каталог сметных норм
+        prices_catalog: Каталог расценок
+        find_by_catalogs: Поиск по каталогам
       locals:
         tag: Название
         date: Дата создания

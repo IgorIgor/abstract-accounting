@@ -14,7 +14,8 @@ child(@local => :local) do
   attributes :tag, :date
   node(:approved) { |l| l.approved.strftime('%Y-%m-%d') if l.approved }
 end
-child(@local.boms_catalog => :boms_catalog) { attributes :id, :tag }
+child(@local.boms_catalog => :boms_catalog) { attributes :id }
+child(@local.prices_catalog => :prices_catalog) { attributes :id }
 child(@local.items => :items) do
   attributes :amount
   node(:correct) { true }

@@ -14,9 +14,8 @@ child(@project => :project) do
   child(Place.new => :place) do
     attributes :tag
   end
-  child(Estimate::Catalog.new => :boms_catalog) do
-    attributes :id, :tag
-  end
+  child(Estimate::Catalog.new => :boms_catalog) { attributes :id, :tag }
+  child(Estimate::Catalog.new => :prices_catalog) { attributes :id, :tag }
   child(LegalEntity.new => :legal_entity) do
     attributes :tag, :identifier_value
   end

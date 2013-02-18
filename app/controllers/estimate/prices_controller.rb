@@ -28,18 +28,9 @@ module Estimate
     end
 
     def find
-      data = nil
-      if params[:bom_id] && params[:date]
-        data = Estimate::Price.
-            with_bo_m_id(params[:bom_id]).
-            with_date_less_or_eq_to(params[:date])
-      end
-      if params[:bom_uid] && params[:date] && params[:catalog_id]
-        data = Estimate::Price.
-            with_date_less_or_eq_to(params[:date]).
-            with_uid(params[:bom_uid]).
-            with_catalog_pid(params[:catalog_id])
-      end
+      data = Estimate::Price.
+          with_bo_m_id(params[:bom_id]).
+          with_catalog_pid(params[:catalog_id])
       data = data.order{date.desc}.first if !!data
       if data
         @price = data

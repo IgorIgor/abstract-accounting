@@ -19,9 +19,6 @@ $ ->
     select: (object) =>
       @select_item(object)
       $("##{@dialog_id}").dialog( "close" )
-      if @dialog_id == 'catalogs_selector'
-        @object.project.boms_catalog.id(object.id)
-        @object.project.boms_catalog.tag(object.tag)
 
     setDialogViewModel: (dialogId, dialog_element_id) =>
       @dialog_id = dialogId

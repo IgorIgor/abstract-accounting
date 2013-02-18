@@ -9,10 +9,12 @@
 
 module Estimate
   class Project < Base
-    validates_presence_of :place_id, :customer_id, :customer_type, :boms_catalog_id
+    validates_presence_of :place_id, :customer_id, :customer_type, :boms_catalog_id,
+                          :prices_catalog_id
     belongs_to :customer, polymorphic: true
     belongs_to :place
     belongs_to :boms_catalog, class_name: Estimate::Catalog
+    belongs_to :prices_catalog, class_name: Estimate::Catalog
 
     has_many :locals
 
@@ -64,7 +66,8 @@ module Estimate
           place_id: place_id,
           customer_id: customer_id,
           customer_type: params[:project][:customer_type],
-          boms_catalog_id: params[:project][:boms_catalog][:id]
+          boms_catalog_id: params[:project][:boms_catalog][:id],
+          prices_catalog_id: params[:project][:prices_catalog][:id]
       }
     end
   end

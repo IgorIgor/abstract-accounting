@@ -79,6 +79,9 @@ en:
         locals:
           name: Local estimate
           add: Add local estimate
+        boms_catalog: BoMs catalog
+        prices_catalog: Prices catalog
+        find_by_catalogs: Find by catalogs
       locals:
         tag: Tag
         date: Date

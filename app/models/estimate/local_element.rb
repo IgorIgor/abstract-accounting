@@ -14,6 +14,9 @@ module Estimate
     belongs_to :price
     belongs_to :local
 
+    include Helpers::Commentable
+    has_comments
+
     def total(field)
       self.price.send(field) * self.amount unless self.price.send(field).nil?
     end

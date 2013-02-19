@@ -197,6 +197,7 @@ Abstract::Application.routes.draw do
       collection do
         get 'data'
         get 'preview'
+        get 'load_local_elements'
       end
       member do
         get 'apply'

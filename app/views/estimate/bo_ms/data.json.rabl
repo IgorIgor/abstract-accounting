@@ -9,9 +9,21 @@
 
 object false
 child(@bo_ms => :objects) do
-  attributes :id, :uid
+  attributes :id, :uid, :amount, :workers_amount, :avg_work_level, :drivers_amount
   child(:resource => :resource) { attributes :tag, :mu }
   child(:catalog => :catalog) { attributes :tag }
+  child(:machinery => :machinery) do
+    attributes :uid, :resource_id, :amount
+    child(:resource => :resource) do
+      attributes :tag, :mu
+    end
+  end
+  child(:materials => :materials) do
+    attributes :uid, :resource_id, :amount
+    child(:resource => :resource) do
+      attributes :tag, :mu
+    end
+  end
 end
 node(:per_page) { Settings.root.per_page }
 node(:count) { @count }

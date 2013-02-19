@@ -54,15 +54,20 @@ module Estimate
       local = Local.find(params[:id])
       params[:local].delete(:boms_catalog)
       if local.update_attributes(params[:local])
-        local.items.delete_all
+        ids = local.items.pluck :id
         if params[:items]
           params[:items].values.each do |item|
-            if item[:correct] == 'true'
-              local.items.create!(price_id: item[:price][:id], amount: item[:amount])
+            if ids.include? item[:id].to_i
+              LocalElement.find(item[:id]).
+                  update_attributes(price_id: item[:price][:id], amount: item[:amount])
+            elsif item[:id].to_i == 0 and item[:correct] == 'true'
+              local.items.build(price_id: item[:price][:id], amount: item[:amount])
             end
+            ids.delete item[:id].to_i
           end
+          local.items.each { |item| item.delete if ids.include? item.id }
         end
-        if local.save!
+        if local.save
           render json: { result: 'success', id: local.id }
         else
           render json: local.errors.full_messages
@@ -95,6 +100,16 @@ module Estimate
         else
           render json: local.errors.full_messages
         end
+      end
+    end
+
+    def load_local_elements
+      if params[:id]
+        @local_elements = Local.find(params[:id]).items
+        @count = @local_elements.count
+      else
+        @local_elements = []
+        @count = 0
       end
     end
   end

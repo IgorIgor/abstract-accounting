@@ -13,10 +13,10 @@ $ ->
       ""
 
     visibleApply: =>
-      @readonly() && !@object.local.approved()?
+      @readonly() && !@object.local.approved()? && !@object.local.canceled()?
 
     disableEdit: =>
-      @disable() || !@readonly() || @object.local.approved()?
+      @disable() || !@readonly() || @object.local.approved()? || @object.local.canceled()?
 
     disableButton: =>
       @disable()
@@ -24,6 +24,10 @@ $ ->
     apply: =>
       @disable(true)
       @ajaxRequest('GET', "/#{@route}/#{@object.id()}/apply", {}, true)
+
+    cancel: =>
+      @disable(true)
+      @ajaxRequest('GET', "/#{@route}/#{@object.id()}/cancel", {}, true)
 
     resourceVisibility: (bomId) =>
       bomId in @openedBomIds()

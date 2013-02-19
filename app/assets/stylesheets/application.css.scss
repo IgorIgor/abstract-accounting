@@ -472,6 +472,11 @@ input[type=button]:disabled, input[type=submit]:disabled {
             cursor: pointer;
           }
 
+          td.table-actions label.approved {
+            background: url("approve.jpg") no-repeat;
+            cursor: pointer;
+          }
+
           .table-actions {
             width: 17px;
             padding: 4px 2px 0 3px;

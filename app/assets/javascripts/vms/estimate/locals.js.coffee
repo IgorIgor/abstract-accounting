@@ -14,6 +14,17 @@ $ ->
 
       @initializeTableCommentsHelper()
 
+    cancel: (obj)=>
+      $.ajax(
+        type: 'GET'
+        url:  "/estimate/locals/#{obj.id}/cancel"
+        data: {}
+        complete: (data) =>
+          response = JSON.parse(data.responseText)
+          if response['result'] == 'success'
+            @getPaginateData()
+      )
+
     getType: (o)=>
       "locals"
 

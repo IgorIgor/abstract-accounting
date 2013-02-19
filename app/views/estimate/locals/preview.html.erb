@@ -3,6 +3,8 @@
     <%= render :partial => "home/buttons", :locals => { :editable => true } %>
     <input type='button' value="<%= t('views.statable.buttons.apply') %>"
            data-bind='click: apply, visible: visibleApply(), disable: disableButton()'/>
+    <input type='button' value="<%= t('views.statable.buttons.cancel') %>"
+           data-bind='click: cancel, visible: visibleApply(), disable: disableButton()'/>
   </div>
 
   <span id="page-title">
@@ -31,6 +33,16 @@
           <input type="text" id="local_approved"
                  name="<%= t('views.estimates.locals.approved') %>"
                  data-bind="value: object.local.approved, disable: true">
+        </span>
+      </div>
+      <div data-bind="visible: object.local.canceled">
+        <span class="form-cell-label">
+          <label for="local_approved"><%= t('views.estimates.locals.canceled') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="local_canceled"
+                 name="<%= t('views.estimates.locals.canceled') %>"
+                 data-bind="value: object.local.canceled, disable: true">
         </span>
       </div>
       <div>

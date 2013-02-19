@@ -8,6 +8,7 @@
       <th id="local_date">
         <%= t 'views.estimates.locals.date' %>
       </th>
+      <th></th>
     </tr>
   </thead>
   <tbody data-bind="foreach: documents">
@@ -15,6 +16,10 @@
       <td class='with-comment' data-bind="text: comments_count, click: $parent.loadSubitems"></td>
       <td data-bind="text: tag, click: $parent.show"></td>
       <td data-bind="text: date, click: $parent.show"></td>
+      <td class="table-actions">
+        <label data-bind="visible: !approved, click: $parent.cancel"></label>
+        <label class="approved" data-bind="visible: approved"></label>
+      </td>
     </tr>
     <tr data-bind="with: subitems">
       <td rowspan="2"></td>

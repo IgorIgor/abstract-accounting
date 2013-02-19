@@ -7,14 +7,8 @@
 #
 # Please see ./COPYING for details
 
-object false
-child(@locals => :objects) do
-  attributes :id, :tag, :canceled, :approved
-  glue :class do
-    attributes :name => :type
+class AddClosedToEstimateLocals < ActiveRecord::Migration
+  def change
+    add_column :estimate_locals, :canceled, :datetime
   end
-  node(:date) { |local| local.date.strftime('%Y-%m-%d') }
-  node(:comments_count) { |local| local.comments.count }
 end
-node(:per_page) { Settings.root.per_page }
-node(:count) { @count }

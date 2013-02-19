@@ -24,6 +24,10 @@ module Estimate
       def by_project(pid)
         where{project_id == pid}
       end
+
+      def without_canceled
+        where{canceled == nil}
+      end
     end
   end
 end

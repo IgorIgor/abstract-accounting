@@ -88,6 +88,8 @@ en:
         catalog: Catalog
         amount: Amount
         approved: Approved
+        canceled: Canceled
+        canceled_error: You can not cancel approved estimate
         page:
           title:
             show: Show local estimate

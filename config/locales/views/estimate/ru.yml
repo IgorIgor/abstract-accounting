@@ -88,6 +88,8 @@ ru:
         catalog: Каталог
         amount: Объём
         approved: Применено
+        canceled: Отменено
+        canceled_error: Вы не можете отменить применённую смету
         page:
           title:
             show: Просмотр локальной сметы

@@ -209,12 +209,14 @@ FactoryGirl.define do
   factory :project, class: Estimate::Project do
     place
     customer { |pr| pr.association(:entity)}
+    boms_catalog  { |b| b.association(:catalog) }
+    prices_catalog  { |b| b.association(:catalog) }
   end
 
   factory :local, class: Estimate::Local do
     sequence(:tag) { |n| "local##{n}" }
-    catalog
     project
     date DateTime.now
+    canceled nil
   end
 end

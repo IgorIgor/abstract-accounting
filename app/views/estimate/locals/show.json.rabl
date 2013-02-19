@@ -13,6 +13,7 @@ node(:type) { @local.class.name }
 child(@local => :local) do
   attributes :tag, :date
   node(:approved) { |l| l.approved.strftime('%Y-%m-%d') if l.approved }
+  node(:canceled) { |l| l.canceled.strftime('%Y-%m-%d') if l.canceled }
 end
 child(@local.boms_catalog => :boms_catalog) { attributes :id }
 child(@local.prices_catalog => :prices_catalog) { attributes :id }

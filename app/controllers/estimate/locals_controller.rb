@@ -20,7 +20,7 @@ module Estimate
     end
 
     def data
-      scope = Local
+      scope = Local.without_canceled
       scope = scope.search(params[:like]) if params[:like]
       scope = scope.by_project(params[:project_id]) if params[:project_id]
       @count = scope.count
@@ -82,6 +82,19 @@ module Estimate
         render json: { result: 'success', id: local.id }
       else
         render json: local.errors.full_messages
+      end
+    end
+
+    def cancel
+      local = Local.find(params[:id])
+      if local.approved
+        render json: ["#{I18n.t('views.estimates.locals.canceled_error')}"]
+      else
+        if local.update_attribute(:canceled, DateTime.now)
+          render json: { result: 'success', id: local.id }
+        else
+          render json: local.errors.full_messages
+        end
       end
     end
   end

@@ -18,7 +18,7 @@ module Estimate
     has_many :items, class_name: LocalElement, foreign_key: :local_id
 
     include Helpers::Commentable
-    has_comments
+    has_comments :auto_comment
 
     class << self
       def by_project(pid)
@@ -27,6 +27,22 @@ module Estimate
 
       def without_canceled
         where{canceled == nil}
+      end
+    end
+
+    def apply
+      if self.update_column(:approved, DateTime.now)
+        self.add_comment(I18n.t("activerecord.attributes.estimate.local.comment.apply"))
+      else
+        false
+      end
+    end
+
+    def cancel
+      if self.update_column(:canceled, DateTime.now)
+        self.add_comment(I18n.t("activerecord.attributes.estimate.local.comment.cancel"))
+      else
+        false
       end
     end
   end

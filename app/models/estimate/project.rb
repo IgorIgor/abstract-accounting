@@ -19,7 +19,7 @@ module Estimate
     has_many :locals
 
     include Helpers::Commentable
-    has_comments
+    has_comments :auto_comment
 
     custom_sort(:customer_tag) do |dir|
       query = "case customer_type

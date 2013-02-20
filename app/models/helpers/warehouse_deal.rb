@@ -17,7 +17,7 @@ module Helpers
         include Helpers::Statable
         act_as_statable
         include Helpers::Commentable
-        has_comments
+        has_comments :auto_comment
 
         class_attribute :warehouse_fields
 
@@ -30,7 +30,6 @@ module Helpers
         belongs_to :deal
 
         before_save :before_warehouse_deal_save
-        after_save :after_warehouse_deal_save
         class_attribute :before_item_save_callback
 
         after_apply :send_comment_after_apply
@@ -216,14 +215,6 @@ module Helpers
 
     def changed(*)
       super & attributes.keys
-    end
-
-    def after_warehouse_deal_save
-      if self.id_changed?
-        add_comment(I18n.t("activerecord.attributes.#{self.class.name.downcase}.comment.create"))
-      else
-        add_comment(I18n.t("activerecord.attributes.#{self.class.name.downcase}.comment.update"))
-      end
     end
 
     def send_comment_after_apply

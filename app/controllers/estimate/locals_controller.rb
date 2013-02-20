@@ -83,7 +83,7 @@ module Estimate
 
     def apply
       local = Local.find(params[:id])
-      if local.update_attribute(:approved, DateTime.now)
+      if local.apply
         render json: { result: 'success', id: local.id }
       else
         render json: local.errors.full_messages
@@ -95,7 +95,7 @@ module Estimate
       if local.approved
         render json: ["#{I18n.t('views.estimates.locals.canceled_error')}"]
       else
-        if local.update_attribute(:canceled, DateTime.now)
+        if local.cancel
           render json: { result: 'success', id: local.id }
         else
           render json: local.errors.full_messages

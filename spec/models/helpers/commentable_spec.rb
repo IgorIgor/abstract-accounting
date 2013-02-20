@@ -7,21 +7,34 @@
 #
 # Please see ./COPYING for details
 
-require "rspec"
+require 'spec_helper'
 
-class TestCommentable
-  class << self
-    attr_reader :has_many_name, :has_many_options
+class TestCommentableWithAutoComment < ActiveRecord::Base
+  has_no_table
+  column :id, :integer
 
-    def has_many *args
-      @has_many_name, @has_many_options = args
-    end
+  def id_changed?
+    true
+  end
 
-    %w(scoped unscoped table_name primary_key connection base_class).each do |name|
-      define_method name do
-        Entity.send(name)
-      end
-    end
+  def new_record?
+    false
+  end
+
+  def save
+    run_callbacks :save
+  end
+
+  include Helpers::Commentable
+  has_comments :auto_comment
+end
+
+class TestCommentable < ActiveRecord::Base
+  has_no_table
+  column :id, :integer
+
+  def save
+    run_callbacks :save
   end
 
   include Helpers::Commentable
@@ -29,14 +42,13 @@ class TestCommentable
 end
 
 describe Helpers::Commentable do
-  subject { TestCommentable }
+  subject { TestCommentable.new }
 
-  it { should include(Helpers::Commentable) }
-  it { subject.has_many_name.should eq(:comments) }
-  it { subject.has_many_options.should eq({as: :item}) }
+  it { subject.class.should include(Helpers::Commentable) }
+  it { should have_many :comments }
 
   describe "#add_comment" do
-    let(:obj) { subject.new }
+    let(:obj) { subject }
 
     before :each do
       PaperTrail.enabled = true
@@ -45,6 +57,15 @@ describe Helpers::Commentable do
     it "should return false if record is new" do
       obj.stub(:new_record?).and_return(true)
       obj.add_comment("some message").should eq(false)
+    end
+
+    it 'should add comment on create and update' do
+      PaperTrail.whodunnit = create :user
+      expect { TestCommentableWithAutoComment.new().save.should be_true }.
+          to change(Comment, :count).by(1)
+      Comment.last.message.should eq I18n.t("activerecord.attributes.#{
+        TestCommentableWithAutoComment.name.downcase.split('::').join('.')}.comment.create")
+      expect { TestCommentable.new().save.should be_true }.to change(Comment, :count).by(0)
     end
 
     context "with not a new record" do
@@ -75,7 +96,7 @@ describe Helpers::Commentable do
         old_obj.stub(:destroyed?).and_return(false)
         expect { old_obj.add_comment("some message").should eq(true) }.
             to change(Comment, :count).by(1)
-        comment = Comment.last
+        comment = Comment.first
         comment.user_id.should eq(PaperTrail.whodunnit.id)
         comment.item_id.should eq(old_obj.id)
         comment.item_type.should eq(TestCommentable.base_class.name)

@@ -21,9 +21,24 @@ describe Estimate::Local do
     should have_many(:items).class_name(Estimate::LocalElement)
   end
 
+  it { subject.class.should include(Helpers::Commentable) }
+  it { should have_many :comments }
+
   it 'should return uncanceled estimates' do
     10.times { create :local }
     Estimate::Local.first.update_attribute(:canceled, DateTime.now)
     Estimate::Local.without_canceled.should eq Estimate::Local.where{canceled == nil}
+  end
+
+  it 'should apply and cancel' do
+    PaperTrail.enabled = true
+    PaperTrail.whodunnit = create :user
+    local = create :local
+    expect { local.apply.should be_true }.to change(Comment, :count).by(1)
+    local.approved.should_not be_nil
+    Comment.first.message.should eq I18n.t("activerecord.attributes.estimate.local.comment.apply")
+    expect { local.cancel.should be_true }.to change(Comment, :count).by(1)
+    local.canceled.should_not be_nil
+    Comment.first.message.should eq I18n.t("activerecord.attributes.estimate.local.comment.cancel")
   end
 end

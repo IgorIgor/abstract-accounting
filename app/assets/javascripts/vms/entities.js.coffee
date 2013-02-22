@@ -24,3 +24,23 @@ $ ->
       params =
         entities: ko.mapping.toJS(@selected)
       location.hash = "#balance_sheet?#{$.param(params)}"
+
+  class self.DialogEntitiesViewModel extends FolderViewModel
+    @__data_url = '/entities/list.json'
+    constructor: (data) ->
+      @url = "entities/list.json"
+      @filter =
+        tag: ko.observable('')
+      super(data)
+
+    @include DialogsHelper
+
+  class self.DialogLegalEntitiesViewModel extends FolderViewModel
+    @__data_url = '/legal_entities/list.json'
+    constructor: (data) ->
+      @url = "legal_entities/list.json"
+      @filter =
+        name: ko.observable('')
+      super(data)
+
+    @include DialogsHelper

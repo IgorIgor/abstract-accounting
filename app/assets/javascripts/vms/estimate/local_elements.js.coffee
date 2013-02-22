@@ -1,15 +1,15 @@
 $ ->
   class self.EstimateLocalElementsViewModel extends TreeViewModel
     @include TableCommenstHelper
+    @include ContainDialogHelper
 
     constructor: (data, params = {}) ->
       @url = '/estimate/locals/load_local_elements.json'
       @readonly = ko.observable(params.id?)
       @openedBomIds = ko.observableArray([])
       @dialog_boms = ko.observable(null)
-      @select_item = ko.observable(null)
-      @dialog_id = null
-      @dialog_element_id = null
+
+      @initializeContainDialogHelper()
 
       super(data)
       @params =
@@ -44,13 +44,13 @@ $ ->
     namespace: =>
       "estimate"
 
-    setDialogViewModel: (dialogId, dialog_element_id) =>
-      @dialog_id = dialogId
-      @dialog_element_id = dialog_element_id
+    onDialogInitializing: (dialogId) =>
       if dialogId == 'boms_selector'
-        $.getJSON('estimate/bo_ms/data.json', {catalog_pid: @params.boms_catalog_id}, (data) =>
-          @dialog_boms(new DialogEstimateBomsViewModel(data, @params.boms_catalog_id))
-        )
+        DialogEstimateBomsViewModel.all({catalog_pid: @params.boms_catalog_id}, @dialog_boms)
+
+    onDialogElementSelected: (object) =>
+      if @dialog_id == 'boms_selector'
+        @addItem()
 
     addItem: =>
       $.getJSON("estimate/prices/find.json", {bom_id: @select_item().id, catalog_id: @params.prices_catalog_id}, (data) =>
@@ -82,9 +82,3 @@ $ ->
         else
           alert("Нету подходящего списка цен!")
       )
-
-    select: (object) =>
-      @select_item(object)
-      $("##{@dialog_id}").dialog( "close" )
-      if @dialog_id == 'boms_selector'
-        @addItem()

@@ -1,5 +1,7 @@
 $ ->
   class self.EstimateBomsViewModel extends FolderViewModel
+    @__data_url = '/estimate/bo_ms/data.json'
+
     constructor: (data, options = {}) ->
       @url = '/estimate/bo_ms/data.json'
 
@@ -40,8 +42,8 @@ $ ->
       "estimate"
 
   class self.DialogEstimateBomsViewModel extends EstimateBomsViewModel
-    constructor: (data, catalog_pid = null) ->
+    constructor: (data, params = {}) ->
       super(data)
-      @params.catalog_pid = catalog_pid if catalog_pid?
+      @params.catalog_pid = params.catalog_pid if params.catalog_pid?
 
     @include DialogsHelper

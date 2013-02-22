@@ -1,5 +1,7 @@
 $ ->
   class self.TranscriptViewModel extends FolderViewModel
+    @include ContainDialogHelper
+
     constructor: (data, params = {}) ->
       @url = '/transcripts/data.json'
       @date_from = ko.observable(new Date())
@@ -8,9 +10,7 @@ $ ->
       @deal_tag = ko.observable()
 
       @dialog_deals = ko.observable(null)
-      @select_item = ko.observable(null)
-      @dialog_id = null
-      @dialog_element_id = null
+      @initializeContainDialogHelper()
 
       unless $.isEmptyObject(params)
         @deal_id(params.deal_id)
@@ -61,25 +61,6 @@ $ ->
         @deal_tag(object.account)
         @deal_id(object.deal_id)
 
-    select: (object) =>
-      @select_item(object)
-      $("##{@dialog_id}").dialog( "close" )
-
-    setDialogViewModel: (dialogId, dialog_element_id) =>
-      @dialog_id = dialogId
-      @dialog_element_id = dialog_element_id
+    onDialogInitializing: (dialogId) =>
       if dialogId == 'deals_selector'
-        $.getJSON('deals/data.json', {}, (data) =>
-          @dialog_deals(new TranscriptDealsViewModel(data))
-        )
-
-  class self.TranscriptDealsViewModel extends FolderViewModel
-    constructor: (data) ->
-      @url = 'deals/data.json'
-      @filter =
-        tag: ko.observable('')
-
-      super(data)
-
-    select: (object)->
-      self.application.object().select(object)
+        DialogDealsViewModel.all({}, @dialog_deals)

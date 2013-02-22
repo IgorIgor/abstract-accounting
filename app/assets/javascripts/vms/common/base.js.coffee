@@ -228,6 +228,16 @@ $ ->
         page: @page
         per_page: @per_page
 
+    #static methods for load data
+    @all: (filters = {}, success = (data) -> {  } ) ->
+      $.getJSON(this.__data_url, filters, (data) =>
+        if Object.keys(filters).length == 0
+          success(new this(data))
+        else
+          success(new this(data, filters))
+      )
+    #end static methods
+
     onDataReceived: (data) =>
       #do something
 

@@ -1,49 +1,16 @@
 $ ->
   class self.EstimatePriceViewModel extends EditableObjectViewModel
+    @include ContainDialogHelper
+
     constructor: (object, readonly = false) ->
       super(object, 'estimate/prices', readonly)
 
       @dialog_catalogs = ko.observable(null)
-      @select_item = ko.observable(null)
-      @dialog_id = null
-      @dialog_element_id = null
+      @initializeContainDialogHelper()
 
     namespace: =>
       ""
 
-    select: (object) =>
-      @select_item(object)
-      @object.price.catalog_id(object.id)
-      @object.catalog.tag(object.tag)
-      $("##{@dialog_id}").dialog( "close" )
-
-    setDialogViewModel: (dialogId, dialog_element_id) =>
-      @dialog_id = dialogId
-      @dialog_element_id = dialog_element_id
+    onDialogInitializing: (dialogId) =>
       if dialogId == 'catalogs_selector'
-        $.getJSON('estimate/catalogs/data.json', {}, (data) =>
-          @dialog_catalogs(new EstimatePriceListCatalogsViewModel(data))
-        )
-
-  class self.EstimatePriceListCatalogsViewModel extends FolderViewModel
-    constructor: (data) ->
-      @url = 'estimate/catalogs/data.json'
-      @filter =
-        tag: ko.observable('')
-      @parents = ko.observableArray([{id: null, tag: I18n.t("views.estimates.catalogs.root")}])
-
-      super(data)
-
-    selectItem: (object) =>
-      @parents.push(object)
-      @params["parent_id"] = object.id
-      @filterData()
-
-    selectParent: (object) =>
-      index = @parents().indexOf(object)
-      @parents(@parents().slice(0, index+1))
-      @params["parent_id"] = object.id
-      @filterData()
-
-    select: (object) =>
-      self.application.object().select(object)
+        DialogCatalogsViewModel.all({}, @dialog_catalogs)

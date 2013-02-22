@@ -1,5 +1,7 @@
 $ ->
   class self.EstimateCatalogsViewModel extends FolderViewModel
+    @__data_url = '/estimate/catalogs/data.json'
+
     constructor: (data, canSelect = false) ->
       @url = '/estimate/catalogs/data.json'
       @canSelect = ko.observable(canSelect)
@@ -38,3 +40,11 @@ $ ->
 
     showPrices: (object) =>
       location.hash = "estimate/prices?#{$.param(catalog_id: object.id)}"
+
+  class self.DialogCatalogsViewModel extends EstimateCatalogsViewModel
+    constructor: (data) ->
+      @filter =
+        tag: ko.observable('')
+      super(data)
+
+    @include DialogsHelper

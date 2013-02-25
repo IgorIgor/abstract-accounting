@@ -1,0 +1,53 @@
+form data-bind="validate: { success: save }"
+  .actions
+    = render :partial => "home/buttons", :locals => { :editable => true }
+
+  span#page-title
+    /! ko if: readonly
+    = t('views.estimates.catalogs.page.title.show')
+    /! /ko
+    /! ko ifnot: readonly
+    /! ko if: id_presence
+    = t('views.estimates.catalogs.page.title.edit')
+    /! /ko
+    /! ko ifnot: id_presence
+    = t('views.estimates.catalogs.page.title.new')
+    /! /ko
+    /! /ko
+
+  = render 'home/errors'
+
+  fieldset
+    div
+      label for="catalog_tag"
+        = t('views.estimates.catalogs.tag')
+        | :
+      input#catalog_tag[type="text" name="#{t('views.estimates.catalogs.tag')}" rule="required"
+                        data-bind="value: object.catalog.tag, disable: readonly"]
+    div
+      label for="catalog_parent_id"
+        = t('views.estimates.catalogs.parent_catalog')
+        | :
+      input#catalog_parent_id[type="text" name="#{t('views.estimates.catalogs.parent_catalog')}"
+                              data-bind="value: object.catalog.parent_tag, disable: true"]
+
+  fieldset
+    div
+      label for="with_document"
+        = t('views.estimates.catalogs.inserted_document')
+        | :
+      input#with_document[type="checkbox" data-bind="checked: with_document, disable: readonly"]
+    /! ko if: with_document
+    div
+      label for="document_tag"
+        = t('views.estimates.catalogs.document.title')
+        | :
+      input#document_tag[type="text" name="#{t('views.estimates.catalogs.document.title')}" rule="required"
+                         data-bind="value: object.document.title, disable: readonly"]
+    div
+      label for="document_data"
+        = t('views.estimates.catalogs.document.data')
+        | :
+      textarea#document_data[rows="12" cols="48" name="#{t('views.estimates.catalogs.document.data')}" rule="required"
+                             data-bind="value: object.document.data, disable: readonly"]
+    /! /ko

@@ -12,8 +12,18 @@ module Helpers
     extend ActiveSupport::Concern
 
     module ClassMethods
-      def has_comments
+      def has_comments(auto_comment = false)
         has_many :comments, :as => :item
+        after_save :after_save if auto_comment
+      end
+    end
+
+    def after_save
+      name = self.class.name.downcase.split('::').join('.')
+      if self.id_changed?
+        add_comment(I18n.t("activerecord.attributes.#{name}.comment.create"))
+      else
+        add_comment(I18n.t("activerecord.attributes.#{name}.comment.update"))
       end
     end
 

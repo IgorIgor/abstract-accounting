@@ -82,21 +82,6 @@ class Document < Version
     end
   end
 
-  def self.paginate(attrs = {})
-    page = 1
-    per_page = Settings.root.per_page
-    unless attrs.nil?
-      unless attrs[:page].nil?
-        page = attrs[:page].to_i
-      end
-      unless attrs[:per_page].nil?
-        per_page = attrs[:per_page].to_i
-      end
-    end
-
-    limit(per_page).offset((page - 1) * per_page)
-  end
-
   def self.filter(attrs = nil)
     return scoped if attrs.nil?
 

@@ -1,0 +1,24 @@
+table
+  thead
+    tr
+      th.comments-table-column
+      th#local_tag
+        = t 'views.estimates.locals.tag'
+      th#local_date
+        = t 'views.estimates.locals.date'
+      th
+  tbody data-bind="foreach: documents"
+    tr
+      td.with-comment data-bind="text: comments_count, click: $parent.loadSubitems"
+      td data-bind="text: tag, click: $parent.show"
+      td data-bind="text: date, click: $parent.show"
+      td.table-actions
+        label data-bind="visible: !approved, click: $parent.cancel"
+        label.approved data-bind="visible: approved"
+    tr data-bind="with: subitems"
+      td rowspan="2"
+      td colspan="2"
+        = render :partial => "home/items_paginate"
+    tr data-bind="with: subitems"
+      td.padright.padbot colspan="2"
+        = render :partial => "home/comments", :locals => { :items => 'documents' }

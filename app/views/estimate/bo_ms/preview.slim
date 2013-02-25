@@ -1,0 +1,202 @@
+form data-bind="validate: { success: save }"
+  .actions
+    = render :partial => "home/buttons", :locals => { :editable => true }
+
+  span#page-title
+    /! ko if: readonly
+    = t('views.estimates.bo_m.page.title.show')
+    /! /ko
+    /! ko ifnot: readonly
+    /! ko if: id_presence
+    = t('views.estimates.bo_m.page.title.edit')
+    /! /ko
+    /! ko ifnot: id_presence
+    = t('views.estimates.bo_m.page.title.new')
+    /! /ko
+    /! /ko
+
+  = render 'home/errors'
+
+  fieldset
+    div
+      label for="uid"
+        = t('views.estimates.uid')
+        | :
+      input#uid[type="text" name="#{t('views.estimates.uid')}" rule="required"
+                data-bind="value: object.bo_m.uid, disable: readonly"]
+    div
+      label for="asset_tag"
+        = t('views.resources.tag')
+        | :
+      input#asset_tag[type="text" name="#{t('views.resources.tag')}" rule="required"
+                      data-bind="autocomplete: { source: 'assets.json', \
+                                                 value: 'tag', \
+                                                 onlySelect: false, \
+                                                 bind: { \
+                                                   id: object.bo_m.resource_id, \
+                                                   mu: object.resource.mu \
+                                                  } \
+                                                }, \
+                                                value: object.resource.tag, \
+                                                disable: readonly"]
+    div
+      label for="asset_mu"
+        = t('views.resources.mu')
+        | :
+      input#asset_mu[type="text" rule="required" name="#{t('views.resources.mu')}"
+                     data-bind="value: object.resource.mu, valueUpdate: 'afterkeydown', \
+                                disable: readonly, event: {keypress: resourceClear}"]
+    div
+      label for="bom_catalog"
+        = t('views.estimates.catalog')
+        | :
+      input#bom_catalog[type="text" rule="required" name="#{t('views.estimates.catalog')}"
+                        data-bind="dialog: { autoOpen: false, \
+                                              modal: true, \
+                                              minWidth: 480, \
+                                              minHeight: 300, \
+                                              bind: { id: object.bo_m.catalog_id, \
+                                                      tag: object.catalog.tag } \
+                                            }, \
+                                   dialogId: 'catalogs_selector', \
+                                   value: object.catalog.tag, \
+                                   disable: readonly"]
+
+    table.elements-align-center
+      thead
+        tr
+          th.col-width
+            = t('views.estimates.code')
+          th.col-width
+            = t('views.resources.tag')
+          th.col-width
+            = t('views.resources.mu')
+          th.col-width
+            = t('views.estimates.rate')
+          th
+      tbody
+        tr.font-bold
+          td 1
+          td = t('views.estimates.elements.builders')
+          td = t('views.estimates.elements.mu.people')
+          td
+            input#builders[type="text" name="#{t('views.estimates.elements.builders')}"
+                           rule="dependency_required number" dependency_required="rank"
+                           data-bind="value: object.bo_m.workers_amount, disable: readonly"]
+          td
+        tr
+          td 1.1
+          td = t('views.estimates.elements.rank')
+          td
+          td
+            input#rank[type="text" name="#{t('views.estimates.elements.rank')}"
+                       rule="dependency_required number" dependency_required="builders"
+                       data-bind="value: object.bo_m.avg_work_level, disable: readonly"]
+          td
+        tr.font-bold
+          td 2
+          td = t('views.estimates.elements.machinist')
+          td = t('views.estimates.elements.mu.people')
+          td
+            input#machinist[type="text" name="#{t('views.estimates.elements.machinist')}"
+                            rule="number"
+                            data-bind="value: object.bo_m.drivers_amount, disable: readonly"]
+          td
+        tr.font-bold
+          td 3
+          td = t('views.estimates.elements.machinery')
+          td
+          td
+          td.table-actions
+            span#add-mach.mini-icon.add[data-bind="visible: !readonly(), click: addMachinery"]
+        /! ko foreach: object.machinery
+        tr
+          td
+            input[type="text" rule="required"
+                  data-bind="attr: { name: '#{t('views.estimates.elements.machinery')}#' \
+                                          + $parent.indexOfMachinery($data) + \
+                                          ' #{t('views.estimates.code')}', \
+                                     id: 'machinery_uid_' + $parent.indexOfMachinery($data)}, \
+                             value: uid, disable: $parent.readonly"]
+          td
+            input[type="text" rule="required"
+                  data-bind="attr: { name: '#{t('views.estimates.elements.machinery')}#' \
+                                           + $parent.indexOfMachinery($data) + \
+                                           ' #{t('views.estimates.name')}', \
+                                     id: 'machinery_tag_' + $parent.indexOfMachinery($data)}, \
+                             autocomplete: { source: 'assets.json?mu=' + \
+                                           '#{t('views.estimates.elements.mu.machine')}', \
+                                             value: 'tag', onlySelect: false, \
+                                             bind: { id: resource_id } }, \
+                             value: resource.tag, disable: $parent.readonly"]
+          td = t('views.estimates.elements.mu.machine')
+          td
+            input[type="text" rule="required number"
+                  data-bind="attr: { name: '#{t('views.estimates.elements.machinery')}#' \
+                                           + $parent.indexOfMachinery($data) + \
+                                           ' #{t('views.estimates.rate')}', \
+                                     id: 'machinery_rate_' + $parent.indexOfMachinery($data)}, \
+                             value: amount, disable: $parent.readonly"]
+          td.table-actions
+            span#remove-mach.mini-icon.delete[data-bind="visible: !$parent.readonly(), \
+                                              click: function(){ $parent.removeMachinery($data);}"]
+        /! /ko
+        tr.font-bold
+          td 4
+          td = t('views.estimates.elements.resources')
+          td
+          td
+          td.table-actions
+            span#add-res.mini-icon.add[data-bind="visible: !readonly(), click: addMaterials"]
+        /! ko foreach: object.materials
+        tr
+          td
+            input[type="text" rule="required"
+                  data-bind="attr: { name: '#{t('views.estimates.elements.resources')}#' + \
+                                       $parent.indexOfMaterials($data) + \
+                                       ' #{t('views.estimates.code')}', \
+                                     id: 'resources_uid_' + $parent.indexOfMaterials($data) \
+                                   }, value: uid, disable: $parent.readonly"]
+          td
+            input[type="text" rule="required"
+                  data-bind="autocomplete: { source: 'assets.json', \
+                                             value: 'tag', \
+                                             onlySelect: false, \
+                                             bind: { \
+                                              id: resource_id, \
+                                              mu: resource.mu \
+                                             } \
+                                           }, \
+                             attr: { name: '#{t('views.estimates.elements.resources')}#' + \
+                                      $parent.indexOfMaterials($data) + \
+                                      ' #{t('views.estimates.name')}', \
+                                    id: 'resources_tag_' + $parent.indexOfMaterials($data) \
+                                    }, value: resource.tag, disable: $parent.readonly"]
+          td
+            input[type="text" rule="required"
+                  data-bind="attr: { name: '#{t('views.estimates.elements.resources')}#' + \
+                                       $parent.indexOfMaterials($data) + \
+                                       ' #{t('views.resources.mu')}', \
+                                     id: 'resources_mu_' + \
+                                         $parent.indexOfMaterials($data) \
+                                    }, \
+                                    value: resource.mu, disable: $parent.readonly, \
+                                    event: {keypress: $parent.elementResourceClear}"]
+          td
+            input[type="text" rule="required number"
+                  data-bind="attr: { name: '#{t('views.estimates.elements.resources')}#' + \
+                                       $parent.indexOfMaterials($data) + \
+                                       ' #{t('views.estimates.rate')}', \
+                                     id: 'resources_rate_' + \
+                                         $parent.indexOfMaterials($data) \
+                                    }, \
+                                    value: amount, disable: $parent.readonly"]
+          td.table-actions
+            span#remove-res.mini-icon.delete[data-bind="visible: !$parent.readonly(), \
+                                             click: function(){ $parent.removeMaterials($data); }"]
+        /! /ko
+
+= render :partial => "home/select_dialog",
+         :locals => { :dialog_id => 'catalogs_selector',
+                      :dialog_model => 'dialog_catalogs',
+                      :data_path => 'estimate/catalogs/catalogs' }

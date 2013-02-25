@@ -10,20 +10,28 @@
 object false
 child(@transcripts => :objects) do
   node :deal_id do |txn|
-    if @transcript.deal.id == txn.fact.from.id
-      txn.fact.to.id
+    if txn.fact.from
+      if @transcript.deal.id == txn.fact.from.id
+        txn.fact.to.id
+      else
+        txn.fact.from.id
+      end
     else
-      txn.fact.from.id
+      nil
     end
   end
   node :date do |txn|
     txn.fact.day.strftime('%Y-%m-%d')
   end
   node :account do |txn|
-    if @transcript.deal.id == txn.fact.from.id
-      txn.fact.to.tag
+    if txn.fact.from
+      if @transcript.deal.id == txn.fact.from.id
+        txn.fact.to.tag
+      else
+        txn.fact.from.tag
+      end
     else
-      txn.fact.from.tag
+      "#{I18n.t 'views.transcripts.not_exist'}"
     end
   end
   node(:type) { |txn| @transcript.deal.id == txn.fact.to.id ? 'debit' : 'credit' }

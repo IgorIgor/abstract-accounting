@@ -116,38 +116,6 @@ describe Document do
     end
   end
 
-  describe '#paginate' do
-    it 'should split records by pages' do
-      per_page = Settings.root.per_page
-
-      per_page.times { create(:entity) }
-
-      ver1 = Document.paginate()
-      ver1.count.should eq(per_page)
-
-      ver2 = Document.paginate({page: 1})
-      ver1.should eq(ver2)
-
-      ver2 = Document.paginate({page: '1'})
-      ver1.should eq(ver2)
-
-      ver2 = Document.paginate({per_page: per_page})
-      ver1.should eq(ver2)
-
-      ver2 = Document.paginate({per_page: per_page.to_s})
-      ver1.should eq(ver2)
-
-      ver2 = Document.paginate({page: 1, per_page: per_page})
-      ver1.should eq(ver2)
-
-      ver2 = Document.paginate({page: '1', per_page: per_page.to_s})
-      ver1.should eq(ver2)
-
-      ver2 = Document.paginate({page: 2, per_page: per_page})
-      (ver2 & ver1).empty?.should eq(true)
-    end
-  end
-
   describe '#filter' do
     it 'should filtered records' do
       pending "disabled while fix filter with new allocation and waybill fields"

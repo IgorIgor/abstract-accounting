@@ -65,6 +65,8 @@ $ ->
       window.open(url, '_blank');
 
   class self.WarehouseAssetsViewModel extends FolderViewModel
+    @__data_url = '/assets.json'
+
     constructor: (data) ->
       @url = '/assets.json'
 
@@ -77,12 +79,13 @@ $ ->
       self.application.object().select(object)
 
   class self.WarehouseResourceReportViewModel extends FolderViewModel
+    @include ContainDialogHelper
+
     constructor: (data, params = {}) ->
       @url = "/warehouses/report.json"
       @dialog_resources = ko.observable(null)
-      @select_item = ko.observable(null)
-      @dialog_id = null
-      @dialog_element_id = null
+      @initializeContainDialogHelper()
+
       @resource = ko.mapping.fromJS(data.resource)
       @resource_id = ko.observable(params.resource_id)
       @warehouse_id = ko.observable(params.warehouse_id ? data.warehouse_id)
@@ -115,18 +118,12 @@ $ ->
       url = "/warehouses/report.pdf?#{$.param(normalizeHash(ko.mapping.toJS(@params)))}"
       window.open(url, '_blank');
 
-    select: (object) =>
-      @select_item(object)
+    onDialogElementSelected: (object) =>
       @resource.mu(object.ext_info)
-      $("##{@dialog_id}").dialog( "close" )
 
-    setDialogViewModel: (dialogId, dialog_element_id) =>
-      @dialog_id = dialogId
-      @dialog_element_id = dialog_element_id
+    onDialogInitializing: (dialogId) =>
       if dialogId == 'resources_selector'
-        $.getJSON('resources/data.json', {}, (data) =>
-          @dialog_resources(new WarehouseAssetsViewModel(data))
-        )
+        WarehouseAssetsViewModel.all({}, @dialog_resources)
 
     onDataReceived: (data) =>
       @place.tag(data.place.tag)

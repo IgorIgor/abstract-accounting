@@ -1,0 +1,36 @@
+<table>
+  <thead>
+    <tr>
+      <th class="comments-table-column"></th>
+      <th id="local_tag">
+        <%= t 'views.estimates.locals.tag' %>
+      </th>
+      <th id="local_date">
+        <%= t 'views.estimates.locals.date' %>
+      </th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr>
+      <td class='with-comment' data-bind="text: comments_count, click: $parent.loadSubitems"></td>
+      <td data-bind="text: tag, click: $parent.show"></td>
+      <td data-bind="text: date, click: $parent.show"></td>
+      <td class="table-actions">
+        <label data-bind="visible: !approved, click: $parent.cancel"></label>
+        <label class="approved" data-bind="visible: approved"></label>
+      </td>
+    </tr>
+    <tr data-bind="with: subitems">
+      <td rowspan="2"></td>
+      <td colspan="2">
+        <%= render :partial => "home/items_paginate" %>
+      </td>
+    </tr>
+    <tr data-bind="with: subitems">
+      <td colspan="2" class="padright padbot">
+        <%= render :partial => "home/comments", :locals => { :items => 'documents' } %>
+      </td>
+    </tr>
+  </tbody>
+</table>

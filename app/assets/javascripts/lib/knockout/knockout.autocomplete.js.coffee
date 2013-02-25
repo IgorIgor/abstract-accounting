@@ -26,7 +26,7 @@ ko.bindingHandlers.autocomplete =
         bind = config.bind if config.hasOwnProperty("bind")
         for key, value of ui.item.data
           if bind and bind.hasOwnProperty(key)
-            if typeof value == "object"
+            if typeof value == "object" and !$.isArray(value) and value?
               for key2, value2 of value
                 if bind[key].hasOwnProperty(key2)
                   if $.isArray(bind[key][key2])
@@ -37,7 +37,6 @@ ko.bindingHandlers.autocomplete =
               bind[key](value)
           else if (viewModel.hasOwnProperty(key))
             viewModel[key](value)
-
         config.afterChange() if config.afterChange
       )
 

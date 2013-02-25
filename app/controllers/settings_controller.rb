@@ -15,7 +15,7 @@ class SettingsController < ApplicationController
   end
 
   def preview
-    render 'settings/preview', layout: false
+    render 'preview', layout: false
   end
 
   def new

@@ -22,25 +22,20 @@ class DealsController < ApplicationController
   end
 
   def data
-    page = params[:page].nil? ? 1 : params[:page].to_i
-    per_page = params[:per_page].nil? ?
-        Settings.root.per_page.to_i : params[:per_page].to_i
-    filter = { paginate: { page: page, per_page: per_page }}
-    filter[:sort] = params[:order] if params[:order]
+    filter = {}
     filter[:search] = params[:like] if params[:like]
     #TODO: should get filtrate options from client
     @deals = Deal.filtrate(filter)
-    @count = Deal.count
+    @count = @deals.count
+    filter = generate_paginate
+    filter[:sort] = params[:order] if params[:order]
+    @deals = @deals.filtrate(filter)
   end
 
   def rules
     deal = Deal.find(params[:id])
-
-    page = params[:page].nil? ? 1 : params[:page].to_i
-    per_page = params[:per_page].nil? ?
-        Settings.root.per_page.to_i : params[:per_page].to_i
-
-    @rules = deal.rules.limit(per_page).offset((page - 1) * per_page).all
+    filter = generate_paginate
+    @rules = deal.rules.filtrate(filter).all
     @count = deal.rules.count
   end
 

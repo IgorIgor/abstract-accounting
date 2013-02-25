@@ -29,7 +29,11 @@ body, html {
   background: white;
   font-size: 14px;
 }
-
+.hiden {
+  .ui-datepicker-calendar  {
+    display: none!important;
+  }
+}
 a { cursor: pointer; }
 
 input[type=button] {
@@ -116,27 +120,27 @@ input[type=text], input[type=password], textarea {
   }
 }
 
-input[type=button], input[type=submit], .button {
-  background: #dddddd;
-  border: 1px solid #cccccc;
-  color: #000000;
-  border-radius: 3px;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  background: -webkit-linear-gradient(top, #f9f9f9, #e3e3e3);
-  background: -moz-linear-gradient(top, #f9f9f9, #e3e3e3);
-  background: -o-linear-gradient(top, #f9f9f9, #e3e3e3);
-  background: -ms-linear-gradient(top, #f9f9f9, #e3e3e3);
-}
-
-.button:hover, input[type=button]:hover, input[type=submit]:hover {
-  border: 1px solid #aaaaaa;
-}
-
-input[type=button]:disabled, input[type=submit]:disabled {
-  color: #aaaaaa;
-  border: 1px solid #cccccc;
-}
+//input[type=button], input[type=submit], .button {
+//  background: #dddddd;
+//  border: 1px solid #cccccc;
+//  color: #000000;
+//  border-radius: 3px;
+//  -webkit-border-radius: 3px;
+//  -moz-border-radius: 3px;
+//  background: -webkit-linear-gradient(top, #f9f9f9, #e3e3e3);
+//  background: -moz-linear-gradient(top, #f9f9f9, #e3e3e3);
+//  background: -o-linear-gradient(top, #f9f9f9, #e3e3e3);
+//  background: -ms-linear-gradient(top, #f9f9f9, #e3e3e3);
+//}
+//
+//.button:hover, input[type=button]:hover, input[type=submit]:hover {
+//  border: 1px solid #aaaaaa;
+//}
+//
+//input[type=button]:disabled, input[type=submit]:disabled {
+//  color: #aaaaaa;
+//  border: 1px solid #cccccc;
+//}
 
 #main {
   //padding: 0 0 0 10px;
@@ -331,6 +335,10 @@ input[type=button]:disabled, input[type=submit]:disabled {
         }
       }
 
+      tr.with-pad th{
+        padding: 0 4px;
+      }
+
       th {
         border-right: $table_border;
         border-bottom: $table_border;
@@ -403,6 +411,10 @@ input[type=button]:disabled, input[type=submit]:disabled {
           padding: 0;
         }
 
+        td.min-padding {
+          padding: 2px;
+        }
+
         td.cell-entity {
           width: 12%;
         }
@@ -460,6 +472,11 @@ input[type=button]:disabled, input[type=submit]:disabled {
             cursor: pointer;
           }
 
+          td.table-actions label.approved {
+            background: url("approve.jpg") no-repeat;
+            cursor: pointer;
+          }
+
           .table-actions {
             width: 17px;
             padding: 4px 2px 0 3px;
@@ -478,6 +495,9 @@ input[type=button]:disabled, input[type=submit]:disabled {
           input[disabled] {
             background: #fff;
           }
+        }
+        table.withoutmargin {
+          margin: 0;
         }
 
         legend{
@@ -519,6 +539,20 @@ input[type=button]:disabled, input[type=submit]:disabled {
               width: 1px;
               padding-right: 6px;
             }
+          }
+        }
+
+        .item-list {
+          display: block;
+          margin: 4px 0;
+          padding: 2px 0;
+          width: 100%;
+          border: 1px solid #a9a9a9;
+
+          .list-header {
+            display: block;
+            padding: 2px 8px;
+            border-bottom: 1px solid #d3d3d3;
           }
         }
       }
@@ -784,6 +818,116 @@ input[type=button]:disabled, input[type=submit]:disabled {
 
 .margtop { margin-top: 10px; }
 
+.margbot { margin-bottom: 10px!important; }
+
+.padbot { padding-bottom: 5px!important; }
+
 .padleft { padding-left: 5px;}
 
 .width { width:100%; }
+
+.delete {
+  width: 16px;
+  background: url("close.png") no-repeat;
+  background-position: center;
+}
+
+.with-comment {
+  width: 35px;
+  background: url("comment.png") no-repeat;
+  background-position: left;
+  text-align: right;
+}
+
+.width550 { width:550px!important;}
+
+.padright { padding-right: 16px!important;}
+
+.withoutborder {
+  td {
+    border: none!important;
+  }
+}
+
+.overflow {
+  padding-top: 10px;
+  margin-bottom: 10px;
+  display: block!important;
+  overflow-x: scroll;
+  z-index: 2000;
+}
+
+table {
+  .cell-link {
+    padding: 2px 6px;
+    display: inline-block;
+    background-color: #d3d3d3;
+    border: #a9a9a9 1px solid;
+    border-radius: 2px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+
+    background-color: #A8A8A8;
+    background-image: -moz-linear-gradient(top, #DEDEDE, #ABABAB);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#DEDEDE), to(#ABABAB));
+    background-image: -webkit-linear-gradient(top, #DEDEDE, #ABABAB);
+    background-image: -o-linear-gradient(top, #DEDEDE, #ABABAB);
+    background-image: linear-gradient(to bottom, #DEDEDE, #ABABAB);
+    background-repeat: repeat-x;
+    border-color: #ABABAB #ABABAB #9C9C9C;
+  }
+  .cell-link:hover {
+    background-color: #909090;
+    background-image: -moz-linear-gradient(top, #A0A0A0, #A7A7A7);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#A0A0A0), to(#A7A7A7));
+    background-image: -webkit-linear-gradient(top, #A0A0A0, #A7A7A7);
+    background-image: -o-linear-gradient(top, #A0A0A0, #A7A7A7);
+    background-image: linear-gradient(to bottom, #A0A0A0, #A7A7A7);
+    background-repeat: repeat-x;
+    border-color: #A0A0A0 #A0A0A0 #989898;
+  }
+}
+
+.breadcrumbs {
+  clear: both;
+
+  ul.path {
+    padding-left: 0;
+    margin: 0;
+
+    li {
+      height: 22px;
+      margin: 1px 0 1px 4px;
+      padding: 2px 4px;
+      display: inline-block;
+      line-height: 26px;
+    }
+    li:hover {
+      cursor: pointer;
+      outline: 1px solid #ccc;
+    }
+    li:last-child {
+      border: 1px solid #f0f0f0;
+      border-top: 2px solid #ccc;
+      border-left: 2px solid #ccc;
+      -webkit-border-radius: 3px;
+      -moz-border-radius: 3px;
+      border-radius: 3px;
+    }
+    li:last-child:hover{
+      outline: 0;
+      cursor: default;
+      background: url("arrow-right.jpg") no-repeat;
+      background-position: 3px;
+    }
+    .arrow_right {
+      padding-left: 22px;
+      background: url("arrow-right.jpg") no-repeat;
+      background-position: 3px;
+    }
+    .arrow_right:hover {
+      background: url("arrow-right-grey.jpg") no-repeat;
+      background-position: 3px;
+    }
+  }
+}

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121226073932) do
+ActiveRecord::Schema.define(:version => 20130218134053) do
 
   create_table "allocations", :force => true do |t|
     t.integer  "deal_id"
@@ -40,30 +40,6 @@ ActiveRecord::Schema.define(:version => 20121226073932) do
 
   add_index "balances", ["deal_id", "start"], :name => "index_balances_on_deal_id_and_start", :unique => true
 
-  create_table "bo_m_elements", :force => true do |t|
-    t.integer "bom_id"
-    t.integer "resource_id"
-    t.float   "rate"
-  end
-
-  add_index "bo_m_elements", ["bom_id"], :name => "index_bo_m_elements_on_bom_id"
-  add_index "bo_m_elements", ["resource_id"], :name => "index_bo_m_elements_on_resource_id"
-
-  create_table "bo_ms", :force => true do |t|
-    t.integer "resource_id"
-    t.string  "tab"
-  end
-
-  add_index "bo_ms", ["resource_id"], :name => "index_bo_ms_on_resource_id"
-  add_index "bo_ms", ["tab"], :name => "index_bo_ms_on_tab"
-
-  create_table "bo_ms_catalogs", :id => false, :force => true do |t|
-    t.integer "bo_m_id"
-    t.integer "catalog_id"
-  end
-
-  add_index "bo_ms_catalogs", ["bo_m_id", "catalog_id"], :name => "index_bo_ms_catalogs_on_bo_m_id_and_catalog_id", :unique => true
-
   create_table "business_people", :force => true do |t|
     t.integer "country_id"
     t.integer "identifier_id"
@@ -74,21 +50,6 @@ ActiveRecord::Schema.define(:version => 20121226073932) do
   add_index "business_people", ["country_id"], :name => "index_business_people_on_country_id"
   add_index "business_people", ["identifier_id", "identifier_type"], :name => "index_business_people_on_identifier_id_and_identifier_type"
   add_index "business_people", ["person_id"], :name => "index_business_people_on_person_id"
-
-  create_table "catalogs", :force => true do |t|
-    t.string  "tag"
-    t.integer "parent_id"
-  end
-
-  add_index "catalogs", ["parent_id", "tag"], :name => "index_catalogs_on_parent_id_and_tag", :unique => true
-  add_index "catalogs", ["parent_id"], :name => "index_catalogs_on_parent_id"
-
-  create_table "catalogs_price_lists", :id => false, :force => true do |t|
-    t.integer "catalog_id"
-    t.integer "price_list_id"
-  end
-
-  add_index "catalogs_price_lists", ["catalog_id", "price_list_id"], :name => "index_catalogs_price_lists_on_catalog_id_and_price_list_id", :unique => true
 
   create_table "charts", :force => true do |t|
     t.integer "currency_id"
@@ -179,25 +140,70 @@ ActiveRecord::Schema.define(:version => 20121226073932) do
 
   add_index "entities", ["detail_id"], :name => "index_entities_on_detail_id"
 
-  create_table "estimate_elements", :force => true do |t|
-    t.integer "estimate_id"
-    t.integer "bom_id"
+  create_table "estimate_bo_ms", :force => true do |t|
+    t.integer "resource_id"
+    t.string  "uid"
+    t.integer "catalog_id"
+    t.integer "parent_id"
     t.float   "amount"
+    t.float   "workers_amount"
+    t.float   "avg_work_level"
+    t.float   "drivers_amount"
+    t.integer "bom_type"
   end
 
-  add_index "estimate_elements", ["bom_id"], :name => "index_estimate_elements_on_bom_id"
-  add_index "estimate_elements", ["estimate_id"], :name => "index_estimate_elements_on_estimate_id"
+  add_index "estimate_bo_ms", ["resource_id"], :name => "index_bo_ms_on_resource_id"
+  add_index "estimate_bo_ms", ["uid"], :name => "index_bo_ms_on_tab"
+  add_index "estimate_bo_ms", ["uid"], :name => "index_estimate_bo_ms_on_uid"
 
-  create_table "estimates", :force => true do |t|
-    t.integer  "catalog_id"
-    t.integer  "deal_id"
-    t.integer  "legal_entity_id"
+  create_table "estimate_catalogs", :force => true do |t|
+    t.string  "tag"
+    t.integer "parent_id"
+    t.integer "document_id"
+  end
+
+  add_index "estimate_catalogs", ["parent_id", "tag"], :name => "index_catalogs_on_parent_id_and_tag", :unique => true
+  add_index "estimate_catalogs", ["parent_id"], :name => "index_catalogs_on_parent_id"
+
+  create_table "estimate_documents", :force => true do |t|
+    t.string "title"
+    t.binary "data"
+  end
+
+  create_table "estimate_local_elements", :force => true do |t|
+    t.integer "local_id"
+    t.float   "amount"
+    t.integer "price_id"
+  end
+
+  add_index "estimate_local_elements", ["local_id"], :name => "index_estimate_elements_on_estimate_id"
+
+  create_table "estimate_locals", :force => true do |t|
     t.datetime "date"
+    t.string   "tag"
+    t.integer  "project_id"
+    t.datetime "approved"
+    t.datetime "canceled"
   end
 
-  add_index "estimates", ["catalog_id"], :name => "index_estimates_on_catalog_id"
-  add_index "estimates", ["deal_id"], :name => "index_estimates_on_deal_id"
-  add_index "estimates", ["legal_entity_id"], :name => "index_estimates_on_legal_entity_id"
+  create_table "estimate_prices", :force => true do |t|
+    t.date    "date"
+    t.integer "bo_m_id"
+    t.integer "catalog_id"
+    t.float   "direct_cost"
+    t.float   "workers_cost"
+    t.float   "machinery_cost"
+    t.float   "drivers_cost"
+    t.float   "materials_cost"
+  end
+
+  create_table "estimate_projects", :force => true do |t|
+    t.integer "place_id"
+    t.integer "customer_id"
+    t.string  "customer_type"
+    t.integer "boms_catalog_id"
+    t.integer "prices_catalog_id"
+  end
 
   create_table "facts", :force => true do |t|
     t.datetime "day"
@@ -314,24 +320,6 @@ ActiveRecord::Schema.define(:version => 20121226073932) do
   create_table "places", :force => true do |t|
     t.string "tag"
   end
-
-  create_table "price_lists", :force => true do |t|
-    t.integer  "resource_id"
-    t.datetime "date"
-    t.string   "tab"
-  end
-
-  add_index "price_lists", ["resource_id"], :name => "index_price_lists_on_resource_id"
-  add_index "price_lists", ["tab"], :name => "index_price_lists_on_tab"
-
-  create_table "prices", :force => true do |t|
-    t.integer "resource_id"
-    t.float   "rate"
-    t.integer "price_list_id"
-  end
-
-  add_index "prices", ["price_list_id"], :name => "index_prices_on_price_list_id"
-  add_index "prices", ["resource_id"], :name => "index_prices_on_resource_id"
 
   create_table "quotes", :force => true do |t|
     t.integer  "money_id"

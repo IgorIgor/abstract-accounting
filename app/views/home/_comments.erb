@@ -1,0 +1,16 @@
+<!-- ko foreach: <%= items %> -->
+<fieldset class="comment">
+  <legend data-bind="text: user + ' <%= t 'layouts.comments.at' %> ' + at" ></legend>
+  <span data-bind="text: message"></span>
+</fieldset>
+<!-- /ko -->
+
+<% if current_user.root? %>
+  <span><%= t 'layouts.comments.denied' %></span>
+<% else %>
+  <textarea id="message" rows="5" class='width'
+            data-bind="value: message, valueUpdate: 'afterkeydown'">
+  </textarea>
+  <input type="button" value="<%= t('layouts.comments.save') %>"
+         data-bind="click: saveComment, disable: disableSaveComment"/>
+<% end %>

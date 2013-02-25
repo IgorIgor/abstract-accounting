@@ -8,17 +8,19 @@ $ ->
       name_i = @name
       method_i = @method
       ->
-        controller = new window["#{name_i.camelize()}Controller"]()
-        controller.params = this.params
-        controller._action(method_i)
+        if method_i != "edit"
+          controller = new window["#{name_i.camelize()}Controller"]()
+          controller.params = this.params
+          controller._action(method_i)
+        #else
+          #location.hash = this.path.remove(/\/edit/g).remove(/\/#/)
 
   class self.BasicRoutes
     @INDEX = 1
     @NEW = 2
-    @EDIT = 3
-    @SHOW = 4
+    @SHOW = 3
 
-    @DEFAULT_ACTIONS = [@INDEX, @NEW, @SHOW, @EDIT]
+    @DEFAULT_ACTIONS = [@INDEX, @NEW, @SHOW]
 
     _routes: () ->
       @routes
@@ -30,6 +32,7 @@ $ ->
     constructor: (@path, @name, @options = {}) ->
       Object.merge(@options, only: BasicRoutes.DEFAULT_ACTIONS, false, false)
       super()
+
     generate: (block = undefined) =>
       block.call(this) if block?
 
@@ -38,8 +41,7 @@ $ ->
 
       @routes.push new Route("##{@path}#{@name}/:id", @name,
         "show") if BasicRoutes.SHOW in @options.only
-      @routes.push new Route("##{@path}#{@name}/:id/edit", @name,
-        "edit") if BasicRoutes.EDIT in @options.only
+      @routes.push new Route("##{@path}#{@name}/:id/edit", @name, "edit")
       this
 
     collection: (method) ->

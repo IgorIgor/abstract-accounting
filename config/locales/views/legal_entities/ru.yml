@@ -5,6 +5,8 @@ ru:
       country: Страна
       ident_name: Название идентификатора
       ident_value: Идентификатор
+      identifier:
+        vatin: ИНН
       page:
         title:
           show: Просмотр юр. лица

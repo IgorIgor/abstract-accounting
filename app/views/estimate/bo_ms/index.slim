@@ -1,0 +1,23 @@
+- content_for :search  do
+  = render 'filter'
+table
+  thead
+    tr
+      th#uid data-bind="click: sortBy"
+        = t('views.estimates.uid')
+        span
+      th#tag data-bind="click: sortBy"
+        = t('views.resources.tag')
+        span
+      th#mu data-bind="click: sortBy"
+        = t('views.resources.mu')
+        span
+      th#catalog_tag data-bind="click: sortBy"
+        = t('views.estimates.catalog')
+        span
+  tbody data-bind="foreach: documents"
+    tr data-bind="click: $parent.show"
+      td data-bind="text: uid"
+      td data-bind="text: resource.tag"
+      td data-bind="text: resource.mu"
+      td data-bind="text: catalog.tag"

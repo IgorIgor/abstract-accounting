@@ -50,3 +50,19 @@
     cursor: pointer;
   }
 }
+
+.elements-align-center {
+  text-align: center;
+  input {
+    text-align: center;
+  }
+  .col-width {
+    min-width: 100px;
+  }
+  .tag-width {
+    min-width: 200px;
+  }
+  .font-bold {
+    font-weight: bold;
+  }
+}

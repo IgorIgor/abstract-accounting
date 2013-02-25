@@ -25,10 +25,11 @@
 #= require koExternalTemplateEngine
 #
 #= require_tree ./lib
-#= require vms/base
-#= require_directory ./vms
+#= require vms/common/base
+#= require_tree ./vms/common
+#= require_tree ./vms
 #= require controllers/application_controller
-#= require_directory ./controllers
+#= require_tree ./controllers
 #= require_directory ./config
 #= require_self
 $ ->
@@ -110,7 +111,7 @@ $ ->
           toggle = false
           location.hash = $('#deals_data').attr('href')
       else
-        if event.target.id == 'deals'
+        if event.target.id == 'deals_data'
           location.hash = $('#deals_data').attr('href')
         $('#arrow_actions').removeClass('arrow-right-expand')
         $('#arrow_actions').addClass('arrow-down-expand')
@@ -124,6 +125,8 @@ $ ->
           @slideMenu('#slide_menu_lists', '#arrow_lists')
         when 'btn_slide_services'
           @slideMenu('#slide_menu_services', '#arrow_services')
+        when 'btn_slide_estimate'
+          @slideMenu('#slide_menu_estimate', '#arrow_estimate')
 
     slideMenu: (slide_id, arrow_id) ->
         if $(slide_id).is(":visible")

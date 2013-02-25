@@ -93,29 +93,6 @@ FactoryGirl.define do
     rate 1.0
   end
 
-  factory :price do
-    resource { |price| price.association(:asset) }
-    rate 10.0
-    price_list_id 1
-  end
-
-  factory :price_list do
-    resource { |plist| plist.association(:asset) }
-    date Date.new(2012, 1, 1)
-    tab "sometab"
-  end
-
-  factory :bo_m do
-    resource { |b| b.association(:asset) }
-    tab "sometab"
-  end
-
-  factory :bo_m_element do
-    resource { |element| element.association(:asset) }
-    rate 0.45
-    bom_id 1
-  end
-
   factory :mu do
     tag
   end
@@ -201,5 +178,45 @@ FactoryGirl.define do
     sequence(:message) { |n| "msg#{n}" }
     date DateTime.now
     notification_type 1
+  end
+
+
+
+  factory :price, class: Estimate::Price do
+    sequence(:date) { |i| Date.new(2000 + i, 1, 1)}
+    direct_cost 10.0
+    bo_m
+    catalog
+  end
+
+  factory :bo_m, class: Estimate::BoM do
+    resource { |b| b.association(:asset) }
+    sequence(:uid) { |n| "uid##{n}" }
+    catalog
+  end
+
+  factory :document, class: Estimate::Document do
+    sequence(:title) { |n| "document##{n}" }
+    data "<html><head><title>Title of document</title></head><body><h1>Data of document</h1></body></html>"
+  end
+
+  factory :catalog, class: Estimate::Catalog do
+    sequence(:tag) { |n| "catalog##{n}" }
+    parent_id nil
+    document_id nil
+  end
+
+  factory :project, class: Estimate::Project do
+    place
+    customer { |pr| pr.association(:entity)}
+    boms_catalog  { |b| b.association(:catalog) }
+    prices_catalog  { |b| b.association(:catalog) }
+  end
+
+  factory :local, class: Estimate::Local do
+    sequence(:tag) { |n| "local##{n}" }
+    project
+    date DateTime.now
+    canceled nil
   end
 end

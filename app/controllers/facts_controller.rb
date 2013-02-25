@@ -9,7 +9,7 @@
 
 class FactsController < ApplicationController
   def preview
-    render 'facts/preview', layout: false
+    render 'preview', layout: false
   end
 
   def new

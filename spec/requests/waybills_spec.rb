@@ -1263,8 +1263,6 @@ feature "waybill", %q{
         search_by_states({inwork: true, canceled: true, applied: true, reversed: false}).all
     wait_for_ajax
 
-    ap waybills
-
     should_present_waybill_with_resource(waybills)
 
     page.find("#waybill_types").click

@@ -5,6 +5,8 @@ en:
       country: Country
       ident_name: Identifier name
       ident_value: Identifier value
+      identifier:
+        vatin: VATIN
       page:
         title:
           show: Show legal entity

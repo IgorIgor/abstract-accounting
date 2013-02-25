@@ -137,10 +137,6 @@ class WaybillsController < ApplicationController
   end
 
   def present
-    page = params[:page].nil? ? 1 : params[:page].to_i
-    per_page = params[:per_page].nil? ?
-        Settings.root.per_page.to_i : params[:per_page].to_i
-
     scope = autorize_warehouse(Waybill)
     if scope
       scope = scope.
@@ -151,7 +147,7 @@ class WaybillsController < ApplicationController
       @count = SqlRecord.from(scope.to_sql).count
       @count = @count.length unless @count.instance_of? Fixnum
       scope = scope.order_by(params[:order]) if params[:order]
-      @waybills = scope.limit(per_page).offset((page - 1) * per_page).includes_all
+      @waybills = scope.filtrate(generate_paginate).includes_all
     else
       @count = 0
       @waybills = []
@@ -159,10 +155,6 @@ class WaybillsController < ApplicationController
   end
 
   def data
-    page = params[:page].nil? ? 1 : params[:page].to_i
-    per_page = params[:per_page].nil? ?
-        Settings.root.per_page.to_i : params[:per_page].to_i
-
     scope = autorize_warehouse(Waybill)
     if scope
       params[:search] ||= {}
@@ -173,10 +165,10 @@ class WaybillsController < ApplicationController
       @count = scope.count
       @count = @count.length unless @count.instance_of? Fixnum
       @total = scope.total
-      filter = {}
-      filter[:paginate] = { page: page, per_page: per_page }
+
+      filter = generate_paginate
       filter[:sort] = params[:order] if params[:order]
-      @waybills = scope.filtrate(filter)
+      @waybills = scope.filtrate(filter).includes_all
     else
       @count = 0
       @total = 0.0
@@ -188,10 +180,6 @@ class WaybillsController < ApplicationController
     respond_to do |format|
       format.html { render :'waybills/list', layout: 'data_with_filter' }
       format.json do
-        page = params[:page].nil? ? 1 : params[:page].to_i
-        per_page = params[:per_page].nil? ?
-            Settings.root.per_page.to_i : params[:per_page].to_i
-
         scope = autorize_warehouse(WaybillReport, alias: Waybill)
         if scope
           scope = scope.with_resources
@@ -203,8 +191,8 @@ class WaybillsController < ApplicationController
           @count = scope.count
           @count = @count.size if @count.kind_of? Hash
           @total = scope.total
-          filter = {}
-          filter[:paginate] = { page: page, per_page: per_page }
+
+          filter = generate_paginate
           filter[:sort] = params[:order] if params[:order]
           @list = scope.filtrate(filter).select_all.includes_all
         else

@@ -17,7 +17,18 @@ en:
       transcripts: "Transcripts"
       search: "Search"
       logout: "Logout"
-      estimate: "Estimate"
+      estimate:
+        tag: Estimates
+        bo_ms:
+          new: BoM creation
+          data: BoMs
+        price:
+          new: Price creation
+          data: Prices
+        catalogs: Catalogs
+        projects:
+          new: Project creation
+          data: Projects
       waybill: "Waybill"
       waybills: Waybills
       allocation: Allocation

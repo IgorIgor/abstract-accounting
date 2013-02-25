@@ -1,0 +1,9 @@
+table
+  thead
+    tr
+      th#tag data-bind="click: sortBy"
+        = t 'views.estimates.catalogs.tag'
+        span
+  tbody data-bind="foreach: documents"
+    tr data-bind="click: $parent.select"
+      td data-bind="text: tag"

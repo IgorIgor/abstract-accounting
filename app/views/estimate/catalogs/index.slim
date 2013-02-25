@@ -1,0 +1,30 @@
+.actions
+  input[type='button' value="#{t('views.estimates.catalogs.create')}"
+        data-bind="click: newCatalog"]
+.breadcrumbs
+  ul.path data-bind="foreach: parents"
+    li.arrow_right data-bind="text: tag, click: $parent.selectParent"
+table
+  thead
+    tr
+      th#tag data-bind="click: sortBy"
+        = t('views.estimates.catalogs.tag')
+        span
+      th#document_id
+        = t('views.estimates.catalogs.activity')
+  tbody data-bind="foreach: documents"
+    tr
+      td data-bind="text: tag, click: $parent.selectItem"
+      td.min-padding
+        /! ko if: document_id != null
+        span.cell-link data-bind="click: $parent.showDocument"
+          = t('views.estimates.catalogs.view_document')
+        /! /ko
+        /!ko if: have_boms
+        span.cell-link data-bind="click: $parent.showBoMs"
+          = t('views.estimates.catalogs.view_boms')
+        /! /ko
+        /! ko if: have_prices
+        span.cell-link data-bind="click: $parent.showPrices"
+          = t('views.estimates.catalogs.view_prices')
+        /! /ko

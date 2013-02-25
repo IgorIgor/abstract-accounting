@@ -1,0 +1,126 @@
+<form data-bind="validate: { success: save }">
+  <div class='actions'>
+    <%= render :partial => "home/buttons", :locals => { :editable => true } %>
+  </div>
+
+  <span id="page-title">
+    <!-- ko if: readonly -->
+    <%= t('views.estimates.price.page.title.show') %>
+    <!-- /ko -->
+    <!-- ko ifnot: readonly -->
+      <!-- ko if: id_presence -->
+      <%= t('views.estimates.price.page.title.edit') %>
+      <!-- /ko -->
+      <!-- ko ifnot: id_presence -->
+      <%= t('views.estimates.price.page.title.new') %>
+      <!-- /ko -->
+    <!-- /ko -->
+  </span>
+
+  <%= render 'home/errors' %>
+
+  <fieldset>
+  <div>
+    <div>
+      <span class="form-cell-label">
+        <label for="date"><%= t 'views.estimates.date' %>:</label>
+      </span>
+      <span>
+        <input type="text" id="date" name="<%= t 'views.estimates.date' %>"
+               rule="required" data-bind="monthpicker:{ value: object.price.date },
+                                          disable: readonly">
+      </span>
+    </div>
+    <div>
+      <span class="form-cell-label">
+        <label for="uid"><%= t('views.estimates.uid') %>:</label>
+      </span>
+      <span>
+        <input id="uid" type="text" name="<%= t('views.estimates.uid') %>"  rule="required"
+               data-bind="autocomplete: { source: 'estimate/bo_ms.json',
+                                          value: 'uid',
+                                          onlySelect: true,
+                                          bind: {
+                                            id: object.price.bo_m_id,
+                                            tag: object.price.tag,
+                                            mu: object.price.mu,
+                                            catalog_id: object.price.catalog_id,
+                                            catalog_tag: object.catalog.tag
+                                          }
+                                         },
+                          value: object.price.uid,
+                          disable: readonly"/>
+      </span>
+    </div>
+    <div>
+      <span class="form-cell-label">
+        <label for="asset_tag"><%= t('views.resources.tag') %>:</label>
+      </span>
+      <span>
+        <input type="text" id="asset_tag"
+               name="<%= t('views.resources.tag') %>" rule="required"
+               data-bind="value: object.price.tag, disable: true">
+      </span>
+    </div>
+    <div>
+      <span class="form-cell-label">
+        <label for="asset_mu"><%= t('views.resources.mu') %>:</label>
+      </span>
+      <span>
+        <input type="text" id="asset_mu"
+               name="<%= t('views.resources.mu') %>"
+               data-bind="value: object.price.mu, disable: true">
+      </span>
+    </div>
+    <div>
+      <span class="form-cell-label">
+        <label for="price_catalog"><%= t('views.estimates.catalog') %>:</label>
+      </span>
+      <span>
+        <input type="text" id="price_catalog" rule="required"
+               name="<%= t('views.estimates.catalog') %>"
+               data-bind="dialog: { autoOpen: false,
+                                     modal: true,
+                                     minWidth: 480,
+                                     minHeight: 300,
+                                     bind: { id: object.price.catalog_id,
+                                             tag: object.catalog.tag}
+                                   },
+                          dialogId: 'catalogs_selector',
+                          value: object.catalog.tag,
+                          disable: readonly">
+      </span>
+    </div>
+  </div>
+    <table class="elements-align-center">
+      <thead>
+        <tr>
+          <th class="col-width"><%= t('views.estimates.price.direct_cost') %></th>
+          <th class="col-width"><%= t('views.estimates.price.workers_cost') %></th>
+          <th class="col-width"><%= t('views.estimates.price.machinery_cost') %></th>
+          <th class="col-width"><%= t('views.estimates.price.drivers_cost') %></th>
+          <th class="col-width"><%= t('views.estimates.price.materials_cost') %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-bind="with: object.price">
+          <td><input type="text" rule="required number" name='<%= t('views.estimates.price.direct_cost') %>'
+                     data-bind="value: direct_cost, disable: $parent.readonly"></td>
+          <td><input type="text"
+                     data-bind="value: workers_cost, disable: $parent.readonly"></td>
+          <td><input type="text"
+                     data-bind="value: machinery_cost, disable: $parent.readonly"></td>
+          <td><input type="text"
+                     data-bind="value: drivers_cost, disable: $parent.readonly"></td>
+          <td><input type="text"
+                     data-bind="value: materials_cost, disable: $parent.readonly"></td>
+        </tr>
+      </tbody>
+    </table>
+  </fieldset>
+</form>
+
+<%= render :partial => "home/select_dialog",
+           :locals => { :dialog_id => 'catalogs_selector',
+           :dialog_model => 'dialog_catalogs',
+           :data_path => 'estimate/catalogs/catalogs' } %>

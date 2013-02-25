@@ -1,5 +1,7 @@
 $ ->
   class self.DealsViewModel extends TreeViewModel
+    @__data_url = '/deals/data.json'
+
     constructor: (data, canSelect = false) ->
       @url = '/deals/data.json'
       @canSelect = ko.observable(canSelect)
@@ -52,3 +54,13 @@ $ ->
       @params =
         page: @page
         per_page: @per_page
+
+  class self.DialogDealsViewModel extends FolderViewModel
+    constructor: (data) ->
+      @url = 'deals/data.json'
+      @filter =
+        tag: ko.observable('')
+
+      super(data)
+
+    @include DialogsHelper

@@ -10,8 +10,7 @@ ko.bindingHandlers.dialog =
       viewModel.setDialogViewModel(dialog_id, element.id)
       $("##{dialog_id}").dialog( "open" )
     )
-
-    ko.utils.domNodeDisposal.addDisposeCallback($('#main').get(0), () =>
+    ko.utils.domNodeDisposal.addDisposeCallback(element, ->
       $("##{dialog_id}").dialog("destroy")
       $("##{dialog_id}").remove()
     )

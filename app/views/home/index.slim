@@ -147,6 +147,26 @@
             li#transcripts_data
               a href="#transcripts" = t('views.home.transcripts')
 
+      .slider
+        div#arrow_estimate.arrow-down-slide
+        a#btn_slide_estimate.btn-slide[data-bind="click: slide"]
+          = t('views.home.estimate.tag')
+        ul#slide_menu_estimate.slide_menu[style="display: none;"]
+          li#estimate_bo_ms_new
+            a href="#estimate/bo_ms/new" = t('views.home.estimate.bo_ms.new')
+          li#estimate_prices_new
+            a href="#estimate/prices/new" = t('views.home.estimate.price.new')
+          li#estimate_catalogs_data
+            a href="#estimate/catalogs" = t('views.home.estimate.catalogs')
+          li#estimate_prices_data
+            a href="#estimate/prices" = t('views.home.estimate.price.data')
+          li#estimate_bo_ms_data
+            a href="#estimate/bo_ms" = t('views.home.estimate.bo_ms.data')
+          li#estimate_projects_new
+            a href="#estimate/projects/new" = t('views.home.estimate.projects.new')
+          li#estimate_projects_data
+            a href="#estimate/projects" = t('views.home.estimate.projects.data')
+
   /! The overlay and the box
   div#message_box.message-box msgType='information' style="display: none"
     span

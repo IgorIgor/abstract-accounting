@@ -16,4 +16,13 @@ describe Comment do
     should belong_to :user
     should belong_to :item
   end
+
+  it 'should return items by id and type' do
+    Comment.create(user_id:  1, message: '1', item_id: 1, item_type: User.name)
+    Comment.create(user_id:  2, message: '2', item_id: 2, item_type: User.name)
+    Comment.with_item(1, User.name).should eq Comment.
+      where{ (item_id == 1) & (item_type == User.name) }
+    Comment.with_item(2, User.name).should eq Comment.
+      where{ (item_id == 2) & (item_type == User.name) }
+  end
 end

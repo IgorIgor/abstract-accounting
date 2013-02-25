@@ -1,0 +1,30 @@
+<label><%=t 'views.estimates.uid' %></label>
+<input type="text" id="filter_uid" data-bind="value: filter.uid"/>
+<label><%=t 'views.resources.mu' %></label>
+<input type="text" id="filter_mu" data-bind="value: filter.mu"/>
+<label><%=t 'views.resources.tag' %></label>
+<input type="text" id="filter_tag" data-bind="value: filter.tags.main,
+                                              valueUpdate: 'afterkeydown'"/>
+<input type="button" value="<%= t('views.estimates.filter.add_inclusion') %>" class="margbot"
+       id="addtag" data-bind="click: addTag, disable: disableInclusionBtn">
+<table class="withoutborder">
+  <tbody data-bind="foreach:{ data: filter.tags.more }">
+    <tr>
+      <td>
+        <select id="type" data-bind="value: type">
+          <option value="<%= t('views.estimates.filter.and') %>">
+            <%= t('views.estimates.filter.and') %>
+          </option>
+          <option value="<%= t('views.estimates.filter.or') %>">
+            <%= t('views.estimates.filter.or') %>
+          </option>
+        </select>
+      </td>
+      <td><input type="text" data-bind="value: tag,
+         attr: { id: 'tag' + $parent.filter.tags.more.indexOf($data)}">
+      </td>
+      <td class="delete" data-bind="click: $parent.removeTag,
+        attr: { id: 'delete' + $parent.filter.tags.more.indexOf($data)}"></td>
+    </tr>
+  </tbody>
+</table>

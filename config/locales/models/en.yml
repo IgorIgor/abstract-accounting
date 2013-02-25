@@ -8,6 +8,7 @@ en:
       money: Money
       waybill: Waybill
       deal: Deal
+      place: Place
     attributes:
       country:
         default:
@@ -40,6 +41,17 @@ en:
           apply: Apply allocation
           cancel: Cancel allocation
           reverse: Reverse allocation
+      estimate:
+        local:
+          comment:
+            create: Create estimate
+            update: Update estimate
+            apply: Apply estimate
+            cancel: Cancel estimate
+        project:
+          comment:
+            create: Create project
+            update: Update project
     defaults:
       assets:
         shipment: Shipment

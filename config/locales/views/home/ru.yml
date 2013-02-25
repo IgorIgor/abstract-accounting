@@ -17,7 +17,18 @@ ru:
       transcripts: "Выписки"
       search: "Поиск"
       logout: "Выйти"
-      estimate: "Смета"
+      estimate:
+        tag: Сметы
+        bo_ms:
+          new: Создание сметной нормы
+          data: Сметные нормы
+        price:
+          new: Создание сметных расценок
+          data: Расценки
+        catalogs: Каталоги
+        projects:
+          new: Создание проекта
+          data: Проекты
       waybill: "Накладная"
       waybills: Накладные
       allocation: Выдача
@@ -48,4 +59,4 @@ ru:
       fact: Проводка
       notify: Уведомить
       notifications: Уведомления
-      foreman_report: 'Отчет для прораба'
+      foreman_report: "Отчет для бригадира"

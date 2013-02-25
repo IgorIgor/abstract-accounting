@@ -71,17 +71,24 @@ class ApplicationController < ActionController::Base
   end
 
   protected
-  alias_method :sorcery_login_from_session, :login_from_session
-  def login_from_session
-    @current_user = (RootUser.new if session[:root]) || sorcery_login_from_session
-  end
+    alias_method :sorcery_login_from_session, :login_from_session
+    def login_from_session
+      @current_user = (RootUser.new if session[:root]) || sorcery_login_from_session
+    end
 
   private
-  def not_authenticated
-    redirect_to login_path, alert: t('alert.unauthorized_access')
-  end
+    def not_authenticated
+      redirect_to login_path, alert: t('alert.unauthorized_access')
+    end
 
-  def check_chart
-    render :js => "window.location = '/#settings/new'" unless Chart.count > 0
-  end
+    def check_chart
+      render :js => "window.location = '/#settings/new'" unless Chart.count > 0
+    end
+
+    def generate_paginate
+      page = params[:page].nil? ? 1 : params[:page].to_i
+      per_page = params[:per_page].nil? ?
+          Settings.root.per_page.to_i : params[:per_page].to_i
+      { paginate: { page: page, per_page: per_page }}
+    end
 end

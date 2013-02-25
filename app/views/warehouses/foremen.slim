@@ -18,8 +18,9 @@
   input#foremen_filter_to[type="text" style="width: 80px;"
                           data-bind="datepicker:{ value: to, maxDate: '+0' }, \
                                      event: {change: filterData}"]
-  div.inline-block[data-bind="slider: { pressed: 'print_btn', slidearea: 'print-menu' }, slidemenu: {}, \
-                           visible: foremen().length > 0"]
+  div.inline-block[data-bind="slider: { pressed: 'print_btn', slidearea: 'print-menu' }, \
+                              slidemenu: {}, \
+                              visible: foremen().length > 0"]
     div#print_btn.button
       div.data.print
       div.data.arrow_down

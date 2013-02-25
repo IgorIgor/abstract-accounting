@@ -11,24 +11,23 @@ class AssetsController < ApplicationController
   def index
     @assets = Asset
     if params[:term]
-      @assets = Asset.where{lower(tag).like lower("%#{my{params[:term]}}%")}.
-          order("tag").limit(5)
+      @assets = Asset.search(tag: params[:term])
+      if params[:mu]
+        @assets = @assets.with_lower_mu_eq_to(params[:mu])
+      end
+      @assets = @assets.order("tag").limit(5)
+      render :autocomplete
     else
       filter = {}
-      filter = {search: params[:like]} if params[:like]
+      filter[:search] = params[:like] if params[:like]
       @assets = Asset.filtrate(filter)
       @count = @assets.count
-      filter = {}
-      page = params[:page].nil? ? 1 : params[:page].to_i
-      per_page = params[:per_page].nil? ?
-          Settings.root.per_page.to_i : params[:per_page].to_i
-      filter[:paginate] = { page: page, per_page: per_page }
-      @assets = @assets.filtrate(filter)
+      @assets = @assets.filtrate(generate_paginate)
     end
   end
 
   def preview
-    render 'assets/preview', layout: false
+    render 'preview', layout: false
   end
 
   def new

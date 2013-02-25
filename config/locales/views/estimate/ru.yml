@@ -1,0 +1,106 @@
+ru:
+  views:
+    estimates:
+      bo_m:
+        page:
+          title:
+            new: Новая сметная норма
+            show: Просмотр сметной нормы
+            edit: Редактирование сметной нормы
+        uid: Шифр
+      price:
+        page:
+          title:
+            new: Новая сметная расценка
+            show: Просмотр сметной расценки
+            edit: Редактирование сметной расценки
+        direct_cost: Прямые затраты
+        workers_cost: Оплата труда рабочих
+        drivers_cost: Оплата труда машинистов
+        machinery_cost: Эксплуатация машин
+        materials_cost: Затраты на материалы
+      elements:
+        builders: "Затраты труда рабочих-строителей"
+        rank: "Средний разряд работы"
+        machinist: "Затраты труда машинистов"
+        machinery: "Машины и механизмы"
+        resources: "Материалы"
+        mu:
+          people: "чел.-ч"
+          machine: "маш.-ч"
+      catalogs:
+        root: Главный каталог
+        create: Создать каталог
+        tag: Название
+        catalog_document: Документ
+        parent_catalog: Родительский каталог
+        view_document: Просмотреть документ
+        view_boms: Просмотреть бомы
+        view_prices: Просмотреть расценки
+        inserted_document: Вложенный документ
+        document:
+          title: Загловок
+          data: Содержание
+        page:
+          title:
+            show: Просмотр каталога
+            edit: Редактирование каталога
+            new: Новый каталог
+        activity: Действия
+        select_catalog: Выбрать каталог
+        select: Выбрать
+      entity: "Лицо"
+      ident_name: "Название идентификатора"
+      ident_value: "Идентификатор"
+      catalog: "Каталог"
+      name: "Название"
+      date: "Дата создания"
+      boms: "Ресурсы"
+      uid: "№ по каталогу"
+      bom: "Сметная норма"
+      count: "Количество"
+      sum: "Сумма"
+      resource: "Материал"
+      rate: "Количество"
+      cost: "Цена"
+      code: "Шифр ресурса"
+      filter:
+        and: и
+        or: или
+        add_inclusion: Добавить вложенность
+      projects:
+        page:
+          title:
+            show: Просмотр проекта
+            edit: Редактирование проекта
+            new: Новый проект
+        place: Место
+        customer: Заказчик
+        locals:
+          name: Локальные сметы
+          add: Добавить локальную смету
+        boms_catalog: Каталог сметных норм
+        prices_catalog: Каталог расценок
+        find_by_catalogs: Поиск по каталогам
+      locals:
+        tag: Название
+        date: Дата создания
+        catalog: Каталог
+        amount: Объём
+        approved: Применено
+        canceled: Отменено
+        canceled_error: Вы не можете отменить применённую смету
+        page:
+          title:
+            show: Просмотр локальной сметы
+            edit: Редактирование локальной сметы
+            new: Новая локальная смета
+        prices:
+          total: Прямые затраты
+          including: в том числе
+          one: Стоимость единици
+          all: Общая стоимость
+          basic: основная з.п.
+          machine_operation: эксп. маш.
+          machine_salary: з.п. мех.
+          materials: стоим. матер.

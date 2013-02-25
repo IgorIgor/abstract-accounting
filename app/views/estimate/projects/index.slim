@@ -1,0 +1,22 @@
+table
+  thead
+    tr
+      th
+      th#customer_tag data-bind="click: sortBy"
+        = t('views.estimates.projects.customer')
+        span
+      th#place_tag data-bind="click: sortBy"
+        = t('views.estimates.projects.place')
+        span
+  tbody data-bind="foreach: documents"
+    tr
+      td.with-comment data-bind="text: comments_count, click: $parent.loadSubitems"
+      td data-bind="text: customer.tag, click: $parent.show"
+      td data-bind="text: place.tag, click: $parent.show"
+    tr data-bind="with: subitems"
+      td rowspan="2"
+      td colspan="2"
+        = render :partial => "home/items_paginate"
+    tr data-bind="with: subitems"
+      td.padright.padbot colspan="2"
+        = render :partial => "home/comments", :locals => { :items => 'documents' }

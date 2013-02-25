@@ -181,7 +181,7 @@ describe Allocation do
     db.save!
     db.state.should eq(Allocation::INWORK)
 
-    comment = Comment.last
+    comment = Comment.first
     comment.user_id.should eq(user.id)
     comment.item_id.should eq(db.id)
     comment.item_type.should eq(db.class.name)
@@ -193,7 +193,7 @@ describe Allocation do
                          "foreman_type" => Entity.name,
                          "foreman_place_id" => create(:place).id)
 
-    comment = Comment.last
+    comment = Comment.first
     comment.user_id.should eq(user.id)
     comment.item_id.should eq(db.id)
     comment.item_type.should eq(db.class.name)
@@ -203,7 +203,7 @@ describe Allocation do
     db.cancel.should be_true
     db.state.should eq(Allocation::CANCELED)
 
-    comment = Comment.last
+    comment = Comment.first
     comment.user_id.should eq(user.id)
     comment.item_id.should eq(db.id)
     comment.item_type.should eq(db.class.name)
@@ -216,7 +216,7 @@ describe Allocation do
     db.apply.should be_true
     db.state.should eq(Allocation::APPLIED)
 
-    comment = Comment.last
+    comment = Comment.first
     comment.user_id.should eq(user.id)
     comment.item_id.should eq(db.id)
     comment.item_type.should eq(db.class.name)
@@ -226,7 +226,7 @@ describe Allocation do
     db.reverse.should be_true
     db.state.should eq(Allocation::REVERSED)
 
-    comment = Comment.last
+    comment = Comment.first
     comment.user_id.should eq(user.id)
     comment.item_id.should eq(db.id)
     comment.item_type.should eq(db.class.name)

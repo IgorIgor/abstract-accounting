@@ -1,0 +1,98 @@
+form data-bind="validate: { success: save }"
+  .actions
+    = render :partial => "home/buttons", :locals => { :editable => true }
+
+  span#page-title
+    /! ko if: readonly
+    = t('views.estimates.price.page.title.show')
+    /! /ko
+    /! ko ifnot: readonly
+    /! ko if: id_presence
+    = t('views.estimates.price.page.title.edit')
+    /! /ko
+    /! ko ifnot: id_presence
+    = t('views.estimates.price.page.title.new')
+    /! /ko
+    /! /ko
+
+  = render 'home/errors'
+
+  fieldset
+    div
+      label for="date"
+        = t 'views.estimates.date'
+        | :
+      input#date[type="text" name="#{t('views.estimates.date')}" rule="required"
+                 data-bind="monthpicker:{ value: object.price.date }, disable: readonly"]
+    div
+      label for="uid"
+        = t('views.estimates.uid')
+        | :
+      input#uid[type="text" name="#{t('views.estimates.uid')}" rule="required"
+                data-bind="autocomplete: { source: 'estimate/bo_ms.json', \
+                                           value: 'uid', \
+                                           onlySelect: true, \
+                                           bind: { \
+                                             id: object.price.bo_m_id, \
+                                             tag: object.price.tag, \
+                                             mu: object.price.mu, \
+                                             catalog_id: object.price.catalog_id, \
+                                             catalog_tag: object.catalog.tag \
+                                           } \
+                                         }, \
+                           value: object.price.uid, \
+                           disable: readonly"]
+    div
+      label for="asset_tag"
+        = t('views.resources.tag')
+        | :
+      input#asset_tag[type="text" name="#{t('views.resources.tag')}" rule="required"
+                      data-bind="value: object.price.tag, disable: true"]
+    div
+      label for="asset_mu"
+        = t('views.resources.mu')
+        | :
+      input#asset_mu[type="text" name="#{t('views.resources.mu')}"
+                     data-bind="value: object.price.mu, disable: true"]
+    div
+      label for="price_catalog"
+        = t('views.estimates.catalog')
+        | :
+      input#price_catalog[type="text" rule="required" name="#{t('views.estimates.catalog')}"
+                          data-bind="dialog: { autoOpen: false, \
+                                                modal: true, \
+                                                minWidth: 480, \
+                                                minHeight: 300, \
+                                                bind: { id: object.price.catalog_id, \
+                                                        tag: object.catalog.tag} \
+                                              }, \
+                                     dialogId: 'catalogs_selector', \
+                                     value: object.catalog.tag, \
+                                     disable: readonly"]
+    table.elements-align-center
+      thead
+        tr
+          th.col-width = t('views.estimates.price.direct_cost')
+          th.col-width = t('views.estimates.price.workers_cost')
+          th.col-width = t('views.estimates.price.machinery_cost')
+          th.col-width = t('views.estimates.price.drivers_cost')
+          th.col-width = t('views.estimates.price.materials_cost')
+      tbody
+        tr data-bind="with: object.price"
+          td
+            input[type="text" rule="required number"
+                  name="#{t('views.estimates.price.direct_cost')}"
+                  data-bind="value: direct_cost, disable: $parent.readonly"]
+          td
+            input type="text" data-bind="value: workers_cost, disable: $parent.readonly"
+          td
+            input type="text" data-bind="value: machinery_cost, disable: $parent.readonly"
+          td
+            input type="text" data-bind="value: drivers_cost, disable: $parent.readonly"
+          td
+            input type="text" data-bind="value: materials_cost, disable: $parent.readonly"
+
+= render :partial => "home/select_dialog",
+         :locals => { :dialog_id => 'catalogs_selector',
+                      :dialog_model => 'dialog_catalogs',
+                      :data_path => 'estimate/catalogs/catalogs' }

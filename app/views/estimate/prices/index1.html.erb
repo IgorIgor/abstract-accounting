@@ -1,0 +1,30 @@
+<table>
+  <thead>
+    <tr>
+      <th id="date" data-bind="click: sortBy">
+        <%= t('views.estimates.date') %><span></span>
+      </th>
+      <th id="uid" data-bind="click: sortBy">
+        <%= t('views.estimates.bo_m.uid') %><span></span>
+      </th>
+      <th id="tag" data-bind="click: sortBy">
+        <%= t('views.resources.tag') %><span></span>
+      </th>
+      <th id="mu" data-bind="click: sortBy">
+        <%= t('views.resources.mu') %><span></span>
+      </th>
+      <th id="catalog_tag" data-bind="click: sortBy">
+        <%= t('views.estimates.catalog') %><span></span>
+      </th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: documents">
+    <tr data-bind="click: $parent.show">
+      <td data-bind="text: date"></td>
+      <td data-bind="text: uid"></td>
+      <td data-bind="text: resource.tag"></td>
+      <td data-bind="text: resource.mu"></td>
+      <td data-bind="text: catalog.tag"></td>
+    </tr>
+  </tbody>
+</table>

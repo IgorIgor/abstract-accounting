@@ -9,8 +9,10 @@
 
 class CommentsController < ApplicationController
   def index
-    @comments = Comment.find_all_by_item_id_and_item_type(params[:item_id],
-                                                          params[:item_type])
+    scope = Comment.with_item(params[:item_id],params[:item_type])
+    @count = scope.count
+    scope = scope.filtrate(generate_paginate) if params[:paginate]
+    @comments = scope.includes(user: [:entity])
   end
 
   def create

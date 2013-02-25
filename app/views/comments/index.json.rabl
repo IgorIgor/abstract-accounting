@@ -7,7 +7,11 @@
 #
 # Please see ./COPYING for details
 
-collection @comments
-attributes :message
-node(:at) { |comment| comment.created_at.strftime('%Y-%m-%d %H:%M:%S') }
-node(:user) { |comment| comment.user.entity.tag }
+object false
+child(@comments => :objects) do
+  attributes :message
+  node(:at) { |comment| comment.created_at.strftime('%Y-%m-%d %H:%M:%S') }
+  node(:user) { |comment| comment.user.entity.tag }
+end
+node(:per_page) { Settings.root.per_page }
+node(:count) { @count }

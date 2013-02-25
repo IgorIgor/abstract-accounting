@@ -1,5 +1,7 @@
 $ ->
   class self.PlacesViewModel extends FolderViewModel
+    @__data_url = '/places/data.json'
+
     constructor: (data) ->
       @url = '/places/data.json'
 
@@ -21,3 +23,11 @@ $ ->
       params =
         place_ids: ko.mapping.toJS(@selected())
       location.hash = "#balance_sheet?#{$.param(params)}"
+
+  class self.DialogPlacesViewModel extends PlacesViewModel
+    constructor: (data) ->
+      @filter =
+        tag: ko.observable('')
+      super(data)
+
+    @include DialogsHelper

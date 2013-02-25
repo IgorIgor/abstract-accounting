@@ -1,0 +1,17 @@
+.breadcrumbs
+  ul.path data-bind="foreach: parents"
+    li.arrow_right data-bind="text: tag, click: $parent.selectParent"
+table
+  thead
+    tr
+      th#tag data-bind="click: sortBy"
+        = t('views.estimates.catalogs.tag')
+        span
+      th#select_catalog
+        = t('views.estimates.catalogs.select')
+  tbody data-bind="foreach: documents"
+    tr
+      td data-bind="text: tag, click: $parent.selectItem"
+      td
+        span.cell-link data-bind="click: $parent.select"
+          = t 'views.estimates.catalogs.select_catalog'

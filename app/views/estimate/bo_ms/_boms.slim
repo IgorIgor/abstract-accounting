@@ -1,0 +1,11 @@
+table
+  thead
+    tr
+      th#uid = t('views.estimates.uid')
+      th#tag = t('views.resources.tag')
+      th#mu = t('views.resources.mu')
+  tbody data-bind="foreach: documents"
+    tr
+      td data-bind="text: uid, click: $parent.select"
+      td data-bind="text: resource.tag, click: $parent.select"
+      td data-bind="text: resource.mu, click: $parent.select"

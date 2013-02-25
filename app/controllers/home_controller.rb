@@ -30,8 +30,7 @@ class HomeController < ApplicationController
         @count = 0
         if current_user.root? || (!current_user.root? && !current_user.managed_documents.empty?)
           scoped_versions = Document.lasts.by_user(current_user).filter(params[:like])
-          @documents = scoped_versions.paginate(page: params[:page],
-                                                per_page: params[:per_page]).all
+          @documents = scoped_versions.filtrate(generate_paginate).all
           @count = scoped_versions.count
         end
         render "home/data"
@@ -47,7 +46,7 @@ class HomeController < ApplicationController
         @count = 0
         unless user_documents.empty?
           scoped_versions = Document.lasts.by_user(current_user).filter(params[:like])
-          @documents = scoped_versions.paginate(page: params[:page], per_page: params[:per_page]).
+          @documents = scoped_versions.filtrate(generate_paginate).
               all()#include: [item: [:versions, :storekeeper]])
           @count = scoped_versions.count
         end

@@ -1,0 +1,264 @@
+<form data-bind="validate: { success: save }">
+  <div class='actions'>
+    <%= render :partial => "home/buttons", :locals => { :editable => true } %>
+    <input type='button' value="<%= t('views.statable.buttons.apply') %>"
+           data-bind='click: apply, visible: visibleButtons(), disable: disableButton()'/>
+    <input type='button' value="<%= t('views.statable.buttons.cancel') %>"
+           data-bind='click: cancel, visible: visibleButtons(), disable: disableButton()'/>
+  </div>
+
+  <span id="page-title">
+    <!-- ko if: readonly -->
+      <%= t('views.estimates.locals.page.title.show') %>
+    <!-- /ko -->
+    <!-- ko ifnot: readonly -->
+      <!-- ko if: id_presence -->
+        <%= t('views.estimates.locals.page.title.edit') %>
+      <!-- /ko -->
+      <!-- ko ifnot: id_presence -->
+        <%= t('views.estimates.locals.page.title.new') %>
+      <!-- /ko -->
+    <!-- /ko -->
+  </span>
+
+  <%= render 'home/errors' %>
+
+  <fieldset>
+    <div>
+      <div data-bind="visible: object.local.approved">
+        <span class="form-cell-label">
+          <label for="local_approved"><%= t('views.estimates.locals.approved') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="local_approved"
+                 name="<%= t('views.estimates.locals.approved') %>"
+                 data-bind="value: object.local.approved, disable: true">
+        </span>
+      </div>
+      <div data-bind="visible: object.local.canceled">
+        <span class="form-cell-label">
+          <label for="local_approved"><%= t('views.estimates.locals.canceled') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="local_canceled"
+                 name="<%= t('views.estimates.locals.canceled') %>"
+                 data-bind="value: object.local.canceled, disable: true">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="local_tag"><%= t('views.estimates.locals.tag') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="local_tag"
+                 name="<%= t('views.estimates.locals.tag') %>" rule="required"
+                 data-bind="value: object.local.tag, disable: readonly">
+        </span>
+      </div>
+      <div>
+        <span class="form-cell-label">
+          <label for="local_date"><%= t('views.estimates.locals.date') %>:</label>
+        </span>
+        <span>
+          <input type="text" id="local_date"
+                 name="<%= t('views.estimates.locals.date') %>" rule="required"
+                 data-bind="datepicker:{ value: object.local.date, maxDate: '+0'},
+                            disable: readonly">
+        </span>
+      </div>
+
+    </div>
+  </fieldset>
+  <fieldset class="with-legend" data-bind="with: object.items()">
+    <legend><%=t 'views.waybills.waybill_entry' %></legend>
+    <input type="button" value="<%= t('views.waybills.add') %>" id="local_boms"
+           data-bind="dialog: { autoOpen: false,
+                                modal: true,
+                                minWidth: 480,
+                                minHeight: 300
+                              },
+                      dialogId: 'boms_selector',
+                      disable: $parent.readonly"/>
+    <div class="overflow">
+      <table class="elements-align-center withoutmargin">
+        <thead>
+          <tr>
+            <th data-bind="css: { 'comments-table-column': $parent.readonly }" rowspan="3"></th>
+            <th rowspan="3"></th>
+            <th class="col-width" rowspan="3"><%= t('views.estimates.code') %></th>
+            <th class="tag-width" rowspan="3"><%= t('views.resources.tag') %></th>
+            <th class="col-width" rowspan="3"><%= t('views.resources.mu') %></th>
+            <th class="col-width" rowspan="3"><%= t('views.estimates.locals.amount') %></th>
+            <th colspan="10"><%= t 'views.estimates.locals.prices.one' %></th>
+            <th colspan="10"><%= t 'views.estimates.locals.prices.all' %></th>
+          </tr>
+          <tr class="with-pad">
+            <th colspan="6" rowspan="2"><%= t 'views.estimates.locals.prices.total' %></th>
+            <th colspan="4"><%= t 'views.estimates.locals.prices.including' %></th>
+            <th colspan="6" rowspan="2"><%= t 'views.estimates.locals.prices.total' %></th>
+            <th colspan="4"><%= t 'views.estimates.locals.prices.including' %></th>
+          </tr>
+          <tr class="with-pad">
+            <th><%= t 'views.estimates.locals.prices.basic' %></th>
+            <th><%= t 'views.estimates.locals.prices.machine_operation' %></th>
+            <th><%= t 'views.estimates.locals.prices.machine_salary' %></th>
+            <th><%= t 'views.estimates.locals.prices.materials' %></th>
+            <th><%= t 'views.estimates.locals.prices.basic' %></th>
+            <th><%= t 'views.estimates.locals.prices.machine_operation' %></th>
+            <th><%= t 'views.estimates.locals.prices.machine_salary' %></th>
+            <th><%= t 'views.estimates.locals.prices.materials' %></th>
+          </tr>
+        </thead>
+
+        <tbody data-bind="foreach: documents">
+          <tr data-bind="attr: { idx: $parent.documents().indexOf($data),
+                                  id: 'item_' + $parent.documents().indexOf($data) }">
+            <!-- ko if: $parent.readonly -->
+            <td class='with-comment' data-bind="text: comments_count, click: $parent.loadSubitems"></td>
+            <!-- /ko -->
+            <!-- ko ifnot: $parent.readonly -->
+            <td class="table-actions">
+              <label data-bind="click: $parent.removeItem"></label>
+            </td>
+            <!-- /ko -->
+            <td data-bind="click: $parent.showResources" class="tree-actions">
+                <span class="ui-icon ui-icon-circle-plus ui-corner-all ui-state-hover"></span>
+            </td>
+            <td data-bind="text: price.bom.uid"></td>
+            <td data-bind="text: price.bom.resource.tag"></td>
+            <td data-bind="text: price.bom.resource.mu"></td>
+            <td>
+              <input type="text" rule="required_num"
+                     data-bind="value: amount, disable: $parent.readonly,
+                                valueUpdate: 'afterkeydown',
+                                attr: { id: 'price_' + $parent.documents().indexOf($data),
+                                        name: '<%=t 'views.waybills.item' %>#' +
+                                        $parent.documents().indexOf($data) +
+                                        ' <%=t 'views.waybills.price' %>'}" />
+            </td>
+            <td data-bind="text: price.direct_cost" colspan="6"></td>
+            <td data-bind="text: price.workers_cost"></td>
+            <td data-bind="text: price.drivers_cost"></td>
+            <td data-bind="text: price.machinery_cost"></td>
+            <td data-bind="text: price.materials_cost"></td>
+            <td data-bind="text: total_direct_cost" colspan="6"></td>
+            <td data-bind="text: total_workers_cost"></td>
+            <td data-bind="text: total_drivers_cost"></td>
+            <td data-bind="text: total_machinery_cost"></td>
+            <td data-bind="text: total_materials_cost"></td>
+          </tr>
+          <!-- ko if: $parent.readonly -->
+          <tr data-bind="with: subitems">
+            <td rowspan="2"></td>
+            <td colspan="15">
+              <%= render :partial => "home/items_paginate" %>
+            </td>
+          </tr>
+          <tr data-bind="with: subitems">
+            <td colspan="15" class="padright padbot">
+              <%= render :partial => "home/comments", :locals => { :items => 'documents' } %>
+            </td>
+          </tr>
+          <!-- /ko -->
+          <tr data-bind="visible: $parent.resourceVisibility($data.price.bom.id)">
+            <td></td>
+            <td colspan="4" class="td-inner-table">
+              <table class="elements-align-center inner-table withoutmargin">
+                <thead>
+                <tr>
+                  <th class="col-width"><%= t('views.estimates.code') %></th>
+                  <th><%= t('views.resources.tag') %></th>
+                  <th class="col-width"><%= t('views.resources.mu') %></th>
+                  <th class="col-width"><%= t('views.estimates.rate') %></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="font-bold" data-bind="visible: price.bom.workers_amount">
+                  <td>1</td>
+                  <td><%= t('views.estimates.elements.builders') %></td>
+                  <td><%= t('views.estimates.elements.mu.people') %></td>
+                  <td><input type="text"
+                             data-bind="value: price.bom.workers_amount, disable: true">
+                  </td>
+                </tr>
+                <tr data-bind="visible: price.bom.avg_work_level">
+                  <td>1.1</td>
+                  <td><%= t('views.estimates.elements.rank') %></td>
+                  <td></td>
+                  <td><input type="text" id="rank"
+                             data-bind="value: price.bom.avg_work_level, disable: true">
+                  </td>
+                </tr>
+                <tr class="font-bold" data-bind="visible: price.bom.drivers_amount">
+                  <td>2</td>
+                  <td><%= t('views.estimates.elements.machinist') %></td>
+                  <td><%= t('views.estimates.elements.mu.people') %></td>
+                  <td><input type="text"
+                             data-bind="value: price.bom.drivers_amount, disable: true">
+                  </td>
+                </tr>
+                <tr class="font-bold" data-bind="visible: price.bom.machinery.length > 0">
+                  <td>3</td>
+                  <td><%= t('views.estimates.elements.machinery') %></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <!-- ko foreach: price.bom.machinery -->
+                <tr>
+                  <td>
+                    <input type="text" data-bind="value: uid, disable: true">
+                  </td>
+                  <td>
+                    <input type="text"
+                           data-bind="value: tag, disable: true">
+                  </td>
+                  <td><%= t('views.estimates.elements.mu.machine') %></td>
+                  <td>
+                    <input type="text" data-bind="value: amount, disable: true">
+                  </td>
+                </tr>
+                <!-- /ko -->
+                <tr class="font-bold" data-bind="visible: price.bom.materials.length > 0">
+                  <td>4</td>
+                  <td><%= t('views.estimates.elements.resources') %></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <!-- ko foreach: price.bom.materials -->
+                <tr>
+                  <td><input type="text"
+                             data-bind="value: uid, disable: true">
+                  </td>
+                  <td><input type="text"
+                             data-bind="value: tag, disable: true">
+                  </td>
+                  <td><input type="text"
+                             data-bind="value: mu, disable: true">
+                  </td>
+                  <td><input type="text"
+                             data-bind="value: amount, disable: true">
+                  </td>
+                </tr>
+                <!-- /ko -->
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <input type="button" value="<%= t('views.waybills.add') %>"
+           data-bind="dialog: { autoOpen: false,
+                                modal: true,
+                                minWidth: 480,
+                                minHeight: 300
+                              },
+                      dialogId: 'boms_selector',
+                      disable: $parent.readonly"/>
+    <%= render partial: "home/select_dialog",
+               locals: { dialog_id: 'boms_selector',
+                         dialog_model: 'dialog_boms',
+                         data_path: 'estimate/bo_ms/boms',
+                         custom_search: 'estimate/bo_ms/dialog_search' } %>
+  </fieldset>
+</form>

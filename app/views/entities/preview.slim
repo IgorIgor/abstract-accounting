@@ -9,8 +9,8 @@ form data-bind="validate: { success: save }"
     /! ko ifnot: readonly
     /! ko if: id_presence
     = t('views.entities.page.title.edit')
-    /!-- /ko -->
-    /!-- ko ifnot: id_presence -->
+    /! /ko
+    /! ko ifnot: id_presence
     = t('views.entities.page.title.new')
     /! /ko
     /! /ko
